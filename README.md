@@ -1,8 +1,20 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).We are using bulma as the CSS framework
 
+## Installation
+In client/ run:
+```bash
+npm install
+```
+
 ## Getting Started
 
-First, run the development server:
+Start the Node server in server/:
+
+```bash
+node app.js
+```
+
+Then run the development server in client/:
 
 ```bash
 npm run dev
