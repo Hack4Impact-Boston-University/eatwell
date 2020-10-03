@@ -2,13 +2,13 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, start the Noe server:
+First, start the Node server in server/:
 
 ```bash
-node server/app.js
+node app.js
 ```
 
-Then run the development server:
+Then run the development server in client/:
 
 ```bash
 npm run dev
