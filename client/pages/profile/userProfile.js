@@ -3,7 +3,7 @@ import * as ui from "@material-ui/core";
 
 const useStyles = ui.makeStyles((theme) => ({
 	heading: {
-		color: "blue",
+		color: "red",
 	},
 	avatar: {
 		height: theme.spacing(13),
