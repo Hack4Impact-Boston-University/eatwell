@@ -22,7 +22,11 @@ export default function userAuth() {
 			</Head>
 
 			<h1 className={classes.heading}>User Profile Page</h1>
-			<ui.Avat
+			<ui.Avatar
+				src="https://pbs.twimg.com/profile_images/988263662761775104/Bu1EDlWo.jpg"
+				alt="profile pic"
+				className={classes.avatar}
+			/>
 		</div>
 	);
 }
