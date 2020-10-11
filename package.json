@@ -1,0 +1,28 @@
+{
+  "name": "nextjs-vercel-firebase",
+  "version": "1.0.0",
+  "private": true,
+  "author": {
+    "name": "Lee Robinson",
+    "email": "me@leerob.io",
+    "url": "https://leerob.io"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leerob/nextjs-vercel-firebase.git"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "firebase": "^7.23.0",
+    "firebase-admin": "^8.13.0",
+    "next": "9.4.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "swr": "^0.2.0"
+  }
+}
