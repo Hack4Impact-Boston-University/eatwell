@@ -1,3 +1,4 @@
 node_modules
 .next
-key.json
+adminkey.json
+authkey.json
