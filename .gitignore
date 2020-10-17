@@ -1,4 +1,4 @@
 node_modules
 .next
 admin_key.json
-auth.json
+auth_key.json
