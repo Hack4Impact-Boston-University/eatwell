@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import * as ui from '@material-ui/core';
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -19,32 +20,10 @@ export default function Home() {
 
         <ui.Grid container direction="row" justify="center" alignItems="center">
           
-          <ui.Button variant="outlined" href={"auth/userAuth"}>
-            User Auth
-          </ui.Button>
-      
-          <ui.Button variant="outlined" href={"home"} m={10}>
-            Home
-          </ui.Button>
-
-          <ui.Button variant="outlined" href={"profile/userProfile"}>
-            User Profile
-          </ui.Button>
-        
-          <ui.Button variant="outlined" href={"recipe/recipeList"}>
-            Recipe List
-          </ui.Button>
-
-          <ui.Button variant="outlined" href={"recipe/viewRecipe"}>
-            View Recipe
-          </ui.Button>
-
-          <ui.Button variant="outlined" href={"mealkit/mealkitList"}>
-            Meal Kit List
-          </ui.Button>
-
-          <ui.Button variant="outlined" href={"mealkit/orderHistory"}>
-            Order History
+          <ui.Button variant="outlined">
+            <Link href={`recipes/chicken_fried_rice`}>
+              <a>Recipe</a>
+            </Link>
           </ui.Button>
 
         </ui.Grid>
