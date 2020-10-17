@@ -63,8 +63,10 @@ const Index = () => {
               </Link>
             </ui.Button>
 
-            <ui.Button variant="outlined" onClick={() => logout()}>
-                <a>Log Out</a>
+            <ui.Button variant="outlined">
+              <Link href={`profile`}>
+                <a>Profile</a>
+              </Link>
             </ui.Button>
           </ui.Grid>
 

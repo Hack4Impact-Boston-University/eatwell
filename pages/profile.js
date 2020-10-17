@@ -4,16 +4,16 @@ import { useUser } from '../utils/auth/useUser'
 const Profile = () => {
   const { user, logout } = useUser()
   if (!user) {
+    console.log("HERE")
     return (
-      <>
-        <p>Hi there!</p>
+      <div>
         <p>
-          You are not signed in.{' '}
+          You are not signed in.
           <Link href={'/auth'}>
             <a>Sign in</a>
           </Link>
         </p>
-      </>
+      </div>
     )
   }
 
