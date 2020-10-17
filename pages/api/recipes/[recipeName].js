@@ -1,4 +1,4 @@
-import firebase from '../../../lib/firebase';
+import firebase from '../../../utils/firebase';
 
 export default (req, res) => {
   firebase
