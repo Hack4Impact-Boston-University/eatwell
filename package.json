@@ -22,7 +22,9 @@
     "react-player": "^2.6.2",
     "reactfire": "^2.0.3",
     "reactfire-white-board": "0.0.18-beta4",
-    "swr": "^0.3.5"
+    "swr": "^0.3.5",
+    "js-cookie": "^2.2.1",
+    "react-firebaseui": "^4.1.0"
   },
   "devDependencies": {
     "file-loader": "^6.1.0"

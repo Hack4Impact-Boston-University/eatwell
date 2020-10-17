@@ -8,13 +8,7 @@ npm install
 
 ## Getting Started
 
-Start the Node server in server/:
-
-```bash
-node app.js
-```
-
-Then run the development server in client/:
+Run the development server in client/:
 
 ```bash
 npm run dev

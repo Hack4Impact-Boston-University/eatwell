@@ -2,6 +2,14 @@ import Head from 'next/head'
 import * as ui from '@material-ui/core';
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import useSWR from 'swr';
+
+const fetcher = async (...args) => {
+  const res = await fetch(...args);
+
+  return res.json();
+};
 
 function useWindowSize() {
   // Initialize state with undefined width/height so server and client renders match
@@ -33,12 +41,18 @@ function useWindowSize() {
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []); // Empty array ensures that effect is only run on mount
-  console.log(windowSize);
   return windowSize;
 }
 
-export default function userAuth() {
+export default function Recipe() {
+  const router = useRouter();
+  const { recipeName } = router.query;
+  const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
   const { width } = useWindowSize();
+
+  if (!data) {
+    return 'Loading...';
+  }
 
   return (
     <div>
@@ -47,17 +61,15 @@ export default function userAuth() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <ui.AppBar position="sticky" width="100%">
+        <ui.Toolbar>
+          <ui.Typography variant="h6">
+          View Recipe Page
+          </ui.Typography>
+        </ui.Toolbar>
+      </ui.AppBar>
 
-        <ui.AppBar position="sticky" width="100%">
-          <ui.Toolbar>
-            <ui.Typography variant="h6">
-            View Recipe Page
-            </ui.Typography>
-          </ui.Toolbar>
-        </ui.AppBar>
-
-        <iframe src="https://player.vimeo.com/video/76979871" width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
+      <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
     </div>
-  )
+  );
 }
