@@ -1,45 +1,80 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import * as ui from '@material-ui/core';
+import * as ui from '@material-ui/core'
 import Link from 'next/link'
+import { useUser } from '../utils/auth/useUser'
 
-export default function Home() {
+const Index = () => {
+  const { user, logout } = useUser()
+  if (!user) {
+    return (
+      <div className={styles.container}>
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+
+        <main className={styles.main}>
+          <img src="/assets/eatwell.png"/>
+
+          <h1 className={styles.title}>
+            Welcome to EatWell!
+          </h1>
+
+          <ui.Grid container direction="row" justify="center" alignItems="center">
+            <ui.Button variant="outlined">
+              <Link href={`recipes/chicken_fried_rice`}>
+                <a>Recipe</a>
+              </Link>
+            </ui.Button>
+
+            <ui.Button variant="outlined">
+              <Link href={`/auth`}>
+                <a>Sign in</a>
+              </Link>
+            </ui.Button>
+          </ui.Grid>
+        </main>
+      </div>
+    )
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div>
+      
+      <div className={styles.container}>
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
 
-      <main className={styles.main}>
-        <img src="/assets/eatwell.png"/>
+        <main className={styles.main}>
+          <img src="/assets/eatwell.png"/>
 
-        <h1 className={styles.title}>
-          Welcome to EatWell!
-        </h1>
+          <h1 className={styles.title}>
+            Welcome to EatWell!
+          </h1>
 
-        <ui.Grid container direction="row" justify="center" alignItems="center">
-          
-          <ui.Button variant="outlined">
-            <Link href={`recipes/chicken_fried_rice`}>
-              <a>Recipe</a>
-            </Link>
-          </ui.Button>
+          <ui.Grid container direction="row" justify="center" alignItems="center">
+            <ui.Button variant="outlined">
+              <Link href={`recipes/chicken_fried_rice`}>
+                <a>Recipe</a>
+              </Link>
+            </ui.Button>
 
-        </ui.Grid>
+            <ui.Button variant="outlined" onClick={() => logout()}>
+                <a>Log Out</a>
+            </ui.Button>
+          </ui.Grid>
 
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+          <div>
+            <p>You're signed in. Email: {user.email}</p>
+          </div>
+        </main>
+      </div>
     </div>
+    
   )
 }
+
+export default Index
