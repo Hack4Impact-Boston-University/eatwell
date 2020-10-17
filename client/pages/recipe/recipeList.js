@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import { getAllRecipes } from "../api/recipes/recipes.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,6 +63,8 @@ const useStyles = makeStyles((theme) => ({
 export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
+  const [recipes, setRecipes] = React.useState([]);
+  getAllRecipes().then(res => {console.log(res); setRecipes(res)})
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -314,19 +317,3 @@ export default function RecipeReviewCard() {
   );
 }
 
-
-// export default function userAuth() {
-//   return (
-//     <div>
-//       <Head>
-//         <title>Create Next App</title>
-//         <link rel="icon" href="/favicon.ico" />
-//       </Head>
-
-//         <h1>
-//           Recipe List Page
-//         </h1>
-
-//     </div>
-//   )
-// }
