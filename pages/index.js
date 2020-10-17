@@ -1,82 +1,63 @@
-import React from 'react'
+import React, {useState} from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import * as ui from '@material-ui/core'
 import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
+import FirebaseAuth from '../components/FirebaseAuth'
 
 const Index = () => {
   const { user, logout } = useUser()
-  if (!user) {
-    return (
-      <div className={styles.container}>
-        <Head>
-          <title>Create Next App</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+  const [login, setLogin] = useState(false);
 
-        <main className={styles.main}>
-          <img src="/assets/eatwell.png"/>
-
-          <h1 className={styles.title}>
-            Welcome to EatWell!
-          </h1>
-
-          <ui.Grid container direction="row" justify="center" alignItems="center">
-            <ui.Button variant="outlined">
-              <Link href={`recipes/chicken_fried_rice`}>
-                <a>Recipe</a>
-              </Link>
-            </ui.Button>
-
-            <ui.Button variant="outlined">
-              <Link href={`/auth`}>
-                <a>Sign in</a>
-              </Link>
-            </ui.Button>
-          </ui.Grid>
-        </main>
-      </div>
-    )
+  function signInClick(event) {
+    setLogin(true);
   }
-
-  return (
-    <div>
-      
-      <div className={styles.container}>
-        <Head>
-          <title>Create Next App</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
-        <main className={styles.main}>
-          <img src="/assets/eatwell.png"/>
-
-          <h1 className={styles.title}>
-            Welcome to EatWell!
-          </h1>
-
-          <ui.Grid container direction="row" justify="center" alignItems="center">
-            <ui.Button variant="outlined">
-              <Link href={`recipes/chicken_fried_rice`}>
-                <a>Recipe</a>
-              </Link>
-            </ui.Button>
-
+  function Login() {
+    if(login) {
+      return (
+        <div>
+          <FirebaseAuth/>
+        </div>
+      );
+    }
+    return (
+      <ui.Grid container direction="row" justify="center" alignItems="center">
+          <ui.Button variant="outlined">
+            <Link href={`recipes/chicken_fried_rice`}>
+              <a>Recipe</a>
+            </Link>
+          </ui.Button>
+          {user ? 
             <ui.Button variant="outlined">
               <Link href={`profile`}>
                 <a>Profile</a>
               </Link>
             </ui.Button>
-          </ui.Grid>
+          :<ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
+            Login
+          </ui.Button>}
+        </ui.Grid>
+    );
+  }
+  return (
+    <div className={styles.container}>
+      <Head>
+        <title>Create Next App</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-          <div>
-            <p>You're signed in. Email: {user.email}</p>
-          </div>
-        </main>
-      </div>
+      <main className={styles.main}>
+        <img src="/assets/eatwell.png"/>
+
+        <h1 className={styles.title}>
+          Welcome to EatWell!
+        </h1>
+
+        <Login/>
+        
+      </main>
     </div>
-    
   )
 }
 
