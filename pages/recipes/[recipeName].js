@@ -46,8 +46,8 @@ function useWindowSize() {
 
 export default function Recipe() {
   const router = useRouter();
-  const { name } = router.query;
-  const { data } = useSWR(`/api/recipes/${name}`, fetcher);
+  const { recipeName } = router.query;
+  const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
   const { width } = useWindowSize();
 
   if (!data) {
