@@ -70,6 +70,7 @@ export default function Recipe() {
       </ui.AppBar>
 
       <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+      <iframe src={data.pdfUrl} width="100%" height={width} frameBorder="0" align="center" position="sticky"></iframe>
     </div>
   );
 }
