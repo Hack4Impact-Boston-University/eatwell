@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
+import * as ui from '@material-ui/core'
 
 const Profile = () => {
   const { user, logout } = useUser()
@@ -21,17 +22,14 @@ const Profile = () => {
     <div>
       <div>
         <p>You're signed in. Email: {user.email}</p>
-        <p
-          style={{
-            display: 'inline-block',
-            color: 'blue',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
-          onClick={() => logout()}
-        >
-          Log out
-        </p>
+        <ui.Button variant="outlined">
+          <Link href='recipes/upload'>
+              Upload
+          </Link>
+        </ui.Button>
+        <ui.Button variant="outlined">
+          <a onClick={() => logout()}>Log Out</a>
+        </ui.Button>
       </div>
     </div>
   )
