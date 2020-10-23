@@ -29,7 +29,7 @@ const Index = () => {
             </Link>
           </ui.Button>
           <ui.Button variant="outlined">
-            <Link href={`recipeList`}>
+            <Link href={`recipes/recipeList`}>
               <a>Recipe List</a>
             </Link>
           </ui.Button>
