@@ -28,6 +28,11 @@ const Index = () => {
               <a>Recipe</a>
             </Link>
           </ui.Button>
+          <ui.Button variant="outlined">
+            <Link href={`recipeList`}>
+              <a>Recipe List</a>
+            </Link>
+          </ui.Button>
           {user ? 
             <ui.Button variant="outlined">
               <Link href={`profile`}>
