@@ -19,7 +19,13 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-// import { getAllRecipes } from "../api/recipes/recipes.js";
+import useSWR from 'swr';
+
+const fetcher = async (...args) => {
+  const res = await fetch(...args);
+
+  return res.json();
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -63,16 +69,120 @@ const useStyles = makeStyles((theme) => ({
 export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
-  const [recipes, setRecipes] = React.useState([]);
-  // getAllRecipes().then(res => {console.log(res); setRecipes(res)})
+  const { data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+  console.log(data);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  return (
+  if (!data) {
+    return "Loading...";
+  }
 
+  return (
     <Grid container spacing={10} className={classes.gridContainerMain} >
+      {data.map((obj, idx) => {
+        if (!obj.name) return;
+        return (
+        <Grid item xs={12} >
+          <Card className={classes.card}>
+
+            <CardContent>
+              <Grid container spacing={5} >
+                <Grid item xs={1} >
+                  <IconButton aria-label="add to favorites">
+                    <FavoriteIcon />
+                  </IconButton>
+                </Grid>
+
+                <Grid item xs={7} >
+                  <Typography style={{ fontSize: 35, fontWeight: 300 }}  >
+                    {obj.name}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={2} spacing={0} style={{ paddingTop: 35 }}>
+                  <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
+                    Time: {obj.time}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={2} style={{ paddingTop: 35 }}>
+                  <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
+                    Rating: {obj.rating}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} >
+                  <ui.Divider light />
+                </Grid>
+
+                <Grid item xs={6} >
+                  <Grid container spacing={5}  >
+                    <Grid item xs={12} >
+                      <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
+                        {obj.description}
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={6} >
+                      <Grid container spacing={2}  >
+
+                        <Grid item xs={12}>
+                          <Button variant="contained" color="secondary">
+                            Make this Recipe
+                          </Button>
+                        </Grid>
+
+                        <Grid item xs={12} >
+                          <Button variant="contained" color="secondary">
+                            See More
+                          </Button>
+                        </Grid>
+
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={6} >
+                      <Typography style={{ fontSize: 18, fontWeight: 300 }}  >
+                        Skills:
+                      </Typography>
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+
+                <Grid item xs={6} >
+                  <ui.Box>
+                    <img className={classes.media} src={obj.imageUrl} />
+                  </ui.Box>
+                </Grid>
+              </Grid>
+
+            </CardContent>
+
+            <CardActions disableSpacing>
+
+              <IconButton
+                className={clsx(classes.expand, {
+                  [classes.expandOpen]: expanded,
+                })}
+                onClick={handleExpandClick}
+                aria-expanded={expanded}
+                aria-label="show more"
+              >
+                <ExpandMoreIcon />
+              </IconButton>
+            </CardActions>
+
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+              is the pdf going here?
+            </Collapse>
+          </Card>
+        </Grid>
+        )
+      })}
       <Grid item xs={12} >
         <Card className={classes.card}>
 
