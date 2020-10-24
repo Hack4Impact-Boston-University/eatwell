@@ -5,7 +5,6 @@ import * as ui from '@material-ui/core'
 const Profile = () => {
   const { user, logout } = useUser()
   if (!user) {
-    console.log("HERE")
     return (
       <div>
         <p>

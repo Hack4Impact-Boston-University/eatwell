@@ -1,6 +1,9 @@
 import React, {useState} from 'react'
 import * as ui from '@material-ui/core'
-// import firebase from '../../utils/firebase'
+import initFirebase from '../../utils/auth/initFirebase'
+import firebase from 'firebase/app'
+import 'firebase/database'
+
 
 const UploadForm = () => {
     const [recipeName, setRecipeName] = useState('')
@@ -10,17 +13,24 @@ const UploadForm = () => {
     function upload() {
         const videoUrl = "https://player.vimeo.com/video/" + videoID
 
-        const data = {
-            recipeName: recipeName,
+        initFirebase()
+        var db = firebase.database()
+
+        db.ref('recipes/' + recipeName).set({
             pdfUrl: pdfUrl,
             videoUrl: videoUrl
-        }
+        })
 
-        // firebase
-        //     .collection('recipes')
-        //     .add(recipeName)
-        //     .set(data)
-        alert("Uploaded!");
+        alert('here')
+
+        // var storageRef = firebase.database().ref('recipes/'+recipeName)
+        // storageRef.set(data)
+        //    .then(function() {
+        //      console.log('posted!');
+        //    })
+        //    .catch(function(error) {
+        //      console.log(error);
+        //    });       
     }
 
     return (
