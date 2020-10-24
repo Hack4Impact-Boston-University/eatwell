@@ -1,36 +1,31 @@
 import React, {useState} from 'react'
 import * as ui from '@material-ui/core'
-import initFirebase from '../../utils/auth/initFirebase'
-import firebase from 'firebase/app'
-import 'firebase/database'
+import * as firebase from 'firebase';
+import 'firebase/firestore';
+import initFirebase from '../../utils/auth/initFirebase';
 
+initFirebase()
 
 const UploadForm = () => {
     const [recipeName, setRecipeName] = useState('')
     const [videoID, setVideoID] = useState('')
     const [pdfUrl, setPdfUrl] = useState('')
-    
+
     function upload() {
         const videoUrl = "https://player.vimeo.com/video/" + videoID
 
-        initFirebase()
-        var db = firebase.database()
-
-        db.ref('recipes/' + recipeName).set({
+        var recipe = recipeName.toLowerCase()
+        recipe = recipe.replace(/ /g, "_")
+    
+        var collection = firebase.firestore().collection('recipes')
+        var data = {
             pdfUrl: pdfUrl,
             videoUrl: videoUrl
-        })
+        }
+        
+        collection.doc(recipe).set(data)
 
-        alert('here')
-
-        // var storageRef = firebase.database().ref('recipes/'+recipeName)
-        // storageRef.set(data)
-        //    .then(function() {
-        //      console.log('posted!');
-        //    })
-        //    .catch(function(error) {
-        //      console.log(error);
-        //    });       
+        alert('upload successful!')
     }
 
     return (
