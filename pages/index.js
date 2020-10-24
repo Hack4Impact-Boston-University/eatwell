@@ -5,6 +5,8 @@ import * as ui from '@material-ui/core'
 import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
+import Navbar from '../components/Navbar'
+import "bootstrap/dist/css/bootstrap.min.css"
 
 const Index = () => {
   const { user, logout } = useUser()
@@ -42,6 +44,7 @@ const Index = () => {
   }
   return (
     <div className={styles.container}>
+      <Navbar />
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />

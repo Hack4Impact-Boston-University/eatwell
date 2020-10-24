@@ -1,0 +1,35 @@
+.NavbarItems{
+    background-color: linear-gradient(90deg,rgb(110,94,25),rgba(73,63,25));
+    height: 80px;
+}
+
+.nav-menu{
+    display: grid;
+    grid-template-columns: reapeat(5,auto);
+    grid-gap: 10px;
+    list-style: none;
+    text-align: center;
+    width: 70vw;
+    justify-content: end;
+}
+
+.nav-links{
+    color:white;
+    text-decoration: none;
+    padding:0.5rem 1rem;
+}
+
+.nav-links:hover{
+    background-color:yellow;
+    border-radius: 4px;
+    transition: all 0.2s ease-out;
+}
+
+.nac-linked-mobile{
+    display: none;
+}
+
+.menu-icon{
+    display: none;
+}
+
