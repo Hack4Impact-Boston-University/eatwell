@@ -70,7 +70,8 @@ export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
   const { data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-  console.log(data);
+  const { userData } = useSWR(`/api/recipes/favoriteRecipe`, fetcher);
+  console.log(userData);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -131,16 +132,9 @@ export default function RecipeReviewCard() {
 
                         <Grid item xs={12}>
                           <Button variant="contained" color="secondary">
-                            Make this Recipe
+                            View this Recipe
                           </Button>
                         </Grid>
-
-                        <Grid item xs={12} >
-                          <Button variant="contained" color="secondary">
-                            See More
-                          </Button>
-                        </Grid>
-
                       </Grid>
                     </Grid>
 
