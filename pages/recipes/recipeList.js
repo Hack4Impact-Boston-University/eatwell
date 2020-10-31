@@ -20,6 +20,9 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import useSWR from 'swr';
+import { useUser } from "../../utils/auth/useUser";
+
+
 
 const fetcher = async (...args) => {
   const res = await fetch(...args);
@@ -69,21 +72,27 @@ const useStyles = makeStyles((theme) => ({
 export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
-  const { data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-  const { userData } = useSWR(`/api/recipes/favoriteRecipe`, fetcher);
-  console.log(userData);
+
+  const {user:_user} =  useUser()
+  const { data: _data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+  const { data: userData } = useSWR(`/api/recipes/favoriteRecipe`, fetcher);
+  //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
+
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  if (!data) {
+  if ((!_data) || (!userData)) {
     return "Loading...";
   }
 
+  //console.log(favoriteRecipe);
+
+
   return (
     <Grid container spacing={10} className={classes.gridContainerMain} >
-      {data.map((obj, idx) => {
+      {_data.map((obj, idx) => {
         if (!obj.name) return;
         return (
         <Grid item xs={12} >
