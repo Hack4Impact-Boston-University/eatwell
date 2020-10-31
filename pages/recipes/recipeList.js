@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import * as ui from '@material-ui/core';
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -19,6 +19,12 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Divider from '@material-ui/core/Divider';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import useSWR from 'swr';
 
 const fetcher = async (...args) => {
@@ -33,7 +39,11 @@ const useStyles = makeStyles((theme) => ({
     //backgroundColor: red[500],
     //width: "100%"
 
+    width: '100%',
+    maxWidth: '36ch',
+    backgroundColor: theme.palette.background.paper,
   },
+
   gridContainerMain: {
     paddingLeft: 200,
     paddingRight: 200,
@@ -63,6 +73,14 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     backgroundColor: red[500],
+  },
+
+  TextField: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  inline: {
+    display: 'inline',
   },
 }));
 
@@ -163,7 +181,6 @@ export default function RecipeReviewCard() {
             </CardContent>
 
             <CardActions disableSpacing>
-
               <IconButton
                 className={clsx(classes.expand, {
                   [classes.expandOpen]: expanded,
@@ -177,7 +194,70 @@ export default function RecipeReviewCard() {
             </CardActions>
 
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-              is the pdf going here?
+
+              <CardContent>
+              <Grid container spacing={5} >
+
+                <Grid item xs={12} >
+                  <ui.Divider light />
+                </Grid>
+                
+                <Grid item xs={10} container direction="row" justify="center" alignItems="center">
+                  <TextField
+                    id='comment_input'
+                    className={useStyles.margin}
+                    fullWidth
+                    color='secondary'
+                    label='Your comments'
+                    multiline
+                    rowsMax={4}
+                  />
+                </Grid>
+
+                <Grid item xs={2} container>
+                  <Button variant="contained" color="secondary">
+                    Post
+                  </Button>
+                </Grid>
+
+                <Grid item xs={12} >
+                  <ui.Divider light />
+                </Grid>
+
+                <Grid item xs={6} >
+                  <Grid container spacing={5}  >
+                    <Grid item xs={12} >
+                      <List className={classes.root}>
+                          <ListItem alignItems="flex-start">
+                            <ListItemAvatar>
+                              <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary="Good recipe"
+                              secondary={
+                                <React.Fragment>
+                                  <Typography
+                                    component="span"
+                                    variant="body2"
+                                    className={classes.inline}
+                                    color="textPrimary"
+                                  >
+                                    {obj.review}
+                                  </Typography>
+                                </React.Fragment>
+                              }
+                            />
+                          </ListItem>
+                        </List>
+                    </Grid>
+
+                  </Grid>
+                </Grid>
+
+              </Grid>
+                
+              </CardContent>
+
             </Collapse>
           </Card>
         </Grid>
@@ -306,4 +386,3 @@ export default function RecipeReviewCard() {
     </Grid>
   );
 }
-

@@ -15,3 +15,22 @@ export default (req, res) => {
       res.json({ error });
     });
 };
+
+// document.getElementById('review').addEventListener('post', postComment);
+
+// Retrieve new posts as they are added to our database
+// ref.on("child_added", function(snapshot, prevChildKey) {
+//   var newPost = snapshot.val();
+//   console.log("review: " + comment_input);
+
+// });
+
+// function postComment(comment){
+//   comment.preventDefault();
+
+//   var new_comment = getComment('comment_input');
+// }
+
+// function getComment(new_comment){
+//   return document.getElementById(new_comment).nodeValue;
+// }
