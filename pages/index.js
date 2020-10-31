@@ -7,6 +7,7 @@ import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
 import Navbar from "../components/Navbar";
 import { makeStyles } from "@material-ui/core";
+import {getUserFromCookie} from "../utils/auth/userCookies"
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -32,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
 const Index = () => {
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
-  
   function signInClick(event) {
     setLogin(true);
   }
@@ -79,7 +79,11 @@ const Index = () => {
           </h1>
 
           <Login/>
-          
+          {user && 
+            <div>
+              {user.enrolledProgram}
+            </div>
+          }
         </main>
       </div>
     </div>
