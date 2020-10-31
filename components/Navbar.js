@@ -8,7 +8,9 @@ import {
     Toolbar,
     Typography,
 } from "@material-ui/core";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
+import {useUser} from "../utils/auth/useUser"
+import Link from 'next/link'
 
 const useStyles = makeStyles((theme) => ({
     logo: {
@@ -40,18 +42,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navbar = () => {
-    const router = useRouter();
+    // const router = useRouter();
     const classes = useStyles();
-
+    const {user, logout} = useUser();
     return (
         <div>
             <AppBar position="static">
                 <Toolbar className={classes.toolbar}>
-                    <Box
-                        onClick={(e) => {
-                            e.preventDefault;
-                            router.push("/");
-                        }}
+                    <Button href="/"
+                        // onClick={(e) => {
+                        //     e.preventDefault();
+                        //     router.push("/");
+                        // }}
                         className={classes.logoContainer}
                     >
                         <Avatar
@@ -59,29 +61,46 @@ const Navbar = () => {
                             src="/assets/eatwell_logo.png"
                             className={classes.logo}
                         />
-                        <Box className={classes.centerText}>
-                            <Typography
-                                variant="h6"
-                                style={{
-                                    userSelect: "none",
-                                    color: "black",
-                                }}
-                            >
-                                EatWell
-                            </Typography>
-                        </Box>
-                    </Box>
+                        <Typography
+                            variant="h6"
+                            style={{
+                                userSelect: "none",
+                                color: "black",
+                            }}
+                        >
+                            EatWell
+                        </Typography>
+                    </Button>
 
                     <Box className={classes.menuContainer}>
-                        <Button href="/" className={classes.menuItems}>
-                            Home
+                        <Button className={classes.menuItems}>
+                            <Link href={`/`}>
+                                <a>Home</a>
+                            </Link>
                         </Button>
-                        <Button href="#" className={classes.menuItems}>
-                            Recipes
+                        <Button className={classes.menuItems}>
+                            <Link href={`recipes/chicken_fried_rice`}>
+                                <a>Recipe</a>
+                            </Link>
                         </Button>
-                        <Button href="/profile" className={classes.menuItems}>
-                            Profile
-                        </Button>
+                        {user ? 
+                            <div>
+                                <Button className={classes.menuItems}>
+                                    <Link href={`profile`}>
+                                        <a>Profile</a>
+                                    </Link>
+                                </Button>
+                                <Button onClick={() =>  logout()} className={classes.menuItems}>
+                                    Logout
+                                </Button>
+                            </div>
+                            :
+                            <Button className={classes.menuItems}>
+                                <Link href={`login`}>
+                                    <a>Login</a>
+                                </Link>
+                            </Button>
+                        }
                     </Box>
                 </Toolbar>
             </AppBar>
