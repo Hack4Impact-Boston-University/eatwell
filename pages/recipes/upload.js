@@ -4,7 +4,7 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
 import { DropzoneArea } from 'material-ui-dropzone'
-import { PictureAsPdf } from '@material-ui/icons'
+import { PictureAsPdf, Router } from '@material-ui/icons'
 
 initFirebase()
 
@@ -25,6 +25,7 @@ const UploadForm = () => {
     const [videoTips, setVideoTips] = useState('')
 
     function upload() {
+
         const videoUrl = "https://player.vimeo.com/video/"
 
         var recipe = recipeName.toLowerCase()
@@ -48,9 +49,11 @@ const UploadForm = () => {
         console.log(data)
 
         collection.doc(recipe).set(data)
-        firebase.storage().ref().child(recipeName+".pdf").put(pdfFile)
-
-        alert("Your upload was successful!")
+        firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+            'complete': function() {
+                alert('upload successful!')
+            }
+        })
     }
 
     return (
