@@ -19,18 +19,34 @@ const UploadForm = () => {
     const [recipeName, setRecipeName] = useState('')
     const [videoID, setVideoID] = useState('')
     const [pdfFile, setPdfFile] = useState('')
+    const [description, setDescription] = useState('')
+    const [imageUrl, setImageUrl] = useState('')
+    const [videoSkills, setVideoSkills] = useState('')
+    const [videoTips, setVideoTips] = useState('')
 
     function upload() {
-        const videoUrl = "https://player.vimeo.com/video/" + videoID
+        const videoUrl = "https://player.vimeo.com/video/"
 
         var recipe = recipeName.toLowerCase()
         recipe = recipe.replace(/ /g, "_")
+
+        var date = new Date()
+        var dateUploaded = date.getFullYear().toString() + '/' +date.getMonth().toString() + '/' + date.getDate().toString()
     
         var collection = firebase.firestore().collection('recipes')
         var data = {
-            videoUrl: videoUrl,
+            nameOfDish: recipeName,
+            description: description,
+            imageUrl: imageUrl,
+            videoRecipe: videoUrl + videoID,
+            pdfRecipe: recipeName+".pdf",
+            dateUploaded: dateUploaded,
+            videoSkills: videoUrl + videoSkills,
+            videoTips: videoUrl + videoTips,
         }
         
+        console.log(data)
+
         collection.doc(recipe).set(data)
         firebase.storage().ref().child(recipeName+".pdf").put(pdfFile)
 
@@ -50,15 +66,59 @@ const UploadForm = () => {
                     label="Recipe Name"
                     onChange={(e) => setRecipeName(e.target.value)}
                     fullWidth
+                    variant="outlined"
                 />
             </ui.Grid>
             <ui.Grid item xs={12} sm={6}>
                 <ui.TextField
                     required
                     value={videoID}
-                    label="Vimeo Video ID"
+                    label="Vimeo Recipe Video ID"
                     onChange={(e) => setVideoID(e.target.value)}
                     fullWidth
+                    variant="outlined"
+                />
+            </ui.Grid>
+            <ui.Grid item xs={12} sm={6}>
+                <ui.TextField
+                    required
+                    value={videoSkills}
+                    label="Vimeo Skills Video ID"
+                    onChange={(e) => setVideoSkills(e.target.value)}
+                    fullWidth
+                    variant="outlined"
+                />
+            </ui.Grid>
+            <ui.Grid item xs={12} sm={6}>
+                <ui.TextField
+                    required
+                    value={videoTips}
+                    label="Vimeo Tips Video ID"
+                    onChange={(e) => setVideoTips(e.target.value)}
+                    fullWidth
+                    variant="outlined"
+                />
+            </ui.Grid>
+            <ui.Grid item xs={12}>
+                <ui.TextField
+                    required
+                    value={imageUrl}
+                    label="Image URL"
+                    multiline
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    fullWidth
+                    variant="outlined"
+                />
+            </ui.Grid>
+            <ui.Grid item xs={12}>
+                <ui.TextField
+                    required
+                    value={description}
+                    label="Recipe Description"
+                    multiline
+                    onChange={(e) => setDescription(e.target.value)}
+                    fullWidth
+                    variant="outlined"
                 />
             </ui.Grid>
             <ui.Grid item xs={12}>
