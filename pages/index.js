@@ -51,13 +51,16 @@ const Index = () => {
               <a>Recipe</a>
             </Link>
           </ui.Button>
-          {user ? 
-            <ui.Button variant="outlined">
-              <Link href={`profile`}>
-                <a>Profile</a>
-              </Link>
-            </ui.Button>
-          :<ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
+          <ui.Button variant="outlined" href={"recipe/recipeList"}>
+                Recipe List
+              </ui.Button>
+          <ui.Button variant="outlined">
+            <Link href={`profile`}>
+              <a>Profile</a>
+            </Link>
+          </ui.Button>
+          {!user && 
+          <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
             Login
           </ui.Button>}
         </ui.Grid>
