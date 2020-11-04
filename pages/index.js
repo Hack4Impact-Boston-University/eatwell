@@ -63,6 +63,11 @@ const Index = () => {
           <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
             Login
           </ui.Button>}
+          <ui.Button variant="outlined">
+              <ui.Link href='recipes/upload'>
+                  Upload
+              </ui.Link>
+          </ui.Button>
         </ui.Grid>
     );
   }
