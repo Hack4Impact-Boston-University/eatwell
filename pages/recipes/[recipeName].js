@@ -181,9 +181,9 @@ export default function Recipe() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="Item One" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
+          <Tab label="Recipe" {...a11yProps(0)} />
+          <Tab label="Skill" {...a11yProps(1)} />
+          <Tab label="Tip" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <SwipeableViews
@@ -193,7 +193,8 @@ export default function Recipe() {
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
         <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
+        <iframe src={data.pdfUrl} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+        
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
         <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
@@ -206,9 +207,6 @@ export default function Recipe() {
       </SwipeableViews>
     </div>
 
-      <div id="recipe">
-        <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-      </div>
     </div>
   );
 }
