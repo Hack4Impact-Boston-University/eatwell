@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'firebase/firestore'
 import initFirebase from '../auth/initFirebase'
 import {
   removeUserCookie,
@@ -11,6 +12,7 @@ import {
 import { mapUserData } from './mapUserData'
 
 initFirebase()
+var db = firebase.firestore();
 
 const useUser = () => {
   const [user, setUser] = useState()
@@ -34,10 +36,27 @@ const useUser = () => {
     // makes sure the react state and the cookie are
     // both kept up to date
     const cancelAuthListener = firebase.auth().onIdTokenChanged((user) => {
+      console.log("Boop")
       if (user) {
-        const userData = mapUserData(user)
-        setUserCookie(userData)
-        setUser(userData)
+        var dbData;
+        db.collection('users').doc(user.uid).get()
+          .then((doc) => {
+            if(doc.exists) {
+              dbData = doc.data();
+            }
+            else {
+              dbData = {
+                email: user.email,
+                enrolledProgram: 0
+              }
+              db.collection('users').doc(user.uid).set(dbData)
+            }
+            console.log(dbData)
+            const authData = mapUserData(user)
+            const userData = Object.assign({}, authData, dbData)
+            setUserCookie(userData)
+            setUser(userData)
+          })
       } else {
         removeUserCookie()
         setUser()
@@ -56,7 +75,7 @@ const useUser = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
+  //console.log(user)
   return { user, logout }
 }
 

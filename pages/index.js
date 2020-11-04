@@ -5,11 +5,34 @@ import * as ui from '@material-ui/core'
 import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
+import Navbar from "../components/Navbar";
+import { makeStyles } from "@material-ui/core";
+import {getUserFromCookie} from "../utils/auth/userCookies"
+
+const useStyles = makeStyles((theme) => ({
+  heading: {
+      color: "red",
+  },
+  avatar: {
+      height: theme.spacing(13),
+      width: theme.spacing(13),
+      margin: "auto",
+  },
+  btn: {
+      width: "8rem",
+      display: "block",
+      margin: "auto",
+      textAlign: "center",
+      marginTop: "1rem",
+  },
+  formItems: {
+      marginTop: theme.spacing(2),
+  },
+}));
 
 const Index = () => {
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
-
   function signInClick(event) {
     setLogin(true);
   }
@@ -28,35 +51,53 @@ const Index = () => {
               <a>Recipe</a>
             </Link>
           </ui.Button>
-          {user ? 
-            <ui.Button variant="outlined">
-              <Link href={`profile`}>
-                <a>Profile</a>
-              </Link>
-            </ui.Button>
-          :<ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
+          <ui.Button variant="outlined">
+              <ui.Link href={"recipes/recipeList"}>
+                Recipe List
+              </ui.Link>
+          </ui.Button>
+
+          <ui.Button variant="outlined">
+            <Link href={`profile`}>
+              <a>Profile</a>
+            </Link>
+          </ui.Button>
+          {!user && 
+          <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
             Login
           </ui.Button>}
+
+          <ui.Button variant="outlined">
+              <ui.Link href='recipes/upload'>
+                  Upload
+              </ui.Link>
+          </ui.Button>
         </ui.Grid>
     );
   }
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div>
+      <Navbar/>
+      <div className={styles.container}>
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <main className={styles.main}>
+          <img src="/assets/eatwell.png" width="50%"/>
 
-      <main className={styles.main}>
-        <img src="/assets/eatwell.png"/>
+          <h1 className={styles.title}>
+            Welcome to EatWell!
+          </h1>
 
-        <h1 className={styles.title}>
-          Welcome to EatWell!
-        </h1>
-
-        <Login/>
-        
-      </main>
+          <Login/>
+          {user && 
+            <div>
+              {user.enrolledProgram}
+            </div>
+          }
+        </main>
+      </div>
     </div>
   )
 }
