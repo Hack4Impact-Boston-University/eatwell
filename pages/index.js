@@ -51,9 +51,12 @@ const Index = () => {
               <a>Recipe</a>
             </Link>
           </ui.Button>
-          <ui.Button variant="outlined" href={"recipe/recipeList"}>
+          <ui.Button variant="outlined">
+              <ui.Link href={"recipes/recipeList"}>
                 Recipe List
-              </ui.Button>
+              </ui.Link>
+          </ui.Button>
+
           <ui.Button variant="outlined">
             <Link href={`profile`}>
               <a>Profile</a>
@@ -63,6 +66,7 @@ const Index = () => {
           <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
             Login
           </ui.Button>}
+
           <ui.Button variant="outlined">
               <ui.Link href='recipes/upload'>
                   Upload
