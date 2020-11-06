@@ -12,6 +12,7 @@ import {
 	IconButton,
 	TextField,
 	OutlinedInput,
+	withStyles,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
 import Navbar from "../components/Navbar";
@@ -20,6 +21,9 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
+	root: {
+		borderColor: "tomato",
+	},
 	heading: {
 		color: "red",
 	},
@@ -34,6 +38,11 @@ const useStyles = makeStyles((theme) => ({
 		margin: "auto",
 		textAlign: "center",
 		marginTop: "1rem",
+		background: "tomato",
+		color: "#EEF8F9",
+		"&:hover": {
+			background: "#F46F56",
+		},
 	},
 	formItems: {
 		marginTop: theme.spacing(2),
@@ -73,27 +82,7 @@ const Profile = () => {
 		console.log("User not logged in.");
 		return (
 			<div>
-				<AppBar
-					position="static"
-					style={{ display: "flex", background: "black" }}
-				>
-					<Toolbar disableGutters>
-						<Avatar
-							style={{
-								marginLeft: "8px",
-								marginRight: "8px",
-							}}
-							alt="Logo"
-							src="/assets/eatwell_logo.png"
-						/>
-						<Typography variant="h6" style={{ flex: 1 }}>
-							EatWell
-						</Typography>
-						<Button href="/" color="inherit" style={{ marginRight: "8px" }}>
-							Login
-						</Button>
-					</Toolbar>
-				</AppBar>
+				<Navbar />
 				<h1>Please sign in to access this page!</h1>
 			</div>
 		);
@@ -158,6 +147,7 @@ const Profile = () => {
 			</Grid>
 			<Grid justify="center" className={classes.formItems} container>
 				<TextField
+					className={classes.root}
 					id="profileFirst"
 					label="First Name"
 					defaultValue="John"
