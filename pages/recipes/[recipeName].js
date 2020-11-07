@@ -103,7 +103,7 @@ function a11yProps(index) {
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    width: 500,
+    width: "100%",
   },
 }));
 
@@ -128,7 +128,8 @@ export default function Recipe() {
   if (!data) {
     return 'Loading...';
   }
-
+ 
+  
   return (
     <div>
       <Head>
@@ -138,7 +139,7 @@ export default function Recipe() {
 
       <ui.AppBar position="sticky" width="100%">
         <ui.Toolbar>
-          <ui.Typography variant="h6">
+          <ui.Typography  variant="h6">
           View Recipe Page
           </ui.Typography>
         </ui.Toolbar>
@@ -171,8 +172,12 @@ export default function Recipe() {
         </toggle.ToggleButton>
       </toggle.ToggleButtonGroup> */}
 
-<div className={classes.root}>
-      <AppBar position="static" color="default">
+<div  className={classes.root}>
+    <div style={{
+      width: "100%",
+      minWidth: "30%",
+    }}>
+      <AppBar position = "static"  color="default">
         <Tabs
           value={value}
           onChange={handleChange}
@@ -186,29 +191,29 @@ export default function Recipe() {
           <Tab label="Item Three" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
+    </div>
       <SwipeableViews
         axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
         index={value}
-        onChangeIndex={handleChangeIndex}
-      >
+        onChangeIndex={handleChangeIndex}>
+      
         <TabPanel value={value} index={0} dir={theme.direction}>
-        <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
-        <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
-        <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
       </SwipeableViews>
     </div>
 
-      <div id="recipe">
-        <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-      </div>
+     
     </div>
   );
+
 }
