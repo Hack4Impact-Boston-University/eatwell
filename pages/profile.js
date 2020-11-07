@@ -1,17 +1,18 @@
 import {
-    AppBar,
-    Avatar,
-    Button,
-    Toolbar,
-    Typography,
-    makeStyles,
-    Grid,
-    FormControl,
-    InputLabel,
-    InputAdornment,
-    IconButton,
-    TextField,
-    OutlinedInput,
+	AppBar,
+	Avatar,
+	Button,
+	Toolbar,
+	Typography,
+	makeStyles,
+	Grid,
+	FormControl,
+	InputLabel,
+	InputAdornment,
+	IconButton,
+	TextField,
+	OutlinedInput,
+	withStyles,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
 import Navbar from "../components/Navbar";
@@ -20,58 +21,64 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
-    heading: {
-        color: "red",
-    },
-    avatar: {
-        height: theme.spacing(13),
-        width: theme.spacing(13),
-        margin: "auto",
-    },
-    btn: {
-        width: "8rem",
-        display: "block",
-        margin: "auto",
-        textAlign: "center",
-        marginTop: "1rem",
-    },
-    formItems: {
-        marginTop: theme.spacing(2),
-    },
+	root: {
+		borderColor: "tomato",
+	},
+	heading: {
+		color: "red",
+	},
+	avatar: {
+		height: theme.spacing(13),
+		width: theme.spacing(13),
+		margin: "auto",
+	},
+	btn: {
+		width: "8rem",
+		display: "block",
+		margin: "auto",
+		textAlign: "center",
+		marginTop: "1rem",
+		background: "tomato",
+		color: "#EEF8F9",
+		"&:hover": {
+			background: "#F46F56",
+		},
+	},
+	formItems: {
+		marginTop: theme.spacing(2),
+	},
 }));
 
-
-
 const Profile = () => {
-    const { user, logout } = useUser();
+	const { user, logout } = useUser();
 
-    const [errorAlert, setErrorAlert] = useState(false);
-    const [successAlert, setSuccessAlert] = useState(false);
-    const [profile, setProfile] = useState({});
-    const classes = useStyles();
+	const [errorAlert, setErrorAlert] = useState(false);
+	const [successAlert, setSuccessAlert] = useState(false);
+	const [profile, setProfile] = useState({});
+	const classes = useStyles();
 
-    const handleUpload = (e) => {
-        e.preventDefault();
-        console.log(e.target.files);
-        const re = /(?:\.([^.]+))?$/;
-        let ext = re.exec(e.target.files[0].name)[1];
-        console.log("ext");
-        if (ext !== "png" && ext !== "jpg" && ext !== "jpeg") {
-            console.log("Please upload a .png, .jpg, or .jpeg file");
-            setErrorAlert(true);
-        } else {
-            console.log("file uploaded");
-            setSuccessAlert(true);
-        }
-        console.log(successAlert);
-    };
+	const handleUpload = (e) => {
+		e.preventDefault();
+		console.log(e.target.files);
+		const re = /(?:\.([^.]+))?$/;
+		let ext = re.exec(e.target.files[0].name)[1];
+		console.log("ext");
+		if (ext !== "png" && ext !== "jpg" && ext !== "jpeg") {
+			console.log("Please upload a .png, .jpg, or .jpeg file");
+			setErrorAlert(true);
+		} else {
+			console.log("file uploaded");
+			setSuccessAlert(true);
+		}
+		console.log(successAlert);
+	};
 
-    const handleClickShowPassword = (e) => {
-        e.preventDefault();
-        setProfile({ ...profile, showPassword: !profile.showPassword });
-    };
+	const handleClickShowPassword = (e) => {
+		e.preventDefault();
+		setProfile({ ...profile, showPassword: !profile.showPassword });
+	};
 
-    if (!user) {
+	if (!user) {
 		console.log("User not logged in.");
 		return (
 			<div>
