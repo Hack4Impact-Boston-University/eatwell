@@ -103,7 +103,7 @@ function a11yProps(index) {
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    width: 500,
+    width: "100%",
   },
 }));
 
@@ -128,7 +128,8 @@ export default function Recipe() {
   if (!data) {
     return 'Loading...';
   }
-
+ 
+  
   return (
     <div>
       <Head>
@@ -138,41 +139,19 @@ export default function Recipe() {
 
       <ui.AppBar position="sticky" width="100%">
         <ui.Toolbar>
-          <ui.Typography variant="h6">
+          <ui.Typography  variant="h6">
           View Recipe Page
           </ui.Typography>
         </ui.Toolbar>
       </ui.AppBar>
 
-      
-      {/* <ui.Paper square>
-        <ui.Tabs
-          // value={value}
-          indicatorColor="primary"
-          textColor="primary"
-          // onChange={handleChange}
-          aria-label="disabled tabs example"
-        >
-          <AssignmentIcon/><ui.Tab label="Recipe" />
-          <BuildIcon/><ui.Tab label="Skill"/>
-          <EmojiObjectsIcon/><ui.Tab label="Tip" />
-        </ui.Tabs>
-      </ui.Paper> */}
 
-      {/* <toggle.ToggleButtonGroup aria-label="text formatting">
-        <toggle.ToggleButton value="bold" aria-label="bold">
-          <AssignmentIcon/><text>Recipe</text>
-        </toggle.ToggleButton>
-        <toggle.ToggleButton value="italic" aria-label="italic">
-          <BuildIcon/><text>Skill</text>
-        </toggle.ToggleButton>
-        <toggle.ToggleButton value="underlined" aria-label="underlined">
-          <EmojiObjectsIcon/><text>Tip</text>
-        </toggle.ToggleButton>
-      </toggle.ToggleButtonGroup> */}
-
-<div className={classes.root}>
-      <AppBar position="static" color="default">
+<div  className={classes.root}>
+    <div style={{
+      width: "100%",
+      minWidth: "29%",
+    }}>
+      <AppBar position = "static"  color="default">
         <Tabs
           value={value}
           onChange={handleChange}
@@ -186,27 +165,29 @@ export default function Recipe() {
           <Tab label="Tip" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
+    </div>
       <SwipeableViews
         axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
         index={value}
-        onChangeIndex={handleChangeIndex}
-      >
+        onChangeIndex={handleChangeIndex}>
+      
         <TabPanel value={value} index={0} dir={theme.direction}>
-        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-        <iframe src={data.pdfUrl} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-        
-        </TabPanel>
-        <TabPanel value={value} index={1} dir={theme.direction}>
         <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
+        <TabPanel value={value} index={1} dir={theme.direction}>
+        <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+
+        </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
-        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+        <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
       </SwipeableViews>
     </div>
 
+     
     </div>
   );
+
 }
