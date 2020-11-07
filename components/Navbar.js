@@ -93,51 +93,29 @@
 
 
 import React, { Component } from 'react';
+import {Nav, Navbar, Form, NavDropdown, MenuItem,  Tabs, ButtonToolbar, Button, Table, ButtonGroup, Row, Col, Grid, Panel, FormGroup, FormControl} from 'react-bootstrap';
 import './navbar.module.css';
 
-const MenuItems = [
-    {
-        title: "Home",
-        url: '#',
-        cName: 'nav-links'
-    },
-    {
-        title: "Recipe",
-        url: '#',
-        cName: 'nav-links'
-    },
-    {
-        title: "Profile",
-        url: '#',
-        cName: 'nav-links'
-    },
-    {
-        title: "Search",
-        url: '#',
-        cName: 'nav-links'
-    },
-]
-class Navbar extends Component {
-  render() { 
+export default class Navbarr extends Component {
+  render() {
+    const color = {
+      background: "lightgreen",
+    }
     return (
-		<nav className="NavbarItems">
-			<h1 className="navbar-logo">EatWell</h1>
-			<div className="menu-icon">
-
-			</div>
-			<ul className="nav-menu">
-				{MenuItems.map((item,index) => {
-					return (
-						<li key={index}>
-							<a className={item.cName} href={item.url}>
-							{item.title}
-							</a>
-						</li>
-					)
-				})}
-			</ul>
-		</nav>
-	)
+      <Navbar bg="NavbarItems" className={color}>
+        <Navbar.Brand href="/">Eatwell</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Link href="#">Recipes</Nav.Link>
+			<Nav.Link href="/profile">Profile</Nav.Link>
+          </Nav>
+          <Form inline>
+            <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+            <Button variant="outline-success">Search</Button>
+          </Form>
+        </Navbar.Collapse>
+      </Navbar>
+      );
+    }
   }
-}
-export default Navbar;
