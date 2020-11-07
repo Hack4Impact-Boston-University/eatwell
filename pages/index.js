@@ -7,7 +7,11 @@ import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
 import Navbar from "../components/Navbar";
 import { makeStyles } from "@material-ui/core";
+<<<<<<< HEAD
 import "bootstrap/dist/css/bootstrap.min.css"
+=======
+import {getUserFromCookie} from "../utils/auth/userCookies"
+>>>>>>> 23f5408e9b11364500a943017ad178a1f6317137
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -33,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
 const Index = () => {
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
-  
   function signInClick(event) {
     setLogin(true);
   }
@@ -52,15 +55,27 @@ const Index = () => {
               <a>Recipe</a>
             </Link>
           </ui.Button>
-          {user ? 
-            <ui.Button variant="outlined">
-              <Link href={`profile`}>
-                <a>Profile</a>
-              </Link>
-            </ui.Button>
-          :<ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
+          <ui.Button variant="outlined">
+              <ui.Link href={"recipes/recipeList"}>
+                Recipe List
+              </ui.Link>
+          </ui.Button>
+
+          <ui.Button variant="outlined">
+            <Link href={`profile`}>
+              <a>Profile</a>
+            </Link>
+          </ui.Button>
+          {!user && 
+          <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
             Login
           </ui.Button>}
+
+          <ui.Button variant="outlined">
+              <ui.Link href='recipes/upload'>
+                  Upload
+              </ui.Link>
+          </ui.Button>
         </ui.Grid>
     );
   }
@@ -80,7 +95,11 @@ const Index = () => {
           </h1>
 
           <Login/>
-          
+          {user && 
+            <div>
+              {user.enrolledProgram}
+            </div>
+          }
         </main>
       </div>
     </div>
