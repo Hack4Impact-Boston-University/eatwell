@@ -72,10 +72,11 @@ const useStyles = makeStyles((theme) => ({
 export default function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
+  //const [favorite, setFavorite] = React.useState(false);
 
   const {user:_user} =  useUser()
   const { data: _data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-  const { data: userData } = useSWR(`/api/recipes/favoriteRecipe`, fetcher);
+  const { data: favRecipes } = useSWR(`/api/recipes/favoriteRecipe`, fetcher);
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
 
 
@@ -83,17 +84,25 @@ export default function RecipeReviewCard() {
     setExpanded(!expanded);
   };
 
-  if ((!_data) || (!userData)) {
+  function favButtonClick (isFav, event) {
+    event.target.style.color = 'default'
+    console.log(event.target);
+  };
+
+  if ((!_data) || (!favRecipes)) {
     return "Loading...";
   }
 
-  //console.log(favoriteRecipe);
+  console.log(favRecipes);
 
 
   return (
     <Grid container spacing={10} className={classes.gridContainerMain} >
       {_data.map((obj, idx) => {
         if (!obj.name) return;
+
+        var isFav = favRecipes.favRec.includes(obj.dishID);
+
         return (
         <Grid item xs={12} >
           <Card className={classes.card}>
@@ -101,7 +110,10 @@ export default function RecipeReviewCard() {
             <CardContent>
               <Grid container spacing={5} >
                 <Grid item xs={1} >
-                  <IconButton aria-label="add to favorites">
+                  <IconButton 
+                    onClick = {favButtonClick.bind(this, isFav)}
+                    aria-label = "add to favorites" 
+                    color= {isFav? "secondary" : "default"}>
                     <FavoriteIcon />
                   </IconButton>
                 </Grid>
