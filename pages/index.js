@@ -7,11 +7,7 @@ import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
 import Navbar from "../components/Navbar";
 import { makeStyles } from "@material-ui/core";
-<<<<<<< HEAD
-import "bootstrap/dist/css/bootstrap.min.css"
-=======
 import {getUserFromCookie} from "../utils/auth/userCookies"
->>>>>>> 23f5408e9b11364500a943017ad178a1f6317137
 
 const useStyles = makeStyles((theme) => ({
   heading: {

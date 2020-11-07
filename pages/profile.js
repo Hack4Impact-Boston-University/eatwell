@@ -87,23 +87,10 @@ const Profile = () => {
 			</div>
 		);
 	}
+
 	return (
 		<div>
 			<Navbar />
-			<div>
-				<p>You're signed in. Email: {user?.email}</p>
-				<p
-					style={{
-						display: "inline-block",
-						color: "blue",
-						textDecoration: "underline",
-						cursor: "pointer",
-					}}
-					onClick={() => logout()}
-				>
-					Log out
-				</p>
-			</div>
 			<Grid justify="center" container>
 				<Grid xs={12} item>
 					<Avatar
@@ -150,7 +137,7 @@ const Profile = () => {
 					className={classes.root}
 					id="profileFirst"
 					label="First Name"
-					defaultValue="John"
+					value = {user.firstname}
 					InputProps={{
 						readOnly: true,
 					}}
@@ -160,6 +147,7 @@ const Profile = () => {
 				<TextField
 					id="profileLast"
 					label="Last Name"
+					value = {user.lastname}
 					defaultValue="Doe"
 					InputProps={{
 						readOnly: true,
@@ -170,6 +158,7 @@ const Profile = () => {
 				<TextField
 					id="profileEmail"
 					label="Email"
+					value = {user.email}
 					defaultValue="abc@gmail.com"
 					InputProps={{
 						readOnly: true,
@@ -179,6 +168,7 @@ const Profile = () => {
 			<Grid justify="center" className={classes.formItems} container>
 				<TextField
 					id="profilePhone"
+					value = {user.phone}
 					label="Phone Number"
 					defaultValue="123-456-7890"
 					type="tel"
