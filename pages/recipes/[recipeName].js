@@ -175,7 +175,7 @@ export default function Recipe() {
 <div  className={classes.root}>
     <div style={{
       width: "100%",
-      minWidth: "30%",
+      minWidth: "29%",
     }}>
       <AppBar position = "static"  color="default">
         <Tabs
