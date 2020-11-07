@@ -61,7 +61,7 @@ const makeProfile = () => {
 				</Grid>
 				<Grid xs={12} className={classes.profileHeader} item>
 					<Typography variant="h5" align="center" gutterBottom>
-						Please complete your profile below
+						Please complete your profile to proceed!
 					</Typography>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
