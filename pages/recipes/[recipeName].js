@@ -1,9 +1,22 @@
 import Head from 'next/head'
 import * as ui from '@material-ui/core';
+import * as toggle from '@material-ui/lab';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import BuildIcon from '@material-ui/icons/Build';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import PropTypes from 'prop-types';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import SwipeableViews from 'react-swipeable-views';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+
 
 const fetcher = async (...args) => {
   const res = await fetch(...args);
@@ -44,16 +57,79 @@ function useWindowSize() {
   return windowSize;
 }
 
+// function useToggle() {
+//   const [value, setValue] = React.useState(2);
+
+//   const handleChange = (event, newValue) => {
+//     setValue(newValue);
+//   };
+
+//   return value;
+// }
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `full-width-tab-${index}`,
+    'aria-controls': `full-width-tabpanel-${index}`,
+  };
+}
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.paper,
+    width: "100%",
+  },
+}));
+
 export default function Recipe() {
   const router = useRouter();
   const { recipeName } = router.query;
   const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
   const { width } = useWindowSize();
 
+  const classes = useStyles();
+  const theme = useTheme();
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const handleChangeIndex = (index) => {
+    setValue(index);
+  };
+
   if (!data) {
     return 'Loading...';
   }
-
+ 
+  
   return (
     <div>
       <Head>
@@ -63,13 +139,55 @@ export default function Recipe() {
 
       <ui.AppBar position="sticky" width="100%">
         <ui.Toolbar>
-          <ui.Typography variant="h6">
+          <ui.Typography  variant="h6">
           View Recipe Page
           </ui.Typography>
         </ui.Toolbar>
       </ui.AppBar>
 
-      <iframe src={data.videoUrl} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+
+<div  className={classes.root}>
+    <div style={{
+      width: "100%",
+      minWidth: "29%",
+    }}>
+      <AppBar position = "static"  color="default">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          aria-label="full width tabs example"
+        >
+          <Tab label="Recipe" {...a11yProps(0)} />
+          <Tab label="Skill" {...a11yProps(1)} />
+          <Tab label="Tip" {...a11yProps(2)} />
+        </Tabs>
+      </AppBar>
+    </div>
+      <SwipeableViews
+        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+        index={value}
+        onChangeIndex={handleChangeIndex}>
+      
+        <TabPanel value={value} index={0} dir={theme.direction}>
+        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+
+        </TabPanel>
+        <TabPanel value={value} index={1} dir={theme.direction}>
+        <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+
+        </TabPanel>
+        <TabPanel value={value} index={2} dir={theme.direction}>
+        <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+
+        </TabPanel>
+      </SwipeableViews>
+    </div>
+
+     
     </div>
   );
+
 }
