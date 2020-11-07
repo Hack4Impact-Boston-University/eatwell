@@ -186,9 +186,9 @@ export default function Recipe() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="Item One" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
+          <Tab label="Recipe" {...a11yProps(0)} />
+          <Tab label="Skill" {...a11yProps(1)} />
+          <Tab label="Tip" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
     </div>
