@@ -14,8 +14,8 @@ import {
 	OutlinedInput,
 	withStyles,
 } from "@material-ui/core";
-import { useUser } from "../utils/auth/useUser";
-import Navbar from "../components/Navbar";
+import { useUser } from "../../utils/auth/useUser";
+import Navbar from "../../components/Navbar";
 import { useEffect, useState } from "react";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
