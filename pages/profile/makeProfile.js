@@ -6,8 +6,8 @@ import {
 	Typography,
 } from "@material-ui/core";
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import { useUser } from "../utils/auth/useUser";
+import Navbar from "../../components/Navbar";
+import { useUser } from "../../utils/auth/useUser";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {

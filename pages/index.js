@@ -58,7 +58,7 @@ const Index = () => {
           </ui.Button>
 
           <ui.Button variant="outlined">
-            <Link href={`profile`}>
+            <Link href={'profile/profile'}>
               <a>Profile</a>
             </Link>
           </ui.Button>
@@ -71,6 +71,12 @@ const Index = () => {
               <ui.Link href='recipes/upload'>
                   Upload
               </ui.Link>
+          </ui.Button>
+
+          <ui.Button variant="outlined">
+            <Link href={'profile/admin'}>
+              <a>Admin</a>
+            </Link>
           </ui.Button>
         </ui.Grid>
     );
