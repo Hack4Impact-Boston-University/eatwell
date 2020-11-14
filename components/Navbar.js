@@ -205,5 +205,31 @@ const Navbar = () => {
 		</div>
 	);
 };
-
 export default Navbar;
+// import React, { Component } from 'react';
+// import {Nav, Navbar, Form, NavDropdown, MenuItem,  Tabs, ButtonToolbar, Button, Table, ButtonGroup, Row, Col, Grid, Panel, FormGroup, FormControl} from 'react-bootstrap';
+// import './navbar.module.css';
+
+// export default class Navbarr extends Component {
+//   render() {
+//     const color = {
+//       background: "lightgreen",
+//     }
+//     return (
+//       <Navbar bg="NavbarItems" className={color}>
+//         <Navbar.Brand href="/">Eatwell</Navbar.Brand>
+//         <Navbar.Toggle aria-controls="basic-navbar-nav" />
+//         <Navbar.Collapse id="basic-navbar-nav">
+//           <Nav className="mr-auto">
+//             <Nav.Link href="#">Recipes</Nav.Link>
+// 			<Nav.Link href="/profile">Profile</Nav.Link>
+//           </Nav>
+//           <Form inline>
+//             <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+//             <Button variant="outline-success">Search</Button>
+//           </Form>
+//         </Navbar.Collapse>
+//       </Navbar>
+//       );
+//     }
+//   }

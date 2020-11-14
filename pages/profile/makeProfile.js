@@ -6,8 +6,11 @@ import {
 	Typography,
 } from "@material-ui/core";
 import React, { useState } from "react";
-import Navbar from "../../components/Navbar";
-import { useUser } from "../../utils/auth/useUser";
+import Navbar from "../components/Navbar";
+import { useUser } from "../utils/auth/useUser";
+import * as firebase from 'firebase'
+import 'firebase/firestore'
+import  { Redirect } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -36,9 +39,9 @@ const useStyles = makeStyles((theme) => ({
 const makeProfile = () => {
 	const { user, logout } = useUser();
 	const classes = useStyles();
-	const [firstName, setFirstName] = useState(false);
-	const [lastName, setLastName] = useState(false);
-	const [tel, setTel] = useState(false);
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [tel, setTel] = useState("");
 
 	if (!user) {
 		console.log("User not logged in.");
@@ -48,6 +51,23 @@ const makeProfile = () => {
 				<h1>Please sign in to access this page!</h1>
 			</div>
 		);
+	}
+
+	async function upload() {
+		console.log(user)
+		var profile = firebase.firestore().collection('users').doc(user.id)
+        var data = {
+			uid: user.id,
+			email: user.email,
+			firstname: firstName,
+			lastname: lastName,
+            phone: tel,
+        }
+        
+        console.log(data)
+
+        await profile.set(data);
+        window.location = "http://localhost:3000/profile";
 	}
 
 	return (
@@ -66,6 +86,8 @@ const makeProfile = () => {
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
+						value={firstName}
+						onChange={(e) => setFirstName(e.target.value)}
 						error={false}
 						id="profileFirst"
 						label="First Name"
@@ -76,6 +98,8 @@ const makeProfile = () => {
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
+						value={lastName}
+						onChange={(e) => setLastName(e.target.value)}
 						id="profileLast"
 						label="Last Name"
 						placeholder="Your Last Name"
@@ -84,6 +108,8 @@ const makeProfile = () => {
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
+						value={tel}
+						onChange={(e) => setTel(e.target.value)}
 						id="profilePhone"
 						label="Phone Number"
 						placeholder="Your phone number"
@@ -92,7 +118,7 @@ const makeProfile = () => {
 					/>
 				</Grid>
 				<Grid container justify="center" item>
-					<Button variant="contained" color="primary" className={classes.btn}>
+					<Button variant="contained" color="primary" className={classes.btn} onClick={() => upload()}>
 						Submit
 					</Button>
 				</Grid>
