@@ -16,6 +16,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import Navbar from "../../components/Navbar";
 
 
 const fetcher = async (...args) => {
@@ -137,13 +138,7 @@ export default function Recipe() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <ui.AppBar position="sticky" width="100%">
-        <ui.Toolbar>
-          <ui.Typography  variant="h6">
-          View Recipe Page
-          </ui.Typography>
-        </ui.Toolbar>
-      </ui.AppBar>
+      <Navbar/>
 
 
 <div  className={classes.root}>

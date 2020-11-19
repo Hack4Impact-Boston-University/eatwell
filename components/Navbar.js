@@ -116,14 +116,14 @@ const Navbar = () => {
 						</Link>
 					</Button> */}
 					<Button className={classes.menuItems}>
-						<Link href={`recipes/chicken_fried_rice`}>
+						<Link href={`/recipes/chicken_fried_rice`}>
 							<a>Recipe</a>
 						</Link>
 					</Button>
 					{user ? (
 						<div className={classes.menuItems}>
 							<Button className={classes.menuItems}>
-								<Link href={`profile`}>
+								<Link href={`/profile/profile`}>
 									<a>Profile</a>
 								</Link>
 							</Button>
@@ -133,7 +133,7 @@ const Navbar = () => {
 						</div>
 					) : (
 						<Button className={classes.menuItems}>
-							<Link href={`login`}>
+							<Link href={`/login`}>
 								<a>Login</a>
 							</Link>
 						</Button>	
