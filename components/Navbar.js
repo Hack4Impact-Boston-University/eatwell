@@ -25,6 +25,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
+import { AccountCircle, MenuBook } from "@material-ui/icons";
 
 const drawerWidth = 100
 const barWidth = 60
@@ -32,39 +33,41 @@ const barWidth = 60
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
-	  },
-	  drawer: {
+	},
+	drawer: {
 		[theme.breakpoints.up('sm')]: {
-		  width: drawerWidth,
-		  flexShrink: 0,
+			width: drawerWidth,
+			flexShrink: 0,
 		},
-		background: "#20D3D6"
-	  },
-	  appBar: {
+		background: "#0A5429"
+	},
+	appBar: {
 		[theme.breakpoints.up('sm')]: {
-		  width: `calc(100% - ${drawerWidth}px)`,
-		  marginLeft: drawerWidth,
+			width: `calc(100% - ${drawerWidth}px)`,
+			marginLeft: drawerWidth,
 		},
-	  },
-	  menuButton: {
+	},
+	menuButton: {
 		[theme.breakpoints.up('sm')]: {
-		  display: 'none',
+			display: 'none',
 		},
-	  },
-	  drawerPaper: {
+	},
+	drawerPaper: {
 		marginTop: barWidth,
 		width: drawerWidth,
-		background: "#20D3D6"
-	  },
-	  content: {
-		flexGrow: 1,
-		padding: theme.spacing(3),
-	  },
+		background: "#0A5429"
+	},
+	// content: {
+	// 	flexGrow: 1,
+	// 	padding: theme.spacing(3),
+	// },
 	logo: {
 		marginRight: theme.spacing(2),
+		height: "75px",
 	},
 	logoContainer: {
 		display: "flex",
+		padding: "0",
 		"&:hover": {
 			cursor: "pointer",
 		},
@@ -72,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
 	toolbar: {
 		display: "flex",
 		justifyContent: "space-between",
-		background: "#20D3D6",
+		background: "#0A5429",
 		height: barWidth
 	},
 	centerText: {
@@ -85,13 +88,18 @@ const useStyles = makeStyles((theme) => ({
 	},
 	drawerContainer: {
 		display: 'flex',
-    	flexDirection: 'column',
-    	justifyContent: 'center',
+		flexDirection: 'column',
+		justifyContent: 'center',
 	},
 	menuItems: {
+		display: "flex",
+		alignItems: "center",
 		padding: "8px",
 		color: "#EEF8F9",
 	},
+	menuIcon: {
+		marginRight: theme.spacing(0.5)
+	}
 }));
 
 const Navbar = () => {
@@ -99,12 +107,12 @@ const Navbar = () => {
 	const [mobileOpen, setMobileOpen] = React.useState(false);
 	const theme = useTheme();
 	const { user, logout } = useUser();
-	
-  
+
+
 	const handleDrawerToggle = () => {
-	  setMobileOpen(!mobileOpen);
+		setMobileOpen(!mobileOpen);
 	};
-  
+
 	const Items = (props) => {
 		var cont = props.isDrawer ? classes.drawerContainer : classes.menuContainer;
 		return (
@@ -115,61 +123,59 @@ const Navbar = () => {
 							<a>Home</a>
 						</Link>
 					</Button> */}
-					<Button className={classes.menuItems}>
-						<Link href={`/recipes/chicken_fried_rice`}>
-							<a>Recipe</a>
-						</Link>
-					</Button>
+					<Link href={`/recipes/chicken_fried_rice`}>
+						<Button className={classes.menuItems}>
+							<MenuBook className={classes.menuIcon} />
+							<Typography variant="p">Recipes</Typography>
+						</Button>
+					</Link>
 					{user ? (
 						<div className={classes.menuItems}>
-							<Button className={classes.menuItems}>
-								<Link href={`/profile/profile`}>
-									<a>Profile</a>
-								</Link>
-							</Button>
+							<Link href={`/profile/profile`}>
+								<Button className={classes.menuItems}>
+									<AccountCircle className={classes.menuIcon} />
+									<Typography variant="p">Profile</Typography>
+								</Button>
+							</Link>
 							<Button onClick={() => logout()} className={classes.menuItems}>
 								Logout
 							</Button>
 						</div>
 					) : (
-						<Button className={classes.menuItems}>
-							<Link href={`/login`}>
-								<a>Login</a>
-							</Link>
-						</Button>	
-					)}
+							<Button className={classes.menuItems}>
+								<Link href={`/login`}>
+									<a>Login</a>
+								</Link>
+							</Button>
+						)}
 				</Box>
 			</div>
 		);
 	}
-		
+
 	return (
 		<div>
 			<div>
-			<Hidden smUp implementation="css">
-				<Drawer
-					variant="persistent"
-					anchor={'right'}
-					open={mobileOpen}
-					onClose={handleDrawerToggle}
-					classes={{
-						paper: classes.drawerPaper,
-					}}
-					ModalProps={{
-						keepMounted: true, // Better open performance on mobile.
-					}}
+				<Hidden smUp implementation="css">
+					<Drawer
+						variant="persistent"
+						anchor={'right'}
+						open={mobileOpen}
+						onClose={handleDrawerToggle}
+						classes={{
+							paper: classes.drawerPaper,
+						}}
+						ModalProps={{
+							keepMounted: true, // Better open performance on mobile.
+						}}
 					>
-					<Items isDrawer={true}/>
-				</Drawer>
-			</Hidden>
+						<Items isDrawer={true} />
+					</Drawer>
+				</Hidden>
 				<AppBar position="static">
 					<Toolbar className={classes.toolbar}>
 						<Button
 							href="/"
-							// onClick={(e) => {
-							//     e.preventDefault();
-							//     router.push("/");
-							// }}
 							className={classes.logoContainer}
 						>
 							<Avatar
@@ -188,7 +194,7 @@ const Navbar = () => {
 							</Typography>
 						</Button>
 						<Hidden only="xs" implementation="css">
-							<Items isDrawer={false}/>
+							<Items isDrawer={false} />
 						</Hidden>
 						<IconButton
 							color="inherit"
@@ -196,7 +202,7 @@ const Navbar = () => {
 							edge="start"
 							onClick={handleDrawerToggle}
 							className={classes.menuButton}
-							>
+						>
 							<MenuIcon />
 						</IconButton>
 					</Toolbar>

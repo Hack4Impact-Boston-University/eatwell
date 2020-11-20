@@ -15,6 +15,7 @@
     "bootstrap": "^4.5.3",
     "bulma": "^0.9.1",
     "child_process": "^1.0.2",
+    "css-loader": "^4.3.0",
     "dom-helpers": "^3.2.1",
     "downshift": "^6.0.6",
     "firebase": "^7.23.0",
@@ -39,9 +40,7 @@
     "react-swipeable-views": "^0.13.9",
     "reactfire": "^2.0.3",
     "reactfire-white-board": "0.0.18-beta4",
+    "style-loader": "^1.2.1",
     "swr": "^0.3.5"
-  },
-  "devDependencies": {
-    "file-loader": "^6.1.0"
   }
 }

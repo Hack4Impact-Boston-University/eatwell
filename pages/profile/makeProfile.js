@@ -10,7 +10,7 @@ import Navbar from "../../components/Navbar";
 import { useUser } from "../../utils/auth/useUser";
 import * as firebase from 'firebase'
 import 'firebase/firestore'
-import  { Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
@@ -45,27 +45,27 @@ const makeProfile = () => {
 	const [tel, setTel] = useState("");
 	const router = useRouter();
 
-	function name(e) {
+	const name = (e) => {
 		const re = /[A-Za-z \-]+/g;
 		if (!re.test(e.key)) {
 			e.preventDefault();
 		}
 	}
 
-	function phone(e) {
+	const phone = (e) => {
 		const re = /[0-9]+/g;
 		if (!re.test(e.key) || e.target.value.length > 11) {
 			e.preventDefault();
 		}
 	}
 
-	function telnum(e) {
+	const telnum = (e) => {
 		let val = e.target.value;
-		if(tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
+		if (tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
 			val += '-';
 		}
-		else if(tel.length == 4 && val.length == 3 || tel.length == 8 && val.length == 7) {
-			val = val.slice(0,-1);
+		else if (tel.length == 4 && val.length == 3 || tel.length == 8 && val.length == 7) {
+			val = val.slice(0, -1);
 		}
 		setTel(val);
 	}
@@ -80,20 +80,20 @@ const makeProfile = () => {
 		);
 	}
 
-	async function upload() {
+	const upload = async () => {
 		console.log(user)
 		var profile = firebase.firestore().collection('users').doc(user.id)
-        var data = {
+		var data = {
 			uid: user.id,
 			email: user.email,
 			firstname: firstName,
 			lastname: lastName,
-            phone: tel,
-        }
-        
-        console.log(data)
+			phone: tel,
+		}
 
-        await profile.set(data);
+		console.log(data)
+
+		await profile.set(data);
 		router.push('/profile/profile');
 		//window.location = "http://localhost:3000/profile/profile";
 	}
@@ -122,7 +122,7 @@ const makeProfile = () => {
 						label="First Name"
 						placeholder="Your first name"
 						required
-						// helperText="Please enter your first name"
+					// helperText="Please enter your first name"
 					/>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
