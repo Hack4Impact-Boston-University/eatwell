@@ -6,11 +6,12 @@ import {
 	Typography,
 } from "@material-ui/core";
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import { useUser } from "../utils/auth/useUser";
+import Navbar from "../../components/Navbar";
+import { useUser } from "../../utils/auth/useUser";
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import  { Redirect } from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -42,6 +43,32 @@ const makeProfile = () => {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [tel, setTel] = useState("");
+	const router = useRouter();
+
+	function name(e) {
+		const re = /[A-Za-z \-]+/g;
+		if (!re.test(e.key)) {
+			e.preventDefault();
+		}
+	}
+
+	function phone(e) {
+		const re = /[0-9]+/g;
+		if (!re.test(e.key) || e.target.value.length > 11) {
+			e.preventDefault();
+		}
+	}
+
+	function telnum(e) {
+		let val = e.target.value;
+		if(tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
+			val += '-';
+		}
+		else if(tel.length == 4 && val.length == 3 || tel.length == 8 && val.length == 7) {
+			val = val.slice(0,-1);
+		}
+		setTel(val);
+	}
 
 	if (!user) {
 		console.log("User not logged in.");
@@ -67,7 +94,8 @@ const makeProfile = () => {
         console.log(data)
 
         await profile.set(data);
-        window.location = "http://localhost:3000/profile";
+		router.push('/profile/profile');
+		//window.location = "http://localhost:3000/profile/profile";
 	}
 
 	return (
@@ -87,6 +115,7 @@ const makeProfile = () => {
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
 						value={firstName}
+						onKeyPress={(e) => name(e)}
 						onChange={(e) => setFirstName(e.target.value)}
 						error={false}
 						id="profileFirst"
@@ -99,6 +128,7 @@ const makeProfile = () => {
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
 						value={lastName}
+						onKeyPress={(e) => name(e)}
 						onChange={(e) => setLastName(e.target.value)}
 						id="profileLast"
 						label="Last Name"
@@ -109,7 +139,8 @@ const makeProfile = () => {
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
 						value={tel}
-						onChange={(e) => setTel(e.target.value)}
+						onKeyPress={(e) => phone(e)}
+						onChange={(e) => telnum(e)}
 						id="profilePhone"
 						label="Phone Number"
 						placeholder="Your phone number"

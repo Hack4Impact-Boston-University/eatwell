@@ -13,12 +13,10 @@ import { mapUserData } from "./mapUserData";
 
 initFirebase();
 var db = firebase.firestore();
-
 const useUser = () => {
 	const [user, setUser] = useState();
 	const router = useRouter();
-	let userExists = false;
-
+	let userExists = getUserFromCookie();
 	const logout = async () => {
 		return firebase
 			.auth()
@@ -36,12 +34,11 @@ const useUser = () => {
 		// Firebase updates the id token every hour, this
 		// makes sure the react state and the cookie are
 		// both kept up to date
-		const cancelAuthListener = firebase.auth().onIdTokenChanged((user) => {
-			console.log("Boop");
-			if (user) {
+		const cancelAuthListener = firebase.auth().onAuthStateChanged(function(u) {
+			if (u && !user) {
 				var dbData;
 				db.collection("users")
-					.doc(user.uid)
+					.doc(u.uid)
 					.get()
 					.then((doc) => {
 						if (doc.exists) {
@@ -49,30 +46,30 @@ const useUser = () => {
 							userExists = true;
 						} else {
 							dbData = {
-								email: user.email,
+								email: u.email,
 								enrolledProgram: 0,
 							};
 							userExists = false;
-							db.collection("users").doc(user.uid).set(dbData);
+							db.collection("users").doc(u.uid).set(dbData);
 						}
-						console.log(dbData);
-						const authData = mapUserData(user);
+						const authData = mapUserData(u);
 						const userData = Object.assign({}, authData, dbData);
 						setUserCookie(userData);
 						setUser(userData);
 					});
-			} else {
+			} else if(!u){
 				removeUserCookie();
 				setUser();
 			}
 		});
-
-		const userFromCookie = getUserFromCookie();
-		if (!userFromCookie) {
-			//router.push('/')
-			return;
+		if(!user) {
+			const userFromCookie = getUserFromCookie();
+			if (!userFromCookie) {
+				//router.push('/')
+				return;
+			}
+			setUser(userFromCookie);
 		}
-		setUser(userFromCookie);
 
 		return () => {
 			cancelAuthListener();
