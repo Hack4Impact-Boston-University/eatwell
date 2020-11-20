@@ -135,7 +135,7 @@ export default function Recipe() {
 
   else {
     initFirebase()
-    firebase.storage().ref().child("Chicken Fried Rice.pdf").getDownloadURL().then(function(url) {
+    firebase.storage().ref().child(data.pdfRecipe).getDownloadURL().then(function(url) {
       // update url
       setPdfURL(url)
     }).catch(function(error) {
