@@ -9,6 +9,7 @@ export default (req, res) => {
       querySnapshot.forEach((doc) => {
         recipes.push({...doc.data()})
       })
+      //console.log(json(recipes))
       res.json(recipes);
     })
     .catch((error) => {
