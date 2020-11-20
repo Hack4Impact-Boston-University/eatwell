@@ -20,6 +20,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+// import { FilterDrawer, filterSelectors, filterActions } from 'material-ui-filter';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -41,6 +42,13 @@ export default function Admin() {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
+    // const filterFields = [
+    //     { name: 'name', label: 'Name' },
+    //     { name: 'email', label: 'Email' },
+    //     { name: 'registered', label: 'Registered', type: 'date' },
+    //     { name: 'isActive', label: 'Is Active', type: 'bool' },
+    //   ];
+
     if (currentIndex === -1) {
         newChecked.push(value);
     } else {
@@ -51,53 +59,52 @@ export default function Admin() {
     };
 
     const { data } = useSWR(`/api/users/getAllUsers`, fetcher);
-    console.log(data);
 
     if (!data) {
         return "Loading...";
     }
 
+    const emails = [];
+    var i;
+    for (i = 0; i < data.length; i++) {
+        emails.push(data[i]["email"])
+    }
+
+    var state = {
+        emails: emails,
+        searchTerm: ""
+    }
+
+    var editSearchTerm;
+    var dynamicSearch;
+    editSearchTerm = (e) => {
+        this.setState({searchTerm: e.target.value})
+    }
+    dynamicSearch = () => {
+        return this.state.emails.filter(email => email.toLowerCase().includes(this.state.searchTerm.toLowerCase()))
+    }
+    console.log(emails);
+
+
     return (
+        <div className={classes.root}>
+
+        <input type='text' value={state.searchTerm} onChange={this.editSearchTerm} placeholder="search for an email!"></input>
+
         <List className={classes.root}>
         {data.map((value) => {
-            // const labelId = `checkbox-list-label-${value}`;
-
-            // return (
-            // <ListItem key={value} role={undefined} dense button onClick={handleToggle(value)}>
-            //     <ListItemIcon>
-            //         <Checkbox
-            //             edge="start"
-            //             checked={checked.indexOf(value) !== -1}
-            //             tabIndex={-1}
-            //             disableRipple
-            //             inputProps={{ 'aria-labelledby': labelId }}
-            //         />
-            //     <ListItemAvatar>
-            //         <Avatar
-            //             alt={`Avatar n°${value + 1}`}
-            //             src={`/static/images/avatar/${value + 1}.jpg`}
-            //         />
-            //     </ListItemAvatar>
-            //     </ListItemIcon>
-            //     <ListItemText id={labelId} primary={value.email} secondary={value.email} />
-            //     {/* <ListItemText id={labelId} primary={value.email} /> */}
-            //     {/* <ListItemText id={labelId} primary={value.firstName} />
-            //     <ListItemText id={labelId} primary={value.lastName} />
-            //     <ListItemText id={labelId} primary={value.phoneNumber} />
-            //     <ListItemText id={labelId} primary={value.enrolledProgram} /> */}
-            //     <ListItemSecondaryAction>
-            //     <ListItemText edge="end" id={labelId} primary="role" />
-            //     <IconButton edge="end" aria-label="comments">
-            //         <EditIcon />
-            //     </IconButton>
-            //     <IconButton edge="end" aria-label="comments">
-            //         <DeleteIcon />
-            //     </IconButton>
-            //     </ListItemSecondaryAction>
-            // </ListItem>
-            // );
             return (
                 
+                // <FilterDrawer
+                //     name={'demo'}
+                //     fields={filterFields}
+                    
+                //     //localising the DatePicker
+                //     locale={'de-DE'}
+                //     // DateTimeFormat={global.Intl.DateTimeFormat}
+                //     okLabel="OK"
+                //     cancelLabel="Abbrechen"
+                //     />
                 <Accordion>
                     
                     <AccordionSummary
@@ -131,9 +138,10 @@ export default function Admin() {
                         
                     </AccordionDetails>
                 </Accordion>
-                
             );
         })}
         </List>
+        </div>
+
     )
 }
