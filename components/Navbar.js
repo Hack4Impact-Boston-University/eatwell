@@ -126,7 +126,7 @@ const Navbar = () => {
 					<Link href={`/recipes/chicken_fried_rice`}>
 						<Button className={classes.menuItems}>
 							<MenuBook className={classes.menuIcon} />
-							<Typography variant="p">Recipes</Typography>
+							<Typography variant="subtitle2">Recipes</Typography>
 						</Button>
 					</Link>
 					{user ? (
@@ -134,11 +134,11 @@ const Navbar = () => {
 							<Link href={`/profile/profile`}>
 								<Button className={classes.menuItems}>
 									<AccountCircle className={classes.menuIcon} />
-									<Typography variant="p">Profile</Typography>
+									<Typography variant="subtitle2">Profile</Typography>
 								</Button>
 							</Link>
 							<Button onClick={() => logout()} className={classes.menuItems}>
-								Logout
+								<Typography variant="subtitle2">Logout</Typography>
 							</Button>
 						</div>
 					) : (
