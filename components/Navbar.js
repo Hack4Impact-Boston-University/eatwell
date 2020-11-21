@@ -5,26 +5,11 @@ import {
 	Box,
 	Button,
 	makeStyles,
-	useTheme,
 	Toolbar,
 	Typography,
 } from "@material-ui/core";
-// import { useRouter } from "next/router";
 import { useUser } from "../utils/auth/useUser";
 import Link from "next/link";
-import PropTypes from 'prop-types';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/Mail';
-import MenuIcon from '@material-ui/icons/Menu';
 import { AccountCircle, MenuBook } from "@material-ui/icons";
 
 const drawerWidth = 100
@@ -33,13 +18,6 @@ const barWidth = 60
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
-	},
-	drawer: {
-		[theme.breakpoints.up('sm')]: {
-			width: drawerWidth,
-			flexShrink: 0,
-		},
-		background: "#0A5429"
 	},
 	appBar: {
 		[theme.breakpoints.up('sm')]: {
@@ -52,15 +30,6 @@ const useStyles = makeStyles((theme) => ({
 			display: 'none',
 		},
 	},
-	drawerPaper: {
-		marginTop: barWidth,
-		width: drawerWidth,
-		background: "#0A5429"
-	},
-	// content: {
-	// 	flexGrow: 1,
-	// 	padding: theme.spacing(3),
-	// },
 	logo: {
 		marginRight: theme.spacing(2),
 		height: "75px",
@@ -84,17 +53,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 	menuContainer: {
 		display: "flex",
-		alignItems: "center",
-	},
-	drawerContainer: {
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'center',
 	},
 	menuItems: {
 		display: "flex",
 		alignItems: "center",
-		padding: "8px",
+		// padding: "4px",
 		color: "#EEF8F9",
 	},
 	menuIcon: {
@@ -104,74 +67,50 @@ const useStyles = makeStyles((theme) => ({
 
 const Navbar = () => {
 	const classes = useStyles();
-	const [mobileOpen, setMobileOpen] = React.useState(false);
-	const theme = useTheme();
 	const { user, logout } = useUser();
 
-
-	const handleDrawerToggle = () => {
-		setMobileOpen(!mobileOpen);
-	};
-
+	// navbar items
 	const Items = (props) => {
-		var cont = props.isDrawer ? classes.drawerContainer : classes.menuContainer;
+		// navbar items are shown iff user is logged in
 		return (
 			<div>
-				<Box className={cont}>
-					{/* <Button className={classes.menuItems}>
-						<Link href={`/`}>
-							<a>Home</a>
+				{user ? (
+					<Box className={classes.menuContainer}>
+						<Link href="/recipes/chicken_fried_rice">
+							<Button>
+								<Box component="div" className={classes.menuItems}>
+									<MenuBook className={classes.menuIcon} />
+									<Typography variant="subtitle2">Recipes</Typography>
+								</Box>
+							</Button>
 						</Link>
-					</Button> */}
-					<Link href={`/recipes/chicken_fried_rice`}>
-						<Button className={classes.menuItems}>
-							<MenuBook className={classes.menuIcon} />
-							<Typography variant="subtitle2">Recipes</Typography>
-						</Button>
-					</Link>
-					{user ? (
-						<div className={classes.menuItems}>
-							<Link href={`/profile/profile`}>
-								<Button className={classes.menuItems}>
+						<Link href={`/profile/profile`}>
+							<Button>
+								<Box component="div" className={classes.menuItems}>
 									<AccountCircle className={classes.menuIcon} />
 									<Typography variant="subtitle2">Profile</Typography>
-								</Button>
+								</Box>
+							</Button>
+						</Link>
+						<Button onClick={() => logout()} className={classes.menuItems}>
+							<Typography variant="subtitle2">Logout</Typography>
+						</Button>
+					</Box>
+				) : ( // user not logged in show login button
+						<Button className={classes.menuItems}>
+							<Link href={`/login`}>
+								<a>Login</a>
 							</Link>
-							<Button onClick={() => logout()} className={classes.menuItems}>
-								<Typography variant="subtitle2">Logout</Typography>
-							</Button>
-						</div>
-					) : (
-							<Button className={classes.menuItems}>
-								<Link href={`/login`}>
-									<a>Login</a>
-								</Link>
-							</Button>
-						)}
-				</Box>
-			</div>
+						</Button>
+					)
+				}
+			</div >
 		);
 	}
 
 	return (
 		<div>
 			<div>
-				<Hidden smUp implementation="css">
-					<Drawer
-						variant="persistent"
-						anchor={'right'}
-						open={mobileOpen}
-						onClose={handleDrawerToggle}
-						classes={{
-							paper: classes.drawerPaper,
-						}}
-						ModalProps={{
-							keepMounted: true, // Better open performance on mobile.
-						}}
-					>
-						<Items isDrawer={true} />
-					</Drawer>
-				</Hidden>
 				<AppBar position="static">
 					<Toolbar className={classes.toolbar}>
 						<Button
@@ -193,18 +132,7 @@ const Navbar = () => {
 								EatWell
 							</Typography>
 						</Button>
-						<Hidden only="xs" implementation="css">
-							<Items isDrawer={false} />
-						</Hidden>
-						<IconButton
-							color="inherit"
-							aria-label="open drawer"
-							edge="start"
-							onClick={handleDrawerToggle}
-							className={classes.menuButton}
-						>
-							<MenuIcon />
-						</IconButton>
+						<Items />
 					</Toolbar>
 				</AppBar>
 			</div>
@@ -212,30 +140,3 @@ const Navbar = () => {
 	);
 };
 export default Navbar;
-// import React, { Component } from 'react';
-// import {Nav, Navbar, Form, NavDropdown, MenuItem,  Tabs, ButtonToolbar, Button, Table, ButtonGroup, Row, Col, Grid, Panel, FormGroup, FormControl} from 'react-bootstrap';
-// import './navbar.module.css';
-
-// export default class Navbarr extends Component {
-//   render() {
-//     const color = {
-//       background: "lightgreen",
-//     }
-//     return (
-//       <Navbar bg="NavbarItems" className={color}>
-//         <Navbar.Brand href="/">Eatwell</Navbar.Brand>
-//         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-//         <Navbar.Collapse id="basic-navbar-nav">
-//           <Nav className="mr-auto">
-//             <Nav.Link href="#">Recipes</Nav.Link>
-// 			<Nav.Link href="/profile">Profile</Nav.Link>
-//           </Nav>
-//           <Form inline>
-//             <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-//             <Button variant="outline-success">Search</Button>
-//           </Form>
-//         </Navbar.Collapse>
-//       </Navbar>
-//       );
-//     }
-//   }
