@@ -14,8 +14,8 @@ export const setUserCookie = (user) => {
     // firebase id tokens expire in one hour
     // set cookie expiry to match
     expires: 1 / 24,
-    secure: true,
-    sameSite: "strict",
+    //secure: true,
+    sameSite: "lax",
   })
 }
 
