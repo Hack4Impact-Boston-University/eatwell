@@ -5,6 +5,19 @@ import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
 import { DropzoneArea } from 'material-ui-dropzone'
 import { PictureAsPdf, Router } from '@material-ui/icons'
+import { Alert } from '@material-ui/lab';
+import { makeStyles } from '@material-ui/core/styles';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import GridListTileBar from '@material-ui/core/GridListTileBar';
+import IconButton from '@material-ui/core/IconButton';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import tileData from './tileData';
+import InboxIcon from '@material-ui/icons/Inbox';
+import StarIcon from '@material-ui/icons/Star';
+import SendIcon from '@material-ui/icons/Send';
+import DraftsIcon from '@material-ui/icons/Send';
+import MultiImageInput from 'react-multiple-image-input';
 
 initFirebase()
 
@@ -23,7 +36,34 @@ const UploadForm = () => {
     const [imageUrl, setImageUrl] = useState('')
     const [videoSkills, setVideoSkills] = useState('')
     const [videoTips, setVideoTips] = useState('')
+    const [errorAlert, setErrorAlert] = useState(false);
+	const [successAlert, setSuccessAlert] = useState(false);
+    const [images, setImages] = useState({});
+    const [image, setImage] = useState('');
 
+
+    const uploadImage = (e) => {
+		e.preventDefault();
+		console.log(e.target.files);
+		const re = /(?:\.([^.]+))?$/;
+		let ext = re.exec(e.target.files[0].name)[1];
+		console.log("ext");
+		if (ext !== "png" && ext !== "jpg" && ext !== "jpeg") {
+			console.log("Please upload a .png, .jpg, or .jpeg file");
+			setErrorAlert(true);
+		} else {
+			console.log("file uploaded");
+			setSuccessAlert(true);
+		}
+		console.log(successAlert);
+    };
+
+    const crop = {
+        unit: '%',
+        aspect: 4 / 3,
+        width: '100'
+    };
+    
     function upload() {
 
         const videoUrl = "https://player.vimeo.com/video/"
@@ -34,11 +74,18 @@ const UploadForm = () => {
         var date = new Date()
         var dateUploaded = date.getFullYear().toString() + '/' +date.getMonth().toString() + '/' + date.getDate().toString()
     
+        var i;
+        var uploadedImages = [];
+        for (i = 0; i < 3 ; i++) {
+            uploadedImages.push(recipeName+" "+i+".img")
+        }
+        // console.log(images[0]);
+        
         var collection = firebase.firestore().collection('recipes')
         var data = {
             nameOfDish: recipeName,
             description: description,
-            imageUrl: imageUrl,
+            images: uploadedImages,
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipeName+".pdf",
             dateUploaded: dateUploaded,
@@ -46,7 +93,7 @@ const UploadForm = () => {
             videoTips: videoUrl + videoTips,
         }
         
-        console.log(data)
+        // console.log(data)
 
         collection.doc(recipe).set(data)
         firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
@@ -54,6 +101,29 @@ const UploadForm = () => {
                 alert('upload successful!')
             }
         })
+
+        firebase.storage().ref().child(recipeName+" 0"+".img").put(image).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+            'complete': function() {
+                alert('upload successful!')
+            }
+        })
+
+        // var uploadedImages = []
+        // images.map(function (key,value) {
+        //     uploadedImages.push(value)
+        //     // firebase.storage().ref().child(recipeName+".img").put(1).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        //     //     'complete': function() {
+        //     //         alert('upload successful!')
+        //     //     }
+        //     // })
+        // })
+        // firebase.storage().ref().child(recipeName+".img").put(images).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        //     'complete': function() {
+        //         alert('upload successful!')
+        //     }
+        // })
+
+        console.log(setPdfFile);
     }
 
     return (
@@ -102,17 +172,13 @@ const UploadForm = () => {
                     variant="outlined"
                 />
             </ui.Grid>
-            <ui.Grid item xs={12}>
-                <ui.TextField
-                    required
-                    value={imageUrl}
-                    label="Image URL"
-                    multiline
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    fullWidth
-                    variant="outlined"
-                />
-            </ui.Grid>
+            <MultiImageInput
+                images={images}
+                setImages={setImages}
+                cropConfig={{ crop, ruleOfThirds: true }}
+                inputId
+                // onChange={(files) => setImage(files[0])}
+            />
             <ui.Grid item xs={12}>
                 <ui.TextField
                     required
