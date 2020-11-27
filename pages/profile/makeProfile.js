@@ -4,6 +4,7 @@ import {
 	makeStyles,
 	TextField,
 	Typography,
+	CircularProgress,
 } from "@material-ui/core";
 import React, { useState } from "react";
 import Navbar from "../../components/Navbar";
@@ -143,7 +144,7 @@ const makeProfile = () => {
 		router.push('/profile/profile');
 	}
 	return (<div>
-		<Grid justify="center" alignItems="center" container>
+		<Grid container spacing={0} direction="column" alignItems="center" justify="center" alignItems="center" style={{ minHeight: '100vh' }}>
 			<CircularProgress />
 		</Grid>
 	</div>);

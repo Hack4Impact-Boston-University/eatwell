@@ -6,8 +6,13 @@ import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
 import Navbar from "../components/Navbar";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, 
+        Dialog, 
+        DialogContent,
+        DialogTitle,
+        } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/auth/userCookies"
+import { DialerSip } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -33,6 +38,13 @@ const useStyles = makeStyles((theme) => ({
 const Index = () => {
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleToggle = () => {
+    setOpen(!open);
+  };
   function signInClick(event) {
     setLogin(true);
   }
@@ -63,7 +75,7 @@ const Index = () => {
             </Link>
           </ui.Button>
           {!user && 
-          <ui.Button variant="outlined" onClick={(e) => signInClick(e)}>
+          <ui.Button variant="outlined" onClick={() => handleToggle()}>
             Login
           </ui.Button>}
 
@@ -104,6 +116,12 @@ const Index = () => {
           }
         </main>
       </div>
+      <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+        <DialogTitle id="form-dialog-title">Login</DialogTitle>
+          <DialogContent>
+            <FirebaseAuth/>
+					</DialogContent>
+      </Dialog>
     </div>
   )
 }

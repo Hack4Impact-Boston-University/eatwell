@@ -9,6 +9,9 @@ import {
 	makeStyles,
 	Toolbar,
 	Typography,
+	Dialog, 
+    DialogContent,
+    DialogTitle,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
 import Link from "next/link";
@@ -18,6 +21,7 @@ import {
 	ExitToApp,
 	KeyboardArrowRight,
 } from "@material-ui/icons";
+import FirebaseAuth from '../components/FirebaseAuth'
 
 const drawerWidth = 100;
 const barWidth = 60;
@@ -70,6 +74,13 @@ const Navbar = () => {
 	const classes = useStyles();
 	const { user, logout } = useUser();
 
+	const [open, setOpen] = React.useState(false);
+	const handleClose = () => {
+		setOpen(false);
+	};
+	const handleToggle = () => {
+		setOpen(!open);
+	};	
 	// navbar items
 	const Items = (props) => {
 		// navbar items are shown iff user is logged in
@@ -78,7 +89,7 @@ const Navbar = () => {
 				{user ? (
 					// user logged in show menu items
 					<Toolbar disableGutters>
-						<Link href="/recipes/chicken_fried_rice">
+						<Link href="recipes/recipeList">
 							<Button className={classes.menuItems}>
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
@@ -104,14 +115,12 @@ const Navbar = () => {
 					</Toolbar>
 				) : (
 					// user not logged in show login button
-					<Link href={`/login`}>
-						<Button className={classes.menuItems}>
-							<KeyboardArrowRight
-								className={`${classes.menuIcon} ${classes.menuItems}`}
-							/>
-							<Typography variant="subtitle1">Login</Typography>
-						</Button>
-					</Link>
+					<Button className={classes.menuItems} onClick={() => handleToggle()}>
+            			<KeyboardArrowRight
+							className={`${classes.menuIcon} ${classes.menuItems}`}
+						/>
+						<Typography variant="subtitle1">Login</Typography>
+          			</Button>
 				)}
 			</div>
 		);
@@ -141,6 +150,12 @@ const Navbar = () => {
 						<Items />
 					</Toolbar>
 				</AppBar>
+				<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+					<DialogTitle id="form-dialog-title">Login</DialogTitle>
+					<DialogContent>
+						<FirebaseAuth/>
+					</DialogContent>
+				</Dialog>
 			</div>
 		</div>
 	);
