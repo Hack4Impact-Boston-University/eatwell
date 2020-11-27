@@ -16,7 +16,8 @@ var db = firebase.firestore();
 const useUser = () => {
 	const [user, setUser] = useState();
 	const router = useRouter();
-	let userExists = getUserFromCookie();
+	const [resolveUser, setResolve] = useState("resolving");
+
 	const logout = async () => {
 		return firebase
 			.auth()
@@ -30,30 +31,40 @@ const useUser = () => {
 			});
 	};
 
+	const upload = async (firstName, lastName, phone) => {
+		var newData = {
+			firstname: firstName,
+			lastname: lastName,
+            phone: phone,
+		}
+		var currData = getUserFromCookie();
+		if(currData) {
+			var userData = Object.assign({}, currData, newData);
+			setUserCookie(userData);
+			setUser(userData);
+			return db.collection("users").doc(user.id).set(userData);
+		}		
+	}
+
 	useEffect(() => {
 		// Firebase updates the id token every hour, this
 		// makes sure the react state and the cookie are
 		// both kept up to date
 		const cancelAuthListener = firebase.auth().onAuthStateChanged(function(u) {
 			if (u && !user) {
-				var dbData;
+				setResolve("resolving");
+				var userData = {};
 				db.collection("users")
 					.doc(u.uid)
 					.get()
 					.then((doc) => {
 						if (doc.exists) {
-							dbData = doc.data();
-							userExists = true;
+							setResolve("found");
+							userData = doc.data();
 						} else {
-							dbData = {
-								email: u.email,
-								enrolledProgram: 0,
-							};
-							userExists = false;
-							db.collection("users").doc(u.uid).set(dbData);
+							setResolve("not found");
+							userData = mapUserData(u);
 						}
-						const authData = mapUserData(u);
-						const userData = Object.assign({}, authData, dbData);
 						setUserCookie(userData);
 						setUser(userData);
 					});
@@ -77,7 +88,7 @@ const useUser = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	//console.log(user)
-	return { user, logout, userExists };
+	return { user, logout, resolveUser, upload};
 };
 
 export { useUser };
