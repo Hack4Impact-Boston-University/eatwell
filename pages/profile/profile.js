@@ -27,17 +27,17 @@ const useStyles = makeStyles((theme) => ({
 		background: "lightgray",
 		borderRadius: "5px",
 		minWidth: "100px",
-		padding: "3px"
+		padding: "3px",
 	},
 	pass: {
 		marginTop: theme.spacing(2),
 		maxWidth: "200px",
-		minWidth: "120px"
+		minWidth: "120px",
 	},
 	container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
 		height: "100vh",
-		overflow: "hidden"
+		overflow: "hidden",
 	},
 	heading: {
 		color: "red",
@@ -117,9 +117,13 @@ const Profile = () => {
 						/>
 					</Grid>
 					<Grid xs={8} md={4} item>
-						<Button variant="contained" component="label" className={classes.btn}>
+						<Button
+							variant="contained"
+							component="label"
+							className={classes.btn}
+						>
 							Upload File
-						<input
+							<input
 								type="file"
 								onChange={handleUpload}
 								style={{ display: "none" }}
@@ -134,8 +138,8 @@ const Profile = () => {
 								Please upload a single image (.png, jpg, jpeg)
 							</Alert>
 						) : (
-								""
-							)}
+							""
+						)}
 						{successAlert ? (
 							<Alert
 								onClose={() => setSuccessAlert(false)}
@@ -145,8 +149,8 @@ const Profile = () => {
 								File successfully uploaded!
 							</Alert>
 						) : (
-								""
-							)}
+							""
+						)}
 					</Grid>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
@@ -156,7 +160,7 @@ const Profile = () => {
 						value={user.firstname}
 						InputProps={{
 							readOnly: true,
-							className: classes.root
+							className: classes.root,
 						}}
 					/>
 				</Grid>
@@ -168,7 +172,7 @@ const Profile = () => {
 						defaultValue="Doe"
 						InputProps={{
 							readOnly: true,
-							className: classes.root
+							className: classes.root,
 						}}
 					/>
 				</Grid>
@@ -180,7 +184,7 @@ const Profile = () => {
 						defaultValue="abc@gmail.com"
 						InputProps={{
 							readOnly: true,
-							className: classes.root
+							className: classes.root,
 						}}
 					/>
 				</Grid>
@@ -193,7 +197,7 @@ const Profile = () => {
 						type="tel"
 						InputProps={{
 							readOnly: true,
-							className: classes.root
+							className: classes.root,
 						}}
 					/>
 				</Grid>
@@ -217,7 +221,11 @@ const Profile = () => {
 											onClick={handleClickShowPassword}
 											edge="end"
 										>
-											{profile?.showPassword ? <Visibility /> : <VisibilityOff />}
+											{profile?.showPassword ? (
+												<Visibility />
+											) : (
+												<VisibilityOff />
+											)}
 										</IconButton>
 									</InputAdornment>
 								}
