@@ -7,6 +7,7 @@ import initFirebase from "../utils/auth/initFirebase";
 import { setUserCookie } from "../utils/auth/userCookies";
 import { mapUserData } from "../utils/auth/mapUserData";
 import { useUser } from "../utils/auth/useUser";
+import { useRadioGroup } from "@material-ui/core";
 
 // Init the Firebase app.
 initFirebase();
@@ -33,8 +34,9 @@ const firebaseAuthConfig = {
 };
 
 const FirebaseAuth = () => {
-	let { userExists } = useUser();
-	if (!userExists) firebaseAuthConfig.signInSuccessUrl = "/profile/makeProfile";
+	//let { userExists } = useUser();
+	//if (!userExists) 
+		firebaseAuthConfig.signInSuccessUrl = "/profile/makeProfile";
 
 	// Do not SSR FirebaseUI, because it is not supported.
 	// https://github.com/firebase/firebaseui-web/issues/213
