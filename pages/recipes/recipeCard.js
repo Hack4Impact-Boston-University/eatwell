@@ -12,6 +12,9 @@ import Grid from '@material-ui/core/Grid';
 import * as ui from '@material-ui/core';
 import clsx from 'clsx';
 import Link from 'next/link'
+import {
+	editFavCookie,
+} from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
   
@@ -41,18 +44,18 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 const RecipeCard = ({ obj, isFav}) => {
-
+  
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
   const [favorited, setFav] = React.useState(isFav);
-
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  function favButtonClick () {
+  function favButtonClick() {
     setFav(!favorited);
-  };
+    editFavCookie(obj.id, !favorited)
+  }
 
   return (
     <Grid item xs={12} >

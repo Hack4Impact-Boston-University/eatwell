@@ -132,7 +132,7 @@ const makeProfile = () => {
 							/>
 						</Grid>
 						<Grid container justify="center" item>
-							<Button variant="contained" color="primary" className={classes.btn} onClick={() => upload(firstName, lastName, tel).then(() => {router.push('/profile/profile');})}>
+							<Button variant="contained" color="primary" className={classes.btn} onClick={() => upload({firstname: firstName, lastname: lastName, phone: tel}).then(() => {router.push('/profile/profile');})}>
 								Submit
 							</Button>
 						</Grid>
