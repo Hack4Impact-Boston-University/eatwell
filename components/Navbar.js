@@ -9,9 +9,14 @@ import {
 	makeStyles,
 	Toolbar,
 	Typography,
-	Dialog, 
-    DialogContent,
-    DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Drawer,
+	List,
+	ListItemText,
+	ListItem,
+	ListItemIcon,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
 import Link from "next/link";
@@ -20,8 +25,9 @@ import {
 	Book,
 	ExitToApp,
 	KeyboardArrowRight,
+	Menu,
 } from "@material-ui/icons";
-import FirebaseAuth from '../components/FirebaseAuth'
+import FirebaseAuth from "../components/FirebaseAuth";
 
 const drawerWidth = 100;
 const barWidth = 60;
@@ -58,6 +64,17 @@ const useStyles = makeStyles((theme) => ({
 		background: "#0A5429",
 		height: barWidth,
 	},
+	responsiveMenu: {
+		[theme.breakpoints.down("xs")]: {
+			display: "none",
+		},
+	},
+	responsiveIcon: {
+		display: "none",
+		[theme.breakpoints.down("xs")]: {
+			display: "block",
+		},
+	},
 	centerText: {
 		display: "flex",
 		alignItems: "center",
@@ -75,12 +92,25 @@ const Navbar = () => {
 	const { user, logout } = useUser();
 
 	const [open, setOpen] = React.useState(false);
+	const [toggle, setToggle] = useState(true);
+
+	const toggleDrawer = (event) => {
+		if (
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		) {
+			return;
+		}
+
+		setToggle(!toggle);
+	};
+
 	const handleClose = () => {
 		setOpen(false);
 	};
 	const handleToggle = () => {
 		setOpen(!open);
-	};	
+	};
 	// navbar items
 	const Items = (props) => {
 		// navbar items are shown iff user is logged in
@@ -89,38 +119,69 @@ const Navbar = () => {
 				{user ? (
 					// user logged in show menu items
 					<Toolbar disableGutters>
-						<Link href="recipes/recipeList">
-							<Button className={classes.menuItems}>
-								<Book />
-								<Typography variant="subtitle2">Recipes</Typography>
-							</Button>
-						</Link>
+						<Box className={classes.responsiveMenu} component="div">
+							<Link href="recipes/recipeList">
+								<Button className={classes.menuItems}>
+									<Book />
+									<Typography variant="subtitle2">Recipes</Typography>
+								</Button>
+							</Link>
 
-						<Link href={`/profile/profile`}>
-							<Button className={classes.menuItems}>
-								<AccountCircle
-									className={`${classes.menuIcon} ${classes.menuItems}`}
-								/>
-								<Typography variant="subtitle2">Profile</Typography>
-							</Button>
-						</Link>
+							<Link href={`/profile/profile`}>
+								<Button className={classes.menuItems}>
+									<AccountCircle
+										className={`${classes.menuIcon} ${classes.menuItems}`}
+									/>
+									<Typography variant="subtitle2">Profile</Typography>
+								</Button>
+							</Link>
 
-						<Button
-							onClick={() => logout()}
-							className={`${classes.menuIcon} ${classes.menuItems}`}
-						>
-							<ExitToApp />
-							<Typography variant="subtitle2">Logout</Typography>
+							<Button
+								onClick={() => logout()}
+								className={`${classes.menuIcon} ${classes.menuItems}`}
+							>
+								<ExitToApp />
+								<Typography variant="subtitle2">Logout</Typography>
+							</Button>
+						</Box>
+						<Button className={classes.responsiveIcon}>
+							<Menu className={classes.menuItems} onClick={toggleDrawer} />
+							<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
+								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
+									<List>
+										<ListItem button key={0}>
+											<ListItemIcon>
+												<Book />
+											</ListItemIcon>
+											<ListItemText primary="Recipes" />
+										</ListItem>
+
+										<ListItem button key={1}>
+											<ListItemIcon>
+												<AccountCircle />
+											</ListItemIcon>
+											<ListItemText primary="Account" />
+										</ListItem>
+
+										<ListItem button key={2}>
+											<ListItemIcon>
+												<ExitToApp />
+											</ListItemIcon>
+											<ListItemText primary="Logout" />
+										</ListItem>
+									</List>
+								</div>
+							</Drawer>
 						</Button>
 					</Toolbar>
 				) : (
 					// user not logged in show login button
 					<Button className={classes.menuItems} onClick={() => handleToggle()}>
-            			<KeyboardArrowRight
+						<KeyboardArrowRight
 							className={`${classes.menuIcon} ${classes.menuItems}`}
 						/>
 						<Typography variant="subtitle1">Login</Typography>
-          			</Button>
+					</Button>
 				)}
 			</div>
 		);
@@ -150,10 +211,14 @@ const Navbar = () => {
 						<Items />
 					</Toolbar>
 				</AppBar>
-				<Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+				<Dialog
+					onClose={handleClose}
+					aria-labelledby="simple-dialog-title"
+					open={open}
+				>
 					<DialogTitle id="form-dialog-title">Login</DialogTitle>
 					<DialogContent>
-						<FirebaseAuth/>
+						<FirebaseAuth />
 					</DialogContent>
 				</Dialog>
 			</div>

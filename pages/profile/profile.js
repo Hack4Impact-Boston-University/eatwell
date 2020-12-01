@@ -62,6 +62,9 @@ const useStyles = makeStyles((theme) => ({
 	formItems: {
 		marginTop: theme.spacing(2),
 	},
+	body: {
+		marginTop: theme.spacing(4),
+	},
 }));
 
 const Profile = () => {
@@ -108,7 +111,7 @@ const Profile = () => {
 			<Box component="div" className={classes.container}>
 				<Navbar />
 
-				<Grid justify="center" container>
+				<Grid justify="center" className={classes.body} container>
 					<Grid xs={12} item>
 						<Avatar
 							src="https://pbs.twimg.com/profile_images/988263662761775104/Bu1EDlWo.jpg"
