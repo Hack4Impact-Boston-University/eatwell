@@ -11,7 +11,7 @@ import { makeStyles,
         DialogContent,
         DialogTitle,
         } from "@material-ui/core";
-import {getUserFromCookie} from "../utils/auth/userCookies"
+import {getUserFromCookie} from "../utils/cookies"
 import { DialerSip } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({

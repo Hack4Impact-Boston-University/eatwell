@@ -92,7 +92,7 @@ const Navbar = () => {
 	const { user, logout } = useUser();
 
 	const [open, setOpen] = React.useState(false);
-	const [toggle, setToggle] = useState(true);
+	const [toggle, setToggle] = useState(false);
 
 	const toggleDrawer = (event) => {
 		if (
