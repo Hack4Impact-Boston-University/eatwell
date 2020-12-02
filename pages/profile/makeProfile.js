@@ -89,6 +89,7 @@ const makeProfile = () => {
 			firstname: firstName,
 			lastname: lastName,
 			phone: tel,
+			role: "user"
 		}
 
 		console.log(data)

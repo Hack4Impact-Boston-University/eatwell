@@ -58,16 +58,6 @@ function useWindowSize() {
   return windowSize;
 }
 
-// function useToggle() {
-//   const [value, setValue] = React.useState(2);
-
-//   const handleChange = (event, newValue) => {
-//     setValue(newValue);
-//   };
-
-//   return value;
-// }
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
