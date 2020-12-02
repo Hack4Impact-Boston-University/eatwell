@@ -80,7 +80,6 @@ const makeProfile = () => {
 			</div>
 		);
 	}
-
 	if(resolveUser === "not found") {
 		return (
 			<div>
@@ -150,5 +149,4 @@ const makeProfile = () => {
 	</div>);
 }
 };
-
 export default makeProfile;

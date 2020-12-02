@@ -8,7 +8,9 @@ import {
 	removeUserCookie,
 	setUserCookie,
 	getUserFromCookie,
-} from "./userCookies";
+	removeFavCookie,
+	setFavCookie,
+} from "../cookies";
 import { mapUserData } from "./mapUserData";
 
 initFirebase();
@@ -31,18 +33,19 @@ const useUser = () => {
 			});
 	};
 
-	const upload = async (firstName, lastName, phone) => {
-		var newData = {
-			firstname: firstName,
-			lastname: lastName,
-            phone: phone,
-		}
-		var currData = getUserFromCookie();
-		if(currData) {
-			var userData = Object.assign({}, currData, newData);
-			setUserCookie(userData);
-			setUser(userData);
-			return db.collection("users").doc(user.id).set(userData);
+	const upload = async (newData) => {
+		if("firstname" in newData) {
+			var currData = getUserFromCookie();
+			if(currData) {
+				var userData = Object.assign({}, currData, newData);
+				setUserCookie(userData);
+				setUser(userData);
+				return db.collection("users").doc(user.id).set(userData);
+			}
+		} else if("favoriteRecipes" in newData){
+			if(user) {
+				return db.collection("users").doc(user.id).update(newData);
+			}
 		}		
 	}
 
@@ -67,10 +70,17 @@ const useUser = () => {
 						}
 						setUserCookie(userData);
 						setUser(userData);
+						var favData = {}
+						for(var i in userData["favoriteRecipes"]) {
+							favData[userData["favoriteRecipes"][i]] = "";
+						}
+						setFavCookie(favData);
+
 					});
 			} else if(!u){
 				removeUserCookie();
 				setUser();
+				removeFavCookie();
 			}
 		});
 		if(!user) {
