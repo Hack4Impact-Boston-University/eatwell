@@ -13,14 +13,12 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import Grid from '@material-ui/core/Grid';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
-import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-// import { FilterDrawer, filterSelectors, filterActions } from 'material-ui-filter';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,20 +32,16 @@ const fetcher = async (...args) => {
     const res = await fetch(...args);
     return res.json();
 };
+
 export default function Admin() {
     const classes = useStyles();
     const [checked, setChecked] = React.useState([0]);
+    const [search, setSearch] = React.useState('');
+
 
     const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
-
-    // const filterFields = [
-    //     { name: 'name', label: 'Name' },
-    //     { name: 'email', label: 'Email' },
-    //     { name: 'registered', label: 'Registered', type: 'date' },
-    //     { name: 'isActive', label: 'Is Active', type: 'bool' },
-    //   ];
 
     if (currentIndex === -1) {
         newChecked.push(value);
@@ -70,41 +64,31 @@ export default function Admin() {
         emails.push(data[i]["email"])
     }
 
-    var state = {
-        emails: emails,
-        searchTerm: ""
+
+    const handleChange = (e) => {
+        setSearch(e.target.value);
+            const filteredNames = emails.filter((x)=>{ 
+            x?.includes(e.target.value)
+        })
     }
 
-    var editSearchTerm;
-    var dynamicSearch;
-    editSearchTerm = (e) => {
-        this.setState({searchTerm: e.target.value})
-    }
-    dynamicSearch = () => {
-        return this.state.emails.filter(email => email.toLowerCase().includes(this.state.searchTerm.toLowerCase()))
-    }
-    console.log(emails);
 
-
+    console.log(data[0]["email"])
     return (
         <div className={classes.root}>
 
-        <input type='text' value={state.searchTerm} onChange={this.editSearchTerm} placeholder="search for an email!"></input>
+        <TextField
+            label = "searchUsers"
+            value={search}
+            onChange={handleChange}
+        />
 
         <List className={classes.root}>
         {data.map((value) => {
+
+            if (value["email"]?.includes(search)) {
             return (
                 
-                // <FilterDrawer
-                //     name={'demo'}
-                //     fields={filterFields}
-                    
-                //     //localising the DatePicker
-                //     locale={'de-DE'}
-                //     // DateTimeFormat={global.Intl.DateTimeFormat}
-                //     okLabel="OK"
-                //     cancelLabel="Abbrechen"
-                //     />
                 <Accordion>
                     
                     <AccordionSummary
@@ -124,10 +108,6 @@ export default function Admin() {
 
 
                     <AccordionDetails>
-                        {/* <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                            sit amet blandit leo lobortis eget.
-                        </Typography> */}
                         
                         <IconButton edge="end" aria-label="comments">
                             <EditIcon />
@@ -139,7 +119,7 @@ export default function Admin() {
                     </AccordionDetails>
                 </Accordion>
             );
-        })}
+        }})}
         </List>
         </div>
 

@@ -34,9 +34,7 @@ const firebaseAuthConfig = {
 };
 
 const FirebaseAuth = () => {
-	//let { userExists } = useUser();
-	//if (!userExists) 
-		firebaseAuthConfig.signInSuccessUrl = "/profile/makeProfile";
+	firebaseAuthConfig.signInSuccessUrl = "/profile/makeProfile";
 
 	// Do not SSR FirebaseUI, because it is not supported.
 	// https://github.com/firebase/firebaseui-web/issues/213

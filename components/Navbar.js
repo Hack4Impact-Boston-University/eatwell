@@ -4,67 +4,56 @@ import {
 	Avatar,
 	Box,
 	Button,
+	Grid,
+	IconButton,
 	makeStyles,
-	useTheme,
 	Toolbar,
 	Typography,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Drawer,
+	List,
+	ListItemText,
+	ListItem,
+	ListItemIcon,
 } from "@material-ui/core";
-// import { useRouter } from "next/router";
 import { useUser } from "../utils/auth/useUser";
 import Link from "next/link";
-import PropTypes from 'prop-types';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/Mail';
-import MenuIcon from '@material-ui/icons/Menu';
+import {
+	AccountCircle,
+	Book,
+	ExitToApp,
+	KeyboardArrowRight,
+	Menu,
+} from "@material-ui/icons";
+import FirebaseAuth from "../components/FirebaseAuth";
 
-const drawerWidth = 100
-const barWidth = 60
+const drawerWidth = 100;
+const barWidth = 60;
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		display: 'flex',
-	  },
-	  drawer: {
-		[theme.breakpoints.up('sm')]: {
-		  width: drawerWidth,
-		  flexShrink: 0,
+		display: "flex",
+	},
+	appBar: {
+		[theme.breakpoints.up("sm")]: {
+			width: `calc(100% - ${drawerWidth}px)`,
+			marginLeft: drawerWidth,
 		},
-		background: "#20D3D6"
-	  },
-	  appBar: {
-		[theme.breakpoints.up('sm')]: {
-		  width: `calc(100% - ${drawerWidth}px)`,
-		  marginLeft: drawerWidth,
+	},
+	menuButton: {
+		[theme.breakpoints.up("sm")]: {
+			display: "none",
 		},
-	  },
-	  menuButton: {
-		[theme.breakpoints.up('sm')]: {
-		  display: 'none',
-		},
-	  },
-	  drawerPaper: {
-		marginTop: barWidth,
-		width: drawerWidth,
-		background: "#20D3D6"
-	  },
-	  content: {
-		flexGrow: 1,
-		padding: theme.spacing(3),
-	  },
+	},
 	logo: {
 		marginRight: theme.spacing(2),
+		height: "75px",
 	},
 	logoContainer: {
 		display: "flex",
+		padding: "0",
 		"&:hover": {
 			cursor: "pointer",
 		},
@@ -72,106 +61,138 @@ const useStyles = makeStyles((theme) => ({
 	toolbar: {
 		display: "flex",
 		justifyContent: "space-between",
-		background: "#20D3D6",
-		height: barWidth
+		background: "#0A5429",
+		height: barWidth,
+	},
+	responsiveMenu: {
+		[theme.breakpoints.down("xs")]: {
+			display: "none",
+		},
+	},
+	responsiveIcon: {
+		display: "none",
+		[theme.breakpoints.down("xs")]: {
+			display: "block",
+		},
 	},
 	centerText: {
 		display: "flex",
 		alignItems: "center",
 	},
-	menuContainer: {
-		display: "flex",
-		alignItems: "center",
-	},
-	drawerContainer: {
-		display: 'flex',
-    	flexDirection: 'column',
-    	justifyContent: 'center',
-	},
 	menuItems: {
-		padding: "8px",
 		color: "#EEF8F9",
+	},
+	menuIcon: {
+		marginRight: theme.spacing(0.2),
 	},
 }));
 
 const Navbar = () => {
 	const classes = useStyles();
-	const [mobileOpen, setMobileOpen] = React.useState(false);
-	const theme = useTheme();
 	const { user, logout } = useUser();
-	
-  
-	const handleDrawerToggle = () => {
-	  setMobileOpen(!mobileOpen);
+
+	const [open, setOpen] = React.useState(false);
+	const [toggle, setToggle] = useState(true);
+
+	const toggleDrawer = (event) => {
+		if (
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		) {
+			return;
+		}
+
+		setToggle(!toggle);
 	};
-  
+
+	const handleClose = () => {
+		setOpen(false);
+	};
+	const handleToggle = () => {
+		setOpen(!open);
+	};
+	// navbar items
 	const Items = (props) => {
-		var cont = props.isDrawer ? classes.drawerContainer : classes.menuContainer;
+		// navbar items are shown iff user is logged in
 		return (
 			<div>
-				<Box className={cont}>
-					{/* <Button className={classes.menuItems}>
-						<Link href={`/`}>
-							<a>Home</a>
-						</Link>
-					</Button> */}
-					<Button className={classes.menuItems}>
-						<Link href={`/recipes/chicken_fried_rice`}>
-							<a>Recipe</a>
-						</Link>
-					</Button>
-					{user ? (
-						<div className={classes.menuItems}>
-							<Button className={classes.menuItems}>
-								<Link href={`/profile/profile`}>
-									<a>Profile</a>
-								</Link>
-							</Button>
-							<Button onClick={() => logout()} className={classes.menuItems}>
-								Logout
-							</Button>
-						</div>
-					) : (
-						<Button className={classes.menuItems}>
-							<Link href={`/login`}>
-								<a>Login</a>
+				{user ? (
+					// user logged in show menu items
+					<Toolbar disableGutters>
+						<Box className={classes.responsiveMenu} component="div">
+							<Link href="recipes/recipeList">
+								<Button className={classes.menuItems}>
+									<Book />
+									<Typography variant="subtitle2">Recipes</Typography>
+								</Button>
 							</Link>
-						</Button>	
-					)}
-				</Box>
+
+							<Link href={`/profile/profile`}>
+								<Button className={classes.menuItems}>
+									<AccountCircle
+										className={`${classes.menuIcon} ${classes.menuItems}`}
+									/>
+									<Typography variant="subtitle2">Profile</Typography>
+								</Button>
+							</Link>
+
+							<Button
+								onClick={() => logout()}
+								className={`${classes.menuIcon} ${classes.menuItems}`}
+							>
+								<ExitToApp />
+								<Typography variant="subtitle2">Logout</Typography>
+							</Button>
+						</Box>
+						<Button className={classes.responsiveIcon}>
+							<Menu className={classes.menuItems} onClick={toggleDrawer} />
+							<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
+								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
+									<List>
+										<ListItem button key={0}>
+											<ListItemIcon>
+												<Book />
+											</ListItemIcon>
+											<ListItemText primary="Recipes" />
+										</ListItem>
+
+										<ListItem button key={1}>
+											<ListItemIcon>
+												<AccountCircle />
+											</ListItemIcon>
+											<ListItemText primary="Account" />
+										</ListItem>
+
+										<ListItem button key={2}>
+											<ListItemIcon>
+												<ExitToApp />
+											</ListItemIcon>
+											<ListItemText primary="Logout" />
+										</ListItem>
+									</List>
+								</div>
+							</Drawer>
+						</Button>
+					</Toolbar>
+				) : (
+					// user not logged in show login button
+					<Button className={classes.menuItems} onClick={() => handleToggle()}>
+						<KeyboardArrowRight
+							className={`${classes.menuIcon} ${classes.menuItems}`}
+						/>
+						<Typography variant="subtitle1">Login</Typography>
+					</Button>
+				)}
 			</div>
 		);
-	}
-		
+	};
+
 	return (
 		<div>
 			<div>
-			<Hidden smUp implementation="css">
-				<Drawer
-					variant="persistent"
-					anchor={'right'}
-					open={mobileOpen}
-					onClose={handleDrawerToggle}
-					classes={{
-						paper: classes.drawerPaper,
-					}}
-					ModalProps={{
-						keepMounted: true, // Better open performance on mobile.
-					}}
-					>
-					<Items isDrawer={true}/>
-				</Drawer>
-			</Hidden>
 				<AppBar position="static">
 					<Toolbar className={classes.toolbar}>
-						<Button
-							href="/"
-							// onClick={(e) => {
-							//     e.preventDefault();
-							//     router.push("/");
-							// }}
-							className={classes.logoContainer}
-						>
+						<Button href="/" className={classes.logoContainer}>
 							<Avatar
 								alt="Logo"
 								src="/assets/eatwell_logo.png"
@@ -187,49 +208,21 @@ const Navbar = () => {
 								EatWell
 							</Typography>
 						</Button>
-						<Hidden only="xs" implementation="css">
-							<Items isDrawer={false}/>
-						</Hidden>
-						<IconButton
-							color="inherit"
-							aria-label="open drawer"
-							edge="start"
-							onClick={handleDrawerToggle}
-							className={classes.menuButton}
-							>
-							<MenuIcon />
-						</IconButton>
+						<Items />
 					</Toolbar>
 				</AppBar>
+				<Dialog
+					onClose={handleClose}
+					aria-labelledby="simple-dialog-title"
+					open={open}
+				>
+					<DialogTitle id="form-dialog-title">Login</DialogTitle>
+					<DialogContent>
+						<FirebaseAuth />
+					</DialogContent>
+				</Dialog>
 			</div>
 		</div>
 	);
 };
 export default Navbar;
-// import React, { Component } from 'react';
-// import {Nav, Navbar, Form, NavDropdown, MenuItem,  Tabs, ButtonToolbar, Button, Table, ButtonGroup, Row, Col, Grid, Panel, FormGroup, FormControl} from 'react-bootstrap';
-// import './navbar.module.css';
-
-// export default class Navbarr extends Component {
-//   render() {
-//     const color = {
-//       background: "lightgreen",
-//     }
-//     return (
-//       <Navbar bg="NavbarItems" className={color}>
-//         <Navbar.Brand href="/">Eatwell</Navbar.Brand>
-//         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-//         <Navbar.Collapse id="basic-navbar-nav">
-//           <Nav className="mr-auto">
-//             <Nav.Link href="#">Recipes</Nav.Link>
-// 			<Nav.Link href="/profile">Profile</Nav.Link>
-//           </Nav>
-//           <Form inline>
-//             <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-//             <Button variant="outline-success">Search</Button>
-//           </Form>
-//         </Navbar.Collapse>
-//       </Navbar>
-//       );
-//     }
-//   }

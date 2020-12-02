@@ -11,7 +11,7 @@ import Navbar from "../../components/Navbar";
 import { useUser } from "../../utils/auth/useUser";
 import * as firebase from 'firebase'
 import 'firebase/firestore'
-import  { Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 
 const useStyles = makeStyles((theme) => ({
@@ -46,27 +46,27 @@ const makeProfile = () => {
 	const [tel, setTel] = useState("");
 	const router = useRouter();
 
-	function name(e) {
+	const name = (e) => {
 		const re = /[A-Za-z \-]+/g;
 		if (!re.test(e.key)) {
 			e.preventDefault();
 		}
 	}
 
-	function phone(e) {
+	const phone = (e) => {
 		const re = /[0-9]+/g;
 		if (!re.test(e.key) || e.target.value.length > 11) {
 			e.preventDefault();
 		}
 	}
 
-	function telnum(e) {
+	const telnum = (e) => {
 		let val = e.target.value;
-		if(tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
+		if (tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
 			val += '-';
 		}
-		else if(tel.length == 4 && val.length == 3 || tel.length == 8 && val.length == 7) {
-			val = val.slice(0,-1);
+		else if (tel.length == 4 && val.length == 3 || tel.length == 8 && val.length == 7) {
+			val = val.slice(0, -1);
 		}
 		setTel(val);
 	}
@@ -80,74 +80,73 @@ const makeProfile = () => {
 			</div>
 		);
 	}
-	
 	if(resolveUser === "not found") {
-			return (
-				<div>
-					<Grid container>
-						<Grid xs={12} className={classes.welcomeHeader} item>
-							<Typography variant="h3" align="center" gutterBottom>
-								Welcome {user?.email}
-							</Typography>
-						</Grid>
-						<Grid xs={12} className={classes.profileHeader} item>
-							<Typography variant="h5" align="center" gutterBottom>
-								Please complete your profile to proceed!
-							</Typography>
-						</Grid>
-						<Grid justify="center" className={classes.formItems} container>
-							<TextField
-								value={firstName}
-								onKeyPress={(e) => name(e)}
-								onChange={(e) => setFirstName(e.target.value)}
-								error={false}
-								id="profileFirst"
-								label="First Name"
-								placeholder="Your First Name"
-								required
-								// helperText="Please enter your first name"
-							/>
-						</Grid>
-						<Grid justify="center" className={classes.formItems} container>
-							<TextField
-								value={lastName}
-								onKeyPress={(e) => name(e)}
-								onChange={(e) => setLastName(e.target.value)}
-								id="profileLast"
-								label="Last Name"
-								placeholder="Your Last Name"
-								required
-							/>
-						</Grid>
-						<Grid justify="center" className={classes.formItems} container>
-							<TextField
-								value={tel}
-								onKeyPress={(e) => phone(e)}
-								onChange={(e) => telnum(e)}
-								id="profilePhone"
-								label="Phone Number"
-								placeholder="Your Phone Number"
-								type="tel"
-								required
-							/>
-						</Grid>
-						<Grid container justify="center" item>
-							<Button variant="contained" color="primary" className={classes.btn} onClick={() => upload({firstname: firstName, lastname: lastName, phone: tel}).then(() => {router.push('/profile/profile');})}>
-								Submit
-							</Button>
-						</Grid>
+		return (
+			<div>
+				<Grid container>
+					<Grid xs={12} className={classes.welcomeHeader} item>
+						<Typography variant="h3" align="center" gutterBottom>
+							Welcome {user?.email}
+						</Typography>
 					</Grid>
-				</div>
-			);
-	} else {
-		if(resolveUser === "found") {
-			router.push('/profile/profile');
-		}
-		return (<div>
-			<Grid justify="center" alignItems="center" container>
-				<CircularProgress />
-			</Grid>
-		</div>);
+					<Grid xs={12} className={classes.profileHeader} item>
+						<Typography variant="h5" align="center" gutterBottom>
+							Please complete your profile to proceed!
+						</Typography>
+					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+						<TextField
+							value={firstName}
+							onKeyPress={(e) => name(e)}
+							onChange={(e) => setFirstName(e.target.value)}
+							error={false}
+							id="profileFirst"
+							label="First Name"
+							placeholder="Your First Name"
+							required
+							// helperText="Please enter your first name"
+						/>
+					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+						<TextField
+							value={lastName}
+							onKeyPress={(e) => name(e)}
+							onChange={(e) => setLastName(e.target.value)}
+							id="profileLast"
+							label="Last Name"
+							placeholder="Your Last Name"
+							required
+						/>
+					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+						<TextField
+							value={tel}
+							onKeyPress={(e) => phone(e)}
+							onChange={(e) => telnum(e)}
+							id="profilePhone"
+							label="Phone Number"
+							placeholder="Your Phone Number"
+							type="tel"
+							required
+						/>
+					</Grid>
+					<Grid container justify="center" item>
+						<Button variant="contained" color="primary" className={classes.btn} onClick={() => upload(firstName, lastName, tel).then(() => {router.push('/profile/profile');})}>
+							Submit
+						</Button>
+					</Grid>
+				</Grid>
+			</div>
+		);
+} else {
+	if(resolveUser === "found") {
+		router.push('/profile/profile');
 	}
+	return (<div>
+		<Grid container spacing={0} direction="column" alignItems="center" justify="center" alignItems="center" style={{ minHeight: '100vh' }}>
+			<CircularProgress />
+		</Grid>
+	</div>);
+}
 };
 export default makeProfile;
