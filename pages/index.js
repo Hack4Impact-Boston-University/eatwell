@@ -10,6 +10,7 @@ import { makeStyles,
         Dialog, 
         DialogContent,
         DialogTitle,
+        Button
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
 import { DialerSip } from '@material-ui/icons'
@@ -58,70 +59,36 @@ const Index = () => {
     }
     return (
       <ui.Grid container direction="row" justify="center" alignItems="center">
-          <ui.Button variant="outlined">
-            <Link href={`recipes/chicken_fried_rice`}>
-              <a>Recipe</a>
-            </Link>
-          </ui.Button>
-          <ui.Button variant="outlined">
-              <ui.Link href={"recipes/recipeList"}>
-                Recipe List
-              </ui.Link>
-          </ui.Button>
-
-          <ui.Button variant="outlined">
-            <Link href={'profile/profile'}>
-              <a>Profile</a>
-            </Link>
-          </ui.Button>
-          {!user && 
-          <ui.Button variant="outlined" onClick={() => handleToggle()}>
-            Login
-          </ui.Button>}
-
-          <ui.Button variant="outlined">
-              <ui.Link href='recipes/upload'>
-                  Upload
-              </ui.Link>
-          </ui.Button>
-
-          <ui.Button variant="outlined">
-            <Link href={'profile/admin'}>
-              <a>Admin</a>
-            </Link>
-          </ui.Button>
-        </ui.Grid>
+      </ui.Grid>
     );
   }
   return (
     <div>
       <Navbar/>
-      <div className={styles.container}>
+       <div className={styles.container}>
         <Head>
-          <title>Create Next App</title>
+          <title>EatWell</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <main className={styles.main}>
-          <img src="/assets/eatwell_logo 2.png" width="50%"/>
+          <img id={styles.logo} src="/assets/eatwell_logo 2.png" width="50%"/>
 
           <h1 className={styles.title}>
             Welcome to EatWell!
           </h1>
+          
+          <Button>
+            <FirebaseAuth/>
+          </Button>
 
-          <Login/>
+          {/* <Login/>
           {user && 
             <div>
               {user.enrolledProgram}
             </div>
-          }
+          } */}
         </main>
       </div>
-      <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-        <DialogTitle id="form-dialog-title">Login</DialogTitle>
-          <DialogContent>
-            <FirebaseAuth/>
-					</DialogContent>
-      </Dialog>
     </div>
   )
 }

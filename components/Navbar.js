@@ -121,19 +121,19 @@ const Navbar = () => {
 					(user.role == "user") ? (
 						<Toolbar disableGutters>
 							<Box className={classes.responsiveMenu} component="div">
-							<Link href={`/recipes/recipeList`}>
-								<Button className={classes.menuItems}>
-									<Book />
-									<Typography variant="subtitle2">Recipes</Typography>
-								</Button>
-							</Link>
-
 							<Link href={`/profile/profile`}>
 								<Button className={classes.menuItems}>
 									<AccountCircle
 										className={`${classes.menuIcon} ${classes.menuItems}`}
 									/>
 									<Typography variant="subtitle2">Profile</Typography>
+								</Button>
+							</Link>
+
+							<Link href={`/recipes/recipeList`}>
+								<Button className={classes.menuItems}>
+									<Book />
+									<Typography variant="subtitle2">Recipes</Typography>
 								</Button>
 							</Link>
 
@@ -178,6 +178,16 @@ const Navbar = () => {
 						) : (
 						<Toolbar disableGutters>
 							<Box className={classes.responsiveMenu} component="div">
+
+							<Link href={`/profile/profile`}>
+								<Button className={classes.menuItems}>
+									<AccountCircle
+										className={`${classes.menuIcon} ${classes.menuItems}`}
+									/>
+									<Typography variant="subtitle2">Profile</Typography>
+								</Button>
+							</Link>
+							
 							<Link href={`/recipes/upload`}>
 								<Button className={classes.menuItems}>
 									<Book />

@@ -13,6 +13,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AppBar from '@material-ui/core/AppBar';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
+import Navbar from "../../components/Navbar";
+
 
 
 function useWindowSize() {
@@ -168,7 +170,8 @@ export default function Admin() {
             width: "100%",
             minWidth: "29%",
         }}></div>
-
+        
+        <Navbar />
         <AppBar position = "static"  color="default">
             <Tabs
             value={value}

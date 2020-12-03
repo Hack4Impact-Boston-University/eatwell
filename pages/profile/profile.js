@@ -101,7 +101,7 @@ const Profile = () => {
 		return (
 			<div>
 				<Navbar />
-				<h1>Please sign in to access this page!</h1>
+				<h1 align="center">Please sign in to access this page!</h1>
 			</div>
 		);
 	}
@@ -236,6 +236,11 @@ const Profile = () => {
 							/>
 						</FormControl>
 					</Grid>
+				</Grid>
+				<Grid justify="center" className={classes.formItems} container>
+					<Box component="div" textOverflow="clip">
+						User Role: {user.role}
+					</Box>
 				</Grid>
 			</Box>
 		</div>

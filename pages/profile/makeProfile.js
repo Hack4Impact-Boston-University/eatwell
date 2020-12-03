@@ -76,7 +76,7 @@ const makeProfile = () => {
 		return (
 			<div>
 				<Navbar />
-				<h1>Please sign in to access this page!</h1>
+				<h1 align="center">Please sign in to access this page!</h1>
 			</div>
 		);
 	}

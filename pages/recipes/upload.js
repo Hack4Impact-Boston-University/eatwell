@@ -5,6 +5,7 @@ import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
 import { DropzoneArea } from 'material-ui-dropzone'
 import { PictureAsPdf, Router } from '@material-ui/icons'
+import Navbar from "../../components/Navbar";
 import { Alert } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
@@ -128,6 +129,7 @@ const UploadForm = () => {
 
     return (
         <React.Fragment>
+        <Navbar />
         <ui.Typography variant="h6" gutterBottom>
             Upload New Recipe
         </ui.Typography>
