@@ -102,7 +102,7 @@ const Index = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <main className={styles.main}>
-          <img src="/assets/eatwell.png" width="50%"/>
+          <img src="/assets/eatwell_logo 2.png" width="50%"/>
 
           <h1 className={styles.title}>
             Welcome to EatWell!

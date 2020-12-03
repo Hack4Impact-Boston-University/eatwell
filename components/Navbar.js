@@ -118,9 +118,10 @@ const Navbar = () => {
 			<div>
 				{user ? (
 					// user logged in show menu items
-					<Toolbar disableGutters>
-						<Box className={classes.responsiveMenu} component="div">
-							<Link href="recipes/recipeList">
+					(user.role == "user") ? (
+						<Toolbar disableGutters>
+							<Box className={classes.responsiveMenu} component="div">
+							<Link href={`/recipes/recipeList`}>
 								<Button className={classes.menuItems}>
 									<Book />
 									<Typography variant="subtitle2">Recipes</Typography>
@@ -173,7 +174,66 @@ const Navbar = () => {
 								</div>
 							</Drawer>
 						</Button>
+						</Toolbar>
+						) : (
+						<Toolbar disableGutters>
+							<Box className={classes.responsiveMenu} component="div">
+							<Link href={`/recipes/upload`}>
+								<Button className={classes.menuItems}>
+									<Book />
+									<Typography variant="subtitle2">Upload</Typography>
+								</Button>
+							</Link>
+
+							<Link href={`/profile/admin`}>
+								<Button className={classes.menuItems}>
+									<AccountCircle
+										className={`${classes.menuIcon} ${classes.menuItems}`}
+									/>
+									<Typography variant="subtitle2">Manage</Typography>
+								</Button>
+							</Link>
+
+							<Button
+								onClick={() => logout()}
+								className={`${classes.menuIcon} ${classes.menuItems}`}
+							>
+								<ExitToApp />
+								<Typography variant="subtitle2">Logout</Typography>
+							</Button>
+						</Box>
+						<Button className={classes.responsiveIcon}>
+							<Menu className={classes.menuItems} onClick={toggleDrawer} />
+							<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
+								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
+									<List>
+										<ListItem button key={0}>
+											<ListItemIcon>
+												<Book />
+											</ListItemIcon>
+											<ListItemText primary="Upload" />
+										</ListItem>
+
+										<ListItem button key={1}>
+											<ListItemIcon>
+												<AccountCircle />
+											</ListItemIcon>
+											<ListItemText primary="Admin" />
+										</ListItem>
+
+										<ListItem button key={2}>
+											<ListItemIcon>
+												<ExitToApp />
+											</ListItemIcon>
+											<ListItemText primary="Logout" />
+										</ListItem>
+									</List>
+								</div>
+							</Drawer>
+						</Button>
 					</Toolbar>
+				)
+
 				) : (
 					// user not logged in show login button
 					<Button className={classes.menuItems} onClick={() => handleToggle()}>
