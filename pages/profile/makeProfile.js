@@ -143,7 +143,7 @@ const makeProfile = () => {
 		router.push('/profile/profile');
 	}
 	return (<div>
-		<Grid container spacing={0} direction="column" alignItems="center" justify="center" alignItems="center" style={{ minHeight: '100vh' }}>
+		<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>
 			<CircularProgress />
 		</Grid>
 	</div>);
