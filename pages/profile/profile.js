@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
-		height: "100vh",
+		height: "92.96vh",
 		overflow: "hidden",
 	},
 	heading: {
