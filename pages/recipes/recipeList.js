@@ -3,7 +3,7 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 
-import Grid from '@material-ui/core/Grid';
+import {Grid} from '@material-ui/core';
 import useSWR from 'swr';
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard, { recipeCard} from "./recipeCard";
@@ -76,7 +76,6 @@ export default function RecipeReviewCard() {
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
   const [value, setValue] = React.useState(0);
   const [favs, setFavs] = React.useState(value == 1);
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
     setFavs(newValue == 1)
@@ -99,15 +98,15 @@ export default function RecipeReviewCard() {
   }
 
   return (
-  <div>
+  <div className={styles.container2}>
     
     <Grid container spacing={1000} className={classes.gridContainerMain} >
       {
         _data.map((obj, idx) => {
-          if (!obj.name || !obj.id) return;
+          if (!obj.nameOfDish || !obj.id) return;
           var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
-            return(<RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
+            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
           }
           else {
             console.log(obj.id)
