@@ -8,7 +8,9 @@ import {
 	removeUserCookie,
 	setUserCookie,
 	getUserFromCookie,
-} from "./userCookies";
+	removeFavCookie,
+	setFavCookie,
+} from "../cookies";
 import { mapUserData } from "./mapUserData";
 
 initFirebase();
@@ -16,7 +18,8 @@ var db = firebase.firestore();
 const useUser = () => {
 	const [user, setUser] = useState();
 	const router = useRouter();
-	let userExists = getUserFromCookie();
+	const [resolveUser, setResolve] = useState("resolving");
+
 	const logout = async () => {
 		return firebase
 			.auth()
@@ -29,6 +32,24 @@ const useUser = () => {
 				console.error(e);
 			});
 	};
+	const upload = async (newData) => {
+		console.log(newData);
+
+		if("firstname" in newData) {
+			var currData = getUserFromCookie();
+			if(currData) {
+				var userData = Object.assign({}, currData, newData);
+				setUserCookie(userData);
+				setUser(userData);
+				return db.collection("users").doc(user.id).set(userData);
+			}
+		} else if("favoriteRecipes" in newData){
+			if(user) {
+				newData["role"] = "user";
+				return db.collection("users").doc(user.id).update(newData);
+			}
+		}		
+	}
 
 	useEffect(() => {
 		// Firebase updates the id token every hour, this
@@ -36,30 +57,32 @@ const useUser = () => {
 		// both kept up to date
 		const cancelAuthListener = firebase.auth().onAuthStateChanged(function(u) {
 			if (u && !user) {
-				var dbData;
+				setResolve("resolving");
+				var userData = {};
 				db.collection("users")
 					.doc(u.uid)
 					.get()
 					.then((doc) => {
 						if (doc.exists) {
-							dbData = doc.data();
-							userExists = true;
+							setResolve("found");
+							userData = doc.data();
 						} else {
-							dbData = {
-								email: u.email,
-								enrolledProgram: 0,
-							};
-							userExists = false;
-							db.collection("users").doc(u.uid).set(dbData);
+							setResolve("not found");
+							userData = mapUserData(u);
 						}
-						const authData = mapUserData(u);
-						const userData = Object.assign({}, authData, dbData);
 						setUserCookie(userData);
 						setUser(userData);
+						var favData = {}
+						for(var i in userData["favoriteRecipes"]) {
+							favData[userData["favoriteRecipes"][i]] = "";
+						}
+						setFavCookie(favData);
+
 					});
 			} else if(!u){
 				removeUserCookie();
 				setUser();
+				removeFavCookie();
 			}
 		});
 		if(!user) {
@@ -77,7 +100,7 @@ const useUser = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	//console.log(user)
-	return { user, logout, userExists };
+	return { user, logout, resolveUser, upload};
 };
 
 export { useUser };
