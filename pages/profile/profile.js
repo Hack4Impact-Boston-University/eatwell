@@ -20,6 +20,7 @@ import Navbar from "../../components/Navbar";
 import { useEffect, useState } from "react";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
+import styles from '../../styles/Home.module.css'
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -36,8 +37,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 	container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
-		height: "92.96vh",
+		height: "100vh",
 		overflow: "hidden",
+		paddingTop: "10vh"
 	},
 	heading: {
 		color: "red",
@@ -100,7 +102,9 @@ const Profile = () => {
 		console.log("User not logged in.");
 		return (
 			<div>
-				<Navbar />
+				<div className={styles.nav}>
+					<Navbar/>
+				</div>
 				<h1 align="center">Please sign in to access this page!</h1>
 			</div>
 		);
@@ -109,8 +113,6 @@ const Profile = () => {
 	return (
 		<div>
 			<Box component="div" className={classes.container}>
-				<Navbar />
-
 				<Grid justify="center" className={classes.body} container>
 					<Grid xs={12} item>
 						<Avatar
@@ -242,6 +244,10 @@ const Profile = () => {
 						User Role: {user.role}
 					</Box>
 				</Grid>
+
+				<div className={styles.nav}>
+					<Navbar/>
+				</div>
 			</Box>
 		</div>
 	);

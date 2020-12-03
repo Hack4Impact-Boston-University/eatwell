@@ -14,7 +14,7 @@ import AppBar from '@material-ui/core/AppBar';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
 import Navbar from "../../components/Navbar";
-
+import styles from '../../styles/Home.module.css'
 
 
 function useWindowSize() {
@@ -167,25 +167,12 @@ export default function Admin() {
     return (
         <div className={classes.root}>
         <div style={{
+            paddingTop: "10vh",
             width: "100%",
             minWidth: "29%",
         }}></div>
         
-        <Navbar />
-        <AppBar position = "static"  color="default">
-            <Tabs
-            value={value}
-            onChange={handleChangeToggle}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-            aria-label="full width tabs example"
-            >
-            <Tab label="Manage Users" {...a11yProps(0)} />
-            <Tab label="Manage Programs" {...a11yProps(1)} />
-            <Tab label="Manage Recipes" {...a11yProps(2)} />
-            </Tabs>
-        </AppBar>
+        
       <SwipeableViews
         axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
         index={value}
@@ -298,6 +285,26 @@ export default function Admin() {
 
         </TabPanel>
       </SwipeableViews>
+
+      <div className={styles.nav}>
+            <Navbar/>
+       
+
+        <AppBar position = "static"  color="default">
+            <Tabs
+            value={value}
+            onChange={handleChangeToggle}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+            aria-label="full width tabs example"
+            >
+            <Tab label="Manage Users" {...a11yProps(0)} />
+            <Tab label="Manage Programs" {...a11yProps(1)} />
+            <Tab label="Manage Recipes" {...a11yProps(2)} />
+            </Tabs>
+        </AppBar>
+        </div>
       
 
         </div>

@@ -6,6 +6,7 @@ import initFirebase from '../../utils/auth/initFirebase'
 import { DropzoneArea } from 'material-ui-dropzone'
 import { PictureAsPdf, Router } from '@material-ui/icons'
 import Navbar from "../../components/Navbar";
+import styles from '../../styles/Home.module.css'
 import { Alert } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
@@ -128,8 +129,8 @@ const UploadForm = () => {
     }
 
     return (
+        <div className={styles.container}>
         <React.Fragment>
-        <Navbar />
         <ui.Typography variant="h6" gutterBottom>
             Upload New Recipe
         </ui.Typography>
@@ -220,7 +221,11 @@ const UploadForm = () => {
             </ui.Grid>
 
         </ui.Grid>
+        <div className={styles.nav}>
+            <Navbar/>
+        </div>
         </React.Fragment>
+        </div>
     )
 }
 

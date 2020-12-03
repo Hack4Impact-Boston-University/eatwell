@@ -15,6 +15,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import PropTypes from 'prop-types';
+import styles from '../../styles/Home.module.css'
 
 
 
@@ -97,21 +98,9 @@ export default function RecipeReviewCard() {
     return "Loading...";
   }
 
-  return (<div>
-    <Navbar/>
-    <AppBar position = "static"  color="default">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-          aria-label="full width tabs example"
-        >
-          <Tab label="All Recipes" {...a11yProps(0)} />
-          <Tab label="Favorites Only" {...a11yProps(1)} />
-        </Tabs>
-      </AppBar>
+  return (
+  <div>
+    
     <Grid container spacing={1000} className={classes.gridContainerMain} >
       {
         _data.map((obj, idx) => {
@@ -131,5 +120,23 @@ export default function RecipeReviewCard() {
       }
 
     </Grid>
+
+    <div className={styles.nav}>
+      <Navbar/>
+
+      <AppBar position = "static"  color="default">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          aria-label="full width tabs example"
+        >
+          <Tab label="All Recipes" {...a11yProps(0)} />
+          <Tab label="Favorites Only" {...a11yProps(1)} />
+        </Tabs>
+      </AppBar>
+    </div>
   </div>);
 }

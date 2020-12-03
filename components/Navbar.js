@@ -247,10 +247,10 @@ const Navbar = () => {
 				) : (
 					// user not logged in show login button
 					<Button className={classes.menuItems} onClick={() => handleToggle()}>
-						<KeyboardArrowRight
+						{/* <KeyboardArrowRight
 							className={`${classes.menuIcon} ${classes.menuItems}`}
 						/>
-						<Typography variant="subtitle1">Login</Typography>
+						<Typography variant="subtitle1">Login</Typography> */}
 					</Button>
 				)}
 			</div>
