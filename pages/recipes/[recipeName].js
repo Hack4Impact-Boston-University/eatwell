@@ -20,6 +20,7 @@ import Navbar from "../../components/Navbar";
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
+import styles from '../../styles/Home.module.css'
 
 
 const fetcher = async (...args) => {
@@ -98,6 +99,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
     width: "100%",
+    paddingTop: "5vh"
   },
 }));
 
@@ -152,65 +154,54 @@ export default function Recipe() {
       }
     });
     return (
-      <div>
-        <Head>
-          <title>Create Next App</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-  
-        <ui.AppBar position="sticky" width="100%">
-          <ui.Toolbar>
-            <ui.Typography  variant="h6">
-            View Recipe Page
-            </ui.Typography>
-          </ui.Toolbar>
-        </ui.AppBar>
-  
-  
-  <div className={classes.root}>
-      <div style={{
-        width: "100%",
-        minWidth: "29%",
-      }}>
-        <AppBar position = "static"  color="default">
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-            aria-label="full width tabs example"
-          >
-            <Tab label="Recipe" {...a11yProps(0)} />
-            <Tab label="Skill" {...a11yProps(1)} />
-            <Tab label="Tip" {...a11yProps(2)} />
-          </Tabs>
-        </AppBar>
-      </div>
+      <div className={classes.root}>
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
           index={value}
           onChangeIndex={handleChangeIndex}>
         
           <TabPanel value={value} index={0} dir={theme.direction}>
-          <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
+          <div position="fixed">
+          <iframe position="fixed" src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+          </div>
           <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-
           </TabPanel>
+
           <TabPanel value={value} index={1} dir={theme.direction}>
           <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-  
           </TabPanel>
+
           <TabPanel value={value} index={2} dir={theme.direction}>
           <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-  
           </TabPanel>
-        </SwipeableViews>
+        </SwipeableViews>  
+
+
+          <div className={styles.nav}>
+            <div style={{
+              width: "100%",
+              minWidth: "29%",
+            }}>
+
+              <Navbar/>
+              <AppBar position = "static"  color="default">
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                  aria-label="full width tabs example"
+                >
+                  <Tab label="Recipe" {...a11yProps(0)} />
+                  <Tab label="Skill" {...a11yProps(1)} />
+                  <Tab label="Tip" {...a11yProps(2)} />
+                </Tabs>
+              </AppBar>
+          </div>
+        </div>     
       </div>
-  
-       
-      </div>
+      
     );
   }
 }
