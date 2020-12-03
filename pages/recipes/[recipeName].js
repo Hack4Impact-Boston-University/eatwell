@@ -17,6 +17,9 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Navbar from "../../components/Navbar";
+import * as firebase from 'firebase'
+import 'firebase/firestore'
+import initFirebase from '../../utils/auth/initFirebase'
 
 
 const fetcher = async (...args) => {
@@ -107,6 +110,7 @@ export default function Recipe() {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
+  const [pdf_url, setPdfURL] = useState('')
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -119,60 +123,94 @@ export default function Recipe() {
   if (!data) {
     return 'Loading...';
   }
- 
+
+  else {
+    initFirebase()
+    firebase.storage().ref().child(data.pdfRecipe).getDownloadURL().then(function(url) {
+      // update url
+      setPdfURL(url)
+    }).catch(function(error) {
+    
+      // A full list of error codes is available at
+      // https://firebase.google.com/docs/storage/web/handle-errors
+      switch (error.code) {
+        case 'storage/object-not-found':
+          // File doesn't exist
+          break;
+    
+        case 'storage/unauthorized':
+          // User doesn't have permission to access the object
+          break;
+    
+        case 'storage/canceled':
+          // User canceled the upload
+          break;
+    
+        case 'storage/unknown':
+          // Unknown error occurred, inspect the server response
+          break;
+      }
+    });
+    return (
+      <div>
+        <Head>
+          <title>Create Next App</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
   
-  return (
-    <div>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+        <ui.AppBar position="sticky" width="100%">
+          <ui.Toolbar>
+            <ui.Typography  variant="h6">
+            View Recipe Page
+            </ui.Typography>
+          </ui.Toolbar>
+        </ui.AppBar>
+  
+  
+  <div className={classes.root}>
+      <div style={{
+        width: "100%",
+        minWidth: "29%",
+      }}>
+        <AppBar position = "static"  color="default">
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+            aria-label="full width tabs example"
+          >
+            <Tab label="Recipe" {...a11yProps(0)} />
+            <Tab label="Skill" {...a11yProps(1)} />
+            <Tab label="Tip" {...a11yProps(2)} />
+          </Tabs>
+        </AppBar>
+      </div>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={value}
+          onChangeIndex={handleChangeIndex}>
+        
+          <TabPanel value={value} index={0} dir={theme.direction}>
+          <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
-      <Navbar/>
+          <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
 
-
-<div  className={classes.root}>
-    <div style={{
-      width: "100%",
-      minWidth: "29%",
-    }}>
-      <AppBar position = "static"  color="default">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-          aria-label="full width tabs example"
-        >
-          <Tab label="Recipe" {...a11yProps(0)} />
-          <Tab label="Skill" {...a11yProps(1)} />
-          <Tab label="Tip" {...a11yProps(2)} />
-        </Tabs>
-      </AppBar>
-    </div>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}>
-      
-        <TabPanel value={value} index={0} dir={theme.direction}>
-        <iframe src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
-        </TabPanel>
-        <TabPanel value={value} index={1} dir={theme.direction}>
-        <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
-        </TabPanel>
-        <TabPanel value={value} index={2} dir={theme.direction}>
-        <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
-        </TabPanel>
-      </SwipeableViews>
-    </div>
-
-     
-    </div>
-  );
-
+          </TabPanel>
+          <TabPanel value={value} index={1} dir={theme.direction}>
+          <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+  
+          </TabPanel>
+          <TabPanel value={value} index={2} dir={theme.direction}>
+          <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+  
+          </TabPanel>
+        </SwipeableViews>
+      </div>
+  
+       
+      </div>
+    );
+  }
 }
