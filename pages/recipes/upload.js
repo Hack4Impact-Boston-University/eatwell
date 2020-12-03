@@ -12,7 +12,6 @@ import GridListTile from '@material-ui/core/GridListTile';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
 import IconButton from '@material-ui/core/IconButton';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import tileData from './tileData';
 import InboxIcon from '@material-ui/icons/Inbox';
 import StarIcon from '@material-ui/icons/Star';
 import SendIcon from '@material-ui/icons/Send';
@@ -38,8 +37,8 @@ const UploadForm = () => {
     const [videoTips, setVideoTips] = useState('')
     const [errorAlert, setErrorAlert] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
-    const [images, setImages] = useState({});
-    const [image, setImage] = useState('');
+    // const [images, setImages] = useState({});
+    // const [image, setImage] = useState('');
 
 
     const uploadImage = (e) => {
@@ -85,7 +84,8 @@ const UploadForm = () => {
         var data = {
             nameOfDish: recipeName,
             description: description,
-            images: uploadedImages,
+            // images: uploadedImages,
+            imageUrl: imageUrl,
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipeName+".pdf",
             dateUploaded: dateUploaded,
@@ -102,11 +102,11 @@ const UploadForm = () => {
             }
         })
 
-        firebase.storage().ref().child(recipeName+" 0"+".img").put(image).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-            'complete': function() {
-                alert('upload successful!')
-            }
-        })
+        // firebase.storage().ref().child(recipeName+" 0"+".img").put(image).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        //     'complete': function() {
+        //         alert('upload successful!')
+        //     }
+        // })
 
         // var uploadedImages = []
         // images.map(function (key,value) {
@@ -172,13 +172,24 @@ const UploadForm = () => {
                     variant="outlined"
                 />
             </ui.Grid>
-            <MultiImageInput
+            {/* <MultiImageInput
                 images={images}
                 setImages={setImages}
                 cropConfig={{ crop, ruleOfThirds: true }}
                 inputId
                 // onChange={(files) => setImage(files[0])}
-            />
+            /> */}
+            <ui.Grid item xs={12}>
+                <ui.TextField
+                    required
+                    value={imageUrl}
+                    label="Image URL"
+                    multiline
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    fullWidth
+                    variant="outlined"
+                />
+            </ui.Grid>
             <ui.Grid item xs={12}>
                 <ui.TextField
                     required
