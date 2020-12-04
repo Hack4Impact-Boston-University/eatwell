@@ -4,7 +4,8 @@ import {TextField, List, ListItemText, IconButton,
     ListItemAvatar, Typography, Tabs, Tab, Box, Avatar,
     makeStyles, useTheme, 
     InputLabel, Input, MenuItem, FormHelperText, FormControl, Select,
-    Button, Dialog, DialogActions, DialogContent, DialogTitle
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Table,
+    TableHead, TableCell, TableBody, TableRow
     } from '@material-ui/core';
 import useSWR from 'swr';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -145,15 +146,23 @@ export default function Admin() {
         setOpen(false);
     };
 
-    const { data } = useSWR(`/api/users/getAllUsers`, fetcher);
-    if (!data) {
-        return "Loading...";
+    const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
+    const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+
+    if (!users || !programs) {
+        if (!users) {
+            return "Loading users...";
+        }
+        else {
+            return "Loading programs...";
+        }
     }
+
 
     const emails = [];
     var i;
-    for (i = 0; i < data.length; i++) {
-        emails.push(data[i]["email"])
+    for (i = 0; i < users.length; i++) {
+        emails.push(users[i]["email"])
     }
 
 
@@ -179,109 +188,113 @@ export default function Admin() {
         onChangeIndex={handleChangeIndex}>
       
         <TabPanel value={value} index={0} dir={theme.direction}>
-        <TextField
-            label = "search email"
-            value={search}
-            onChange={handleChange}
-        />
+            <TextField
+                label = "search email"
+                value={search}
+                onChange={handleChange}
+            />
 
-        <List className={classes.root}>
-        {data.map((value) => {
-
-            if (value["email"]?.includes(search)) {
-            return (
-                
-                <Accordion>
+            <List className={classes.root}>
+            {users.map((value) => {
+                if (value["email"]?.includes(search)) {
+                return (
                     
-                    <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                    >
-                    <ListItemAvatar>
-                        <Avatar
-                            // alt={`Avatar n°${value + 1}`}
-                            // src={`/static/images/avatar/${value + 1}.jpg`}
-                    />
-                    </ListItemAvatar>
-                    <ListItemText primary={value?.firstname + " " + value?.lastname } secondary={value?.email} />
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Box display="block" displayPrint="none" m={1}>
-                            Phone: {value?.phone}
-                        </Box>
-                        <Box display="block" displayPrint="none" m={1}>
-                            Enrolled Program: {value?.enrolledProgram}
-                        </Box>
+                    <Accordion>
                         
-                        <IconButton edge="end" aria-label="comments" onClick={handleClickOpen}>
-                            <EditIcon />
-                        </IconButton>
-                        <div>
-                        <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
-                            <DialogTitle>Fill the form</DialogTitle>
-                            <DialogContent>
-                            <form className={classes.container}>
-                                <FormControl className={classes.formControl}>
-                                <InputLabel htmlFor="demo-dialog-native">Program</InputLabel>
-                                <Select
-                                    native
-                                    value={program}
-                                    onChange={handleChangeProgram}
-                                    input={<Input id="demo-dialog-native" />}
-                                >
-                                    <option aria-label="None" value="" />
-                                    <option value={10}>Ten</option>
-                                    <option value={20}>Twenty</option>
-                                    <option value={30}>Thirty</option>
-                                </Select>
-                                </FormControl>
-                                <FormControl className={classes.formControl}>
-                                <InputLabel id="demo-dialog-select-label">Program</InputLabel>
-                                <Select
-                                    labelId="demo-dialog-select-label"
-                                    id="demo-dialog-select"
-                                    value={program}
-                                    onChange={handleChangeProgram}
-                                    input={<Input />}
-                                >
-                                    <MenuItem value="">
-                                    <em>None</em>
-                                    </MenuItem>
-                                    <MenuItem value={10}>Ten</MenuItem>
-                                    <MenuItem value={20}>Twenty</MenuItem>
-                                    <MenuItem value={30}>Thirty</MenuItem>
-                                </Select>
-                                </FormControl>
-                            </form>
-                            </DialogContent>
-                            <DialogActions>
-                            <Button onClick={handleClose} color="primary">
-                                Cancel
-                            </Button>
-                            <Button onClick={handleClose} color="primary">
-                                Ok
-                            </Button>
-                            </DialogActions>
-                        </Dialog>
-                        </div>
+                        <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                        >
+                        <ListItemAvatar>
+                            <Avatar
+                                // alt={`Avatar n°${value + 1}`}
+                                // src={`/static/images/avatar/${value + 1}.jpg`}
+                        />
+                        </ListItemAvatar>
+                        <ListItemText primary={value?.firstname + " " + value?.lastname } secondary={value?.email} />
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box display="block" displayPrint="none" m={1}>
+                                Phone: {value?.phone}
+                            </Box>
+                            <Box display="block" displayPrint="none" m={1}>
+                                Enrolled Program: {value?.enrolledProgram}
+                            </Box>
+                            
+                            <IconButton edge="end" aria-label="comments" onClick={handleClickOpen}>
+                                <EditIcon />
+                            </IconButton>
+                            <div>
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
+                                <DialogTitle>Fill the form</DialogTitle>
+                                <DialogContent>
+                                <form className={classes.container}>
+                                    <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="demo-dialog-native">Program</InputLabel>
+                                    <Select
+                                        native
+                                        value={program}
+                                        onChange={handleChangeProgram}
+                                        input={<Input id="demo-dialog-native" />}
+                                    >
+                                        <option aria-label="None" value="" />
+                                        <option value={10}>Ten</option>
+                                        <option value={20}>Twenty</option>
+                                        <option value={30}>Thirty</option>
+                                    </Select>
+                                    </FormControl>
+                                    <FormControl className={classes.formControl}>
+                                    <InputLabel id="demo-dialog-select-label">Program</InputLabel>
+                                    <Select
+                                        labelId="demo-dialog-select-label"
+                                        id="demo-dialog-select"
+                                        value={program}
+                                        onChange={handleChangeProgram}
+                                        input={<Input />}
+                                    >
+                                        <MenuItem value="">
+                                        <em>None</em>
+                                        </MenuItem>
+                                        <MenuItem value={10}>Ten</MenuItem>
+                                        <MenuItem value={20}>Twenty</MenuItem>
+                                        <MenuItem value={30}>Thirty</MenuItem>
+                                    </Select>
+                                    </FormControl>
+                                </form>
+                                </DialogContent>
+                                <DialogActions>
+                                <Button onClick={handleClose} color="primary">
+                                    Cancel
+                                </Button>
+                                <Button onClick={handleClose} color="primary">
+                                    Ok
+                                </Button>
+                                </DialogActions>
+                            </Dialog>
+                            </div>
 
-                        <IconButton edge="end" aria-label="comments">
-                            <DeleteIcon />
-                        </IconButton>
-                    </AccordionDetails>
-                </Accordion>
-            );
-        }})}
-        </List>
+                            <IconButton edge="end" aria-label="comments">
+                                <DeleteIcon />
+                            </IconButton>
+                        </AccordionDetails>
+                    </Accordion>
+                );
+            }})}
+            </List>
 
         </TabPanel>
+
         <TabPanel value={value} index={1} dir={theme.direction}>
-        <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-
+            <List>
+                {programs.map((value) => {
+                    return <ListItemText primary={value?.recipe1} />
+                })}
+            </List>
         </TabPanel>
+
         <TabPanel value={value} index={2} dir={theme.direction}>
-        <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+        <iframe src={users.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 
         </TabPanel>
       </SwipeableViews>
