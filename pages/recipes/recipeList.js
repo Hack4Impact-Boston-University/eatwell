@@ -75,6 +75,7 @@ export default function RecipeReviewCard() {
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
   const [value, setValue] = React.useState(0);
   const [favs, setFavs] = React.useState(value == 1);
+  const [dummy, setDummy] = React.useState(true)
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -88,9 +89,7 @@ export default function RecipeReviewCard() {
   })
 
   const onFavClick = () => {
-    let val = value
-    setValue(value ? 0 : 1)
-    setValue(val)
+    setDummy(!dummy)
     favRecipes = getFavsFromCookie() || {};
   }
   if ((!_data) || (!favRecipes)) {

@@ -120,7 +120,7 @@ const Navbar = () => {
 					// user logged in show menu items
 					<Toolbar disableGutters>
 						<Box className={classes.responsiveMenu} component="div">
-							<Link href="recipes/recipeList">
+							<Link href="/recipes/recipeList">
 								<Button className={classes.menuItems}>
 									<Book />
 									<Typography variant="subtitle2">Recipes</Typography>
