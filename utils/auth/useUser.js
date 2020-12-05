@@ -33,8 +33,8 @@ const useUser = () => {
 			});
 	};
 	const upload = async (newData) => {
-		console.log(newData);
 
+		newData["role"] = "user";
 		if("firstname" in newData) {
 			var currData = getUserFromCookie();
 			if(currData) {
@@ -45,7 +45,6 @@ const useUser = () => {
 			}
 		} else if("favoriteRecipes" in newData){
 			if(user) {
-				newData["role"] = "user";
 				return db.collection("users").doc(user.id).update(newData);
 			}
 		}		

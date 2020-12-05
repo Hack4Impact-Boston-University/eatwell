@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Card, CardContent, CardActions, Collapse, Grid, IconButton, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, CardActions, Collapse, Grid, IconButton, TextField, Typography, Box } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as ui from '@material-ui/core';
@@ -86,6 +86,7 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 
   return (
     <Grid item xs={12} >
+      <Box paddingBottom={5}>
       <Card className={classes.card}>
 
         <CardContent>
@@ -102,14 +103,14 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
             <Grid item xs={7} >
               <Link href={obj.id}>
                 <Typography style={{ fontSize: 35, fontWeight: 300 }}  >
-                  {obj.name}
+                  {obj.nameOfDish}
                 </Typography>
               </Link>
             </Grid>
 
             <Grid item xs={2} spacing={0} style={{ paddingTop: 35 }}>
               <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-                Time: {obj.time}
+                Date: {obj.dateUploaded}
               </Typography>
             </Grid>
 
@@ -197,6 +198,7 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 		      </Grid>
         </Collapse>
       </Card>
+      </Box>
     </Grid>
     )
 };

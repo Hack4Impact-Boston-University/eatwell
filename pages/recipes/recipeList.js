@@ -3,7 +3,7 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 
-import Grid from '@material-ui/core/Grid';
+import {Grid} from '@material-ui/core';
 import useSWR from 'swr';
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard, { recipeCard} from "./recipeCard";
@@ -15,6 +15,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import PropTypes from 'prop-types';
+import styles from '../../styles/Home.module.css'
 
 
 
@@ -96,28 +97,16 @@ export default function RecipeReviewCard() {
     return "Loading...";
   }
 
-  return (<div>
-    <Navbar/>
-    <AppBar position = "static"  color="default">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-          aria-label="full width tabs example"
-        >
-          <Tab label="All Recipes" {...a11yProps(0)} />
-          <Tab label="Favorites Only" {...a11yProps(1)} />
-        </Tabs>
-      </AppBar>
+  return (
+  <div className={styles.container2}>
+    
     <Grid container spacing={1000} className={classes.gridContainerMain} >
       {
         _data.map((obj, idx) => {
-          if (!obj.name || !obj.id) return;
+          if (!obj.nameOfDish || !obj.id) return;
           var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
-            return(<RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
+            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
           }
           else {
             console.log(obj.id)
@@ -130,5 +119,23 @@ export default function RecipeReviewCard() {
       }
 
     </Grid>
+
+    <div className={styles.nav}>
+      <Navbar/>
+
+      <AppBar position = "static"  color="default">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          aria-label="full width tabs example"
+        >
+          <Tab label="All Recipes" {...a11yProps(0)} />
+          <Tab label="Favorites Only" {...a11yProps(1)} />
+        </Tabs>
+      </AppBar>
+    </div>
   </div>);
 }

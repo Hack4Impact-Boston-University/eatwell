@@ -13,6 +13,7 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
+import styles from '../../styles/Home.module.css'
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -75,8 +76,10 @@ const makeProfile = () => {
 		console.log("User not logged in.");
 		return (
 			<div>
-				<Navbar />
-				<h1>Please sign in to access this page!</h1>
+				<h1 align="center">Please sign in to access this page!</h1>
+				<div className={styles.nav}>
+					<Navbar/>
+				</div>
 			</div>
 		);
 	}
