@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import {TextField, List, ListItemText, IconButton, 
     Accordion, AccordionSummary, AccordionDetails, 
     ListItemAvatar, Typography, Tabs, Tab, Box, Avatar,
-    makeStyles, useTheme, 
+    makeStyles, useTheme, Grid, ListItem,
     InputLabel, Input, MenuItem, FormHelperText, FormControl, Select,
-    Button, Dialog, DialogActions, DialogContent, DialogTitle, Table,
-    TableHead, TableCell, TableBody, TableRow
+    Button, Dialog, DialogActions, DialogContent, DialogTitle,
     } from '@material-ui/core';
 import useSWR from 'swr';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -114,6 +113,8 @@ export default function Admin() {
     const { width } = useWindowSize();
     const [open, setOpen] = React.useState(false);
     const [program, setProgram] = React.useState('');
+    const [newProgram, setNewProgram] = useState('');
+    const [selectedProgram, setSelectedProgram] = useState([0]);
 
     const handleToggle = (value) => () => {
         const currentIndex = checked.indexOf(value);
@@ -148,6 +149,16 @@ export default function Admin() {
 
     const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
     const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+
+    const programDrawer = () => {
+        <List>
+            {programs.map((value) => (
+            <ListItem button key={value}>
+                <ListItemText primary={value} />
+            </ListItem>
+            ))}
+        </List>
+    }
 
     if (!users || !programs) {
         if (!users) {
@@ -286,11 +297,29 @@ export default function Admin() {
         </TabPanel>
 
         <TabPanel value={value} index={1} dir={theme.direction}>
-            <List>
-                {programs.map((value) => {
-                    return <ListItemText primary={value?.recipe1} />
-                })}
-            </List>
+            <Grid container spacing={3}>
+                <Grid item sm={2}>
+                    <List dense>
+                        {programs.map((value) => {
+                            return (<ListItem key={value?.programName} button onClick={() => setSelectedProgram(value)}><ListItemText>{value?.programName}</ListItemText></ListItem>)
+                        })}
+                    </List>
+                </Grid>
+
+                <Grid item sm={5}>
+                    <List>
+                        <ListItemText> You clicked on {selectedProgram?.programName} </ListItemText>
+                    </List>
+                </Grid>
+                <Grid item sm={5}>
+                    {/* <List>
+                        {selectedProgram?.recipes.map((value) => {
+                            return <ListItemText primary={value} />
+                        })}
+                    </List> */}
+                    <List>{selectedProgram?.recipes}</List>
+                </Grid>
+            </Grid>
         </TabPanel>
 
         <TabPanel value={value} index={2} dir={theme.direction}>
