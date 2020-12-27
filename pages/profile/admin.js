@@ -4,7 +4,7 @@ import {TextField, List, ListItemText, IconButton,
     ListItemAvatar, Typography, Tabs, Tab, Box, Avatar,
     makeStyles, useTheme, Grid, ListItem,
     InputLabel, Input, MenuItem, FormHelperText, FormControl, Select,
-    Button, Dialog, DialogActions, DialogContent, DialogTitle,
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
     } from '@material-ui/core';
 import useSWR from 'swr';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -301,7 +301,7 @@ export default function Admin() {
                 <Grid item sm={2}>
                     <List dense>
                         {programs.map((value) => {
-                            return (<ListItem key={value?.programName} button onClick={() => setSelectedProgram(value)}><ListItemText>{value?.programName}</ListItemText></ListItem>)
+                            return (<Grid item><ListItem key={value?.programName} button onClick={() => setSelectedProgram(value)}><ListItemText>{value?.programName}</ListItemText></ListItem><Divider light/></Grid>)
                         })}
                     </List>
                 </Grid>
