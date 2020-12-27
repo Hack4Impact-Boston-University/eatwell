@@ -245,13 +245,8 @@ const Navbar = () => {
 				)
 
 				) : (
-					// user not logged in show login button
-					<Button className={classes.menuItems} onClick={() => handleToggle()}>
-						{/* <KeyboardArrowRight
-							className={`${classes.menuIcon} ${classes.menuItems}`}
-						/>
-						<Typography variant="subtitle1">Login</Typography> */}
-					</Button>
+					<Toolbar disableGutters>
+					</Toolbar>
 				)}
 			</div>
 		);

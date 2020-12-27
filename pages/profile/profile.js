@@ -244,6 +244,15 @@ const Profile = () => {
 						User Role: {user.role}
 					</Box>
 				</Grid>
+				<Grid justify="center" className={classes.formItems} container>
+					{(user.role == "user") ? (
+						<Box component="div" textOverflow="clip">
+							Enrolled Program: {user.program}
+						</Box>
+					) : (
+						<Box></Box>
+					)}
+				</Grid>
 
 				<div className={styles.nav}>
 					<Navbar/>
