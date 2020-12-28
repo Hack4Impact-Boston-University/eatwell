@@ -3,9 +3,10 @@ import {TextField, List, ListItemText, IconButton,
     Accordion, AccordionSummary, AccordionDetails, 
     ListItemAvatar, Typography, Tabs, Tab, Box, Avatar,
     makeStyles, useTheme, Grid, ListItem,
-    InputLabel, Input, MenuItem, FormHelperText, FormControl, Select,
+    InputLabel, Input, MenuItem, MenuList, FormHelperText, FormControl, Select,
     Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
     } from '@material-ui/core';
+import DropDownMenu from 'material-ui/DropDownMenu';
 import useSWR from 'swr';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
@@ -15,6 +16,8 @@ import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
 import Navbar from "../../components/Navbar";
 import styles from '../../styles/Home.module.css'
+import * as firebase from 'firebase'
+import initFirebase from '../../utils/auth/initFirebase'
 
 
 function useWindowSize() {
@@ -111,10 +114,12 @@ export default function Admin() {
     const [value, setValue] = React.useState(0);
     const theme = useTheme();
     const { width } = useWindowSize();
-    const [open, setOpen] = React.useState(false);
+    const [openProgram, setOpenProgram] = React.useState(false);
+    const [openRole, setOpenRole] = React.useState(false);
     const [program, setProgram] = React.useState('');
     const [newProgram, setNewProgram] = useState('');
     const [selectedProgram, setSelectedProgram] = useState([0]);
+    const [role, setRole] = React.useState('');
 
     const handleToggle = (value) => () => {
         const currentIndex = checked.indexOf(value);
@@ -136,15 +141,42 @@ export default function Admin() {
     };
 
     const handleChangeProgram = (event) => {
-        setProgram(Number(event.target.value) || '');
+        setProgram(event.target.value || '');
     };
 
-    const handleClickOpen = () => {
-        setOpen(true);
+    const handleChangeRole = (event) => {
+        setRole(event.target.value || '');
     };
 
-    const handleClose = () => {
-        setOpen(false);
+    const handleClickOpenProgram = () => {
+        setOpenProgram(true);
+    };
+
+    const handleClickOpenRole = () => {
+        setOpenRole(true);
+    };
+
+    const handleCloseProgram = () => {
+        setOpenProgram(false);
+    };
+
+    const handleSubmitProgram = (user,program) => {
+        console.log(user)
+        console.log(program)
+        firebase.firestore().collection('users').doc(user).update({program:program});
+        setOpenProgram(false);
+    };
+
+    const handleCloseRole= () => {
+        setOpenRole(false);
+    };
+
+    const handleSubmitRole = (user) => {
+        console.log(user)
+        console.log(role)
+        setRole(role)
+        firebase.firestore().collection('users').doc(user).update({role:role});
+        setOpenRole(false);
     };
 
     const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
@@ -168,7 +200,6 @@ export default function Admin() {
             return "Loading programs...";
         }
     }
-
 
     const emails = [];
     var i;
@@ -199,6 +230,16 @@ export default function Admin() {
         onChangeIndex={handleChangeIndex}>
       
         <TabPanel value={value} index={0} dir={theme.direction}>
+        <Grid container spacing={3}>
+            <Grid item sm={2}>
+                <List dense>
+                    {programs.map((value) => {
+                        return (<Grid item><ListItem key={value?.programName} button onClick={() => setSelectedProgram(value)}><ListItemText>{value?.programName}</ListItemText></ListItem><Divider light/></Grid>)
+                    })}
+                </List>
+            </Grid>
+
+            <Grid item sm={5}>
             <TextField
                 label = "search email"
                 value={search}
@@ -207,11 +248,11 @@ export default function Admin() {
 
             <List className={classes.root}>
             {users.map((value) => {
-                if (value["email"]?.includes(search)) {
+                if ((value["email"]?.includes(search) && selectedProgram?.programName == "All") || (value["email"]?.includes(search) && value?.program == selectedProgram?.programName)) {
+                const userid = value["id"];
                 return (
                     
                     <Accordion>
-                        
                         <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
@@ -226,35 +267,23 @@ export default function Admin() {
                         <ListItemText primary={value?.firstname + " " + value?.lastname } secondary={value?.email} />
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Box display="block" displayPrint="none" m={1}>
-                                Phone: {value?.phone}
-                            </Box>
-                            <Box display="block" displayPrint="none" m={1}>
-                                Enrolled Program: {value?.enrolledProgram}
-                            </Box>
-                            
-                            <IconButton edge="end" aria-label="comments" onClick={handleClickOpen}>
-                                <EditIcon />
-                            </IconButton>
-                            <div>
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={handleClose}>
-                                <DialogTitle>Fill the form</DialogTitle>
-                                <DialogContent>
-                                <form className={classes.container}>
-                                    <FormControl className={classes.formControl}>
-                                    <InputLabel htmlFor="demo-dialog-native">Program</InputLabel>
-                                    <Select
-                                        native
-                                        value={program}
-                                        onChange={handleChangeProgram}
-                                        input={<Input id="demo-dialog-native" />}
-                                    >
-                                        <option aria-label="None" value="" />
-                                        <option value={10}>Ten</option>
-                                        <option value={20}>Twenty</option>
-                                        <option value={30}>Thirty</option>
-                                    </Select>
-                                    </FormControl>
+                            <Grid>
+                                <Box display="block" displayPrint="none" m={1}>
+                                    Phone: {value?.phone}
+                                </Box>
+                            </Grid>
+
+                            {(value?.role == "user") ?
+                                <Grid>
+                                <Box display="block" displayPrint="none" m={1}>
+                                    Enrolled Program: {value?.program}
+                                </Box>
+                                <IconButton onClick={handleClickOpenProgram}>
+                                    <EditIcon />
+                                </IconButton>
+                                <Dialog disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
+                                    <DialogTitle>Edit Enrolled Program</DialogTitle>
+                                    <DialogContent>
                                     <FormControl className={classes.formControl}>
                                     <InputLabel id="demo-dialog-select-label">Program</InputLabel>
                                     <Select
@@ -264,36 +293,81 @@ export default function Admin() {
                                         onChange={handleChangeProgram}
                                         input={<Input />}
                                     >
-                                        <MenuItem value="">
-                                        <em>None</em>
-                                        </MenuItem>
-                                        <MenuItem value={10}>Ten</MenuItem>
-                                        <MenuItem value={20}>Twenty</MenuItem>
-                                        <MenuItem value={30}>Thirty</MenuItem>
+                                        {programs.map((programss) => (
+                                            (programss["programName"] != "All" ?
+                                            <MenuItem value={programss["programName"]}>
+                                                {programss["programName"]}
+                                            </MenuItem> : (
+                                                <MenuItem disabled value={programss["programName"]}>
+                                                {programss["programName"]}
+                                                </MenuItem>
+                                            ))
+                                        ))}
                                     </Select>
                                     </FormControl>
-                                </form>
-                                </DialogContent>
-                                <DialogActions>
-                                <Button onClick={handleClose} color="primary">
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleClose} color="primary">
-                                    Ok
-                                </Button>
-                                </DialogActions>
-                            </Dialog>
-                            </div>
 
-                            <IconButton edge="end" aria-label="comments">
-                                <DeleteIcon />
-                            </IconButton>
+                                    </DialogContent>
+                                    <DialogActions>
+                                    <Button onClick={handleCloseProgram} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitProgram(value.id,program)} color="primary">
+                                        Ok
+                                    </Button>
+                                    </DialogActions>
+                                </Dialog>
+                            </Grid>:<Grid></Grid>}
+
+                            <Grid>
+                                <Box display="block" displayPrint="none" m={1}>
+                                    Role: {value?.role}
+                                </Box>
+                                <IconButton onClick={handleClickOpenRole}>
+                                    <EditIcon />
+                                </IconButton>
+                                <Dialog disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
+                                    <DialogTitle>Edit User Role</DialogTitle>
+                                    <DialogContent>
+                                    <FormControl className={classes.formControl}>
+                                    <InputLabel id="demo-dialog-select-label">Role</InputLabel>
+                                    <Select
+                                        labelId="demo-dialog-select-label"
+                                        id="demo-dialog-select"
+                                        value={role}
+                                        onChange={handleChangeRole}
+                                        input={<Input />}
+                                    >
+                                        <MenuItem value="">
+                                        <em></em>
+                                        </MenuItem>
+                                        <MenuItem value={"user"}>User</MenuItem>
+                                        <MenuItem value={"admin"}>Admin</MenuItem>
+                                    </Select>
+                                    </FormControl>
+                                    </DialogContent>
+                                    <DialogActions>
+                                    <Button onClick={handleCloseRole} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRole(userid)} color="primary">
+                                        Ok
+                                    </Button>
+                                    </DialogActions>
+                                </Dialog>
+                                <IconButton edge="end" aria-label="comments">
+                                    <DeleteIcon />
+                                </IconButton>
+                            </Grid>
                         </AccordionDetails>
                     </Accordion>
                 );
             }})}
             </List>
+            </Grid>
 
+        </Grid>
+
+            
         </TabPanel>
 
         <TabPanel value={value} index={1} dir={theme.direction}>
