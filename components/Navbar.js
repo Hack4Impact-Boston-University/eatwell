@@ -19,7 +19,6 @@ import {
 	ListItemIcon,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
-import Link from "next/link";
 import {
 	AccountCircle,
 	Book,
@@ -121,89 +120,73 @@ const Navbar = () => {
 					(user.role == "user") ? (
 						<Toolbar disableGutters>
 							<Box className={classes.responsiveMenu} component="div">
-							<Link href={`/profile/profile`}>
-								<Button className={classes.menuItems}>
+								<Button href={`/profile/profile`} className={classes.menuItems}>
 									<AccountCircle
 										className={`${classes.menuIcon} ${classes.menuItems}`}
 									/>
 									<Typography variant="subtitle2">Profile</Typography>
 								</Button>
-							</Link>
-
-							<Link href={`/recipes/recipeList`}>
-								<Button className={classes.menuItems}>
+								<Button href={`/recipes/recipeList`} className={classes.menuItems}>
 									<Book />
 									<Typography variant="subtitle2">Recipes</Typography>
 								</Button>
-							</Link>
+								<Button
+									onClick={() => logout()}
+									className={`${classes.menuIcon} ${classes.menuItems}`}
+								>
+									<ExitToApp />
+									<Typography variant="subtitle2">Logout</Typography>
+								</Button>
+							</Box>
+							<Button className={classes.responsiveIcon}>
+								<Menu className={classes.menuItems} onClick={toggleDrawer} />
+								<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
+									<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
+										<List>
+											<ListItem button key={0}>
+												<ListItemIcon>
+													<Book />
+												</ListItemIcon>
+												<ListItemText primary="Recipes" />
+											</ListItem>
 
-							<Button
-								onClick={() => logout()}
-								className={`${classes.menuIcon} ${classes.menuItems}`}
-							>
-								<ExitToApp />
-								<Typography variant="subtitle2">Logout</Typography>
+											<ListItem button key={1}>
+												<ListItemIcon>
+													<AccountCircle />
+												</ListItemIcon>
+												<ListItemText primary="Account" />
+											</ListItem>
+
+											<ListItem button key={2}>
+												<ListItemIcon>
+													<ExitToApp />
+												</ListItemIcon>
+												<ListItemText primary="Logout" />
+											</ListItem>
+										</List>
+									</div>
+								</Drawer>
 							</Button>
-						</Box>
-						<Button className={classes.responsiveIcon}>
-							<Menu className={classes.menuItems} onClick={toggleDrawer} />
-							<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
-								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
-									<List>
-										<ListItem button key={0}>
-											<ListItemIcon>
-												<Book />
-											</ListItemIcon>
-											<ListItemText primary="Recipes" />
-										</ListItem>
-
-										<ListItem button key={1}>
-											<ListItemIcon>
-												<AccountCircle />
-											</ListItemIcon>
-											<ListItemText primary="Account" />
-										</ListItem>
-
-										<ListItem button key={2}>
-											<ListItemIcon>
-												<ExitToApp />
-											</ListItemIcon>
-											<ListItemText primary="Logout" />
-										</ListItem>
-									</List>
-								</div>
-							</Drawer>
-						</Button>
 						</Toolbar>
 						) : (
 						<Toolbar disableGutters>
 							<Box className={classes.responsiveMenu} component="div">
-
-							<Link href={`/profile/profile`}>
-								<Button className={classes.menuItems}>
+								<Button href={`/profile/profile`} className={classes.menuItems}>
 									<AccountCircle
 										className={`${classes.menuIcon} ${classes.menuItems}`}
 									/>
 									<Typography variant="subtitle2">Profile</Typography>
-								</Button>
-							</Link>
-							
-							<Link href={`/recipes/upload`}>
-								<Button className={classes.menuItems}>
+								</Button>					
+								<Button href={`/recipes/upload`} className={classes.menuItems}>
 									<Book />
 									<Typography variant="subtitle2">Upload</Typography>
 								</Button>
-							</Link>
-
-							<Link href={`/profile/admin`}>
-								<Button className={classes.menuItems}>
+								<Button href={`/profile/admin`} className={classes.menuItems}>
 									<AccountCircle
 										className={`${classes.menuIcon} ${classes.menuItems}`}
 									/>
 									<Typography variant="subtitle2">Manage</Typography>
 								</Button>
-							</Link>
-
 							<Button
 								onClick={() => logout()}
 								className={`${classes.menuIcon} ${classes.menuItems}`}
