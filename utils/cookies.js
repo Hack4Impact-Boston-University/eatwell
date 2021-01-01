@@ -53,3 +53,35 @@ export const editFavCookie = (dishID, add) => {
 }
 
 export const removeFavCookie = () => cookies.remove('fav')
+
+export const getNotesFromCookie = () => {
+  const cookie = cookies.get('notes')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
+export const setNotesCookie = (favs) => {
+  cookies.set('notes', favs, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const editNotesCookie = (dishID, notes) => {
+  const cookie = cookies.get('notes') || '{}';
+  var data = JSON.parse(cookie);
+  if(notes === undefined || notes.length == 0) {
+    delete data[dishID]
+  }
+  else {
+    data[dishID] = notes;
+  }
+  setNotesCookie(data);
+}
+
+export const removeNotesCookie = () => cookies.remove('notes')

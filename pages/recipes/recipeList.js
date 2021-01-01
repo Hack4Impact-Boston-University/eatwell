@@ -8,7 +8,8 @@ import useSWR from 'swr';
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard, { recipeCard} from "./recipeCard";
 import {
-	getFavsFromCookie,
+  getFavsFromCookie,
+  getNotesFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
 import AppBar from '@material-ui/core/AppBar';
@@ -73,6 +74,7 @@ export default function RecipeReviewCard() {
   const {user, upload} =  useUser()
   const { data: _data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   let favRecipes = getFavsFromCookie() || {};
+  const recipeNotes = getNotesFromCookie() || {}
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
   const [value, setValue] = React.useState(0);
   const [favs, setFavs] = React.useState(value == 1);
@@ -85,7 +87,8 @@ export default function RecipeReviewCard() {
   
   useEffect(() => {
     window.addEventListener('beforeunload', () => {
-      upload({favoriteRecipes: Object.keys(getFavsFromCookie())})
+      upload({favoriteRecipes: Object.keys(getFavsFromCookie()), 
+              notes: getNotesFromCookie()})
     })
   })
 
@@ -106,7 +109,7 @@ export default function RecipeReviewCard() {
           if (!obj.nameOfDish || !obj.id) return;
           var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
-            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
+            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()} initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}/>)
           }
           else {
             console.log(obj.id)

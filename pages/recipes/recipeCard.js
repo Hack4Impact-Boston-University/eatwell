@@ -6,7 +6,8 @@ import * as ui from '@material-ui/core';
 import clsx from 'clsx';
 import Link from 'next/link'
 import {
-	editFavCookie,
+  editFavCookie,
+  editNotesCookie,
 } from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-const RecipeCard = ({ obj, isFav, onFavClick}) => {
+const RecipeCard = ({ obj, isFav, onFavClick, initNotes}) => {
   
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
@@ -54,8 +55,11 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  const [notes, setNotes] = React.useState([]);
+  
+  const [notes, setNotes] = React.useState(initNotes);
   const [note, setNote] = React.useState("");
+
+  const maxChar = 30.0; // Should be dynamic with width of the card
 
   function favButtonClick() {
     setFav(!favorited);
@@ -65,22 +69,34 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 
   function handleSubmit() {
     if(note != "") {
-      setNotes(notes.concat([note]))
+      setStr(note, notes.length)
       setNote("")
     }
   }
 
   function setStr(s, i) {
-    setNotes(notes.slice(0,i).concat([s]).concat(notes.slice(i+1)))
+    var words = s.split(" ");
+    var st = "";
+    for(let i = 0; i < words.length; i++) {
+      var word = "";
+      for(let j = 0; j < Math.ceil(words[i].length / maxChar); j++) {
+        word += words[i].substring(maxChar*j, maxChar*(j+1)) + " ";
+      }
+      st += word;
+    }
+    st = st.substring(0, st.length - 1);
+    setNotes(notes.slice(0,i).concat([st]).concat(notes.slice(i+1)))
+    editNotesCookie(obj.id, notes.slice(0,i).concat([s]).concat(notes.slice(i+1)))
   }
 
   function deleteStr(i) {
-    console.log(notes.slice(0,i).length)
     if(notes.slice(0,i).length != 0) {
       setNotes(notes.slice(0,i).concat(notes.slice(i+1)))
+      editNotesCookie(obj.id, notes.slice(0,i).concat(notes.slice(i+1)))
     }
     else {
       setNotes(notes.slice(i+1))
+      editNotesCookie(obj.id, notes.slice(i+1))
     }
   }
 
@@ -190,11 +206,13 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
                   Submit
               </Button>
             </Grid>
-            {
-              notes.map((str, idx) => {
-                return (<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}> </Note>);         
-              })
-            }
+            <Box m={5}>
+              {
+                notes.map((str, idx) => {
+                  return (<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}> </Note>);         
+                })
+              }
+            </Box>
 		      </Grid>
         </Collapse>
       </Card>
@@ -206,9 +224,10 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 const Note = ({str, setStr, deleteStr}) => {
   const classes = useStyles();
   const [val, setVal] = React.useState(str);
+
   const [editing, setEditing] = React.useState(false);
   return (
-    <Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '10vh'}}>
+    <Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '1vh'}}>
       {editing ? (
       <Grid justify="center" direction="row" className={classes.formItems} container>
         <TextField
