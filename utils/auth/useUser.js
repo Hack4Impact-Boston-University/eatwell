@@ -10,6 +10,8 @@ import {
 	getUserFromCookie,
 	removeFavCookie,
 	setFavCookie,
+	setNotesCookie,
+	removeNotesCookie,
 } from "../cookies";
 import { mapUserData } from "./mapUserData";
 
@@ -78,12 +80,14 @@ const useUser = () => {
 							favData[userData["favoriteRecipes"][i]] = "";
 						}
 						setFavCookie(favData);
+						setNotesCookie(userData["notes"] || {})
 
 					});
 			} else if(!u){
 				removeUserCookie();
 				setUser();
 				removeFavCookie();
+				removeNotesCookie();
 			}
 		});
 		if(!user) {
