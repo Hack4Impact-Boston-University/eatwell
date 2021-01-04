@@ -93,6 +93,8 @@ const UploadForm = () => {
             dateUploaded: dateUploaded,
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
+            numRatings: 1,
+            avgRating: 5
         }
         
         // console.log(data)

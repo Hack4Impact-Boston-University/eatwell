@@ -70,16 +70,10 @@ const Index = () => {
             Welcome to EatWell!
           </h1>
 
-          <Button>
-            <FirebaseAuth/>
-          </Button>
-
-
-          <Login/>
-          {user && 
-            <div>
-              {user.enrolledProgram}
-            </div>
+          {!user && 
+            <Button>
+              <FirebaseAuth/>
+            </Button>
           }
           
         </main>

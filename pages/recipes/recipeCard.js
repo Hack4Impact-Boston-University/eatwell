@@ -1,14 +1,25 @@
+import { useEffect } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Card, CardContent, CardActions, Collapse, Grid, IconButton, TextField, Typography, Box } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as ui from '@material-ui/core';
+import { Rating } from '@material-ui/lab';
 import clsx from 'clsx';
 import Link from 'next/link'
 import {
-	editFavCookie,
+  editFavCookie,
+  editNotesCookie,
+  editRatingsCookie,
 } from "../../utils/cookies";
-
+import ClearIcon from '@material-ui/icons/Clear';
+import {uploadRating, getRecipe, setRecipeListener} from "../../utils/recipes.js";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import initFirebase from "../../utils/auth/initFirebase";
+initFirebase();
+var db = firebase.firestore();
 const useStyles = makeStyles((theme) => ({
 
     btn: {
@@ -46,16 +57,42 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-const RecipeCard = ({ obj, isFav, onFavClick}) => {
+export default function RecipeCard({ object, isFav, onFavClick, initNotes, initRating}) {
   
   const classes = useStyles();
+  const [obj, setObj] = React.useState(object);
   const [expanded, setExpanded] = React.useState(false);
   const [favorited, setFav] = React.useState(isFav);
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  const [notes, setNotes] = React.useState([]);
+  
+  const [notes, setNotes] = React.useState(initNotes);
   const [note, setNote] = React.useState("");
+
+  const maxChar = 30.0; // Should be dynamic with width of the card
+
+  const [rating, setRating] = React.useState(initRating);
+
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
+  useEffect(()=> {
+    const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
+      if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
+        setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+      }
+    });
+
+    // const cancelRecipeListener = db.collection("recipes").doc(obj.id).onSnapshot((doc) => {
+    //   if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
+    //     setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+    //   }
+    // });
+    return () => {
+			cancelRecipeListener();
+		};
+  })
 
   function favButtonClick() {
     setFav(!favorited);
@@ -65,24 +102,44 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 
   function handleSubmit() {
     if(note != "") {
-      setNotes(notes.concat([note]))
+      setStr(note, notes.length)
       setNote("")
     }
   }
 
   function setStr(s, i) {
-    setNotes(notes.slice(0,i).concat([s]).concat(notes.slice(i+1)))
+    var words = s.split(" ");
+    var st = "";
+    for(let i = 0; i < words.length; i++) {
+      var word = "";
+      for(let j = 0; j < Math.ceil(words[i].length / maxChar); j++) {
+        word += words[i].substring(maxChar*j, maxChar*(j+1)) + " ";
+      }
+      st += word;
+    }
+    st = st.substring(0, st.length - 1);
+    setNotes(notes.slice(0,i).concat([st]).concat(notes.slice(i+1)))
+    editNotesCookie(obj.id, notes.slice(0,i).concat([s]).concat(notes.slice(i+1)))
   }
 
   function deleteStr(i) {
-    console.log(notes.slice(0,i).length)
     if(notes.slice(0,i).length != 0) {
       setNotes(notes.slice(0,i).concat(notes.slice(i+1)))
+      editNotesCookie(obj.id, notes.slice(0,i).concat(notes.slice(i+1)))
     }
     else {
       setNotes(notes.slice(i+1))
+      editNotesCookie(obj.id, notes.slice(i+1))
     }
   }
+
+  function changeRating(val) {
+    uploadRating(obj, parseFloat(val), parseFloat(rating));
+    setRating(val); 
+    editRatingsCookie(obj.id, val);
+  }
+
+
 
   return (
     <Grid item xs={12} >
@@ -116,8 +173,16 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 
             <Grid item xs={2} style={{ paddingTop: 35 }}>
               <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-                Rating: {obj.rating}
+                Average Rating: {obj.avgRating}
               </Typography>
+              <Rating
+                  defaultValue={0}
+                  precision={0.5}
+                  onChange={(e) => {changeRating(e.target.value)}}
+                  value={rating}
+              />
+              {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} />}
+              {obj.numRatings}
             </Grid>
 
             <Grid item xs={12} >
@@ -190,11 +255,13 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
                   Submit
               </Button>
             </Grid>
-            {
-              notes.map((str, idx) => {
-                return (<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}> </Note>);         
-              })
-            }
+            <Box m={5}>
+              {
+                notes.map((str, idx) => {
+                  return (<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}> </Note>);         
+                })
+              }
+            </Box>
 		      </Grid>
         </Collapse>
       </Card>
@@ -206,9 +273,10 @@ const RecipeCard = ({ obj, isFav, onFavClick}) => {
 const Note = ({str, setStr, deleteStr}) => {
   const classes = useStyles();
   const [val, setVal] = React.useState(str);
+
   const [editing, setEditing] = React.useState(false);
   return (
-    <Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '10vh'}}>
+    <Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '1vh'}}>
       {editing ? (
       <Grid justify="center" direction="row" className={classes.formItems} container>
         <TextField
@@ -242,5 +310,3 @@ const Note = ({str, setStr, deleteStr}) => {
 		</Grid>
   )
 }
-
-export default RecipeCard;
