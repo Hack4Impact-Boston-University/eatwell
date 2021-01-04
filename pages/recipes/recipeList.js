@@ -10,6 +10,7 @@ import RecipeCard, { recipeCard} from "./recipeCard";
 import {
   getFavsFromCookie,
   getNotesFromCookie,
+  getRatingsFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
 import AppBar from '@material-ui/core/AppBar';
@@ -17,6 +18,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import PropTypes from 'prop-types';
 import styles from '../../styles/Home.module.css'
+import {uploadRating} from "../../utils/recipes.js";
 
 
 
@@ -74,7 +76,8 @@ export default function RecipeReviewCard() {
   const {user, upload} =  useUser()
   const { data: _data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   let favRecipes = getFavsFromCookie() || {};
-  const recipeNotes = getNotesFromCookie() || {}
+  const recipeNotes = getNotesFromCookie() || {};
+  const recipeRatings = getRatingsFromCookie() || {};
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
   const [value, setValue] = React.useState(0);
   const [favs, setFavs] = React.useState(value == 1);
@@ -88,13 +91,16 @@ export default function RecipeReviewCard() {
   useEffect(() => {
     window.addEventListener('beforeunload', () => {
       upload({favoriteRecipes: Object.keys(getFavsFromCookie()), 
-              notes: getNotesFromCookie()})
+              notes: getNotesFromCookie(),
+              ratings: getRatingsFromCookie()});
+      //uploadRating(getRatingsFromCookie(), recipeRatings, _data);
     })
   })
 
   const onFavClick = () => {
     setDummy(!dummy)
     favRecipes = getFavsFromCookie() || {};
+    //uploadRating(getRatingsFromCookie(), recipeRatings, _data);
   }
   if ((!_data) || (!favRecipes)) {
     return "Loading...";
@@ -109,10 +115,15 @@ export default function RecipeReviewCard() {
           if (!obj.nameOfDish || !obj.id) return;
           var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
-            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()} initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}/>)
+            return( <RecipeCard key={obj.id} object={obj} 
+              isFav = {obj.id in favRecipes} 
+              onFavClick={() => onFavClick()} 
+              initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []} 
+              initRating={obj.id in recipeRatings ? recipeRatings[obj.id] : 0}
+            />)
           }
           else {
-            console.log(obj.id)
+            // console.log(obj.id)
             return;
           }
 

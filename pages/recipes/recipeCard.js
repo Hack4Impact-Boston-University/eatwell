@@ -1,15 +1,25 @@
+import { useEffect } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Card, CardContent, CardActions, Collapse, Grid, IconButton, TextField, Typography, Box } from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as ui from '@material-ui/core';
+import { Rating } from '@material-ui/lab';
 import clsx from 'clsx';
 import Link from 'next/link'
 import {
   editFavCookie,
   editNotesCookie,
+  editRatingsCookie,
 } from "../../utils/cookies";
-
+import ClearIcon from '@material-ui/icons/Clear';
+import {uploadRating, getRecipe, setRecipeListener} from "../../utils/recipes.js";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import initFirebase from "../../utils/auth/initFirebase";
+initFirebase();
+var db = firebase.firestore();
 const useStyles = makeStyles((theme) => ({
 
     btn: {
@@ -47,9 +57,10 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-const RecipeCard = ({ obj, isFav, onFavClick, initNotes}) => {
+export default function RecipeCard({ object, isFav, onFavClick, initNotes, initRating}) {
   
   const classes = useStyles();
+  const [obj, setObj] = React.useState(object);
   const [expanded, setExpanded] = React.useState(false);
   const [favorited, setFav] = React.useState(isFav);
   const handleExpandClick = () => {
@@ -60,6 +71,28 @@ const RecipeCard = ({ obj, isFav, onFavClick, initNotes}) => {
   const [note, setNote] = React.useState("");
 
   const maxChar = 30.0; // Should be dynamic with width of the card
+
+  const [rating, setRating] = React.useState(initRating);
+
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
+  useEffect(()=> {
+    const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
+      if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
+        setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+      }
+    });
+
+    // const cancelRecipeListener = db.collection("recipes").doc(obj.id).onSnapshot((doc) => {
+    //   if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
+    //     setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+    //   }
+    // });
+    return () => {
+			cancelRecipeListener();
+		};
+  })
 
   function favButtonClick() {
     setFav(!favorited);
@@ -100,6 +133,14 @@ const RecipeCard = ({ obj, isFav, onFavClick, initNotes}) => {
     }
   }
 
+  function changeRating(val) {
+    uploadRating(obj, parseFloat(val), parseFloat(rating));
+    setRating(val); 
+    editRatingsCookie(obj.id, val);
+  }
+
+
+
   return (
     <Grid item xs={12} >
       <Box paddingBottom={5}>
@@ -132,8 +173,16 @@ const RecipeCard = ({ obj, isFav, onFavClick, initNotes}) => {
 
             <Grid item xs={2} style={{ paddingTop: 35 }}>
               <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-                Rating: {obj.rating}
+                Average Rating: {obj.avgRating}
               </Typography>
+              <Rating
+                  defaultValue={0}
+                  precision={0.5}
+                  onChange={(e) => {changeRating(e.target.value)}}
+                  value={rating}
+              />
+              {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} />}
+              {obj.numRatings}
             </Grid>
 
             <Grid item xs={12} >
@@ -261,5 +310,3 @@ const Note = ({str, setStr, deleteStr}) => {
 		</Grid>
   )
 }
-
-export default RecipeCard;

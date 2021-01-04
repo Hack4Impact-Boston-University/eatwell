@@ -62,8 +62,8 @@ export const getNotesFromCookie = () => {
   return JSON.parse(cookie)
 }
 
-export const setNotesCookie = (favs) => {
-  cookies.set('notes', favs, {
+export const setNotesCookie = (notes) => {
+  cookies.set('notes', notes, {
     // firebase id tokens expire in one hour
     // set cookie expiry to match
     expires: 1 / 24,
@@ -85,3 +85,35 @@ export const editNotesCookie = (dishID, notes) => {
 }
 
 export const removeNotesCookie = () => cookies.remove('notes')
+
+export const getRatingsFromCookie = () => {
+  const cookie = cookies.get('ratings')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
+export const setRatingsCookie = (rates) => {
+  cookies.set('ratings', rates, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const editRatingsCookie = (dishID, rating) => {
+  const cookie = cookies.get('ratings') || '{}';
+  var data = JSON.parse(cookie);
+  if(rating == 0) {
+    delete data[dishID]
+  }
+  else {
+    data[dishID] = rating;
+  }
+  setRatingsCookie(data);
+}
+
+export const removeRatingsCookie = () => cookies.remove('ratings')
