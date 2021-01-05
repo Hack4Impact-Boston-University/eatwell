@@ -139,6 +139,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
     editRatingsCookie(obj.id, val);
   }
 
+  console.log(obj.images)
 
 
   return (
@@ -212,11 +213,16 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
               </Grid>
             </Grid>
 
-            <Grid item xs={6} >
+            {
+              (obj.images == undefined) ? 
+              <Grid item xs={6} >
+              </Grid> :
+              <Grid item xs={6} >
               <ui.Box>
-                <img className={classes.media} src={obj.imageUrl} />
+                <img className={classes.media} src={obj.images[0]} />
               </ui.Box>
             </Grid>
+            }
           </Grid>
 
         </CardContent>
