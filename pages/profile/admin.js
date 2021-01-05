@@ -95,6 +95,9 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     minWidth: 120,
   },
+  active: {
+    backgroundColor: "gray"
+  }
 }));
 
 const fetcher = async (...args) => {
@@ -113,7 +116,8 @@ export default function Admin() {
   const [openRole, setOpenRole] = React.useState(false);
   const [program, setProgram] = React.useState("");
   const [prevProgram, setPrevProgram] = React.useState("");
-  const [selectedProgram, setSelectedProgram] = useState([0]);
+  const [selectedProgramProgram, setSelectedProgramProgram] = useState({programName:"All"});
+  const [selectedUsersProgram, setSelectedUsersProgram] = useState({programName:"All"});
   const [role, setRole] = React.useState("");
   const [prevRole, setPrevRole] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState("");
@@ -229,18 +233,37 @@ export default function Admin() {
             <Grid item sm={2}>
               <List dense>
                 {programs.map((value) => {
-                  return (
-                    <Grid item>
-                      <ListItem
-                        key={value?.programName}
-                        button
-                        onClick={() => setSelectedProgram(value)}
-                      >
-                        <ListItemText>{value?.programName}</ListItemText>
-                      </ListItem>
-                      <Divider light />
-                    </Grid>
-                  );
+                  if (value.programName == selectedUsersProgram?.programName) {
+                    return (
+                      <Grid item>                      
+                        <ListItem
+                          key={value?.programName}
+                          button
+                          selected={true}
+                          onClick={() => setSelectedUsersProgram(value)}
+                        >
+                          <ListItemText>{value?.programName}</ListItemText>
+                        </ListItem>
+                        <Divider light />
+                      </Grid>
+                    );
+                  }
+                  else {
+                    return (
+                      <Grid item>                      
+                        <ListItem
+                          key={value?.programName}
+                          button
+                          selected={false}
+                          classes={{ selected: classes.active }}
+                          onClick={() => setSelectedUsersProgram(value)}
+                        >
+                          <ListItemText>{value?.programName}</ListItemText>
+                        </ListItem>
+                        <Divider light />
+                      </Grid>
+                    );
+                  }
                 })}
               </List>
             </Grid>
@@ -255,11 +278,10 @@ export default function Admin() {
               {users.map((value) => {
                 if (
                   (value["email"]?.includes(search) &&
-                    selectedProgram?.programName == "All") ||
+                    selectedUsersProgram?.programName == "All") ||
                   (value["email"]?.includes(search) &&
-                    value?.program == selectedProgram?.programName)
+                    value?.program == selectedUsersProgram?.programName)
                 ) {
-                  const userid = value["id"];
                   return (
                     <Accordion>
                       <AccordionSummary
@@ -435,18 +457,37 @@ export default function Admin() {
             <Grid item sm={2}>
               <List dense>
                 {programs.map((value) => {
-                  return (
-                    <Grid item>
-                      <ListItem
-                        key={value?.programName}
-                        button
-                        onClick={() => setSelectedProgram(value)}
-                      >
-                        <ListItemText>{value?.programName}</ListItemText>
-                      </ListItem>
-                      <Divider light />
-                    </Grid>
-                  );
+                  if (value.programName == selectedProgramProgram?.programName) {
+                    return (
+                      <Grid item>                      
+                        <ListItem
+                          key={value?.programName}
+                          button
+                          selected={true}
+                          onClick={() => setSelectedProgramProgram(value)}
+                        >
+                          <ListItemText>{value?.programName}</ListItemText>
+                        </ListItem>
+                        <Divider light />
+                      </Grid>
+                    );
+                  }
+                  else {
+                    return (
+                      <Grid item>                      
+                        <ListItem
+                          key={value?.programName}
+                          button
+                          selected={false}
+                          classes={{ selected: classes.active }}
+                          onClick={() => setSelectedProgramProgram(value)}
+                        >
+                          <ListItemText>{value?.programName}</ListItemText>
+                        </ListItem>
+                        <Divider light />
+                      </Grid>
+                    );
+                  }
                 })}
               </List>
             </Grid>
@@ -455,7 +496,7 @@ export default function Admin() {
               <List>
                 <ListItemText>
                   {" "}
-                  You clicked on {selectedProgram?.programName}{" "}
+                  You clicked on {selectedProgramProgram?.programName}{" "}
                 </ListItemText>
               </List>
             </Grid>
@@ -465,7 +506,7 @@ export default function Admin() {
                             return <ListItemText primary={value} />
                         })}
                     </List> */}
-              <List>{selectedProgram?.recipes}</List>
+              <List>{selectedProgramProgram?.recipes}</List>
             </Grid>
           </Grid>
         </TabPanel>

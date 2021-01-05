@@ -77,9 +77,9 @@ const UploadForm = () => {
     
         var i;
         var uploadedImages = [];
-        for (i = 0; i < 3 ; i++) {
-            uploadedImages.push(recipeName+" "+i+".img")
-        }
+        // for (i = 0; i < 3 ; i++) {
+        //     uploadedImages.push(recipeName+" "+i+".img")
+        // }
         // console.log(images[0]);
         
         var collection = firebase.firestore().collection('recipes')
@@ -99,12 +99,16 @@ const UploadForm = () => {
         
         // console.log(data)
 
-        collection.doc(recipe).set(data)
-        firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-            'complete': function() {
-                alert('upload successful!')
-            }
-        })
+        if (recipeName!=''&&imageUrl!=''&&videoID!='') {
+            collection.doc(recipe).set(data)
+            firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+                'complete': function() {
+                    alert('upload successful!')
+                }
+            })
+        } else {
+            alert('Please fill in all the required information')
+        }
 
         // firebase.storage().ref().child(recipeName+" 0"+".img").put(image).on(firebase.storage.TaskEvent.STATE_CHANGED, {
         //     'complete': function() {
@@ -159,7 +163,6 @@ const UploadForm = () => {
             </ui.Grid>
             <ui.Grid item xs={12} sm={6}>
                 <ui.TextField
-                    required
                     value={videoSkills}
                     label="Vimeo Skills Video ID"
                     onChange={(e) => setVideoSkills(e.target.value)}
@@ -169,7 +172,6 @@ const UploadForm = () => {
             </ui.Grid>
             <ui.Grid item xs={12} sm={6}>
                 <ui.TextField
-                    required
                     value={videoTips}
                     label="Vimeo Tips Video ID"
                     onChange={(e) => setVideoTips(e.target.value)}
@@ -197,7 +199,6 @@ const UploadForm = () => {
             </ui.Grid>
             <ui.Grid item xs={12}>
                 <ui.TextField
-                    required
                     value={description}
                     label="Recipe Description"
                     multiline
