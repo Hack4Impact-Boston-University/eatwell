@@ -121,6 +121,9 @@ export default function Admin() {
   const [role, setRole] = React.useState("");
   const [prevRole, setPrevRole] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState("");
+  const [openAddProgram, setOpenAddProgram] = React.useState(false);
+  const [addedProgram, setAddedProgram] = useState('')
+
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -189,10 +192,26 @@ export default function Admin() {
     setOpenRole(false);
   };
 
+  const handleClickOpenAddProgram = () => {
+    setOpenAddProgram(true);
+  };
+
+  const handleCloseAddProgram = () => {
+    setAddedProgram('');
+    setOpenAddProgram(false);
+  };
+
+  const addProgram = () => {
+    firebase.firestore().collection('programs').doc(addedProgram).set({programName:addedProgram})
+    alert("successfully added new program!");
+    setAddedProgram('');
+    setOpenAddProgram(false);
+  }; 
+
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
   const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
-  const programssTemp = programsTemp;
-  const [programs, setCurrentPrograms] = React.useState(programssTemp);
+  const [programs, setCurrentPrograms] = React.useState(programsTemp);
+  useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] )
 
   if (!users || !programs) {
     if (!users) {
@@ -341,23 +360,18 @@ export default function Admin() {
                                       onChange={handleChangeProgram}
                                       input={<Input />}
                                     >
-                                      <MenuItem value={prevProgram}></MenuItem>
                                       {programs.map((programss) =>
                                         programss["programName"] != "All" ? (
-                                          <MenuItem
-                                            value={programss["programName"]}
-                                          >
+                                          <MenuItem value={programss["programName"]}>
                                             {programss["programName"]}
                                           </MenuItem>
                                         ) : (
-                                          <MenuItem
-                                            disabled
-                                            value={programss["programName"]}
-                                          >
+                                          <MenuItem disabled value={programss["programName"]}>
                                             {programss["programName"]}
                                           </MenuItem>
                                         )
-                                      )}
+                                      )
+                                      }
                                     </Select>
                                   </FormControl>
                                 </DialogContent>
@@ -458,6 +472,40 @@ export default function Admin() {
           <Grid container spacing={3}>
             <Grid item sm={2}>
               <List dense>
+                <ListItem
+                  key={"Add New Program"}
+                  button
+                  selected={true}
+                  // onClick={() => setSelectedProgramProgram(value)}
+                >
+                  <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}>
+                    Add New Program
+                  </Button>
+                  <Dialog
+                      disableBackdropClick
+                      disableEscapeKeyDown
+                      open={openAddProgram}
+                      onClose={handleCloseAddProgram}
+                  >
+                  <DialogActions>
+                      <h4>Add New Program</h4>
+                      <TextField
+                          value={addedProgram}
+                          label="New Program"
+                          multiline
+                          onChange={(e) => setAddedProgram(e.target.value)}
+                          fullWidth
+                          variant="outlined"
+                      />
+                      <Button onClick={handleCloseAddProgram} color="primary">
+                          Cancel
+                      </Button>
+                      <Button onClick={() => addProgram()} color="primary">
+                          Confirm
+                      </Button>
+                  </DialogActions>
+                  </Dialog>
+                </ListItem>
                 {programs.map((value) => {
                   if (value.programName == selectedProgramProgram?.programName) {
                     return (
