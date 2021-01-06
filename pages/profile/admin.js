@@ -190,7 +190,9 @@ export default function Admin() {
   };
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+  const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+  const programssTemp = programsTemp;
+  const [programs, setCurrentPrograms] = React.useState(programssTemp);
 
   if (!users || !programs) {
     if (!users) {
