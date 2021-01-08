@@ -45,12 +45,12 @@ const useStyles = makeStyles((theme) => ({
 		color: "red",
 	},
 	avatar: {
-		height: theme.spacing(13),
-		width: theme.spacing(13),
+		height: "13vh",
+		width: "13vh",
 		margin: "auto",
 	},
 	btn: {
-		width: "8rem",
+		width: "7rem",
 		display: "block",
 		margin: "auto",
 		textAlign: "center",
@@ -62,16 +62,20 @@ const useStyles = makeStyles((theme) => ({
 		},
 	},
 	formItems: {
-		marginTop: theme.spacing(2),
+		marginTop: "1.5vh",
+
 	},
 	body: {
-		marginTop: theme.spacing(4),
+		marginTop: "4vh",
 	},
+	viewButtonLabel: { textTransform: "none" },
+	text: {
+		fontSize: 'calc(min(4vw, 20px))'
+	}
 }));
 
 const Profile = () => {
 	const { user, logout } = useUser();
-
 	const [errorAlert, setErrorAlert] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [profile, setProfile] = useState({});
@@ -126,6 +130,7 @@ const Profile = () => {
 							variant="contained"
 							component="label"
 							className={classes.btn}
+							classes={{ label: classes.viewButtonLabel }}
 						>
 							Upload File
 							<input
@@ -166,7 +171,9 @@ const Profile = () => {
 						InputProps={{
 							readOnly: true,
 							className: classes.root,
+							classes: {input: classes.text},
 						}}
+						size="small"
 					/>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
@@ -178,7 +185,9 @@ const Profile = () => {
 						InputProps={{
 							readOnly: true,
 							className: classes.root,
+							classes: {input: classes.text},
 						}}
+						size="small"
 					/>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
@@ -190,7 +199,9 @@ const Profile = () => {
 						InputProps={{
 							readOnly: true,
 							className: classes.root,
+							classes: {input: classes.text},
 						}}
+						size="small"
 					/>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
@@ -203,12 +214,14 @@ const Profile = () => {
 						InputProps={{
 							readOnly: true,
 							className: classes.root,
+							classes: {input: classes.text},
 						}}
+						size="small"
 					/>
 				</Grid>
-				<Grid justify="center" container>
-					<Grid xs={12} md={4} lg={2} className={classes.pass} item>
-						<FormControl variant="outlined" margin="dense" fullWidth>
+				<Grid justify="center" className={classes.formItems} container>
+
+						<FormControl variant="outlined" margin="dense">
 							<InputLabel htmlFor="profilePassword">Password</InputLabel>
 							<OutlinedInput
 								id="profilePassword"
@@ -217,8 +230,8 @@ const Profile = () => {
 								value={"password"}
 								inputProps={{
 									readOnly: true,
-									// className: classes.pa
 								}}
+								className={classes.text}
 								endAdornment={
 									<InputAdornment position="end">
 										<IconButton
@@ -237,7 +250,7 @@ const Profile = () => {
 								labelWidth={70}
 							/>
 						</FormControl>
-					</Grid>
+
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
