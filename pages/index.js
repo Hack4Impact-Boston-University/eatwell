@@ -39,51 +39,36 @@ const Index = () => {
   function signInClick(event) {
     setLogin(true);
   }
-
-  function Login() {
-    if(login) {
-      return (
-        <div>
-          <FirebaseAuth/>
-        </div>
-      );
-    }
-    return (
-      <ui.Grid container direction="row" justify="center" alignItems="center">
-
-      </ui.Grid>
-    )
-  }
   
   return (
     <div>
       <Box className={classes.container}>
-      <div className={styles.container}>
-        <Head>
-          <title>EatWell</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <main className={styles.main}>
-          <img id={styles.logo} src="/assets/eatwell_logo 2.png" width="50%"/>
+        <div className={styles.container}>
+          <Head>
+            <title>EatWell</title>
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
+          <main className={styles.main}>
+            <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
-          <h1 className={styles.title}>
-            Welcome to EatWell!
-          </h1>
+            <h2 className={styles.title}>
+              Welcome to EatWell!
+            </h2>
 
-          {!user && 
-            <Button>
+            {!user && 
+              <Button>
+                <FirebaseAuth/>
+              </Button>
+            }
+            
+          </main>
+        </div>
+        <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+          <DialogTitle id="form-dialog-title">Login</DialogTitle>
+            <DialogContent>
               <FirebaseAuth/>
-            </Button>
-          }
-          
-        </main>
-      </div>
-      <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-        <DialogTitle id="form-dialog-title">Login</DialogTitle>
-          <DialogContent>
-            <FirebaseAuth/>
-          </DialogContent>
-      </Dialog>
+            </DialogContent>
+        </Dialog>
       </Box>
       
       <div className={styles.nav}>
