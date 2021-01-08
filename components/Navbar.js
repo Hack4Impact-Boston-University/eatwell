@@ -17,6 +17,8 @@ import {
 	ListItemText,
 	ListItem,
 	ListItemIcon,
+	Menu,
+	MenuItem,
 } from "@material-ui/core";
 import { useUser } from "../utils/auth/useUser";
 import {
@@ -24,8 +26,8 @@ import {
 	Book,
 	ExitToApp,
 	KeyboardArrowRight,
-	Menu,
 } from "@material-ui/icons";
+import MenuIcon from "@material-ui/icons/Menu";
 import FirebaseAuth from "../components/FirebaseAuth";
 
 const drawerWidth = 100;
@@ -84,6 +86,10 @@ const useStyles = makeStyles((theme) => ({
 	menuIcon: {
 		marginRight: theme.spacing(0.2),
 	},
+	paper: {
+		background: "#0A5429",
+	},
+	viewButtonLabel: { textTransform: "none" }
 }));
 
 const Navbar = () => {
@@ -93,100 +99,120 @@ const Navbar = () => {
 	const [open, setOpen] = React.useState(false);
 	const [toggle, setToggle] = useState(false);
 
-	const toggleDrawer = (event) => {
-		if (
-			event.type === "keydown" &&
-			(event.key === "Tab" || event.key === "Shift")
-		) {
-			return;
-		}
+	// const toggleDrawer = (event) => {
+	// 	if (
+	// 		event.type === "keydown" &&
+	// 		(event.key === "Tab" || event.key === "Shift")
+	// 	) {
+	// 		return;
+	// 	}
 
-		setToggle(!toggle);
-	};
+	// 	setToggle(!toggle);
+	// };
 
-	const handleClose = () => {
-		setOpen(false);
-	};
-	const handleToggle = () => {
-		setOpen(!open);
-	};
+	// const handleToggle = () => {
+	// 	setOpen(!open);
+	// };
+
+	const UserMenuItems = (props) => {
+		return (
+			<Button href={`/recipes/recipeList`} className={classes.menuItems}>
+				<Book />
+				<Typography variant="subtitle2">Recipes</Typography>
+			</Button>
+		);
+	}
+
+	const AdminMenuItems = (props) => {
+		return (
+			<div>					
+				<Button href={`/recipes/upload`} className={classes.menuItems}>
+					<Book />
+					<Typography variant="subtitle2">Upload</Typography>
+				</Button>
+				<Button href={`/profile/admin`} className={classes.menuItems}>
+					<AccountCircle
+						className={`${classes.menuIcon} ${classes.menuItems}`}
+					/>
+					<Typography variant="subtitle2">Manage</Typography>
+				</Button>
+			</div>
+		);
+	}
+
+	const UserDrawerItems = (props) => {
+		return (
+			<Box>
+				<MenuItem button key={0}>
+					<ListItemIcon>
+						<Book />
+					</ListItemIcon>
+					<ListItemText primary="Recipes" />
+				</MenuItem>
+
+				<MenuItem button key={1}>
+					<ListItemIcon>
+						<AccountCircle />
+					</ListItemIcon>
+					<ListItemText primary="Account" />
+				</MenuItem>
+			</Box>
+		);
+	}
+
+	const AdminDrawerItems = (props) => {
+		return (
+			<Box>
+				<MenuItem button key={1}  className={classes.menuItems}>
+					<Button href={`/recipes/upload`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+						<ListItemIcon>
+							<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
+						</ListItemIcon>
+						<Typography variant="subtitle1">Upload</Typography>
+					</Button>
+				</MenuItem>
+
+				<MenuItem button key={2} className={classes.menuItems}>
+					<Button href={`/profile/admin`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+						<ListItemIcon>
+							<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
+						</ListItemIcon>
+						<Typography variant="subtitle1">Manage</Typography>
+					</Button>
+				</MenuItem>
+			</Box>
+		);
+	}
+
+
 	// navbar items
 	const Items = (props) => {
+		const [anchorEl, setAnchorEl] = React.useState(null);
+		const handleClick = (event) => {
+			setAnchorEl(event.currentTarget);
+			console.log(event.currentTarget)
+		}
+	
+		const handleClose = () => {
+			setAnchorEl(null);
+		};
 		// navbar items are shown iff user is logged in
 		return (
 			<div>
-				{user ? (
-					// user logged in show menu items
-					(user.role == "user") ? (
-						<Toolbar disableGutters>
-							<Box className={classes.responsiveMenu} component="div">
-								<Button href={`/profile/profile`} className={classes.menuItems}>
-									<AccountCircle
-										className={`${classes.menuIcon} ${classes.menuItems}`}
-									/>
-									<Typography variant="subtitle2">Profile</Typography>
-								</Button>
-								<Button href={`/recipes/recipeList`} className={classes.menuItems}>
-									<Book />
-									<Typography variant="subtitle2">Recipes</Typography>
-								</Button>
-								<Button
-									onClick={() => logout()}
+				{user ? ( // user logged in show menu items
+					<Toolbar disableGutters>
+						<Grid container className={classes.responsiveMenu}>
+							<Button href={`/profile/profile`} className={classes.menuItems}>
+								<AccountCircle
 									className={`${classes.menuIcon} ${classes.menuItems}`}
-								>
-									<ExitToApp />
-									<Typography variant="subtitle2">Logout</Typography>
-								</Button>
-							</Box>
-							<Button className={classes.responsiveIcon}>
-								<Menu className={classes.menuItems} onClick={toggleDrawer} />
-								<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
-									<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
-										<List>
-											<ListItem button key={0}>
-												<ListItemIcon>
-													<Book />
-												</ListItemIcon>
-												<ListItemText primary="Recipes" />
-											</ListItem>
-
-											<ListItem button key={1}>
-												<ListItemIcon>
-													<AccountCircle />
-												</ListItemIcon>
-												<ListItemText primary="Account" />
-											</ListItem>
-
-											<ListItem button key={2}>
-												<ListItemIcon>
-													<ExitToApp />
-												</ListItemIcon>
-												<ListItemText primary="Logout" />
-											</ListItem>
-										</List>
-									</div>
-								</Drawer>
+								/>
+								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
-						</Toolbar>
-						) : (
-						<Toolbar disableGutters>
-							<Box className={classes.responsiveMenu} component="div">
-								<Button href={`/profile/profile`} className={classes.menuItems}>
-									<AccountCircle
-										className={`${classes.menuIcon} ${classes.menuItems}`}
-									/>
-									<Typography variant="subtitle2">Profile</Typography>
-								</Button>					
-								<Button href={`/recipes/upload`} className={classes.menuItems}>
-									<Book />
-									<Typography variant="subtitle2">Upload</Typography>
-								</Button>
-								<Button href={`/profile/admin`} className={classes.menuItems}>
-									<AccountCircle
-										className={`${classes.menuIcon} ${classes.menuItems}`}
-									/>
-									<Typography variant="subtitle2">Manage</Typography>
-								</Button>
+							{user.role == "user" ? 
+								<UserMenuItems/> 
+								: 
+								<AdminMenuItems/>
+							}
 							<Button
 								onClick={() => logout()}
 								className={`${classes.menuIcon} ${classes.menuItems}`}
@@ -194,39 +220,41 @@ const Navbar = () => {
 								<ExitToApp />
 								<Typography variant="subtitle2">Logout</Typography>
 							</Button>
-						</Box>
+						</Grid>
 						<Button className={classes.responsiveIcon}>
-							<Menu className={classes.menuItems} onClick={toggleDrawer} />
-							<Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
+							<MenuIcon className={classes.menuItems} onClick={handleClick} />
+							<Menu
+								id="simple-menu"
+								anchorEl={anchorEl}
+								keepMounted
+								open={Boolean(anchorEl)}
+								onClose={handleClose}
+								classes={{paper: classes.paper}}
+							>
+								<MenuItem button key={0} className={classes.menuItems}>
+									<Button href={`/profile/profile`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+										<ListItemIcon>
+											<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Profile</Typography>
+									</Button>
+								</MenuItem>
+								{user.role == "user" ? <UserDrawerItems/> : <AdminDrawerItems/>}
+								<MenuItem button key={3} className={classes.menuItems}>
+									<Button onClick={() => logout()} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+										<ListItemIcon>
+											<ExitToApp className={`${classes.menuIcon} ${classes.menuItems}`}/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Logout</Typography>
+									</Button>
+								</MenuItem>
+							</Menu>
+							{/* <Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
 								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
-									<List>
-										<ListItem button key={0}>
-											<ListItemIcon>
-												<Book />
-											</ListItemIcon>
-											<ListItemText primary="Upload" />
-										</ListItem>
-
-										<ListItem button key={1}>
-											<ListItemIcon>
-												<AccountCircle />
-											</ListItemIcon>
-											<ListItemText primary="Admin" />
-										</ListItem>
-
-										<ListItem button key={2}>
-											<ListItemIcon>
-												<ExitToApp />
-											</ListItemIcon>
-											<ListItemText primary="Logout" />
-										</ListItem>
-									</List>
 								</div>
-							</Drawer>
+							</Drawer> */}
 						</Button>
 					</Toolbar>
-				)
-
 				) : (
 					<Toolbar disableGutters>
 					</Toolbar>
@@ -260,7 +288,7 @@ const Navbar = () => {
 					</Toolbar>
 				</AppBar>
 				<Dialog
-					onClose={handleClose}
+					//onClose={handleClose}
 					aria-labelledby="simple-dialog-title"
 					open={open}
 				>
