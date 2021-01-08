@@ -144,17 +144,12 @@ const Navbar = () => {
 		return (
 			<Box>
 				<MenuItem button key={0}>
-					<ListItemIcon>
-						<Book />
-					</ListItemIcon>
-					<ListItemText primary="Recipes" />
-				</MenuItem>
-
-				<MenuItem button key={1}>
-					<ListItemIcon>
-						<AccountCircle />
-					</ListItemIcon>
-					<ListItemText primary="Account" />
+					<Button href={`/recipes/recipeList`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+						<ListItemIcon>
+							<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
+						</ListItemIcon>
+						<Typography variant="subtitle1">Recipes</Typography>
+					</Button>
 				</MenuItem>
 			</Box>
 		);
