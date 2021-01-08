@@ -70,6 +70,7 @@ const UploadForm = () => {
 
         var collection = firebase.firestore().collection('recipes')
         var data = {
+            id:recipe,
             nameOfDish: recipeName,
             description: description,
             images: uploadedImages,

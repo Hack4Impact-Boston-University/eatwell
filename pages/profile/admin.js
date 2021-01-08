@@ -20,6 +20,8 @@ import Navbar from "../../components/Navbar";
 import styles from "../../styles/Home.module.css";
 import * as firebase from "firebase";
 import initFirebase from "../../utils/auth/initFirebase";
+import { useRouter } from 'next/router';
+
 
 function useWindowSize() {
   // Initialize state with undefined width/height so server and client renders match
@@ -97,6 +99,9 @@ const useStyles = makeStyles((theme) => ({
   },
   active: {
     backgroundColor: "gray"
+  },
+  noNum: {
+    listStyle: "none"
   }
 }));
 
@@ -123,6 +128,20 @@ export default function Admin() {
   const [currentUser, setCurrentUser] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('')
+  const [uploadDate, setUploadDate] = React.useState("");
+  const [searchRecipe, setSearchRecipe] = React.useState("");
+  const [currentRecipe, setCurrentRecipe] = React.useState("");
+  const [recipeName, setRecipeName] = React.useState("");
+  const [openRecipeName, setOpenRecipeName] = React.useState(false);
+  const [recipeDescription, setRecipeDescription] = React.useState("");
+  const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
+
+  const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
+  const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+  const [programs, setCurrentPrograms] = React.useState(programsTemp);
+  useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] );
+  const router = useRouter();
+  const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
 
 
   const handleToggle = (value) => () => {
@@ -168,6 +187,46 @@ export default function Admin() {
     setOpenProgram(false);
   };
 
+  const handleClickOpenRecipeName = (currentRecipe) => {
+    setRecipeName(currentRecipe.nameOfDish)
+    setOpenRecipeName(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseRecipeName = () => {
+    setOpenRecipeName(false);
+  };
+
+  const handleSubmitRecipeName = (currentRecipe) => {
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({nameOfDish:recipeName, dateUploaded: uploadDate})
+    alert("successfully edited recipe name!");
+    setRecipeName('');
+    setOpenRecipeName(false);
+  };
+
+  const handleClickOpenRecipeDescription = (currentRecipe) => {
+    setRecipeDescription(currentRecipe.description)
+    setOpenRecipeDescription(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseRecipeDescription = () => {
+    setOpenRecipeDescription(false);
+  };
+
+  const handleSubmitRecipeDescription = (currentRecipe) => {
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({description:recipeDescription, dateUploaded: uploadDate})
+    alert("successfully edited recipe description!");
+    setRecipeDescription('');
+    setOpenRecipeDescription(false);
+  };
+
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
     setProgram(currentUserProgram);
     firebase
@@ -208,16 +267,13 @@ export default function Admin() {
     setOpenAddProgram(false);
   }; 
 
-  const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
-  const [programs, setCurrentPrograms] = React.useState(programsTemp);
-  useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] )
-
-  if (!users || !programs) {
+  if (!users || !programs || !recipes) {
     if (!users) {
       return "Loading users...";
-    } else {
+    } else if (!programs) {
       return "Loading programs...";
+    } else {
+      return "Loading recipes...";
     }
   }
 
@@ -227,8 +283,22 @@ export default function Admin() {
     emails.push(users[i]["email"]);
   }
 
+  console.log(recipes)
+  const recipesList = [];
+  var i;
+  for (i = 0; i < recipes.length; i++) {
+    recipesList.push(recipes[i]["nameOfDish"]);
+  }
+
   const handleChange = (e) => {
     setSearch(e.target.value);
+    const filteredNames = emails.filter((x) => {
+      x?.includes(e.target.value);
+    });
+  };
+
+  const handleChangeRecipe = (e) => {
+    setSearchRecipe(e.target.value);
     const filteredNames = emails.filter((x) => {
       x?.includes(e.target.value);
     });
@@ -322,17 +392,11 @@ export default function Admin() {
                         />
                       </AccordionSummary>
                       <AccordionDetails>
-                        <Grid>
-                          <Box display="block" displayPrint="none" m={1}>
-                            Phone: {value?.phone}
-                          </Box>
-                        </Grid>
+                        <ol className={classes.noNum}>
+                          <li>Phone: {value?.phone}</li>                        
 
                         {value?.role == "user" ? (
-                          <Grid>
-                            <Box display="block" displayPrint="none" m={1}>
-                              Program: {value?.program}
-                            </Box>
+                            <li>Program: {value?.program}
                             <IconButton
                               onClick={() =>
                                 handleClickOpenProgram(value.id, value?.program)
@@ -393,15 +457,12 @@ export default function Admin() {
                                 </DialogActions>
                               </Dialog>
                             )}
-                          </Grid>
+                            </li>
                         ) : (
                           <Grid></Grid>
                         )}
 
-                        <Grid>
-                          <Box display="block" displayPrint="none" m={1}>
-                            Role: {value?.role}
-                          </Box>
+                          <li>Role: {value?.role}
                           <IconButton
                             onClick={() =>
                               handleClickOpenRole(value.id, value?.role)
@@ -455,10 +516,13 @@ export default function Admin() {
                               </DialogActions>
                             </Dialog>
                           )}
+                          </li>
+                          <li>
                           <IconButton edge="end" aria-label="comments">
                             <DeleteIcon />
                           </IconButton>
-                        </Grid>
+                          </li>
+                        </ol>
                       </AccordionDetails>
                     </Accordion>
                   );
@@ -562,15 +626,105 @@ export default function Admin() {
         </TabPanel>
 
         <TabPanel value={value} index={2} dir={theme.direction}>
-          <iframe
-            src={users.videoTips}
-            width="100%"
-            height={width * 0.625}
-            frameBorder="0"
-            align="center"
-            position="sticky"
-            allow="autoplay; fullscreen"
-          ></iframe>
+        <Grid container spacing={3}>
+            <Grid item sm={5}>
+              <TextField
+                label="search recipe"
+                value={searchRecipe}
+                onChange={handleChangeRecipe}
+              />
+
+              {recipes.map((value) => {
+                if (value["nameOfDish"]?.includes(searchRecipe)) {
+                  return (
+                    <Accordion>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                      >
+                        <ListItemAvatar>
+                          <Avatar
+                          // alt={`Avatar n°${value + 1}`}
+                          // src={`/static/images/avatar/${value + 1}.jpg`}
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={value?.nameOfDish}
+                        />
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <ol className={classes.noNum}>
+                          <li>Name of recipe: {value?.nameOfDish}
+                          <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton>
+                          {currentRecipe && (
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeName} onClose={handleCloseRecipeName}>
+                              <DialogTitle>Edit Recipe Name</DialogTitle>
+                              <DialogContent>
+                                  <TextField
+                                      value={recipeName}
+                                      label="Edit Reciipe Name"
+                                      multiline
+                                      onChange={(e) => setRecipeName(e.target.value)}
+                                      fullWidth
+                                      variant="outlined"
+                                  />
+                                  <Button onClick={handleCloseRecipeName} color="primary">
+                                      Cancel
+                                  </Button>
+                                  <Button onClick={() => handleSubmitRecipeName(currentRecipe, recipeName)} color="primary">
+                                      Confirm
+                                  </Button>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                          </li>
+                          <li>Description: {value?.description}
+                          <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton>
+                          {currentRecipe && (
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescription} onClose={handleCloseRecipeDescription}>
+                              <DialogTitle>Edit Recipe Description</DialogTitle>
+                              <DialogContent>
+                                  <TextField
+                                      value={recipeDescription}
+                                      label="Edit Reciipe Description"
+                                      multiline
+                                      onChange={(e) => setRecipeDescription(e.target.value)}
+                                      fullWidth
+                                      variant="outlined"
+                                  />
+                                  <Button onClick={handleCloseRecipeDescription} color="primary">
+                                      Cancel
+                                  </Button>
+                                  <Button onClick={() => handleSubmitRecipeDescription(currentRecipe, recipeDescription)} color="primary">
+                                      Confirm
+                                  </Button>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                          </li>
+                          <li>Date last modified: {value?.dateUploaded}</li>
+                          <li>Rating: {value?.avgRating}</li>
+                          <li>Number of ratings: {value?.numRatings}</li>
+
+                          {/* display / edit images */}
+                          {/* display / edit pdf */}
+                          {/* display / edit videos */}
+
+                          <li>
+                          <IconButton edge="end" aria-label="comments">
+                            <DeleteIcon />
+                          </IconButton>
+                          </li>
+                        </ol>
+                        
+                      </AccordionDetails>
+                    </Accordion>
+                  );
+                }
+              })}
+            </Grid>
+          </Grid>
         </TabPanel>
       </SwipeableViews>
 
