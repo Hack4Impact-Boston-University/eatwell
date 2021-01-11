@@ -75,7 +75,7 @@ const UploadForm = () => {
             description: description,
             images: uploadedImages,
             videoRecipe: videoUrl + videoID,
-            pdfRecipe: recipeName+".pdf",
+            pdfRecipe: recipe+".pdf",
             dateUploaded: dateUploaded,
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
@@ -84,12 +84,12 @@ const UploadForm = () => {
         }
 
         collection.doc(recipe).set(data)
-        firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        firebase.storage().ref().child(recipe+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
             }
         })
         for (i = 0; i < uploadedImages.length ; i++) {
-            firebase.storage().ref().child(recipeName+i+".jpg").putString(uploadedImages[i], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+            firebase.storage().ref().child(recipe+i+".jpg").putString(uploadedImages[i], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
                 'complete': function() {
                 }
             })
@@ -208,7 +208,7 @@ const UploadForm = () => {
                         <ui.Button onClick={handleCloseConfirm} color="primary">
                             Cancel
                         </ui.Button>
-                        <ui.Button onClick={() => upload()} color="primary" href={`/recipes/upload`}>
+                        <ui.Button onClick={() => upload()} color="primary">
                             Confirm
                         </ui.Button>
                     </ui.DialogActions>

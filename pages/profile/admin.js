@@ -142,16 +142,6 @@ export default function Admin() {
   const [uploadDate, setUploadDate] = React.useState("");
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
-  const [recipeName, setRecipeName] = React.useState("");
-  const [openRecipeName, setOpenRecipeName] = React.useState(false);
-  const [recipeDescription, setRecipeDescription] = React.useState("");
-  const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
-  const [recipePdf, setRecipePdf] = React.useState("");
-  const [pdfFile, setPdfFile] = useState('')
-  const [pdf_url, setPdfURL] = useState('')
-  const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
-  const [openViewRecipePdf, setOpenViewRecipePdf] = React.useState(false);
-
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
   const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
@@ -239,6 +229,9 @@ export default function Admin() {
   };
 
   // ---------------------- admin edit recipe name ----------------------
+  const [recipeName, setRecipeName] = React.useState("");
+  const [openRecipeName, setOpenRecipeName] = React.useState(false);
+  
   const handleClickOpenRecipeName = (currentRecipe) => {
     setRecipeName(currentRecipe.nameOfDish)
     setOpenRecipeName(true);
@@ -260,6 +253,9 @@ export default function Admin() {
   };
 
   // ---------------------- admin edit recipe description ----------------------
+  const [recipeDescription, setRecipeDescription] = React.useState("");
+  const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
+
   const handleClickOpenRecipeDescription = (currentRecipe) => {
     setRecipeDescription(currentRecipe.description)
     setOpenRecipeDescription(true);
@@ -281,6 +277,12 @@ export default function Admin() {
   };
 
   // ---------------------- admin view / edit recipe pdf ----------------------
+  const [recipePdf, setRecipePdf] = React.useState("");
+  const [pdfFile, setPdfFile] = useState('')
+  const [pdf_url, setPdfURL] = useState('')
+  const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
+  const [openViewRecipePdf, setOpenViewRecipePdf] = React.useState(false);
+
   const handleClickOpenViewRecipePdf = (currentRecipe) => {
     setRecipePdf(currentRecipe.pdfRecipe)
     setOpenViewRecipePdf(true);
@@ -290,7 +292,6 @@ export default function Admin() {
     firebase.storage().ref().child(currentRecipe.pdfRecipe).getDownloadURL().then(function(url) {
       setPdfURL(url)
     })
-    console.log(pdf_url)
     setUploadDate(dateUploaded)
   };
 
@@ -313,7 +314,7 @@ export default function Admin() {
 
   const handleSubmitRecipePdf = (currentRecipe) => {
     firebase.storage().ref().child(recipePdf).delete().then(function() {}).catch(function(error) {});
-    firebase.storage().ref().child(currentRecipe.nameOfDish+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+    firebase.storage().ref().child(currentRecipe.id+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
       'complete': function() {
       }
     })
@@ -321,6 +322,120 @@ export default function Admin() {
     alert("successfully edited recipe pdf!");
     setRecipePdf('');
     setOpenRecipePdf(false);
+  };
+
+  // ---------------------- admin edit recipe video ----------------------
+  const [recipeVideo, setRecipeVideo] = React.useState("");
+  const [openViewRecipeVideo, setOpenViewRecipeVideo] = React.useState(false);
+  const [openRecipeVideo, setOpenRecipeVideo] = React.useState(false);
+
+  const handleClickOpenViewRecipeVideo = (currentRecipe) => {
+    setRecipeVideo(currentRecipe.videoRecipe)
+    setOpenViewRecipeVideo(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseViewRecipeVideo = () => {
+    setOpenViewRecipeVideo(false);
+  };
+  
+  const handleClickOpenRecipeVideo = (currentRecipe) => {
+    setRecipeVideo(currentRecipe.videoRecipe)
+    setOpenRecipeVideo(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseRecipeVideo = () => {
+    setOpenRecipeVideo(false);
+  };
+
+  const handleSubmitRecipeVideo = (currentRecipe) => {
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoRecipe:recipeVideo, dateUploaded: uploadDate})
+    alert("successfully edited recipe video!");
+    setRecipeVideo('');
+    setOpenRecipeVideo(false);
+  };
+
+  // ---------------------- admin edit recipe skills ----------------------
+  const [recipeSkills, setRecipeSkills] = React.useState("");
+  const [openViewRecipeSkills, setOpenViewRecipeSkills] = React.useState(false);
+  const [openRecipeSkills, setOpenRecipeSkills] = React.useState(false);
+
+  const handleClickOpenViewRecipeSkills = (currentRecipe) => {
+    setRecipeSkills(currentRecipe.videoSkills)
+    setOpenViewRecipeSkills(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseViewRecipeSkills = () => {
+    setOpenViewRecipeSkills(false);
+  };
+  
+  const handleClickOpenRecipeSkills = (currentRecipe) => {
+    setRecipeSkills(currentRecipe.videoSkills)
+    setOpenRecipeSkills(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseRecipeSkills = () => {
+    setOpenRecipeSkills(false);
+  };
+
+  const handleSubmitRecipeSkills = (currentRecipe) => {
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoSkills:recipeSkills, dateUploaded: uploadDate})
+    alert("successfully edited recipe skills!");
+    setRecipeSkills('');
+    setOpenRecipeSkills(false);
+  };
+
+  // ---------------------- admin edit recipe tips ----------------------
+  const [recipeTips, setRecipeTips] = React.useState("");
+  const [openViewRecipeTips, setOpenViewRecipeTips] = React.useState(false);
+  const [openRecipeTips, setOpenRecipeTips] = React.useState(false);
+
+  const handleClickOpenViewRecipeTips = (currentRecipe) => {
+    setRecipeTips(currentRecipe.videoTips)
+    setOpenViewRecipeTips(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseViewRecipeTips = () => {
+    setOpenViewRecipeTips(false);
+  };
+  
+  const handleClickOpenRecipeTips = (currentRecipe) => {
+    setRecipeTips(currentRecipe.videoTips)
+    setOpenRecipeTips(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
+  };
+
+  const handleCloseRecipeTips = () => {
+    setOpenRecipeTips(false);
+  };
+
+  const handleSubmitRecipeTips = (currentRecipe) => {
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoTips:recipeTips, dateUploaded: uploadDate})
+    alert("successfully edited recipe skills!");
+    setRecipeTips('');
+    setOpenRecipeTips(false);
   };
 
 
@@ -622,6 +737,8 @@ export default function Admin() {
                       </AccordionSummary>
                       <AccordionDetails>
                         <ol className={classes.noNum}>
+
+                          {/* ----------------------- edit recipe name ----------------------- */}
                           <li>Name of recipe: {value?.nameOfDish}
                             <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton>
                             {currentRecipe && (
@@ -646,6 +763,8 @@ export default function Admin() {
                               </Dialog>
                             )}
                           </li>
+
+                          {/* ----------------------- edit recipe description ----------------------- */}
                           <li>Description: {value?.description}
                             <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton>
                             {currentRecipe && (
@@ -670,12 +789,15 @@ export default function Admin() {
                               </Dialog>
                             )}
                           </li>
+
+                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
                           <li>Date last modified: {value?.dateUploaded}</li>
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
 
-                          {/* display / edit images */}
-                          {/* display / edit pdf */}
+                          {/* ----------------------- display / edit images ----------------------- */}
+
+                          {/* ----------------------- display / edit pdf ----------------------- */}
                           <li>Recipe pdf
                             <IconButton onClick={() => handleClickOpenViewRecipePdf(value)}> <VisibilityIcon/> </IconButton>
                             {currentRecipe && (
@@ -689,7 +811,6 @@ export default function Admin() {
                                 </DialogContent>
                               </Dialog>
                             )}
-                            {/* <iframe src={getrecipesPdfUrl()} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe> */}
                             <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton>
                             {currentRecipe && (
                               <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
@@ -713,7 +834,118 @@ export default function Admin() {
                               </Dialog>
                             )}
                           </li>
-                          {/* display / edit videos */}
+
+                          {/* ----------------------- display / edit videos ----------------------- */}
+                          <li>Recipe video
+                            <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
+                                <DialogTitle>View Recipe Video</DialogTitle>
+                                <DialogContent>
+                                    <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                    <Button onClick={handleCloseViewRecipeVideo} color="primary">
+                                        Back
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            <IconButton onClick={() => handleClickOpenRecipeVideo(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeVideo} onClose={handleCloseRecipeVideo}>
+                                <DialogTitle>Edit Recipe Video</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        required
+                                        value={recipeVideo}
+                                        label="Vimeo Recipe Video ID"
+                                        onChange={(e) => setRecipeVideo(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <Button onClick={handleCloseRecipeVideo} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipeVideo(currentRecipe)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
+
+                          <li>Recipe skills
+                            <IconButton onClick={() => handleClickOpenViewRecipeSkills(value)}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
+                                <DialogTitle>View Recipe Skills</DialogTitle>
+                                <DialogContent>
+                                    <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                    <Button onClick={handleCloseViewRecipeSkills} color="primary">
+                                        Back
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            <IconButton onClick={() => handleClickOpenRecipeSkills(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeSkills} onClose={handleCloseRecipeSkills}>
+                                <DialogTitle>Edit Recipe Skills</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        required
+                                        value={recipeSkills}
+                                        label="Vimeo Skills Video ID"
+                                        onChange={(e) => setRecipeSkills(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <Button onClick={handleCloseRecipeSkills} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipeSkills(currentRecipe)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
+
+                          <li>Recipe tips
+                            <IconButton onClick={() => handleClickOpenViewRecipeTips(value)}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
+                                <DialogTitle>View Recipe Tips</DialogTitle>
+                                <DialogContent>
+                                    <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                    <Button onClick={handleCloseViewRecipeTips} color="primary">
+                                        Back
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            <IconButton onClick={() => handleClickOpenRecipeTips(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeTips} onClose={handleCloseRecipeTips}>
+                                <DialogTitle>Edit Recipe Tips</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        required
+                                        value={recipeTips}
+                                        label="Vimeo Tips Video ID"
+                                        onChange={(e) => setRecipeTips(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <Button onClick={handleCloseRecipeTips} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipeTips(currentRecipe)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
 
                           <li>
                             <IconButton edge="end" aria-label="comments">
