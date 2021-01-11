@@ -279,7 +279,6 @@ export default function Admin() {
   // ---------------------- admin edit recipe images ----------------------
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
-  const crop = { unit: '%', aspect: 4 / 3, width: '100'};
 
   const handleClickOpenRecipeImages = (currentRecipe) => {
     setRecipeImages(currentRecipe.images)
@@ -768,7 +767,7 @@ export default function Admin() {
                                 <DialogContent>
                                     <MultiImageInput
                                       images={recipeImages} setImages={setRecipeImages}
-                                      cropConfig={{ crop, ruleOfThirds: true }} inputId
+                                      cropConfig={{ unit: '%', aspect: 4 / 3, minWidth: 1200, ruleOfThirds: true }} inputId
                                     />
                                     <Button onClick={handleCloseRecipeImages} color="primary"> Cancel </Button>
                                     <Button onClick={() => handleSubmitRecipeImages(currentRecipe, recipeImages)} color="primary"> Confirm </Button>
