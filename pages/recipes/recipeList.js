@@ -31,9 +31,10 @@ const fetcher = async (...args) => {
 const useStyles = makeStyles((theme) => ({
 
   gridContainerMain: {
-    paddingLeft: 200,
-    paddingRight: 200,
+    paddingLeft: "calc(max(5vw,50vw - 450px))",
+    paddingRight: "calc(max(5vw,50vw - 450px))",
   },
+  viewTabLabel: { textTransform: "none" },
 
 }));
 
@@ -146,8 +147,8 @@ export default function RecipeReviewCard() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="All Recipes" {...a11yProps(0)} />
-          <Tab label="Favorites Only" {...a11yProps(1)} />
+          <Tab label="All Recipes" {...a11yProps(0)} className={classes.viewTabLabel}/>
+          <Tab label="Favorites Only" {...a11yProps(1)} className={classes.viewTabLabel} />
         </Tabs>
       </AppBar>
     </div>
