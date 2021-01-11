@@ -8,10 +8,12 @@ import {
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
 } from "@material-ui/core";
+import { DropzoneArea } from 'material-ui-dropzone'
 import DropDownMenu from "material-ui/DropDownMenu";
 import useSWR from "swr";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AppBar from "@material-ui/core/AppBar";
 import PropTypes from "prop-types";
@@ -21,6 +23,8 @@ import styles from "../../styles/Home.module.css";
 import * as firebase from "firebase";
 import initFirebase from "../../utils/auth/initFirebase";
 import { useRouter } from 'next/router';
+import { PictureAsPdf, Router } from '@material-ui/icons'
+
 
 
 function useWindowSize() {
@@ -75,6 +79,13 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 };
+
+const handlePreviewIcon = (fileObject, classes) => {
+  const iconProps = {
+    className : classes.image,
+  }
+  return <PictureAsPdf {...iconProps} />
+}
 
 function a11yProps(index) {
   return {
@@ -135,6 +146,12 @@ export default function Admin() {
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
   const [recipeDescription, setRecipeDescription] = React.useState("");
   const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
+  const [recipePdf, setRecipePdf] = React.useState("");
+  const [pdfFile, setPdfFile] = useState('')
+  const [pdf_url, setPdfURL] = useState('')
+  const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
+  const [openViewRecipePdf, setOpenViewRecipePdf] = React.useState(false);
+
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
   const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
@@ -142,7 +159,6 @@ export default function Admin() {
   useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] );
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -163,12 +179,9 @@ export default function Admin() {
     setValue(index);
   };
 
+  // ---------------------- admin edit user program ----------------------
   const handleChangeProgram = (event) => {
     setProgram(event.target.value || "");
-  };
-
-  const handleChangeRole = (event) => {
-    setRole(event.target.value || "");
   };
 
   const handleClickOpenProgram = (currentUser, prevProgram) => {
@@ -177,16 +190,55 @@ export default function Admin() {
     setPrevProgram(prevProgram);
   };
 
+  const handleCloseProgram = () => {
+    setOpenProgram(false);
+  };
+
+  const handleSubmitProgram = (currentUser, currentUserProgram) => {
+    setProgram(currentUserProgram);
+    firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+    setOpenProgram(false);
+  };
+
+  // ---------------------- admin edit user role ----------------------
+  const handleChangeRole = (event) => {
+    setRole(event.target.value || "");
+  };
+
   const handleClickOpenRole = (currentUser, prevRole) => {
     setOpenRole(true);
     setCurrentUser(currentUser);
     setPrevRole(prevRole);
   };
 
-  const handleCloseProgram = () => {
-    setOpenProgram(false);
+  const handleCloseRole = () => {
+    setOpenRole(false);
   };
 
+  const handleSubmitRole = (currentUser, currentUserRole) => {
+    setRole(currentUserRole);
+    firebase.firestore().collection("users").doc(currentUser).update({ role: currentUserRole });
+    setOpenRole(false);
+  };
+
+  // ---------------------- admin manage program ----------------------
+  const handleClickOpenAddProgram = () => {
+    setOpenAddProgram(true);
+  };
+
+  const handleCloseAddProgram = () => {
+    setAddedProgram('');
+    setOpenAddProgram(false);
+  };
+
+  const addProgram = () => {
+    firebase.firestore().collection('programs').doc(addedProgram).set({programName:addedProgram})
+    alert("successfully added new program!");
+    setAddedProgram('');
+    setOpenAddProgram(false);
+  };
+
+  // ---------------------- admin edit recipe name ----------------------
   const handleClickOpenRecipeName = (currentRecipe) => {
     setRecipeName(currentRecipe.nameOfDish)
     setOpenRecipeName(true);
@@ -207,6 +259,7 @@ export default function Admin() {
     setOpenRecipeName(false);
   };
 
+  // ---------------------- admin edit recipe description ----------------------
   const handleClickOpenRecipeDescription = (currentRecipe) => {
     setRecipeDescription(currentRecipe.description)
     setOpenRecipeDescription(true);
@@ -227,45 +280,49 @@ export default function Admin() {
     setOpenRecipeDescription(false);
   };
 
-  const handleSubmitProgram = (currentUser, currentUserProgram) => {
-    setProgram(currentUserProgram);
-    firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser)
-      .update({ program: currentUserProgram });
-    setOpenProgram(false);
+  // ---------------------- admin view / edit recipe pdf ----------------------
+  const handleClickOpenViewRecipePdf = (currentRecipe) => {
+    setRecipePdf(currentRecipe.pdfRecipe)
+    setOpenViewRecipePdf(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    firebase.storage().ref().child(currentRecipe.pdfRecipe).getDownloadURL().then(function(url) {
+      setPdfURL(url)
+    })
+    console.log(pdf_url)
+    setUploadDate(dateUploaded)
   };
 
-  const handleCloseRole = () => {
-    setOpenRole(false);
+  const handleCloseViewRecipePdf = () => {
+    setOpenViewRecipePdf(false);
   };
 
-  const handleSubmitRole = (currentUser, currentUserRole) => {
-    setRole(currentUserRole);
-    firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser)
-      .update({ role: currentUserRole });
-    setOpenRole(false);
+  const handleClickOpenRecipePdf = (currentRecipe) => {
+    setRecipePdf(currentRecipe.pdfRecipe)
+    setOpenRecipePdf(true);
+    setCurrentRecipe(currentRecipe);
+    var date = new Date()
+    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
+    setUploadDate(dateUploaded)
   };
 
-  const handleClickOpenAddProgram = () => {
-    setOpenAddProgram(true);
+  const handleCloseRecipePdf = () => {
+    setOpenRecipePdf(false);
   };
 
-  const handleCloseAddProgram = () => {
-    setAddedProgram('');
-    setOpenAddProgram(false);
+  const handleSubmitRecipePdf = (currentRecipe) => {
+    firebase.storage().ref().child(recipePdf).delete().then(function() {}).catch(function(error) {});
+    firebase.storage().ref().child(currentRecipe.nameOfDish+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+      'complete': function() {
+      }
+    })
+    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({pdfRecipe:recipePdf, dateUploaded: uploadDate})
+    alert("successfully edited recipe pdf!");
+    setRecipePdf('');
+    setOpenRecipePdf(false);
   };
 
-  const addProgram = () => {
-    firebase.firestore().collection('programs').doc(addedProgram).set({programName:addedProgram})
-    alert("successfully added new program!");
-    setAddedProgram('');
-    setOpenAddProgram(false);
-  }; 
 
   if (!users || !programs || !recipes) {
     if (!users) {
@@ -285,9 +342,12 @@ export default function Admin() {
 
   console.log(recipes)
   const recipesList = [];
+  // const recipesPdfUrl = {};
   var i;
   for (i = 0; i < recipes.length; i++) {
     recipesList.push(recipes[i]["nameOfDish"]);
+    // firebase.storage().ref().child(recipes[i]["pdfRecipe"]).getDownloadURL().then(function(url) {setPdfURL(url)})
+    // recipesPdfUrl[recipes[i]["nameOfDish"]] = pdf_url
   }
 
   const handleChange = (e) => {
@@ -397,63 +457,31 @@ export default function Admin() {
 
                         {value?.role == "user" ? (
                             <li>Program: {value?.program}
-                            <IconButton
-                              onClick={() =>
-                                handleClickOpenProgram(value.id, value?.program)
-                              }
-                            >
+                            <IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}>
                               <EditIcon />
                             </IconButton>
                             {currentUser && (
-                              <Dialog
-                                disableBackdropClick
-                                disableEscapeKeyDown
-                                open={openProgram}
-                                onClose={handleCloseProgram}
-                              >
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
                                 <DialogTitle>Edit User Program</DialogTitle>
                                 <DialogContent>
                                   <FormControl className={classes.formControl}>
                                     <InputLabel id="demo-dialog-select-label">
                                       Program
                                     </InputLabel>
-                                    <Select
-                                      labelId="demo-dialog-select-label"
-                                      id="demo-dialog-select"
-                                      value={program}
-                                      onChange={handleChangeProgram}
-                                      input={<Input />}
-                                    >
+                                    <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
                                       {programs.map((programss) =>
                                         programss["programName"] != "All" ? (
-                                          <MenuItem value={programss["programName"]}>
-                                            {programss["programName"]}
-                                          </MenuItem>
+                                          <MenuItem value={programss["programName"]}> {programss["programName"]} </MenuItem>
                                         ) : (
-                                          <MenuItem disabled value={programss["programName"]}>
-                                            {programss["programName"]}
-                                          </MenuItem>
-                                        )
-                                      )
+                                          <MenuItem disabled value={programss["programName"]}> {programss["programName"]} </MenuItem>
+                                        ))
                                       }
                                     </Select>
                                   </FormControl>
                                 </DialogContent>
                                 <DialogActions>
-                                  <Button
-                                    onClick={handleCloseProgram}
-                                    color="primary"
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    onClick={() =>
-                                      handleSubmitProgram(currentUser, program)
-                                    }
-                                    color="primary"
-                                  >
-                                    Ok
-                                  </Button>
+                                  <Button onClick={handleCloseProgram} color="primary"> Cancel </Button>
+                                  <Button onClick={() => handleSubmitProgram(currentUser, program)} color="primary"> Ok </Button>
                                 </DialogActions>
                               </Dialog>
                             )}
@@ -463,33 +491,16 @@ export default function Admin() {
                         )}
 
                           <li>Role: {value?.role}
-                          <IconButton
-                            onClick={() =>
-                              handleClickOpenRole(value.id, value?.role)
-                            }
-                          >
+                          <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}>
                             <EditIcon />
                           </IconButton>
                           {currentUser && (
-                            <Dialog
-                              disableBackdropClick
-                              disableEscapeKeyDown
-                              open={openRole}
-                              onClose={handleCloseRole}
-                            >
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
                               <DialogTitle>Edit User Role</DialogTitle>
                               <DialogContent>
                                 <FormControl className={classes.formControl}>
-                                  <InputLabel id="demo-dialog-select-label">
-                                    Role
-                                  </InputLabel>
-                                  <Select
-                                    labelId="demo-dialog-select-label"
-                                    id="demo-dialog-select"
-                                    value={role}
-                                    onChange={handleChangeRole}
-                                    input={<Input />}
-                                  >
+                                  <InputLabel id="demo-dialog-select-label"> Role </InputLabel>
+                                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={role} onChange={handleChangeRole} input={<Input />}>
                                     <MenuItem value={prevRole}>
                                       <em></em>
                                     </MenuItem>
@@ -499,28 +510,14 @@ export default function Admin() {
                                 </FormControl>
                               </DialogContent>
                               <DialogActions>
-                                <Button
-                                  onClick={handleCloseRole}
-                                  color="primary"
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  onClick={() =>
-                                    handleSubmitRole(currentUser, role)
-                                  }
-                                  color="primary"
-                                >
-                                  Ok
-                                </Button>
+                                <Button onClick={handleCloseRole} color="primary"> Cancel </Button>
+                                <Button onClick={() => handleSubmitRole(currentUser, role)} color="primary"> Ok </Button>
                               </DialogActions>
                             </Dialog>
                           )}
                           </li>
                           <li>
-                          <IconButton edge="end" aria-label="comments">
-                            <DeleteIcon />
-                          </IconButton>
+                          <IconButton edge="end" aria-label="comments"> <DeleteIcon /> </IconButton>
                           </li>
                         </ol>
                       </AccordionDetails>
@@ -536,31 +533,17 @@ export default function Admin() {
           <Grid container spacing={3}>
             <Grid item sm={2}>
               <List dense>
-                <ListItem
-                  key={"Add New Program"}
-                  button
-                  selected={true}
+                <ListItem key={"Add New Program"} button selected={true}
                   // onClick={() => setSelectedProgramProgram(value)}
                 >
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}>
                     Add New Program
                   </Button>
-                  <Dialog
-                      disableBackdropClick
-                      disableEscapeKeyDown
-                      open={openAddProgram}
-                      onClose={handleCloseAddProgram}
-                  >
+                  <Dialog disableBackdropClick disableEscapeKeyDown open={openAddProgram} onClose={handleCloseAddProgram}>
                   <DialogActions>
                       <h4>Add New Program</h4>
-                      <TextField
-                          value={addedProgram}
-                          label="New Program"
-                          multiline
-                          onChange={(e) => setAddedProgram(e.target.value)}
-                          fullWidth
-                          variant="outlined"
-                      />
+                      <TextField value={addedProgram} label="New Program" multiline
+                          onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
                       <Button onClick={handleCloseAddProgram} color="primary">
                           Cancel
                       </Button>
@@ -574,12 +557,8 @@ export default function Admin() {
                   if (value.programName == selectedProgramProgram?.programName) {
                     return (
                       <Grid item>                      
-                        <ListItem
-                          key={value?.programName}
-                          button
-                          selected={true}
-                          onClick={() => setSelectedProgramProgram(value)}
-                        >
+                        <ListItem key={value?.programName} button selected={true}
+                          onClick={() => setSelectedProgramProgram(value)}>
                           <ListItemText>{value?.programName}</ListItemText>
                         </ListItem>
                         <Divider light />
@@ -590,12 +569,8 @@ export default function Admin() {
                     return (
                       <Grid item>                      
                         <ListItem
-                          key={value?.programName}
-                          button
-                          selected={false}
-                          classes={{ selected: classes.active }}
-                          onClick={() => setSelectedProgramProgram(value)}
-                        >
+                          key={value?.programName} button selected={false} classes={{ selected: classes.active }}
+                          onClick={() => setSelectedProgramProgram(value)}>
                           <ListItemText>{value?.programName}</ListItemText>
                         </ListItem>
                         <Divider light />
@@ -628,21 +603,13 @@ export default function Admin() {
         <TabPanel value={value} index={2} dir={theme.direction}>
         <Grid container spacing={3}>
             <Grid item sm={5}>
-              <TextField
-                label="search recipe"
-                value={searchRecipe}
-                onChange={handleChangeRecipe}
-              />
+              <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
 
               {recipes.map((value) => {
                 if (value["nameOfDish"]?.includes(searchRecipe)) {
                   return (
                     <Accordion>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
                         <ListItemAvatar>
                           <Avatar
                           // alt={`Avatar n°${value + 1}`}
@@ -656,52 +623,52 @@ export default function Admin() {
                       <AccordionDetails>
                         <ol className={classes.noNum}>
                           <li>Name of recipe: {value?.nameOfDish}
-                          <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton>
-                          {currentRecipe && (
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeName} onClose={handleCloseRecipeName}>
-                              <DialogTitle>Edit Recipe Name</DialogTitle>
-                              <DialogContent>
-                                  <TextField
-                                      value={recipeName}
-                                      label="Edit Reciipe Name"
-                                      multiline
-                                      onChange={(e) => setRecipeName(e.target.value)}
-                                      fullWidth
-                                      variant="outlined"
-                                  />
-                                  <Button onClick={handleCloseRecipeName} color="primary">
-                                      Cancel
-                                  </Button>
-                                  <Button onClick={() => handleSubmitRecipeName(currentRecipe, recipeName)} color="primary">
-                                      Confirm
-                                  </Button>
-                              </DialogContent>
-                            </Dialog>
-                          )}
+                            <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeName} onClose={handleCloseRecipeName}>
+                                <DialogTitle>Edit Recipe Name</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        value={recipeName}
+                                        label="Edit Reciipe Name"
+                                        multiline
+                                        onChange={(e) => setRecipeName(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <Button onClick={handleCloseRecipeName} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipeName(currentRecipe, recipeName)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
                           </li>
                           <li>Description: {value?.description}
-                          <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton>
-                          {currentRecipe && (
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescription} onClose={handleCloseRecipeDescription}>
-                              <DialogTitle>Edit Recipe Description</DialogTitle>
-                              <DialogContent>
-                                  <TextField
-                                      value={recipeDescription}
-                                      label="Edit Reciipe Description"
-                                      multiline
-                                      onChange={(e) => setRecipeDescription(e.target.value)}
-                                      fullWidth
-                                      variant="outlined"
-                                  />
-                                  <Button onClick={handleCloseRecipeDescription} color="primary">
-                                      Cancel
-                                  </Button>
-                                  <Button onClick={() => handleSubmitRecipeDescription(currentRecipe, recipeDescription)} color="primary">
-                                      Confirm
-                                  </Button>
-                              </DialogContent>
-                            </Dialog>
-                          )}
+                            <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescription} onClose={handleCloseRecipeDescription}>
+                                <DialogTitle>Edit Recipe Description</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        value={recipeDescription}
+                                        label="Edit Reciipe Description"
+                                        multiline
+                                        onChange={(e) => setRecipeDescription(e.target.value)}
+                                        fullWidth
+                                        variant="outlined"
+                                    />
+                                    <Button onClick={handleCloseRecipeDescription} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipeDescription(currentRecipe, recipeDescription)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
                           </li>
                           <li>Date last modified: {value?.dateUploaded}</li>
                           <li>Rating: {value?.avgRating}</li>
@@ -709,15 +676,52 @@ export default function Admin() {
 
                           {/* display / edit images */}
                           {/* display / edit pdf */}
+                          <li>Recipe pdf
+                            <IconButton onClick={() => handleClickOpenViewRecipePdf(value)}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
+                                <DialogTitle>View Recipe Pdf</DialogTitle>
+                                <DialogContent>
+                                    <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+                                    <Button onClick={handleCloseViewRecipePdf} color="primary">
+                                        Back
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            {/* <iframe src={getrecipesPdfUrl()} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe> */}
+                            <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
+                                <DialogTitle>Edit Recipe Pdf</DialogTitle>
+                                <DialogContent>
+                                    <DropzoneArea
+                                        accept="application/pdf"
+                                        maxFileSize={10485760}
+                                        dropzoneText="Click to select or drag and drop recipe PDF"
+                                        filesLimit={1}
+                                        getPreviewIcon={handlePreviewIcon}
+                                        onChange={(files) => setPdfFile(files[0])}
+                                    />
+                                    <Button onClick={handleCloseRecipePdf} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary">
+                                        Confirm
+                                    </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
                           {/* display / edit videos */}
 
                           <li>
-                          <IconButton edge="end" aria-label="comments">
-                            <DeleteIcon />
-                          </IconButton>
+                            <IconButton edge="end" aria-label="comments">
+                              <DeleteIcon />
+                            </IconButton>
                           </li>
                         </ol>
-                        
+
                       </AccordionDetails>
                     </Accordion>
                   );
