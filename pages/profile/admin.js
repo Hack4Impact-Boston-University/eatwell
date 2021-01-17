@@ -216,8 +216,7 @@ export default function Admin() {
   };
 
   // ---------------------- admin manage program ----------------------
-  // const [imgList, setImages] = React.useState(obj.images);
-  // useEffect(() => { setImages(obj.images)}, [obj.images] );
+  const [searchProgram, setSearchProgram] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
@@ -618,6 +617,12 @@ export default function Admin() {
     recipesList.push(recipes[i]["nameOfDish"]);
   }
 
+  const programsList = [];
+  var i;
+  for (i = 0; i < programs.length; i++) {
+    programsList.push(programs[i]["programName"]);
+  }
+
   const handleChange = (e) => {
     setSearch(e.target.value);
     const filteredNames = emails.filter((x) => {
@@ -627,7 +632,14 @@ export default function Admin() {
 
   const handleChangeRecipe = (e) => {
     setSearchRecipe(e.target.value);
-    const filteredNames = emails.filter((x) => {
+    const filteredNames = recipes.filter((x) => {
+      x?.includes(e.target.value);
+    });
+  };
+
+  const handleChangeProgram = (e) => {
+    setSearchProgram(e.target.value);
+    const filteredNames = programsList.filter((x) => {
       x?.includes(e.target.value);
     });
   };
@@ -754,31 +766,35 @@ export default function Admin() {
                   </DialogActions>
                   </Dialog>
                 </ListItem>
+
+
+                <TextField label="search program" value={searchProgram} onChange={handleChangeProgram}/>
                 {programs.map((value) => {
-                  if (value.programName == selectedProgramProgram?.programName) {
-                    return (
-                      <Grid item>                      
-                        <ListItem key={value?.programName} button selected={true}
-                          onClick={() => setSelectedProgramProgram(value)}>
-                          <ListItemText>{value?.programName}</ListItemText>
-                        </ListItem>
-                        <Divider light />
-                      </Grid>
-                    );
-                  }
-                  else {
-                    return (
-                      <Grid item>                      
-                        <ListItem
-                          key={value?.programName} button selected={false} classes={{ selected: classes.active }}
-                          onClick={() => setSelectedProgramProgram(value)}>
-                          <ListItemText>{value?.programName}</ListItemText>
-                        </ListItem>
-                        <Divider light />
-                      </Grid>
-                    );
-                  }
-                })}
+                  if (value["programName"]?.includes(searchProgram)) {
+                    if (value.programName == selectedProgramProgram?.programName) {
+                      return (
+                        <Grid item>                      
+                          <ListItem key={value?.programName} button selected={true}
+                            onClick={() => setSelectedProgramProgram(value)}>
+                            <ListItemText>{value?.programName}</ListItemText>
+                          </ListItem>
+                          <Divider light />
+                        </Grid>
+                      );
+                    }
+                    else {
+                      return (
+                        <Grid item>                      
+                          <ListItem
+                            key={value?.programName} button selected={false} classes={{ selected: classes.active }}
+                            onClick={() => setSelectedProgramProgram(value)}>
+                            <ListItemText>{value?.programName}</ListItemText>
+                          </ListItem>
+                          <Divider light />
+                        </Grid>
+                      );
+                    }
+                  }})}
               </List>
             </Grid>
 
