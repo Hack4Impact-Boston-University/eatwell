@@ -10,6 +10,10 @@ import {
 	getUserFromCookie,
 	removeFavCookie,
 	setFavCookie,
+	setNotesCookie,
+	removeNotesCookie,
+	setRatingsCookie,
+	removeRatingsCookie,
 } from "../cookies";
 import { mapUserData } from "./mapUserData";
 
@@ -35,6 +39,7 @@ const useUser = () => {
 	const upload = async (newData) => {
 
 		newData["role"] = "user";
+
 		if("firstname" in newData) {
 			var currData = getUserFromCookie();
 			if(currData) {
@@ -76,12 +81,15 @@ const useUser = () => {
 							favData[userData["favoriteRecipes"][i]] = "";
 						}
 						setFavCookie(favData);
-
+						setNotesCookie(userData["notes"] || {})
+						setRatingsCookie(userData["ratings"] || {})
 					});
 			} else if(!u){
 				removeUserCookie();
 				setUser();
 				removeFavCookie();
+				removeNotesCookie();
+				removeRatingsCookie();
 			}
 		});
 		if(!user) {

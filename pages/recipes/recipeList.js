@@ -8,7 +8,9 @@ import useSWR from 'swr';
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard, { recipeCard} from "./recipeCard";
 import {
-	getFavsFromCookie,
+  getFavsFromCookie,
+  getNotesFromCookie,
+  getRatingsFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
 import AppBar from '@material-ui/core/AppBar';
@@ -16,6 +18,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import PropTypes from 'prop-types';
 import styles from '../../styles/Home.module.css'
+import {uploadRating} from "../../utils/recipes.js";
 
 
 
@@ -28,9 +31,10 @@ const fetcher = async (...args) => {
 const useStyles = makeStyles((theme) => ({
 
   gridContainerMain: {
-    paddingLeft: 200,
-    paddingRight: 200,
+    paddingLeft: "calc(max(5vw,50vw - 450px))",
+    paddingRight: "calc(max(5vw,50vw - 450px))",
   },
+  viewTabLabel: { textTransform: "none" },
 
 }));
 
@@ -73,6 +77,8 @@ export default function RecipeReviewCard() {
   const {user, upload} =  useUser()
   const { data: _data } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   let favRecipes = getFavsFromCookie() || {};
+  const recipeNotes = getNotesFromCookie() || {};
+  const recipeRatings = getRatingsFromCookie() || {};
   //const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
   const [value, setValue] = React.useState(0);
   const [favs, setFavs] = React.useState(value == 1);
@@ -85,13 +91,17 @@ export default function RecipeReviewCard() {
   
   useEffect(() => {
     window.addEventListener('beforeunload', () => {
-      upload({favoriteRecipes: Object.keys(getFavsFromCookie())})
+      upload({favoriteRecipes: Object.keys(getFavsFromCookie()), 
+              notes: getNotesFromCookie(),
+              ratings: getRatingsFromCookie()});
+      //uploadRating(getRatingsFromCookie(), recipeRatings, _data);
     })
   })
 
   const onFavClick = () => {
     setDummy(!dummy)
     favRecipes = getFavsFromCookie() || {};
+    //uploadRating(getRatingsFromCookie(), recipeRatings, _data);
   }
   if ((!_data) || (!favRecipes)) {
     return "Loading...";
@@ -106,10 +116,15 @@ export default function RecipeReviewCard() {
           if (!obj.nameOfDish || !obj.id) return;
           var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
-            return( <RecipeCard key={obj.id} obj={obj} isFav = {obj.id in favRecipes} onFavClick={() => onFavClick()}/>)
+            return( <RecipeCard key={obj.id} object={obj} 
+              isFav = {obj.id in favRecipes} 
+              onFavClick={() => onFavClick()} 
+              initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []} 
+              initRating={obj.id in recipeRatings ? recipeRatings[obj.id] : 0}
+            />)
           }
           else {
-            console.log(obj.id)
+            // console.log(obj.id)
             return;
           }
 
@@ -132,8 +147,8 @@ export default function RecipeReviewCard() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="All Recipes" {...a11yProps(0)} />
-          <Tab label="Favorites Only" {...a11yProps(1)} />
+          <Tab label="All Recipes" {...a11yProps(0)} className={classes.viewTabLabel}/>
+          <Tab label="Favorites Only" {...a11yProps(1)} className={classes.viewTabLabel} />
         </Tabs>
       </AppBar>
     </div>
