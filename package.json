@@ -35,6 +35,7 @@
     "react-dom": "16.13.1",
     "react-firebaseui": "^4.1.0",
     "react-images-uploader-continued": "^1.2.1",
+    "react-multi-select-component": "^3.0.8",
     "react-multiple-image-input": "^1.0.0",
     "react-native": "^0.63.3",
     "react-native-cli": "^2.0.1",

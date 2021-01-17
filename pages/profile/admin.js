@@ -28,6 +28,8 @@ import { useRouter } from 'next/router';
 import { PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
+import MultiSelect from "react-multi-select-component";
+
 
 
 function useWindowSize() {
@@ -128,7 +130,7 @@ export default function Admin() {
   const classes = useStyles();
   const [checked, setChecked] = React.useState([0]);
   const [search, setSearch] = React.useState("");
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(1);
   const theme = useTheme();
   const { width } = useWindowSize();
   const [openProgram, setOpenProgram] = React.useState(false);
@@ -150,6 +152,8 @@ export default function Admin() {
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+  const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
+
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -171,24 +175,24 @@ export default function Admin() {
   };
 
   // ---------------------- admin edit user program ----------------------
-  const handleChangeProgram = (event) => {
-    setProgram(event.target.value || "");
-  };
+  // const handleChangeProgram = (event) => {
+  //   setProgram(event.target.value || "");
+  // };
 
-  const handleClickOpenProgram = (currentUser) => {
-    setOpenProgram(true);
-    setCurrentUser(currentUser);
-  };
+  // const handleClickOpenProgram = (currentUser) => {
+  //   setOpenProgram(true);
+  //   setCurrentUser(currentUser);
+  // };
 
-  const handleCloseProgram = () => {
-    setOpenProgram(false);
-  };
+  // const handleCloseProgram = () => {
+  //   setOpenProgram(false);
+  // };
 
-  const handleSubmitProgram = (currentUser, currentUserProgram) => {
-    setProgram(currentUserProgram);
-    firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
-    setOpenProgram(false);
-  };
+  // const handleSubmitProgram = (currentUser, currentUserProgram) => {
+  //   setProgram(currentUserProgram);
+  //   firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+  //   setOpenProgram(false);
+  // };
 
   // ---------------------- admin edit user role ----------------------
   const handleChangeRole = (event) => {
@@ -257,7 +261,7 @@ export default function Admin() {
     const db = firebase.firestore();
     const ref = db.collection('programs').doc();
     const id = ref.id;
-    firebase.firestore().collection('programs').doc(id).set({programName:addedProgram,programID:id})
+    firebase.firestore().collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
     alert("successfully added new program!");
     setAddedProgram('');
     setOpenAddProgram(false);
@@ -277,6 +281,86 @@ export default function Admin() {
     setOpenDeleteProgram(false);
   };
 
+  const [currentProgramRecipes, setCurrentProgramRecipes] = React.useState([]);
+  const [openEditProgramRecipes, setOpenEditProgramRecipes] = React.useState(false);
+  const [selectedRecipes, setSelectedRecipes] = useState([]);
+
+  const handleClickOpenEditProgramRecipes = (programRecipesNow) => {
+    setOpenEditProgramRecipes(true);
+    var i;
+    var originallySelected = []
+    var temp = [];
+    for (i = 0; i < recipes.length; i++) {
+      if (selectedProgramProgram?.programRecipes.includes(recipes[i].id)) {
+        originallySelected.push({label:recipes[i]?.nameOfDish,value:recipes[i].id})
+      }
+      temp.push({label:recipes[i]?.nameOfDish,value:recipes[i].id})
+    }
+    setSelectedRecipes(originallySelected)
+    setCurrentProgramRecipes(temp)
+  };
+
+  const handleCloseEditProgramRecipes = () => {
+    setCurrentProgramRecipes([])
+    setOpenEditProgramRecipes(false);
+  };
+
+  const handleChangeEditProgramRecipes = (event) => {
+    setProgramRecipes(event.target.value || "");
+  };
+
+  const handleSubmitEditProgramRecipes = () => {
+    var i;
+    var temp = [];
+    for (i = 0; i < selectedRecipes.length; i++) {
+      temp.push(selectedRecipes[i]?.value)
+    }
+    firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
+    setOpenEditProgramRecipes(false);
+    setCurrentProgramRecipes([])
+  };
+
+  const [currentProgramUsers, setCurrentProgramUsers] = React.useState([]);
+  const [openEditProgramUsers, setOpenEditProgramUsers] = React.useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
+  const handleClickOpenEditProgramUsers = (programUsersNow) => {
+    setOpenEditProgramUsers(true);
+    var i;
+    var originallySelected = []
+    var temp = [];
+    for (i = 0; i < users.length; i++) {
+      if (users[i].role != "admin") {
+        if (selectedProgramProgram?.programUsers.includes(users[i].id)) {
+          originallySelected.push({label:(users[i]?.firstname+" "+users[i]?.lastname),value:users[i].id})
+        }
+        temp.push({label:(users[i]?.firstname+" "+users[i]?.lastname),value:users[i].id})
+      }
+    }
+    setSelectedUsers(originallySelected)
+    setCurrentProgramUsers(temp)
+  };
+
+  const handleCloseEditProgramUsers = () => {
+    setCurrentProgramUsers([])
+    setOpenEditProgramUsers(false);
+  };
+
+  const handleChangeEditProgramUsers = (event) => {
+    setProgramUsers(event.target.value || "");
+  };
+
+  const handleSubmitEditProgramUsers = () => {
+    var i;
+    var temp = [];
+    for (i = 0; i < selectedUsers.length; i++) {
+      temp.push(selectedUsers[i]?.value)
+    }
+    firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programUsers: temp });
+    setOpenEditProgramUsers(false);
+    setCurrentProgramUsers([])
+  };
+  
   // ---------------------- admin edit recipe name ----------------------
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
@@ -563,43 +647,11 @@ export default function Admin() {
         {/* ---------------------------- 0: ADMIN MANAGE USERS ---------------------------- */}
         <TabPanel value={value} index={0} dir={theme.direction}>
           <Grid container spacing={3}>
-            <Grid item sm={2}>
-              <List dense>
-                {programs.map((value) => {
-                  if (value.programName == selectedUsersProgram?.programName) {
-                    return (
-                      <Grid item>                      
-                        <ListItem key={value?.programName} button selected={true} onClick={() => setSelectedUsersProgram(value)}>
-                          <ListItemText>{value?.programName}</ListItemText>
-                        </ListItem>
-                        <Divider light />
-                      </Grid>
-                    );
-                  }
-                  else {
-                    return (
-                      <Grid item>                      
-                        <ListItem key={value?.programName} button selected={false} classes={{ selected: classes.active }} onClick={() => setSelectedUsersProgram(value)}>
-                          <ListItemText>{value?.programName}</ListItemText>
-                        </ListItem>
-                        <Divider light />
-                      </Grid>
-                    );
-                  }
-                })}
-              </List>
-            </Grid>
-
             <Grid item sm={5}>
               <TextField label="search email" value={search} onChange={handleChange}/>
 
               {users.map((value) => {
-                if (
-                  (value["email"]?.includes(search) &&
-                    selectedUsersProgram?.programName == "All") ||
-                  (value["email"]?.includes(search) &&
-                    value?.program == selectedUsersProgram?.programName)
-                ) {
+                if (value["email"]?.includes(search)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -616,7 +668,7 @@ export default function Admin() {
                         <ol className={classes.noNum}>
                           <li>Phone: {value?.phone}</li>                        
 
-                          {value?.role == "user" ? (
+                          {/* {value?.role == "user" ? (
                             <li>Program: {value?.program}
                             <IconButton onClick={() => handleClickOpenProgram(value.id)}>
                               <EditIcon />
@@ -647,7 +699,7 @@ export default function Admin() {
                             </li>
                         ) : (
                           <Grid></Grid>
-                        )}
+                        )} */}
 
                           <li>Role: {value?.role}
                           <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton>
@@ -751,11 +803,35 @@ export default function Admin() {
                 </Dialog>
               </ListItem>
 
+              {/* ----------------------- edit recipes list ----------------------- */}
               <List>
-                <ListItemText> Recipes List: </ListItemText>
+                <ListItemText> Recipes List
+                <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}>
+                  <EditIcon />
+                </IconButton>
+                {selectedProgramProgram && (
+                  <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
+                    <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
+                    <DialogContent>
+                      <FormControl className={classes.formControl}>
+                        <div>
+                          <MultiSelect
+                            options={currentProgramRecipes}
+                            value={selectedRecipes}
+                            onChange={setSelectedRecipes}
+                            labelledBy={"Select"}
+                          />
+                        </div>
+                      </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
+                      <Button onClick={() => handleSubmitEditProgramRecipes()} color="primary"> Ok </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+                </ListItemText>
               </List>
-
-              
 
               {selectedProgramProgram?.programRecipes != undefined ?
               selectedProgramProgram?.programRecipes.map((value) => {
@@ -768,7 +844,7 @@ export default function Admin() {
                         // src={`/static/images/avatar/${value + 1}.jpg`}
                         />
                       </ListItemAvatar>
-                      <ListItemText primary={value}/>
+                      <ListItemText primary={recipesDic[value]?.nameOfDish}/>
                     </AccordionSummary>
                     <AccordionDetails>
                         <ol className={classes.noNum}>
@@ -877,7 +953,65 @@ export default function Admin() {
               }) : <Grid>
                 
                 </Grid>}
-          
+
+
+              {/* ----------------------- edit users list ----------------------- */}
+              <List>
+                <ListItemText> Users List
+                <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}>
+                  <EditIcon />
+                </IconButton>
+                {selectedProgramProgram && (
+                  <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramUsers} onClose={handleCloseEditProgramUsers}>
+                    <DialogTitle>Edit Users List for {selectedProgramProgram?.programName} </DialogTitle>
+                    <DialogContent>
+                      <FormControl className={classes.formControl}>
+                        <div>
+                          <MultiSelect
+                            options={currentProgramUsers}
+                            value={selectedUsers}
+                            onChange={setSelectedUsers}
+                            labelledBy={"Select"}
+                          />
+                        </div>
+                      </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseEditProgramUsers} color="primary"> Cancel </Button>
+                      <Button onClick={() => handleSubmitEditProgramUsers()} color="primary"> Ok </Button>
+                    </DialogActions>
+                  </Dialog>
+                )}
+                </ListItemText>
+              </List>
+
+              {selectedProgramProgram?.programUsers != undefined ?
+              selectedProgramProgram?.programUsers.map((value) => {
+                return (
+                    <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                      <ListItemAvatar>
+                        <Avatar
+                        // alt={`Avatar n°${value + 1}`}
+                        // src={`/static/images/avatar/${value + 1}.jpg`}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText primary={usersDic[value]?.firstname + " " + usersDic[value]?.lastname}/>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <ol className={classes.noNum}>
+                          {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
+                          <li>Email: {usersDic[value]?.email}</li>
+                          <li>Phone: {usersDic[value]?.phone}</li>
+                          <li>Role: {usersDic[value]?.role}</li>
+                        </ol>
+                      </AccordionDetails>
+                  </Accordion>
+                  );
+              }) : <Grid>
+                
+                </Grid>}
+        
               
             </Grid>
             <Grid item sm={5}>
