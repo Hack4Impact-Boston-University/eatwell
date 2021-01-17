@@ -133,13 +133,10 @@ export default function Admin() {
   const [value, setValue] = React.useState(1);
   const theme = useTheme();
   const { width } = useWindowSize();
-  const [openProgram, setOpenProgram] = React.useState(false);
-  const [openRole, setOpenRole] = React.useState(false);
-  const [program, setProgram] = React.useState("");
+  // const [openProgram, setOpenProgram] = React.useState(false);
+  // const [program, setProgram] = React.useState("");
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({programName:"All"});
-  const [selectedUsersProgram, setSelectedUsersProgram] = useState({programName:"All"});
-  const [role, setRole] = React.useState("");
-  const [prevRole, setPrevRole] = React.useState("");
+  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({programName:"All"});
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState("");
   const [searchRecipe, setSearchRecipe] = React.useState("");
@@ -174,27 +171,13 @@ export default function Admin() {
     setValue(index);
   };
 
-  // ---------------------- admin edit user program ----------------------
-  // const handleChangeProgram = (event) => {
-  //   setProgram(event.target.value || "");
-  // };
+  // ---------------------- 0: ADMIN MANAGE USERS ----------------------
 
-  // const handleClickOpenProgram = (currentUser) => {
-  //   setOpenProgram(true);
-  //   setCurrentUser(currentUser);
-  // };
+  // edit user role
+  const [openRole, setOpenRole] = React.useState(false);
+  const [role, setRole] = React.useState("");
+  const [prevRole, setPrevRole] = React.useState("");
 
-  // const handleCloseProgram = () => {
-  //   setOpenProgram(false);
-  // };
-
-  // const handleSubmitProgram = (currentUser, currentUserProgram) => {
-  //   setProgram(currentUserProgram);
-  //   firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
-  //   setOpenProgram(false);
-  // };
-
-  // ---------------------- admin edit user role ----------------------
   const handleChangeRole = (event) => {
     setRole(event.target.value || "");
   };
@@ -215,7 +198,46 @@ export default function Admin() {
     setOpenRole(false);
   };
 
-  // ---------------------- admin manage program ----------------------
+  // edit user program
+  // const handleChangeProgram = (event) => {
+  //   setProgram(event.target.value || "");
+  // };
+
+  // const handleClickOpenProgram = (currentUser) => {
+  //   setOpenProgram(true);
+  //   setCurrentUser(currentUser);
+  // };
+
+  // const handleCloseProgram = () => {
+  //   setOpenProgram(false);
+  // };
+
+  // const handleSubmitProgram = (currentUser, currentUserProgram) => {
+  //   setProgram(currentUserProgram);
+  //   firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+  //   setOpenProgram(false);
+  // };
+
+  // delete user
+  const [openDeleteUser, setOpenDeleteUser] = React.useState(false);
+
+  const handleClickOpenDeleteUser = (currentUser) => {
+    setOpenDeleteUser(true);
+    setCurrentUser(currentUser);
+  };
+
+  const handleCloseDeleteUser = () => {
+    setOpenDeleteUser(false);
+  };
+
+  const handleSubmitDeleteUser = () => {
+    firebase.firestore().collection("users").doc(currentUser).delete();
+    setOpenDeleteUser(false);
+    alert("successfully deleted the user.");
+  };
+
+
+  // ---------------------- 1: ADMIN MANAGE PROGRAMS ----------------------
   const [searchProgram, setSearchProgram] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('')
@@ -276,7 +298,7 @@ export default function Admin() {
 
   const deleteProgram = () => {
     firebase.firestore().collection('programs').doc(selectedProgramProgram.programID).delete()
-    alert("successfully deleted new program!");
+    alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
 
@@ -360,7 +382,9 @@ export default function Admin() {
     setCurrentProgramUsers([])
   };
   
-  // ---------------------- admin edit recipe name ----------------------
+
+  // ---------------------- 2: ADMIN MANAGE RECIPES ----------------------
+  // edit recipe name
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
   
@@ -384,7 +408,7 @@ export default function Admin() {
     setOpenRecipeName(false);
   };
 
-  // ---------------------- admin edit recipe description ----------------------
+  // edit recipe description
   const [recipeDescription, setRecipeDescription] = React.useState("");
   const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
 
@@ -408,7 +432,7 @@ export default function Admin() {
     setOpenRecipeDescription(false);
   };
 
-  // ---------------------- admin edit recipe images ----------------------
+  // edit recipe images
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
 
@@ -432,7 +456,7 @@ export default function Admin() {
     setOpenRecipeImages(false);
   };
 
-  // ---------------------- admin view / edit recipe pdf ----------------------
+  // view / edit recipe pdf
   const [recipePdf, setRecipePdf] = React.useState("");
   const [pdfFile, setPdfFile] = useState('')
   const [pdf_url, setPdfURL] = useState('')
@@ -480,7 +504,7 @@ export default function Admin() {
     setOpenRecipePdf(false);
   };
 
-  // ---------------------- admin edit recipe video ----------------------
+  // edit recipe video
   const [recipeVideo, setRecipeVideo] = React.useState("");
   const [openViewRecipeVideo, setOpenViewRecipeVideo] = React.useState(false);
   const [openRecipeVideo, setOpenRecipeVideo] = React.useState(false);
@@ -518,7 +542,7 @@ export default function Admin() {
     setOpenRecipeVideo(false);
   };
 
-  // ---------------------- admin edit recipe skills ----------------------
+  // edit recipe skills
   const [recipeSkills, setRecipeSkills] = React.useState("");
   const [openViewRecipeSkills, setOpenViewRecipeSkills] = React.useState(false);
   const [openRecipeSkills, setOpenRecipeSkills] = React.useState(false);
@@ -556,7 +580,7 @@ export default function Admin() {
     setOpenRecipeSkills(false);
   };
 
-  // ---------------------- admin edit recipe tips ----------------------
+  // edit recipe tips
   const [recipeTips, setRecipeTips] = React.useState("");
   const [openViewRecipeTips, setOpenViewRecipeTips] = React.useState(false);
   const [openRecipeTips, setOpenRecipeTips] = React.useState(false);
@@ -592,6 +616,24 @@ export default function Admin() {
     alert("successfully edited recipe skills!");
     setRecipeTips('');
     setOpenRecipeTips(false);
+  };
+
+  // delete recipe
+  const [openDeleteRecipe, setOpenDeleteRecipe] = React.useState(false);
+
+  const handleClickOpenDeleteRecipe = (currentRecipe) => {
+    setOpenDeleteRecipe(true);
+    setCurrentRecipe(currentRecipe);
+  };
+
+  const handleCloseDeleteRecipe = () => {
+    setOpenDeleteRecipe(false);
+  };
+
+  const handleSubmitDeleteRecipe = () => {
+    firebase.firestore().collection("recipes").doc(currentRecipe).delete();
+    setOpenDeleteRecipe(false);
+    alert("successfully deleted the recipe.");
   };
 
 
@@ -737,8 +779,20 @@ export default function Admin() {
                             </Dialog>
                           )}
                           </li>
+
+                          {/* ---------------------------- delete user ---------------------------- */}
                           <li>
-                          <IconButton edge="end" aria-label="comments"> <DeleteIcon /> </IconButton>
+                          <IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton>
+                          {currentUser && (
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
+                              <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
+                              <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
+                              <DialogActions>
+                                <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
+                                <Button onClick={() => handleSubmitDeleteUser()} color="primary"> Ok </Button>
+                              </DialogActions>
+                            </Dialog>
+                          )}
                           </li>
                         </ol>
                       </AccordionDetails>
@@ -1239,8 +1293,18 @@ export default function Admin() {
                             )}
                           </li>
 
+                          {/* ---------------------------- delete recipe ---------------------------- */}
                           <li>
-                            <IconButton edge="end" aria-label="comments"> <DeleteIcon /> </IconButton>
+                          <IconButton onClick={() => handleClickOpenDeleteRecipe(value.id)}> <DeleteIcon /> </IconButton>
+                          {currentRecipe && (
+                            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteRecipe} onClose={handleCloseDeleteRecipe}>
+                              <DialogTitle>Are you sure you want to delete the recipe: {recipesDic[currentRecipe].nameOfDish}?</DialogTitle>
+                              <DialogActions>
+                                <Button onClick={handleCloseDeleteRecipe} color="primary"> Cancel </Button>
+                                <Button onClick={() => handleSubmitDeleteRecipe()} color="primary"> Ok </Button>
+                              </DialogActions>
+                            </Dialog>
+                          )}
                           </li>
                         </ol>
 
