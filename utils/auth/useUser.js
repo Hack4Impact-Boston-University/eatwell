@@ -39,7 +39,6 @@ const useUser = () => {
 	const upload = async (newData) => {
 
 		newData["role"] = "user";
-		newData["program"] = "☑️ undefined";
 
 		if("firstname" in newData) {
 			var currData = getUserFromCookie();
