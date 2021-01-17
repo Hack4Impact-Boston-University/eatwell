@@ -858,17 +858,11 @@ export default function Admin() {
                 <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
                 <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
                 <DialogActions>
-                    {(selectedProgramProgram?.programName != "All" && selectedProgramProgram?.programName != "☑️ Undefined") ?
-                      <Grid>
-                        <h4>Delete Program {selectedProgramProgram.programName} </h4>
-                        <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
-                        <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
-                      </Grid> :
-                      <Grid>
-                        <h4>Cannot delete program </h4>
-                        <Button onClick={handleCloseDeleteProgram} color="primary"> Back </Button>
-                      </Grid>
-                    }
+                  <Grid>
+                    <h4>Delete Program {selectedProgramProgram.programName} </h4>
+                    <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
+                    <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
+                  </Grid>
                 </DialogActions>
                 </Dialog>
               </ListItem>
