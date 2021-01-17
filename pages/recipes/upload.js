@@ -51,7 +51,7 @@ const UploadForm = () => {
         setOpenConfirm(true);
     };
     
-    const handleCloseConfirm = () => {
+    const handleCloseConfirm = () => {        
         setOpenConfirm(false);
     };
     
@@ -84,6 +84,23 @@ const UploadForm = () => {
         }
 
         collection.doc(recipe).set(data)
+        firebase.firestore().collection('programs').doc("All").get().then(function(doc) {
+            if (doc.exists) {
+                if (doc.data().programRecipes != undefined) {
+                    var programRecipesTemp = doc.data().programRecipes;
+                    programRecipesTemp.push(recipe)
+                    firebase.firestore().collection('programs').doc("All").update({programRecipes:programRecipesTemp})
+                    firebase.firestore().collection('programs').doc("☑️ Undefined").update({programRecipes:programRecipesTemp})
+                } else {
+                    firebase.firestore().collection('programs').doc("All").update({programRecipes:[recipe]})
+                    firebase.firestore().collection('programs').doc("☑️ Undefined").update({programRecipes:[recipe]})
+                }
+            } else {
+                console.log("No such document!");
+            }
+        }).catch(function(error) {
+            console.log("Error");
+        });
         firebase.storage().ref().child(recipe+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
             }

@@ -7,7 +7,8 @@ import {
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControl
+  FormControl,
+  GridList
 } from "@material-ui/core";
 import { DropzoneArea } from 'material-ui-dropzone'
 import DropDownMenu from "material-ui/DropDownMenu";
@@ -26,7 +27,7 @@ import initFirebase from "../../utils/auth/initFirebase";
 import { useRouter } from 'next/router';
 import { PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
-
+import Slider from "react-slick";
 
 
 function useWindowSize() {
@@ -138,8 +139,6 @@ export default function Admin() {
   const [role, setRole] = React.useState("");
   const [prevRole, setPrevRole] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState("");
-  const [openAddProgram, setOpenAddProgram] = React.useState(false);
-  const [addedProgram, setAddedProgram] = useState('')
   const [uploadDate, setUploadDate] = React.useState("");
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
@@ -150,6 +149,7 @@ export default function Admin() {
   useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] );
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+  const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -212,6 +212,38 @@ export default function Admin() {
   };
 
   // ---------------------- admin manage program ----------------------
+  // const [imgList, setImages] = React.useState(obj.images);
+  // useEffect(() => { setImages(obj.images)}, [obj.images] );
+  const [openAddProgram, setOpenAddProgram] = React.useState(false);
+  const [addedProgram, setAddedProgram] = useState('')
+  const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
+
+  var settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1
+  };
+  const cssstyle = `
+    .container {
+      margin: 0 auto;
+      padding: 0px 40px 40px 40px;
+    }
+    h3 {
+        background: #5f9ea0;
+        color: #fff;
+        font-size: 36px;
+        line-height: 100px;
+        margin: 10px;
+        padding: 2%;
+        position: relative;
+        text-align: center;
+    }
+    .slick-next:before, .slick-prev:before {
+        color: #000;
+    }`
+
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
   };
@@ -222,10 +254,27 @@ export default function Admin() {
   };
 
   const addProgram = () => {
-    firebase.firestore().collection('programs').doc(addedProgram).set({programName:addedProgram})
+    const db = firebase.firestore();
+    const ref = db.collection('programs').doc();
+    const id = ref.id;
+    firebase.firestore().collection('programs').doc(id).set({programName:addedProgram,programID:id})
     alert("successfully added new program!");
     setAddedProgram('');
     setOpenAddProgram(false);
+  };
+
+  const handleClickOpenDeleteProgram = (disabled) => {
+    setOpenDeleteProgram(true);
+  };
+
+  const handleCloseDeleteProgram = () => {
+    setOpenDeleteProgram(false);
+  };
+
+  const deleteProgram = () => {
+    firebase.firestore().collection('programs').doc(selectedProgramProgram.programID).delete()
+    alert("successfully deleted new program!");
+    setOpenDeleteProgram(false);
   };
 
   // ---------------------- admin edit recipe name ----------------------
@@ -682,9 +731,154 @@ export default function Admin() {
             </Grid>
 
             <Grid item sm={5}>
+              {/* ----------------------- delete program ----------------------- */}
+              <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
+                <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
+                <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
+                <DialogActions>
+                    {(selectedProgramProgram?.programName != "All" && selectedProgramProgram?.programName != "☑️ Undefined") ?
+                      <Grid>
+                        <h4>Delete Program {selectedProgramProgram.programName} </h4>
+                        <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
+                        <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
+                      </Grid> :
+                      <Grid>
+                        <h4>Cannot delete program </h4>
+                        <Button onClick={handleCloseDeleteProgram} color="primary"> Back </Button>
+                      </Grid>
+                    }
+                </DialogActions>
+                </Dialog>
+              </ListItem>
+
               <List>
-                <ListItemText> You clicked on {selectedProgramProgram?.programName}{" "} </ListItemText>
+                <ListItemText> Recipes List: </ListItemText>
               </List>
+
+              
+
+              {selectedProgramProgram?.programRecipes != undefined ?
+              selectedProgramProgram?.programRecipes.map((value) => {
+                return (
+                    <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                      <ListItemAvatar>
+                        <Avatar
+                        // alt={`Avatar n°${value + 1}`}
+                        // src={`/static/images/avatar/${value + 1}.jpg`}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText primary={value}/>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <ol className={classes.noNum}>
+
+                          {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
+                          <li>Name of recipe: {recipesDic[value]?.nameOfDish}</li>
+                          <li>Description: {recipesDic[value]?.description}</li>
+                          <li>Date last modified: {recipesDic[value]?.dateUploaded}</li>
+                          <li>Rating: {recipesDic[value]?.avgRating}</li>
+                          <li>Number of ratings: {recipesDic[value]?.numRatings}</li>
+
+                          {/* ----------------------- display images ----------------------- */}
+                          <li>Recipe images
+                            <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
+                                <Grid container justify="center">
+                                {(recipesDic[value]?.images == undefined) ? 
+                                  <Grid item xs={12} >
+                                  </Grid> :
+                                  <Grid item xs={9} >
+                                    <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
+                                    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
+                                    <style>{cssstyle}</style>
+                                    <Slider {...settings}>
+                                      {recipesDic[value]?.images.map((cell, index) => {
+                                        return <img className={classes.media} src={recipesDic[value]?.images[index]}/>
+                                      })}
+                                    </Slider>
+                                  </Grid>}
+                              </Grid>
+                              </Dialog>)}
+                          </li>
+
+                          {/* ----------------------- display pdf ----------------------- */}
+                          <li>Recipe pdf
+                            <IconButton onClick={() => handleClickOpenViewRecipePdf(recipesDic[value])}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
+                                <DialogTitle>View Recipe Pdf</DialogTitle>
+                                <DialogContent>
+                                    {(pdf_url != "") ? 
+                                      <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+                                      : <h4>No pdf to display</h4>
+                                    }
+                                    <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            </li>
+
+                          {/* ----------------------- display / edit videos ----------------------- */}
+                          <li>Recipe video
+                            <IconButton onClick={() => handleClickOpenViewRecipeVideo(recipesDic[value])}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
+                                <DialogTitle>View Recipe Video</DialogTitle>
+                                <DialogContent>
+                                    {(recipeVideo != "") ? 
+                                      <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                      : <h4>No recipe video to display</h4>
+                                    }
+                                    <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
+
+                          <li>Recipe skills
+                            <IconButton onClick={() => handleClickOpenViewRecipeSkills(recipesDic[value])}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
+                                <DialogTitle>View Recipe Skills</DialogTitle>
+                                <DialogContent>
+                                    {(recipeSkills != "") ? 
+                                      <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                      : <h4>No recipe skills to display</h4>
+                                    }
+                                    <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>
+
+                          <li>Recipe tips
+                            <IconButton onClick={() => handleClickOpenViewRecipeTips(recipesDic[value])}> <VisibilityIcon/> </IconButton>
+                            {currentRecipe && (
+                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
+                                <DialogTitle>View Recipe Tips</DialogTitle>
+                                <DialogContent>
+                                    {(recipeTips != "") ? 
+                                      <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                                      : <h4>No recipe tips to display</h4>
+                                    }
+                                    <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </li>                          
+                        </ol>
+
+                       
+                      </AccordionDetails>
+                  </Accordion>
+                  );
+              }) : <Grid>
+                
+                </Grid>}
+          
+              
             </Grid>
             <Grid item sm={5}>
               {/* <List>
@@ -692,6 +886,7 @@ export default function Admin() {
                       return <ListItemText primary={value} />
                   })}
               </List> */}
+              
               <List>{selectedProgramProgram?.recipes}</List>
             </Grid>
           </Grid>
