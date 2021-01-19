@@ -135,8 +135,8 @@ export default function Admin() {
   const { width } = useWindowSize();
   // const [openProgram, setOpenProgram] = React.useState(false);
   // const [program, setProgram] = React.useState("");
-  const [selectedProgramProgram, setSelectedProgramProgram] = useState({programName:"All"});
-  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({programName:"All"});
+  const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
+  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState("");
   const [searchRecipe, setSearchRecipe] = React.useState("");
@@ -674,7 +674,7 @@ export default function Admin() {
 
   const handleChangeRecipe = (e) => {
     setSearchRecipe(e.target.value);
-    const filteredNames = recipes.filter((x) => {
+    const filteredNames = recipesList.filter((x) => {
       x?.includes(e.target.value);
     });
   };
@@ -705,7 +705,7 @@ export default function Admin() {
               <TextField label="search email" value={search} onChange={handleChange}/>
 
               {users.map((value) => {
-                if (value["email"]?.includes(search)) {
+                if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -824,7 +824,7 @@ export default function Admin() {
 
                 <TextField label="search program" value={searchProgram} onChange={handleChangeProgram}/>
                 {programs.map((value) => {
-                  if (value["programName"]?.includes(searchProgram)) {
+                  if (value["programName"]?.includes(searchProgram) || value["programName"].toLowerCase()?.includes(searchProgram)) {
                     if (value.programName == selectedProgramProgram?.programName) {
                       return (
                         <Grid item>                      
@@ -1097,7 +1097,7 @@ export default function Admin() {
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
 
               {recipes.map((value) => {
-                if (value["nameOfDish"]?.includes(searchRecipe)) {
+                if (value["nameOfDish"]?.includes(searchRecipe) || value["nameOfDish"].toLowerCase()?.includes(searchRecipe)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">

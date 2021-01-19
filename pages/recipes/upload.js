@@ -102,6 +102,7 @@ const UploadForm = () => {
         setVideoSkills('')
         setVideoTips('')
         setImages({});
+        setOpenConfirm(false);
     }
 
     return (
