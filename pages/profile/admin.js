@@ -29,7 +29,7 @@ import { PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
-
+import _, { map } from 'underscore';
 
 
 function useWindowSize() {
@@ -143,9 +143,7 @@ export default function Admin() {
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
-  const [programs, setCurrentPrograms] = React.useState(programsTemp);
-  useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] );
+  const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
@@ -853,50 +851,52 @@ export default function Admin() {
             </Grid>
 
             <Grid item sm={5}>
-              {/* ----------------------- delete program ----------------------- */}
-              <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
-                <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
-                <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
-                <DialogActions>
-                  <Grid>
-                    <h4>Delete Program {selectedProgramProgram.programName} </h4>
-                    <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
-                    <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
-                  </Grid>
-                </DialogActions>
-                </Dialog>
-              </ListItem>
-
-              {/* ----------------------- edit recipes list ----------------------- */}
-              <List>
-                <ListItemText> Recipes List
-                <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}>
-                  <EditIcon />
-                </IconButton>
-                {selectedProgramProgram && (
-                  <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
-                    <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
-                    <DialogContent>
-                      <FormControl className={classes.formControl}>
-                        <div>
-                          <MultiSelect
-                            options={currentProgramRecipes}
-                            value={selectedRecipes}
-                            onChange={setSelectedRecipes}
-                            labelledBy={"Select"}
-                          />
-                        </div>
-                      </FormControl>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
-                      <Button onClick={() => handleSubmitEditProgramRecipes()} color="primary"> Ok </Button>
-                    </DialogActions>
+              {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
+              <div> {/* ----------------------- delete program ----------------------- */}
+                <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
+                  <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
+                  <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
+                  <DialogActions>
+                    <Grid>
+                      <h4>Delete Program {selectedProgramProgram.programName} </h4>
+                      <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
+                      <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
+                    </Grid>
+                  </DialogActions>
                   </Dialog>
-                )}
-                </ListItemText>
-              </List>
+                </ListItem> </div>}
 
+              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+              <div> {/* ----------------------- edit recipes list ----------------------- */}
+                <List>
+                  <ListItemText> Recipes List
+                  <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}>
+                    <EditIcon />
+                  </IconButton>
+                  {selectedProgramProgram && (
+                    <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
+                      <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
+                      <DialogContent>
+                        <FormControl className={classes.formControl}>
+                          <div>
+                            <MultiSelect
+                              options={currentProgramRecipes}
+                              value={selectedRecipes}
+                              onChange={setSelectedRecipes}
+                              labelledBy={"Select"}
+                            />
+                          </div>
+                        </FormControl>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
+                        <Button onClick={() => handleSubmitEditProgramRecipes()} color="primary"> Ok </Button>
+                      </DialogActions>
+                    </Dialog>
+                  )}
+                  </ListItemText>
+                </List> </div>}
+              
               {selectedProgramProgram?.programRecipes != undefined ?
               selectedProgramProgram?.programRecipes.map((value) => {
                 return (
@@ -1010,16 +1010,13 @@ export default function Admin() {
                           </li>                          
                         </ol>
 
-                       
                       </AccordionDetails>
-                  </Accordion>
-                  );
-              }) : <Grid>
-                
-                </Grid>}
+                  </Accordion>);
+              }) : <Grid></Grid>}
 
 
-              {/* ----------------------- edit users list ----------------------- */}
+              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+              <div> {/* ----------------------- edit users list ----------------------- */}
               <List>
                 <ListItemText> Users List
                 <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}>
@@ -1047,7 +1044,7 @@ export default function Admin() {
                   </Dialog>
                 )}
                 </ListItemText>
-              </List>
+              </List> </div>}
 
               {selectedProgramProgram?.programUsers != undefined ?
               selectedProgramProgram?.programUsers.map((value) => {
@@ -1076,16 +1073,6 @@ export default function Admin() {
                 
                 </Grid>}
         
-              
-            </Grid>
-            <Grid item sm={5}>
-              {/* <List>
-                  {selectedProgram?.recipes.map((value) => {
-                      return <ListItemText primary={value} />
-                  })}
-              </List> */}
-              
-              <List>{selectedProgramProgram?.recipes}</List>
             </Grid>
           </Grid>
         </TabPanel>
