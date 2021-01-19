@@ -19,6 +19,17 @@ export const setUserCookie = (user) => {
   })
 }
 
+export const editUserCookie = (updateData) => {
+  const cookie = cookies.get('auth') || '{}';
+  var data = JSON.parse(cookie);
+  Object.keys(updateData).forEach((key) => {
+    if(key in data) {
+      data[key] = updateData[key];
+    }
+  })
+  setRatingsCookie(data);
+}
+
 export const removeUserCookie = () => cookies.remove('auth')
 
 

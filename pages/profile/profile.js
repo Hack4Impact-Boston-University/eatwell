@@ -15,6 +15,7 @@ import {
 	withStyles,
 	Box,
 } from "@material-ui/core";
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { useUser } from "../../utils/auth/useUser";
 import Navbar from "../../components/Navbar";
 import { useEffect, useState } from "react";
@@ -50,11 +51,21 @@ const useStyles = makeStyles((theme) => ({
 		margin: "auto",
 	},
 	btn: {
-		width: "7rem",
+		width: "calc(min(max(32vw, 105px), 150px))",
 		display: "block",
 		margin: "auto",
 		textAlign: "center",
-		marginTop: "1rem",
+		background: "tomato",
+		color: "#EEF8F9",
+		"&:hover": {
+			background: "#F46F56",
+		},
+	},
+	btn2: {
+		width: "calc(min(max(37vw, 120px), 160px))",
+		display: "block",
+		margin: "auto",
+		textAlign: "center",
 		background: "tomato",
 		color: "#EEF8F9",
 		"&:hover": {
@@ -62,24 +73,84 @@ const useStyles = makeStyles((theme) => ({
 		},
 	},
 	formItems: {
-		marginTop: "1.5vh",
-
+		marginTop: "1.2vh",
 	},
 	body: {
 		marginTop: "4vh",
 	},
 	viewButtonLabel: { textTransform: "none" },
 	text: {
-		fontSize: 'calc(min(4vw, 20px))'
-	}
+		fontSize: 'calc(min(4vw, 18px))'
+	},
 }));
 
+const theme = createMuiTheme({
+    palette: {
+        text: {
+          primary: "#388e3c"
+        },
+    }
+});
+
+
 const Profile = () => {
-	const { user, logout } = useUser();
+	const { user, logout, upload } = useUser();
 	const [errorAlert, setErrorAlert] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [profile, setProfile] = useState({});
 	const classes = useStyles();
+
+	const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName]  = useState('')
+    const [phone, setPhone] = useState('')
+	const [oldPassword, setOldPassword] = useState('')
+	const [newPassword, setNewPassword] = useState('')
+	const [load, setLoad] = useState(true)
+
+	const [passwordError, setPasswordError] = useState(false)
+	const [passwordErrorText, setPasswordErrorText] = useState("Must input new and old passwords")
+
+	const [submitText, setSubmitText] = useState("")
+	const [success, setSuccess] = useState(false)
+
+	const name = (e) => {
+		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
+		if (!re.test(e.key)) {
+			e.preventDefault();
+		}
+	}
+
+	const phonenum = (e) => {
+		const re = /[0-9]+/g;
+		if (!re.test(e.key) || e.target.value.length > 11) {
+			e.preventDefault();
+		}
+	}
+
+	const telnum = (e) => {
+		let val = e.target.value;
+		if (phone.length == 2 && val.length == 3 || phone.length == 6 && val.length == 7) {
+			val += '-';
+		}
+		else if (phone.length == 4 && val.length == 3 || phone.length == 8 && val.length == 7) {
+			val = val.slice(0, -1);
+		}
+		setPhone(val);
+	}
+
+	const handleClickShowPassword = (e) => {
+		e.preventDefault();
+		setProfile({ ...profile, showPassword: !profile.showPassword });
+	};
+
+	useEffect(() => {
+		if(user && load) {
+			setFirstName(user.firstname)
+			setLastName(user.lastname)
+			setPhone(user.phone)
+			setLoad(false)
+		}
+	})
 
 	const handleUpload = (e) => {
 		e.preventDefault();
@@ -97,10 +168,52 @@ const Profile = () => {
 		console.log(successAlert);
 	};
 
-	const handleClickShowPassword = (e) => {
-		e.preventDefault();
-		setProfile({ ...profile, showPassword: !profile.showPassword });
-	};
+	const submitChanges = () => {
+		setPasswordError(false)
+		setSubmitText("")
+		setSuccess(false)
+		var profileData = {}
+		if(firstName.trim() == '' || firstName == user.firstname) {
+			setFirstName(user.firstname)
+		} else {
+			profileData.firstname = firstName
+		}
+		if(lastName.trim() == '' || lastName == user.lastname) {
+			setLastName(user.lastname)
+		} else {
+			profileData.lastname = lastName
+		}
+		if(phone.trim() == "" || phone == user.phone || !phone.match(/[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)) {
+			if(!phone.match(/[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)) {
+				setSubmitText("Phone must be a valid number")
+			}
+			setPhone(user.phone)
+		} else  {
+			profileData.phone = phone
+		}
+		if(oldPassword == "" && newPassword != "" || oldPassword != "" && newPassword == "") {
+			setPasswordError(true)
+		} else if(oldPassword.trim() != "" && newPassword.trim() != "") {
+			profileData.oldPassword = oldPassword
+			profileData.newPassword = newPassword
+		}
+		if(Object.keys(profileData).length > 0) {
+			upload(profileData).then(() => {
+				setSuccess(true)
+				setSubmitText("Changes saved successfully!")
+			}).catch((error) => {
+				if(error.code == "auth/wrong-password") {
+					setSubmitText("Old password is incorrect")
+				} else if(error.code == "auth/weak-password") {
+					setSubmitText("New password is too weak")
+				} else if(error.code == "auth/too-many-requests"){
+					setSubmitText("Too many attempts made. Please try again later")
+				} else {
+					console.log(error.code)
+				} 
+			});
+		}
+	}
 
 	if (!user) {
 		console.log("User not logged in.");
@@ -117,7 +230,7 @@ const Profile = () => {
 	return (
 		<div>
 			<Box component="div" className={classes.container}>
-				<Grid justify="center" className={classes.body} container>
+				<Grid justify="center" alignItems="center" direction="column" className={classes.body} spacing="100rem" container>
 					<Grid xs={12} item>
 						<Avatar
 							src="https://pbs.twimg.com/profile_images/988263662761775104/Bu1EDlWo.jpg"
@@ -125,14 +238,16 @@ const Profile = () => {
 							className={classes.avatar}
 						/>
 					</Grid>
-					<Grid xs={8} md={4} item>
+					<Grid xs={8} md={4} item className={classes.formItems}>
 						<Button
 							variant="contained"
 							component="label"
 							className={classes.btn}
 							classes={{ label: classes.viewButtonLabel }}
 						>
-							Upload File
+							<Typography className={classes.text}>
+								Upload File
+							</Typography>
 							<input
 								type="file"
 								onChange={handleUpload}
@@ -164,15 +279,26 @@ const Profile = () => {
 					</Grid>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
+					<Box component="div" textOverflow="clip">
+						<Typography className={classes.text}>
+							{user.email}
+						</Typography>
+					</Box>
+				</Grid>
+				<Grid justify="center" className={classes.formItems} container>
 					<TextField
 						id="profileFirst"
 						label="First Name"
-						value={user.firstname}
+						value={firstName}
+						onChange={(e) => setFirstName(e.target.value)}
+						onKeyPress={(e) => name(e)}
 						InputProps={{
-							readOnly: true,
 							className: classes.root,
 							classes: {input: classes.text},
 						}}
+						InputLabelProps={{
+							shrink: true,
+						}}	
 						size="small"
 					/>
 				</Grid>
@@ -180,92 +306,155 @@ const Profile = () => {
 					<TextField
 						id="profileLast"
 						label="Last Name"
-						value={user.lastname}
+						value={lastName}
+						onChange={(e) => setLastName(e.target.value)}
+						onKeyPress={(e) => name(e)}
 						defaultValue="Doe"
 						InputProps={{
-							readOnly: true,
 							className: classes.root,
 							classes: {input: classes.text},
 						}}
-						size="small"
-					/>
-				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-					<TextField
-						id="profileEmail"
-						label="Email"
-						value={user.email}
-						defaultValue="abc@gmail.com"
-						InputProps={{
-							readOnly: true,
-							className: classes.root,
-							classes: {input: classes.text},
-						}}
+						InputLabelProps={{
+							shrink: true,
+						}}	
 						size="small"
 					/>
 				</Grid>
 				<Grid justify="center" className={classes.formItems} container>
 					<TextField
 						id="profilePhone"
-						value={user.phone}
 						label="Phone Number"
+						value={phone}
+						onChange={(e) => telnum(e)}
+						onKeyPress={(e) => phonenum(e)}
 						defaultValue="123-456-7890"
 						type="tel"
 						InputProps={{
-							readOnly: true,
 							className: classes.root,
 							classes: {input: classes.text},
 						}}
+						InputLabelProps={{
+							shrink: true,
+						}}	
 						size="small"
 					/>
 				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-
-						<FormControl variant="outlined" margin="dense">
-							<InputLabel htmlFor="profilePassword">Password</InputLabel>
-							<OutlinedInput
-								id="profilePassword"
-								type={profile?.showPassword ? "text" : "password"}
-								// value={profile?.password}
-								value={"password"}
-								inputProps={{
-									readOnly: true,
+				{user.provider == "password" &&
+					<div>
+						<Grid justify="center" className={classes.formItems} container>
+							<TextField
+								id="profileOldPass"
+								label="Old Password"
+								value={oldPassword}
+								onChange={(e) => setOldPassword(e.target.value)}
+								type="password"
+								InputProps={{
+									className: classes.root,
+									classes: {input: classes.text},
 								}}
-								className={classes.text}
-								endAdornment={
-									<InputAdornment position="end">
-										<IconButton
-											aria-label="toggle password visibility"
-											onClick={handleClickShowPassword}
-											edge="end"
-										>
-											{profile?.showPassword ? (
-												<Visibility />
-											) : (
-												<VisibilityOff />
-											)}
-										</IconButton>
-									</InputAdornment>
-								}
-								labelWidth={70}
+								InputLabelProps={{
+									shrink: true,
+								}}				
+								size="small"
+								error={passwordError}
 							/>
-						</FormControl>
-
-				</Grid>
+						</Grid>
+						<Grid justify="center" className={classes.formItems} container>
+							<TextField
+								id="profileNewPass"
+								label="New Password"
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
+								type="password"
+								InputProps={{
+									className: classes.root,
+									classes: {input: classes.text},
+								}}
+								InputLabelProps={{
+									shrink: true,
+								}}	
+								size="small"
+								error={passwordError}
+								helperText={passwordError ? passwordErrorText : ""}
+							/>
+						</Grid>
+					</div>
+				}
+				{/* <Grid justify="center" className={classes.formItems} container>
+					<FormControl variant="outlined" margin="dense">
+						<InputLabel htmlFor="profilePassword">Password</InputLabel>
+						<OutlinedInput
+							id="profilePassword"
+							type={profile?.showPassword ? "text" : "password"}
+							// value={profile?.password}
+							value={password}
+							inputProps={{
+								readOnly: true,
+								classes: {label: classes.text},
+							}}
+							className={classes.text}
+							endAdornment={
+								<InputAdornment position="end">
+									<IconButton
+										aria-label="toggle password visibility"
+										onClick={handleClickShowPassword}
+										edge="end"
+									>
+										{profile?.showPassword ? (
+											<Visibility />
+										) : (
+											<VisibilityOff />
+										)}
+									</IconButton>
+								</InputAdornment>
+							}
+							labelWidth={70}
+						/>
+					</FormControl>
+				</Grid> */}
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
-						User Role: {user.role}
+						<Typography className={classes.text}>
+							User Role: {user.role}
+						</Typography>
 					</Box>
 				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-					{(user.role == "user") ? (
+				{user.role == "user" &&
+					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
-							Enrolled Program: {user.program}
+							<Typography className={classes.text}>
+								Enrolled Program: {user.program}
+							</Typography>
 						</Box>
-					) : (
-						<Box></Box>
-					)}
+					</Grid>
+				}
+				
+				<Grid justify="center" className={classes.formItems} container>
+					<Grid xs={8} md={4} item>
+						<Button
+							variant="contained"
+							component="label"
+							className={classes.btn2}
+							classes={{ label: classes.viewButtonLabel }}
+							onClick={() => submitChanges()}
+						>
+							<Typography className={classes.text}>
+								Save Changes
+							</Typography>
+						</Button>
+					</Grid>
 				</Grid>
+				<ThemeProvider theme={theme}>
+					{submitText &&
+						<Grid justify="center" className={classes.formItems} container>
+							<Box component="div" textOverflow="clip">
+								<Typography className={classes.text} color={success ? 'textPrimary' : 'error'}>
+									{submitText}
+								</Typography>
+							</Box>
+						</Grid>
+					}
+				</ThemeProvider>
 
 				<div className={styles.nav}>
 					<Navbar/>

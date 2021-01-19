@@ -189,12 +189,12 @@ const UploadForm = () => {
                     open={openConfirm}
                     onClose={handleCloseConfirm}
                     >
-                    <ui.DialogActions>
-                        <h4>Please fill in all the required information</h4>
-                        <ui.Button onClick={handleCloseConfirm} color="primary">
-                            Back
-                        </ui.Button>
-                    </ui.DialogActions>
+                        <ui.DialogActions>
+                            <h4>Please fill in all the required information</h4>
+                            <ui.Button onClick={handleCloseConfirm} color="primary">
+                                Back
+                            </ui.Button>
+                        </ui.DialogActions>
                     </ui.Dialog>
                     :
                     <ui.Dialog
@@ -203,15 +203,15 @@ const UploadForm = () => {
                         open={openConfirm}
                         onClose={handleCloseConfirm}
                     >
-                    <ui.DialogActions>
-                        <h4>Data ready to be stored!</h4>
-                        <ui.Button onClick={handleCloseConfirm} color="primary">
-                            Cancel
-                        </ui.Button>
-                        <ui.Button onClick={() => upload()} color="primary">
-                            Confirm
-                        </ui.Button>
-                    </ui.DialogActions>
+                        <ui.DialogActions>
+                            <h4>Data ready to be stored!</h4>
+                            <ui.Button onClick={handleCloseConfirm} color="primary">
+                                Cancel
+                            </ui.Button>
+                            <ui.Button onClick={() => upload()} color="primary">
+                                Confirm
+                            </ui.Button>
+                        </ui.DialogActions>
                     </ui.Dialog>
                 }
             </ui.Grid>

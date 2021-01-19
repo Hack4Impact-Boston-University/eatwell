@@ -48,7 +48,7 @@ const makeProfile = () => {
 	const router = useRouter();
 
 	const name = (e) => {
-		const re = /[A-Za-z \-]+/g;
+		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 		if (!re.test(e.key)) {
 			e.preventDefault();
 		}

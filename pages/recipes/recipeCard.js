@@ -242,7 +242,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Typography style={{ fontSize: "calc(min(3vw, 20px))", fontWeight: 300 }}  >
-                    Average: {obj.avgRating} / 5
+                    Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
                   </Typography>
                   <Rating
                     defaultValue={0}

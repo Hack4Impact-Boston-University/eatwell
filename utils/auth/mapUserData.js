@@ -4,5 +4,6 @@ export const mapUserData = (user) => {
       id: uid,
       email,
       token: xa,
+      provider: user.providerData[0].providerId
     }
   }
