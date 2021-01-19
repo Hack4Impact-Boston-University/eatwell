@@ -186,7 +186,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
     <Grid item xs={12}>
       <Box pb={3}>
         <Card className={classes.card}>
-          <CardContent>
+          <CardContent p={0}>
             <Box m={"0.25vw"}> 
               <Grid container>
                 <Grid item xs={2} sm={1}>
@@ -234,38 +234,46 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                   </Link>
                 </Button>
               </Grid>
-              <Grid container justify="center" spacing={9} style={{ paddingTop: 10 }}>
-                <Grid item xs={2}>
-                  <Typography style={{ fontSize: "calc(min(3vw, 20px))", fontWeight: 300 }}  >
-                    Date: {obj.dateUploaded}
-                  </Typography>
+              <Grid container justify="center" style={{ marginTop: "3vh", marginBottom: "1vh" }} spacing="10vw">
+                <Grid item xs={4} container direction="column" justify="center" alignItems="center">
+                  <Grid item>
+                    <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
+                      Date:
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
+                      {obj.dateUploaded}
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={6} sm={3}>
-                  <Typography style={{ fontSize: "calc(min(3vw, 20px))", fontWeight: 300 }}  >
-                    Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
-                  </Typography>
-                  <Rating
-                    defaultValue={0}
-                    precision={0.5}
-                    onChange={(e) => {changeRating(e.target.value)}}
-                    value={rating}
-                    style={{ fontSize: "calc(min(3vw, 20px))"}}
-                  />
-                  {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} style={{ fontSize: "calc(min(3vw, 20px))"}}/> }
-                  <Typography style={{ fontSize: "calc(min(3vw, 20px))", fontWeight: 300 }}  >
-                    {obj.numRatings} Rating{obj.numRatings > 1 ? "s" : ""}
-                  </Typography>
+                <Grid item container xs={6} justify="center" direction="column" alignItems="center">
+                  <Grid item>
+                    <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
+                      Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Rating
+                      defaultValue={0}
+                      precision={0.5}
+                      onChange={(e) => {changeRating(e.target.value)}}
+                      value={rating}
+                      style={{ fontSize: "calc(min(6vw, 20px))"}}
+                    />
+                    {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} style={{ fontSize: "calc(min(5vw, 20px))"}}/> }
+                  </Grid>
+                  <Grid item>
+                    <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
+                      {obj.numRatings} Rating{obj.numRatings > 1 ? "s" : ""}
+                    </Typography>
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid container spacing={3}  >
                 <Grid item xs={12} >
-                  <Typography style={{ fontSize: "calc(min(3vw, 20px))", fontWeight: 300 }}  >
+                  <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
                     {obj.description}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6} >
-                  <Typography style={{ fontSize: "calc(min(2.7vw, 18px))", fontWeight: 300 }}  >
-                    Skills:
                   </Typography>
                 </Grid>
               </Grid>
