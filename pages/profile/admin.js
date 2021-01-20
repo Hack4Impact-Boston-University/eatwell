@@ -146,8 +146,10 @@ export default function Admin() {
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
   const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
-
-
+  const { data: programsTempDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+  const [programsDic, setProgramsDic] = React.useState("");
+  useEffect(() => { setProgramsDic(programsTempDic)}, programsTempDic );
+  
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
@@ -197,24 +199,49 @@ export default function Admin() {
   // edit user program
   const [openProgram, setOpenProgram] = React.useState(false);
   const [program, setProgram] = React.useState("");
+  const [prevProgram, setPrevProgram] = React.useState("");
 
   const handleChangeProgram = (event) => {
     setProgram(event.target.value || "");
   };
 
-  const handleClickOpenProgram = (currentUser) => {
+  const handleClickOpenProgram = (currentUser,prev) => {
+    setProgram(prev)
     setOpenProgram(true);
     setCurrentUser(currentUser);
+    setPrevProgram(prev)
   };
 
   const handleCloseProgram = () => {
+    setProgram("")
     setOpenProgram(false);
   };
 
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
-    setProgram(currentUserProgram);
-    firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+    
+    if (prevProgram != undefined && programsDic[prevProgram] != undefined) {
+      var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
+      if (index.toString != "-1" && prevProgram != currentUserProgram) {
+        delete programsDic[prevProgram].programUsers[index]
+        firebase.firestore().collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
+        setProgramsDic(programsDic)
+      }
+    }
+
+    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser) && prevProgram != currentUserProgram) {
+      programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
+      firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
+      setProgramsDic(programsDic)
+    }
+
+    if (prevProgram != currentUserProgram) {
+      firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+    }
+
+    setProgramsDic(programsDic)
     setOpenProgram(false);
+    setProgram("")
+
   };
 
   // delete user
@@ -723,7 +750,7 @@ export default function Admin() {
                         <ol className={classes.noNum}>
                           <li>Phone: {value?.phone}</li>
                           {value?.role == "user" ? (
-                          <li>Program: {value?.program}<IconButton onClick={() => handleClickOpenProgram(value.id)}> <EditIcon /> </IconButton></li>)
+                          <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
                           : (<Grid></Grid>)}
                           <li>Role: {value?.role}<IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton></li>
                           <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
@@ -745,11 +772,7 @@ export default function Admin() {
                   <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
                   <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
                     {programs.map((programss) =>
-                      programss["programName"] != "All" ? (
-                        <MenuItem value={programss["programName"]}> {programss["programName"]} </MenuItem>
-                      ) : (
-                        <MenuItem disabled value={programss["programName"]}> {programss["programName"]} </MenuItem>
-                      ))
+                      <MenuItem value={programss["programID"]}> {programss["programName"]} </MenuItem>)
                     }
                   </Select>
                 </FormControl>
@@ -879,12 +902,12 @@ export default function Admin() {
               <div> {/* ----------------------- edit users list ----------------------- */}
               <List>
                 <ListItemText> Users List
-                <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton>
+                {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
                 </ListItemText>
               </List> </div>}
 
               {selectedProgramProgram?.programUsers != undefined ?
-              selectedProgramProgram?.programUsers.map((value) => {
+              Object.values(selectedProgramProgram?.programUsers).map((value) => {
                 return (
                     <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -905,8 +928,7 @@ export default function Admin() {
                         </ol>
                       </AccordionDetails>
                   </Accordion>
-                  );
-              }) : <Grid></Grid>}
+                  );}) : <Grid></Grid>}
             </Grid>
           </Grid>
 
@@ -1011,7 +1033,7 @@ export default function Admin() {
           )}
 
           {/* edit users list Dialog */}
-          {selectedProgramProgram && (
+          {/* {selectedProgramProgram && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramUsers} onClose={handleCloseEditProgramUsers}>
               <DialogTitle>Edit Users List for {selectedProgramProgram?.programName} </DialogTitle>
               <DialogContent>
@@ -1031,7 +1053,7 @@ export default function Admin() {
                 <Button onClick={() => handleSubmitEditProgramUsers()} color="primary"> Ok </Button>
               </DialogActions>
             </Dialog>
-          )}
+          )} */}
 
         </TabPanel>
 
