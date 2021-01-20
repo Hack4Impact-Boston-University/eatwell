@@ -115,12 +115,7 @@ const Navbar = () => {
 	// };
 
 	const UserMenuItems = (props) => {
-		return (
-			<Button href={`/recipes/recipeList`} className={classes.menuItems}>
-				<Book />
-				<Typography variant="subtitle2">Recipes</Typography>
-			</Button>
-		);
+		return (<Box></Box>);
 	}
 
 	const AdminMenuItems = (props) => {
@@ -143,14 +138,7 @@ const Navbar = () => {
 	const UserDrawerItems = (props) => {
 		return (
 			<Box>
-				<MenuItem button key={0}>
-					<Button href={`/recipes/recipeList`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
-						<ListItemIcon>
-							<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
-						</ListItemIcon>
-						<Typography variant="subtitle1">Recipes</Typography>
-					</Button>
-				</MenuItem>
+				
 			</Box>
 		);
 	}
@@ -203,6 +191,10 @@ const Navbar = () => {
 								/>
 								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
+							<Button href={`/recipes/recipeList`} className={classes.menuItems}>
+								<Book />
+								<Typography variant="subtitle2">Recipes</Typography>
+							</Button>
 							{user.role == "user" ? 
 								<UserMenuItems/> 
 								: 
@@ -232,6 +224,14 @@ const Navbar = () => {
 											<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
 										</ListItemIcon>
 										<Typography variant="subtitle1">Profile</Typography>
+									</Button>
+								</MenuItem>
+								<MenuItem button key={0}>
+									<Button href={`/recipes/recipeList`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+										<ListItemIcon>
+											<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Recipes</Typography>
 									</Button>
 								</MenuItem>
 								{user.role == "user" ? <UserDrawerItems/> : <AdminDrawerItems/>}
