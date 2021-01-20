@@ -10,6 +10,10 @@ import {
 	getUserFromCookie,
 	removeFavCookie,
 	setFavCookie,
+	setNotesCookie,
+	removeNotesCookie,
+	setRatingsCookie,
+	removeRatingsCookie,
 } from "../cookies";
 import { mapUserData } from "./mapUserData";
 
@@ -33,21 +37,46 @@ const useUser = () => {
 			});
 	};
 	const upload = async (newData) => {
-
-		newData["role"] = "user";
-		if("firstname" in newData) {
+		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData) {
 			var currData = getUserFromCookie();
 			if(currData) {
-				var userData = Object.assign({}, currData, newData);
-				setUserCookie(userData);
-				setUser(userData);
-				return db.collection("users").doc(user.id).set(userData);
+				if(!("firstname" in currData)) {
+					newData["role"] = "user";
+					var userData = Object.assign({}, currData, newData);
+					setUserCookie(userData);
+					setUser(userData);
+					return db.collection("users").doc(user.id).set(userData);
+				} else {
+					var updateData = {...newData}
+					var auth = new Promise(() => {})
+					if("oldPassword" in newData) {
+						if(user.provider == "password") {
+							var credential = firebase.auth.EmailAuthProvider.credential(
+								user.email,
+								newData.oldPassword
+							);
+							auth = firebase.auth().currentUser.reauthenticateWithCredential(credential).then(() => {
+								firebase.auth().currentUser.updatePassword(newData.newPassword);
+							})
+						}
+						delete updateData.oldPassword
+						delete updateData.newPassword
+					}
+					if(Object.keys(updateData).length > 0) {
+						var u = db.collection("users").doc(user.id).update(updateData)	
+						if(!auth) {
+							return u
+						}
+					}	
+					console.log(auth)
+					return auth;
+				}
 			}
 		} else if("favoriteRecipes" in newData){
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}
-		}		
+		}	
 	}
 
 	useEffect(() => {
@@ -65,6 +94,7 @@ const useUser = () => {
 						if (doc.exists) {
 							setResolve("found");
 							userData = doc.data();
+							userData.provider = u.providerData[0].providerId
 						} else {
 							setResolve("not found");
 							userData = mapUserData(u);
@@ -76,12 +106,15 @@ const useUser = () => {
 							favData[userData["favoriteRecipes"][i]] = "";
 						}
 						setFavCookie(favData);
-
+						setNotesCookie(userData["notes"] || {})
+						setRatingsCookie(userData["ratings"] || {})
 					});
 			} else if(!u){
 				removeUserCookie();
 				setUser();
 				removeFavCookie();
+				removeNotesCookie();
+				removeRatingsCookie();
 			}
 		});
 		if(!user) {

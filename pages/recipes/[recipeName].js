@@ -11,17 +11,19 @@ import useSWR from 'swr';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import SwipeableViews from 'react-swipeable-views';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import {
+  AppBar,
+  Box,
+  Grid,
+  Tabs,
+  Tab,
+  Typography,
+} from '@material-ui/core';
 import Navbar from "../../components/Navbar";
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
 import styles from '../../styles/Home.module.css'
-
 
 const fetcher = async (...args) => {
   const res = await fetch(...args);
@@ -101,6 +103,10 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     paddingTop: "5vh"
   },
+  video: {
+    marginTop: "12vh",
+    marginBottom: "3vh"
+  }
 }));
 
 export default function Recipe() {
@@ -153,6 +159,7 @@ export default function Recipe() {
           break;
       }
     });
+    console.log(data.videoRecipe)
     return (
       <div className={classes.root}>
         <SwipeableViews
@@ -161,8 +168,8 @@ export default function Recipe() {
           onChangeIndex={handleChangeIndex}>
         
           <TabPanel value={value} index={0} dir={theme.direction}>
-          <div position="fixed">
-          <iframe position="fixed" src={data.videoRecipe} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+          <div position="fixed" className={classes.video}>
+                <iframe position="fixed" src={data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
           </div>
           <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
           </TabPanel>

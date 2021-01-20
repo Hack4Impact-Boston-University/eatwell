@@ -34,35 +34,25 @@ const UploadForm = () => {
     const [videoID, setVideoID] = useState('')
     const [pdfFile, setPdfFile] = useState('')
     const [description, setDescription] = useState('')
-    const [imageUrl, setImageUrl] = useState('')
     const [videoSkills, setVideoSkills] = useState('')
     const [videoTips, setVideoTips] = useState('')
-    const [errorAlert, setErrorAlert] = useState(false);
-	const [successAlert, setSuccessAlert] = useState(false);
-    // const [images, setImages] = useState({});
-    // const [image, setImage] = useState('');
+    const [images, setImages] = useState({});
+    const [openConfirm, setOpenConfirm] = React.useState(false);
+    var uploadedImages = []
 
-
-    const uploadImage = (e) => {
-		e.preventDefault();
-		console.log(e.target.files);
-		const re = /(?:\.([^.]+))?$/;
-		let ext = re.exec(e.target.files[0].name)[1];
-		console.log("ext");
-		if (ext !== "png" && ext !== "jpg" && ext !== "jpeg") {
-			console.log("Please upload a .png, .jpg, or .jpeg file");
-			setErrorAlert(true);
-		} else {
-			console.log("file uploaded");
-			setSuccessAlert(true);
-		}
-		console.log(successAlert);
-    };
 
     const crop = {
         unit: '%',
         aspect: 4 / 3,
         width: '100'
+    };
+
+    const handleClickOpenConfirm = () => {
+        setOpenConfirm(true);
+    };
+    
+    const handleCloseConfirm = () => {        
+        setOpenConfirm(false);
     };
     
     function upload() {
@@ -74,58 +64,45 @@ const UploadForm = () => {
 
         var date = new Date()
         var dateUploaded = date.getFullYear().toString() + '/' +date.getMonth().toString() + '/' + date.getDate().toString()
-    
-        var i;
-        var uploadedImages = [];
-        for (i = 0; i < 3 ; i++) {
-            uploadedImages.push(recipeName+" "+i+".img")
-        }
-        // console.log(images[0]);
         
+        var i;
+        var uploadedImages = Object.values(images);
+
         var collection = firebase.firestore().collection('recipes')
         var data = {
+            id:recipe,
             nameOfDish: recipeName,
             description: description,
-            // images: uploadedImages,
-            imageUrl: imageUrl,
+            images: uploadedImages,
             videoRecipe: videoUrl + videoID,
-            pdfRecipe: recipeName+".pdf",
+            pdfRecipe: recipe+".pdf",
             dateUploaded: dateUploaded,
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
+            numRatings: 1,
+            avgRating: 5
         }
-        
-        // console.log(data)
 
         collection.doc(recipe).set(data)
-        firebase.storage().ref().child(recipeName+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        firebase.storage().ref().child(recipe+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
-                alert('upload successful!')
             }
         })
+        for (i = 0; i < uploadedImages.length ; i++) {
+            firebase.storage().ref().child(recipe+i+".jpg").putString(uploadedImages[i], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+                'complete': function() {
+                }
+            })
+        }
 
-        // firebase.storage().ref().child(recipeName+" 0"+".img").put(image).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-        //     'complete': function() {
-        //         alert('upload successful!')
-        //     }
-        // })
-
-        // var uploadedImages = []
-        // images.map(function (key,value) {
-        //     uploadedImages.push(value)
-        //     // firebase.storage().ref().child(recipeName+".img").put(1).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-        //     //     'complete': function() {
-        //     //         alert('upload successful!')
-        //     //     }
-        //     // })
-        // })
-        // firebase.storage().ref().child(recipeName+".img").put(images).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-        //     'complete': function() {
-        //         alert('upload successful!')
-        //     }
-        // })
-
-        console.log(setPdfFile);
+        setRecipeName('')
+        setVideoID('')
+        setPdfFile('')
+        setDescription('')
+        setVideoSkills('')
+        setVideoTips('')
+        setImages({});
+        setOpenConfirm(false);
     }
 
     return (
@@ -157,7 +134,6 @@ const UploadForm = () => {
             </ui.Grid>
             <ui.Grid item xs={12} sm={6}>
                 <ui.TextField
-                    required
                     value={videoSkills}
                     label="Vimeo Skills Video ID"
                     onChange={(e) => setVideoSkills(e.target.value)}
@@ -167,7 +143,6 @@ const UploadForm = () => {
             </ui.Grid>
             <ui.Grid item xs={12} sm={6}>
                 <ui.TextField
-                    required
                     value={videoTips}
                     label="Vimeo Tips Video ID"
                     onChange={(e) => setVideoTips(e.target.value)}
@@ -175,33 +150,22 @@ const UploadForm = () => {
                     variant="outlined"
                 />
             </ui.Grid>
-            {/* <MultiImageInput
-                images={images}
-                setImages={setImages}
-                cropConfig={{ crop, ruleOfThirds: true }}
-                inputId
-                // onChange={(files) => setImage(files[0])}
-            /> */}
             <ui.Grid item xs={12}>
                 <ui.TextField
-                    required
-                    value={imageUrl}
-                    label="Image URL"
-                    multiline
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    fullWidth
-                    variant="outlined"
-                />
-            </ui.Grid>
-            <ui.Grid item xs={12}>
-                <ui.TextField
-                    required
                     value={description}
                     label="Recipe Description"
                     multiline
                     onChange={(e) => setDescription(e.target.value)}
                     fullWidth
                     variant="outlined"
+                />
+            </ui.Grid>
+            <ui.Grid item xs={12}>
+                <MultiImageInput
+                    images={images}
+                    setImages={setImages}
+                    cropConfig={{ crop, ruleOfThirds: true }}
+                    inputId
                 />
             </ui.Grid>
             <ui.Grid item xs={12}>
@@ -214,12 +178,44 @@ const UploadForm = () => {
                     onChange={(files) => setPdfFile(files[0])}
                 />
             </ui.Grid>
+            
             <ui.Grid item xs={12}>
-                <ui.Button variant="outlined" fullWidth>
-                    <a onClick={() => upload()}>Upload</a>
+                <ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+                    Upload
                 </ui.Button>
+                {(recipeName==''||uploadedImages==[]||videoID=='') ? 
+                    <ui.Dialog
+                    disableBackdropClick
+                    disableEscapeKeyDown
+                    open={openConfirm}
+                    onClose={handleCloseConfirm}
+                    >
+                        <ui.DialogActions>
+                            <h4>Please fill in all the required information</h4>
+                            <ui.Button onClick={handleCloseConfirm} color="primary">
+                                Back
+                            </ui.Button>
+                        </ui.DialogActions>
+                    </ui.Dialog>
+                    :
+                    <ui.Dialog
+                        disableBackdropClick
+                        disableEscapeKeyDown
+                        open={openConfirm}
+                        onClose={handleCloseConfirm}
+                    >
+                        <ui.DialogActions>
+                            <h4>Data ready to be stored!</h4>
+                            <ui.Button onClick={handleCloseConfirm} color="primary">
+                                Cancel
+                            </ui.Button>
+                            <ui.Button onClick={() => upload()} color="primary">
+                                Confirm
+                            </ui.Button>
+                        </ui.DialogActions>
+                    </ui.Dialog>
+                }
             </ui.Grid>
-
         </ui.Grid>
         <div className={styles.nav}>
             <Navbar/>
