@@ -29,7 +29,7 @@ import { PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
-
+import _, { map } from 'underscore';
 
 
 function useWindowSize() {
@@ -133,25 +133,23 @@ export default function Admin() {
   const [value, setValue] = React.useState(1);
   const theme = useTheme();
   const { width } = useWindowSize();
-  // const [openProgram, setOpenProgram] = React.useState(false);
-  // const [program, setProgram] = React.useState("");
-  const [selectedProgramProgram, setSelectedProgramProgram] = useState({programName:"All"});
-  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({programName:"All"});
+  const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
+  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState("");
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  const { data: programsTemp } = useSWR(`/api/programs/getAllPrograms`, fetcher);
-  const [programs, setCurrentPrograms] = React.useState(programsTemp);
-  useEffect(() => { setCurrentPrograms(programsTemp)}, [programsTemp] );
+  const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
   const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
-
-
+  const { data: programsTempDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+  const [programsDic, setProgramsDic] = React.useState("");
+  useEffect(() => { setProgramsDic(programsTempDic)}, programsTempDic );
+  
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
@@ -199,24 +197,52 @@ export default function Admin() {
   };
 
   // edit user program
-  // const handleChangeProgram = (event) => {
-  //   setProgram(event.target.value || "");
-  // };
+  const [openProgram, setOpenProgram] = React.useState(false);
+  const [program, setProgram] = React.useState("");
+  const [prevProgram, setPrevProgram] = React.useState("");
 
-  // const handleClickOpenProgram = (currentUser) => {
-  //   setOpenProgram(true);
-  //   setCurrentUser(currentUser);
-  // };
+  const handleChangeProgram = (event) => {
+    setProgram(event.target.value || "");
+  };
 
-  // const handleCloseProgram = () => {
-  //   setOpenProgram(false);
-  // };
+  const handleClickOpenProgram = (currentUser,prev) => {
+    setProgram(prev)
+    setOpenProgram(true);
+    setCurrentUser(currentUser);
+    setPrevProgram(prev)
+  };
 
-  // const handleSubmitProgram = (currentUser, currentUserProgram) => {
-  //   setProgram(currentUserProgram);
-  //   firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
-  //   setOpenProgram(false);
-  // };
+  const handleCloseProgram = () => {
+    setProgram("")
+    setOpenProgram(false);
+  };
+
+  const handleSubmitProgram = (currentUser, currentUserProgram) => {
+    
+    if (prevProgram != undefined && programsDic[prevProgram] != undefined) {
+      var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
+      if (index.toString != "-1" && prevProgram != currentUserProgram) {
+        delete programsDic[prevProgram].programUsers[index]
+        firebase.firestore().collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
+        setProgramsDic(programsDic)
+      }
+    }
+
+    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser) && prevProgram != currentUserProgram) {
+      programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
+      firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
+      setProgramsDic(programsDic)
+    }
+
+    if (prevProgram != currentUserProgram) {
+      firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+    }
+
+    setProgramsDic(programsDic)
+    setOpenProgram(false);
+    setProgram("")
+
+  };
 
   // delete user
   const [openDeleteUser, setOpenDeleteUser] = React.useState(false);
@@ -242,6 +268,7 @@ export default function Admin() {
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
+  const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
 
   var settings = {
     dots: true,
@@ -435,6 +462,11 @@ export default function Admin() {
   // edit recipe images
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
+  const crop = {
+    unit: '%',
+    aspect: 4 / 3,
+    width: '100'
+  };
 
   const handleClickOpenRecipeImages = (currentRecipe) => {
     setRecipeImages(currentRecipe.images)
@@ -443,6 +475,12 @@ export default function Admin() {
     var date = new Date()
     var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
     setUploadDate(dateUploaded)
+  };
+
+  const handleClickOpenViewRecipeImages = (currentRecipe) => {
+    setViewRecipeImages(recipesDic[currentRecipe].images)
+    setOpenRecipeImages(true);
+    setCurrentRecipe(currentRecipe);
   };
 
   const handleCloseRecipeImages = () => {
@@ -623,7 +661,7 @@ export default function Admin() {
 
   const handleClickOpenDeleteRecipe = (currentRecipe) => {
     setOpenDeleteRecipe(true);
-    setCurrentRecipe(currentRecipe);
+    setCurrentRecipe(recipesDic[currentRecipe].nameOfDish);
   };
 
   const handleCloseDeleteRecipe = () => {
@@ -674,12 +712,12 @@ export default function Admin() {
 
   const handleChangeRecipe = (e) => {
     setSearchRecipe(e.target.value);
-    const filteredNames = recipes.filter((x) => {
+    const filteredNames = recipesList.filter((x) => {
       x?.includes(e.target.value);
     });
   };
 
-  const handleChangeProgram = (e) => {
+  const handleChangeSearchProgram = (e) => {
     setSearchProgram(e.target.value);
     const filteredNames = programsList.filter((x) => {
       x?.includes(e.target.value);
@@ -705,7 +743,7 @@ export default function Admin() {
               <TextField label="search email" value={search} onChange={handleChange}/>
 
               {users.map((value) => {
-                if (value["email"]?.includes(search)) {
+                if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -720,80 +758,12 @@ export default function Admin() {
                       </AccordionSummary>
                       <AccordionDetails>
                         <ol className={classes.noNum}>
-                          <li>Phone: {value?.phone}</li>                        
-
-                          {/* {value?.role == "user" ? (
-                            <li>Program: {value?.program}
-                            <IconButton onClick={() => handleClickOpenProgram(value.id)}>
-                              <EditIcon />
-                            </IconButton>
-                            {currentUser && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
-                                <DialogTitle>Edit User Program</DialogTitle>
-                                <DialogContent>
-                                  <FormControl className={classes.formControl}>
-                                    <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
-                                    <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
-                                      {programs.map((programss) =>
-                                        programss["programName"] != "All" ? (
-                                          <MenuItem value={programss["programName"]}> {programss["programName"]} </MenuItem>
-                                        ) : (
-                                          <MenuItem disabled value={programss["programName"]}> {programss["programName"]} </MenuItem>
-                                        ))
-                                      }
-                                    </Select>
-                                  </FormControl>
-                                </DialogContent>
-                                <DialogActions>
-                                  <Button onClick={handleCloseProgram} color="primary"> Cancel </Button>
-                                  <Button onClick={() => handleSubmitProgram(currentUser, program)} color="primary"> Ok </Button>
-                                </DialogActions>
-                              </Dialog>
-                            )}
-                            </li>
-                        ) : (
-                          <Grid></Grid>
-                        )} */}
-
-                          <li>Role: {value?.role}
-                          <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton>
-                          {currentUser && (
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
-                              <DialogTitle>Edit User Role</DialogTitle>
-                              <DialogContent>
-                                <FormControl className={classes.formControl}>
-                                  <InputLabel id="demo-dialog-select-label"> Role </InputLabel>
-                                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={role} onChange={handleChangeRole} input={<Input />}>
-                                    <MenuItem value={prevRole}>
-                                      <em></em>
-                                    </MenuItem>
-                                    <MenuItem value={"user"}>User</MenuItem>
-                                    <MenuItem value={"admin"}>Admin</MenuItem>
-                                  </Select>
-                                </FormControl>
-                              </DialogContent>
-                              <DialogActions>
-                                <Button onClick={handleCloseRole} color="primary"> Cancel </Button>
-                                <Button onClick={() => handleSubmitRole(currentUser, role)} color="primary"> Ok </Button>
-                              </DialogActions>
-                            </Dialog>
-                          )}
-                          </li>
-
-                          {/* ---------------------------- delete user ---------------------------- */}
-                          <li>
-                          <IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton>
-                          {currentUser && (
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
-                              <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
-                              <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
-                              <DialogActions>
-                                <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
-                                <Button onClick={() => handleSubmitDeleteUser()} color="primary"> Ok </Button>
-                              </DialogActions>
-                            </Dialog>
-                          )}
-                          </li>
+                          <li>Phone: {value?.phone}</li>
+                          {value?.role == "user" ? (
+                          <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
+                          : (<Grid></Grid>)}
+                          <li>Role: {value?.role}<IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton></li>
+                          <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
                         </ol>
                       </AccordionDetails>
                     </Accordion>
@@ -802,6 +772,59 @@ export default function Admin() {
               })}
             </Grid>
           </Grid>
+          {currentUser && (
+          <div>
+            {/* --------------- edit user program --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
+              <DialogTitle>Edit User Program</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
+                    {programs.map((programss) =>
+                      <MenuItem value={programss["programID"]}> {programss["programName"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseProgram} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitProgram(currentUser, program)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- edit user role --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
+              <DialogTitle>Edit User Role</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Role </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={role} onChange={handleChangeRole} input={<Input />}>
+                    <MenuItem value={prevRole}>
+                      <em></em>
+                    </MenuItem>
+                    <MenuItem value={"user"}>User</MenuItem>
+                    <MenuItem value={"admin"}>Admin</MenuItem>
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseRole} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitRole(currentUser, role)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- delete user --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
+              <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
+              <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
+              <DialogActions>
+                <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteUser()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        )}
         </TabPanel>
 
         {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
@@ -811,20 +834,11 @@ export default function Admin() {
               <List dense>
                 <ListItem key={"Add New Program"} button selected={true} onClick={() => setSelectedProgramProgram(value)}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
-                  <Dialog disableBackdropClick disableEscapeKeyDown open={openAddProgram} onClose={handleCloseAddProgram}>
-                  <DialogActions>
-                      <h4>Add New Program</h4>
-                      <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
-                      <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
-                      <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
-                  </DialogActions>
-                  </Dialog>
                 </ListItem>
 
-
-                <TextField label="search program" value={searchProgram} onChange={handleChangeProgram}/>
+                <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
                 {programs.map((value) => {
-                  if (value["programName"]?.includes(searchProgram)) {
+                  if (value["programName"]?.includes(searchProgram) || value["programName"].toLowerCase()?.includes(searchProgram)) {
                     if (value.programName == selectedProgramProgram?.programName) {
                       return (
                         <Grid item>                      
@@ -833,9 +847,7 @@ export default function Admin() {
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
-                        </Grid>
-                      );
-                    }
+                        </Grid>);}
                     else {
                       return (
                         <Grid item>                      
@@ -845,58 +857,25 @@ export default function Admin() {
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
-                        </Grid>
-                      );
-                    }
-                  }})}
+                        </Grid>);}}})}
               </List>
             </Grid>
 
             <Grid item sm={5}>
-              {/* ----------------------- delete program ----------------------- */}
-              <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
-                <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
-                <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
-                <DialogActions>
-                  <Grid>
-                    <h4>Delete Program {selectedProgramProgram.programName} </h4>
-                    <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
-                    <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
-                  </Grid>
-                </DialogActions>
-                </Dialog>
-              </ListItem>
+              {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
+              <div> {/* ----------------------- delete program ----------------------- */}
+                <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
+                  <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
+                </ListItem> </div>}
 
-              {/* ----------------------- edit recipes list ----------------------- */}
-              <List>
-                <ListItemText> Recipes List
-                <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}>
-                  <EditIcon />
-                </IconButton>
-                {selectedProgramProgram && (
-                  <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
-                    <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
-                    <DialogContent>
-                      <FormControl className={classes.formControl}>
-                        <div>
-                          <MultiSelect
-                            options={currentProgramRecipes}
-                            value={selectedRecipes}
-                            onChange={setSelectedRecipes}
-                            labelledBy={"Select"}
-                          />
-                        </div>
-                      </FormControl>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
-                      <Button onClick={() => handleSubmitEditProgramRecipes()} color="primary"> Ok </Button>
-                    </DialogActions>
-                  </Dialog>
-                )}
-                </ListItemText>
-              </List>
-
+              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+              <div> {/* ----------------------- edit recipes list ----------------------- */}
+                <List>
+                  <ListItemText> Recipes List
+                  <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}><EditIcon/></IconButton>
+                  </ListItemText>
+                </List> </div>}
+              
               {selectedProgramProgram?.programRecipes != undefined ?
               selectedProgramProgram?.programRecipes.map((value) => {
                 return (
@@ -912,145 +891,33 @@ export default function Admin() {
                     </AccordionSummary>
                     <AccordionDetails>
                         <ol className={classes.noNum}>
-
                           {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
+                          {/* ----------------------- display images, display pdf, display / edit videos ----------------------- */}
                           <li>Name of recipe: {recipesDic[value]?.nameOfDish}</li>
                           <li>Description: {recipesDic[value]?.description}</li>
                           <li>Date last modified: {recipesDic[value]?.dateUploaded}</li>
                           <li>Rating: {recipesDic[value]?.avgRating}</li>
                           <li>Number of ratings: {recipesDic[value]?.numRatings}</li>
-
-                          {/* ----------------------- display images ----------------------- */}
-                          <li>Recipe images
-                            <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
-                                <Grid container justify="center">
-                                {(recipesDic[value]?.images == undefined) ? 
-                                  <Grid item xs={12} >
-                                  </Grid> :
-                                  <Grid item xs={9} >
-                                    <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
-                                    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
-                                    <style>{cssstyle}</style>
-                                    <Slider {...settings}>
-                                      {recipesDic[value]?.images.map((cell, index) => {
-                                        return <img className={classes.media} src={recipesDic[value]?.images[index]}/>
-                                      })}
-                                    </Slider>
-                                  </Grid>}
-                              </Grid>
-                              </Dialog>)}
-                          </li>
-
-                          {/* ----------------------- display pdf ----------------------- */}
-                          <li>Recipe pdf
-                            <IconButton onClick={() => handleClickOpenViewRecipePdf(recipesDic[value])}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
-                                <DialogTitle>View Recipe Pdf</DialogTitle>
-                                <DialogContent>
-                                    {(pdf_url != "") ? 
-                                      <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-                                      : <h4>No pdf to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                            </li>
-
-                          {/* ----------------------- display / edit videos ----------------------- */}
-                          <li>Recipe video
-                            <IconButton onClick={() => handleClickOpenViewRecipeVideo(recipesDic[value])}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
-                                <DialogTitle>View Recipe Video</DialogTitle>
-                                <DialogContent>
-                                    {(recipeVideo != "") ? 
-                                      <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe video to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>
-
-                          <li>Recipe skills
-                            <IconButton onClick={() => handleClickOpenViewRecipeSkills(recipesDic[value])}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
-                                <DialogTitle>View Recipe Skills</DialogTitle>
-                                <DialogContent>
-                                    {(recipeSkills != "") ? 
-                                      <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe skills to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>
-
-                          <li>Recipe tips
-                            <IconButton onClick={() => handleClickOpenViewRecipeTips(recipesDic[value])}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
-                                <DialogTitle>View Recipe Tips</DialogTitle>
-                                <DialogContent>
-                                    {(recipeTips != "") ? 
-                                      <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe tips to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>                          
+                          <li>Recipe images <IconButton onClick={() => handleClickOpenViewRecipeImages(value)}> <VisibilityIcon/> </IconButton></li>
+                          <li>Recipe pdf <IconButton onClick={() => handleClickOpenViewRecipePdf(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
+                          <li>Recipe video <IconButton onClick={() => handleClickOpenViewRecipeVideo(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
+                          <li>Recipe skills <IconButton onClick={() => handleClickOpenViewRecipeSkills(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
+                          <li>Recipe tips <IconButton onClick={() => handleClickOpenViewRecipeTips(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>                          
                         </ol>
-
-                       
                       </AccordionDetails>
-                  </Accordion>
-                  );
-              }) : <Grid>
-                
-                </Grid>}
+                  </Accordion>);
+              }) : <Grid></Grid>}
 
-
-              {/* ----------------------- edit users list ----------------------- */}
+              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+              <div> {/* ----------------------- edit users list ----------------------- */}
               <List>
                 <ListItemText> Users List
-                <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}>
-                  <EditIcon />
-                </IconButton>
-                {selectedProgramProgram && (
-                  <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramUsers} onClose={handleCloseEditProgramUsers}>
-                    <DialogTitle>Edit Users List for {selectedProgramProgram?.programName} </DialogTitle>
-                    <DialogContent>
-                      <FormControl className={classes.formControl}>
-                        <div>
-                          <MultiSelect
-                            options={currentProgramUsers}
-                            value={selectedUsers}
-                            onChange={setSelectedUsers}
-                            labelledBy={"Select"}
-                          />
-                        </div>
-                      </FormControl>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseEditProgramUsers} color="primary"> Cancel </Button>
-                      <Button onClick={() => handleSubmitEditProgramUsers()} color="primary"> Ok </Button>
-                    </DialogActions>
-                  </Dialog>
-                )}
+                {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
                 </ListItemText>
-              </List>
+              </List> </div>}
 
               {selectedProgramProgram?.programUsers != undefined ?
-              selectedProgramProgram?.programUsers.map((value) => {
+              Object.values(selectedProgramProgram?.programUsers).map((value) => {
                 return (
                     <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -1071,23 +938,138 @@ export default function Admin() {
                         </ol>
                       </AccordionDetails>
                   </Accordion>
-                  );
-              }) : <Grid>
-                
-                </Grid>}
-        
-              
-            </Grid>
-            <Grid item sm={5}>
-              {/* <List>
-                  {selectedProgram?.recipes.map((value) => {
-                      return <ListItemText primary={value} />
-                  })}
-              </List> */}
-              
-              <List>{selectedProgramProgram?.recipes}</List>
+                  );}) : <Grid></Grid>}
             </Grid>
           </Grid>
+
+          {/* edit program */}
+          <Dialog disableBackdropClick disableEscapeKeyDown open={openAddProgram} onClose={handleCloseAddProgram}>
+            <DialogActions>
+              <h4>Add New Program</h4>
+              <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
+              <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
+              <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
+            <DialogActions>
+              <h4>Delete Program {selectedProgramProgram.programName} </h4>
+              <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
+              <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* view recipes list Dialog */}
+          {selectedProgramProgram && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
+              <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitEditProgramRecipes()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
+              <DialogTitle>View Recipe Images </DialogTitle>
+              <DialogContent>
+              <Grid container justify="center">
+              {(viewRecipeImages == undefined || viewRecipeImages == []) ? 
+                <h4>No images to show</h4> :
+                <Grid item xs={9} >
+                  <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
+                  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
+                  <style>{cssstyle}</style>
+                  <Slider {...settings}>
+                    {Object.values(viewRecipeImages).map((cell, index) => {
+                      return <img className={classes.media} src={viewRecipeImages[index]}/>
+                    })}
+                  </Slider>
+                </Grid>}
+              </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseRecipeImages} color="primary"> Back </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
+              <DialogTitle>View Recipe Pdf</DialogTitle>
+              <DialogContent>
+                  {(pdf_url != "") ? 
+                    <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+                    : <h4>No pdf to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
+              <DialogTitle>View Recipe Video</DialogTitle>
+              <DialogContent>
+                  {(recipeVideo != "") ? 
+                    <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe video to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
+              <DialogTitle>View Recipe Skills</DialogTitle>
+              <DialogContent>
+                  {(recipeSkills != "") ? 
+                    <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe skills to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
+              <DialogTitle>View Recipe Tips</DialogTitle>
+              <DialogContent>
+                  {(recipeTips != "") ? 
+                    <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe tips to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* edit users list Dialog */}
+          {/* {selectedProgramProgram && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramUsers} onClose={handleCloseEditProgramUsers}>
+              <DialogTitle>Edit Users List for {selectedProgramProgram?.programName} </DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <div>
+                    <MultiSelect
+                      options={currentProgramUsers}
+                      value={selectedUsers}
+                      onChange={setSelectedUsers}
+                      labelledBy={"Select"}
+                    />
+                  </div>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseEditProgramUsers} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitEditProgramUsers()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )} */}
+
         </TabPanel>
 
         {/* ---------------------------- 2: ADMIN MANAGE RECIPES ---------------------------- */}
@@ -1097,7 +1079,7 @@ export default function Admin() {
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
 
               {recipes.map((value) => {
-                if (value["nameOfDish"]?.includes(searchRecipe)) {
+                if (value["nameOfDish"]?.includes(searchRecipe) || value["nameOfDish"].toLowerCase()?.includes(searchRecipe)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -1111,197 +1093,34 @@ export default function Admin() {
                       </AccordionSummary>
                       <AccordionDetails>
                         <ol className={classes.noNum}>
-
-                          {/* ----------------------- edit recipe name ----------------------- */}
-                          <li>Name of recipe: {value?.nameOfDish}
-                            <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeName} onClose={handleCloseRecipeName}>
-                                <DialogTitle>Edit Recipe Name</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        value={recipeName} label="Edit Reciipe Name" multiline
-                                        onChange={(e) => setRecipeName(e.target.value)} fullWidth variant="outlined"/>
-                                    <Button onClick={handleCloseRecipeName} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeName(currentRecipe, recipeName)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>
-
-                          {/* ----------------------- edit recipe description ----------------------- */}
-                          <li>Description: {value?.description}
-                            <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescription} onClose={handleCloseRecipeDescription}>
-                                <DialogTitle>Edit Recipe Description</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        value={recipeDescription} abel="Edit Reciipe Description" multiline
-                                        onChange={(e) => setRecipeDescription(e.target.value)} fullWidth variant="outlined"/>
-                                    <Button onClick={handleCloseRecipeDescription} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeDescription(currentRecipe, recipeDescription)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>
-
+                          {/* ----------------------- edit recipe name, description ----------------------- */}
+                          <li>Name of recipe: {value?.nameOfDish} <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton></li>
+                          <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
                           <li>Date last modified: {value?.dateUploaded}</li>
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
-
-                          {/* ----------------------- display / edit images ----------------------- */}
-                          <li>Recipe images
-                            <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
-                                <DialogTitle>Edit Recipe Images</DialogTitle>
-                                <DialogContent>
-                                    <MultiImageInput
-                                      images={recipeImages} setImages={setRecipeImages}
-                                      cropConfig={{ unit: '%', aspect: 4 / 3, minWidth: 1200, ruleOfThirds: true }} inputId
-                                    />
-                                    <Button onClick={handleCloseRecipeImages} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeImages(currentRecipe, recipeImages)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </li>
-
-                          {/* ----------------------- display / edit pdf ----------------------- */}
+                          {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
+                          <li>Recipe images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe pdf
                             <IconButton onClick={() => handleClickOpenViewRecipePdf(value)}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
-                                <DialogTitle>View Recipe Pdf</DialogTitle>
-                                <DialogContent>
-                                    {(pdf_url != "") ? 
-                                      <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-                                      : <h4>No pdf to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                             <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
-                                <DialogTitle>Edit Recipe Pdf</DialogTitle>
-                                <DialogContent>
-                                    <DropzoneArea
-                                        accept="application/pdf" maxFileSize={10485760} dropzoneText="Click to select or drag and drop recipe PDF"
-                                        filesLimit={1} getPreviewIcon={handlePreviewIcon} onChange={(files) => setPdfFile(files[0])}/>
-                                    <Button onClick={handleCloseRecipePdf} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                           </li>
-
-                          {/* ----------------------- display / edit videos ----------------------- */}
                           <li>Recipe video
                             <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
-                                <DialogTitle>View Recipe Video</DialogTitle>
-                                <DialogContent>
-                                    {(recipeVideo != "") ? 
-                                      <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe video to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                             <IconButton onClick={() => handleClickOpenRecipeVideo(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeVideo} onClose={handleCloseRecipeVideo}>
-                                <DialogTitle>Edit Recipe Video</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        required value={recipeVideo} label="Vimeo Recipe Video ID"
-                                        onChange={(e) => setRecipeVideo(e.target.value)} fullWidth variant="outlined"/>
-                                    <Button onClick={handleCloseRecipeVideo} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeVideo(currentRecipe)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                           </li>
-
                           <li>Recipe skills
                             <IconButton onClick={() => handleClickOpenViewRecipeSkills(value)}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
-                                <DialogTitle>View Recipe Skills</DialogTitle>
-                                <DialogContent>
-                                    {(recipeSkills != "") ? 
-                                      <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe skills to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                             <IconButton onClick={() => handleClickOpenRecipeSkills(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeSkills} onClose={handleCloseRecipeSkills}>
-                                <DialogTitle>Edit Recipe Skills</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        required value={recipeSkills} label="Vimeo Skills Video ID"
-                                        onChange={(e) => setRecipeSkills(e.target.value)} fullWidth variant="outlined"/>
-                                    <Button onClick={handleCloseRecipeSkills} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeSkills(currentRecipe)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                           </li>
-
                           <li>Recipe tips
                             <IconButton onClick={() => handleClickOpenViewRecipeTips(value)}> <VisibilityIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
-                                <DialogTitle>View Recipe Tips</DialogTitle>
-                                <DialogContent>
-                                    {(recipeTips != "") ? 
-                                      <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                                      : <h4>No recipe tips to display</h4>
-                                    }
-                                    <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                             <IconButton onClick={() => handleClickOpenRecipeTips(value)}> <EditIcon/> </IconButton>
-                            {currentRecipe && (
-                              <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeTips} onClose={handleCloseRecipeTips}>
-                                <DialogTitle>Edit Recipe Tips</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        required value={recipeTips} label="Vimeo Tips Video ID"
-                                        onChange={(e) => setRecipeTips(e.target.value)} fullWidth variant="outlined"/>
-                                    <Button onClick={handleCloseRecipeTips} color="primary"> Cancel </Button>
-                                    <Button onClick={() => handleSubmitRecipeTips(currentRecipe)} color="primary"> Confirm </Button>
-                                </DialogContent>
-                              </Dialog>
-                            )}
                           </li>
-
                           {/* ---------------------------- delete recipe ---------------------------- */}
-                          <li>
-                          <IconButton onClick={() => handleClickOpenDeleteRecipe(value.id)}> <DeleteIcon /> </IconButton>
-                          {currentRecipe && (
-                            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteRecipe} onClose={handleCloseDeleteRecipe}>
-                              <DialogTitle>Are you sure you want to delete the recipe: {recipesDic[currentRecipe].nameOfDish}?</DialogTitle>
-                              <DialogActions>
-                                <Button onClick={handleCloseDeleteRecipe} color="primary"> Cancel </Button>
-                                <Button onClick={() => handleSubmitDeleteRecipe()} color="primary"> Ok </Button>
-                              </DialogActions>
-                            </Dialog>
-                          )}
-                          </li>
+                          <li><IconButton onClick={() => handleClickOpenDeleteRecipe(value.id)}> <DeleteIcon /> </IconButton></li>
                         </ol>
-
                       </AccordionDetails>
                     </Accordion>
                   );
@@ -1309,6 +1128,151 @@ export default function Admin() {
               })}
             </Grid>
           </Grid>
+
+          {/* manage recipes Dialog */}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeName} onClose={handleCloseRecipeName}>
+              <DialogTitle>Edit Recipe Name</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={recipeName} label="Edit Reciipe Name" multiline
+                      onChange={(e) => setRecipeName(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeName} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeName(currentRecipe, recipeName)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescription} onClose={handleCloseRecipeDescription}>
+              <DialogTitle>Edit Recipe Description</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={recipeDescription} abel="Edit Reciipe Description" multiline
+                      onChange={(e) => setRecipeDescription(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeDescription} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeDescription(currentRecipe, recipeDescription)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
+              <DialogTitle>Edit Recipe Images</DialogTitle>
+              <DialogContent>
+                  <MultiImageInput
+                    images={recipeImages} setImages={setRecipeImages}
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId
+                  />
+                  <Button onClick={handleCloseRecipeImages} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeImages(currentRecipe, recipeImages)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
+              <DialogTitle>View Recipe Pdf</DialogTitle>
+              <DialogContent>
+                  {(pdf_url != "") ? 
+                    <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+                    : <h4>No pdf to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
+              <DialogTitle>Edit Recipe Pdf</DialogTitle>
+              <DialogContent>
+                  <DropzoneArea
+                      accept="application/pdf" maxFileSize={10485760} dropzoneText="Click to select or drag and drop recipe PDF"
+                      filesLimit={1} getPreviewIcon={handlePreviewIcon} onChange={(files) => setPdfFile(files[0])}/>
+                  <Button onClick={handleCloseRecipePdf} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
+              <DialogTitle>View Recipe Video</DialogTitle>
+              <DialogContent>
+                  {(recipeVideo != "") ? 
+                    <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe video to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeVideo} onClose={handleCloseRecipeVideo}>
+              <DialogTitle>Edit Recipe Video</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      required value={recipeVideo} label="Vimeo Recipe Video ID"
+                      onChange={(e) => setRecipeVideo(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeVideo} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeVideo(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
+              <DialogTitle>View Recipe Skills</DialogTitle>
+              <DialogContent>
+                  {(recipeSkills != "") ? 
+                    <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe skills to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeSkills} onClose={handleCloseRecipeSkills}>
+              <DialogTitle>Edit Recipe Skills</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      required value={recipeSkills} label="Vimeo Skills Video ID"
+                      onChange={(e) => setRecipeSkills(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeSkills} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeSkills(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
+              <DialogTitle>View Recipe Tips</DialogTitle>
+              <DialogContent>
+                  {(recipeTips != "") ? 
+                    <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No recipe tips to display</h4>
+                  }
+                  <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeTips} onClose={handleCloseRecipeTips}>
+              <DialogTitle>Edit Recipe Tips</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      required value={recipeTips} label="Vimeo Tips Video ID"
+                      onChange={(e) => setRecipeTips(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeTips} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeTips(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteRecipe} onClose={handleCloseDeleteRecipe}>
+              <DialogTitle>Are you sure you want to delete the recipe: {currentRecipe}?</DialogTitle>
+              <DialogActions>
+                <Button onClick={handleCloseDeleteRecipe} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteRecipe()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+
         </TabPanel>
       </SwipeableViews>
 
