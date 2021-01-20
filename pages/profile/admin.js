@@ -268,6 +268,7 @@ export default function Admin() {
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
+  const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
 
   var settings = {
     dots: true,
@@ -461,16 +462,25 @@ export default function Admin() {
   // edit recipe images
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
+  const crop = {
+    unit: '%',
+    aspect: 4 / 3,
+    width: '100'
+  };
 
   const handleClickOpenRecipeImages = (currentRecipe) => {
-    console.log(currentRecipe)
-    console.log(currentRecipe.images)
     setRecipeImages(currentRecipe.images)
     setOpenRecipeImages(true);
     setCurrentRecipe(currentRecipe);
     var date = new Date()
     var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
     setUploadDate(dateUploaded)
+  };
+
+  const handleClickOpenViewRecipeImages = (currentRecipe) => {
+    setViewRecipeImages(recipesDic[currentRecipe].images)
+    setOpenRecipeImages(true);
+    setCurrentRecipe(currentRecipe);
   };
 
   const handleCloseRecipeImages = () => {
@@ -888,7 +898,7 @@ export default function Admin() {
                           <li>Date last modified: {recipesDic[value]?.dateUploaded}</li>
                           <li>Rating: {recipesDic[value]?.avgRating}</li>
                           <li>Number of ratings: {recipesDic[value]?.numRatings}</li>
-                          <li>Recipe images <IconButton onClick={() => handleClickOpenRecipeImages(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
+                          <li>Recipe images <IconButton onClick={() => handleClickOpenViewRecipeImages(value)}> <VisibilityIcon/> </IconButton></li>
                           <li>Recipe pdf <IconButton onClick={() => handleClickOpenViewRecipePdf(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
                           <li>Recipe video <IconButton onClick={() => handleClickOpenViewRecipeVideo(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
                           <li>Recipe skills <IconButton onClick={() => handleClickOpenViewRecipeSkills(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
@@ -966,21 +976,26 @@ export default function Admin() {
           )}
           {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
+              <DialogTitle>View Recipe Images </DialogTitle>
+              <DialogContent>
               <Grid container justify="center">
-              {(recipesDic[currentRecipe]?.images == undefined) ? 
-                <Grid item xs={12} >
-                </Grid> :
+              {(viewRecipeImages == undefined || viewRecipeImages == []) ? 
+                <h4>No images to show</h4> :
                 <Grid item xs={9} >
                   <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
                   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
                   <style>{cssstyle}</style>
                   <Slider {...settings}>
-                    {recipesDic[currentRecipe]?.images.map((cell, index) => {
-                      return <img className={classes.media} src={recipesDic[currentRecipe]?.images[index]}/>
+                    {Object.values(viewRecipeImages).map((cell, index) => {
+                      return <img className={classes.media} src={viewRecipeImages[index]}/>
                     })}
                   </Slider>
                 </Grid>}
               </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseRecipeImages} color="primary"> Back </Button>
+              </DialogActions>
             </Dialog>
           )}
           {currentRecipe && (
@@ -1145,7 +1160,7 @@ export default function Admin() {
               <DialogContent>
                   <MultiImageInput
                     images={recipeImages} setImages={setRecipeImages}
-                    cropConfig={{ unit: '%', aspect: 4 / 3, minWidth: 1200, ruleOfThirds: true }} inputId
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId
                   />
                   <Button onClick={handleCloseRecipeImages} color="primary"> Cancel </Button>
                   <Button onClick={() => handleSubmitRecipeImages(currentRecipe, recipeImages)} color="primary"> Confirm </Button>

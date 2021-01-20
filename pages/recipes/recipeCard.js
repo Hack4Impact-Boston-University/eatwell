@@ -211,8 +211,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
               <Grid container justify="center">
                 {
                   (obj.images == undefined) ? 
-                  <Grid item xs={12} >
-                  </Grid> :
+                  <Grid item xs={12} ></Grid> :
                   <Grid item xs={9} >
                     <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
                     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
