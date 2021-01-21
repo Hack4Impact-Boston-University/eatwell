@@ -48,7 +48,7 @@ const useUser = () => {
 					return db.collection("users").doc(user.id).set(userData);
 				} else {
 					var updateData = {...newData}
-					var auth = new Promise(() => {})
+					var auth = null;
 					if("oldPassword" in newData) {
 						if(user.provider == "password") {
 							var credential = firebase.auth.EmailAuthProvider.credential(
@@ -63,12 +63,12 @@ const useUser = () => {
 						delete updateData.newPassword
 					}
 					if(Object.keys(updateData).length > 0) {
+						console.log("Hey")
 						var u = db.collection("users").doc(user.id).update(updateData)	
 						if(!auth) {
 							return u
 						}
 					}	
-					console.log(auth)
 					return auth;
 				}
 			}
