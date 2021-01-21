@@ -122,7 +122,8 @@ const Profile = () => {
 
 	const phonenum = (e) => {
 		const re = /[0-9]+/g;
-		if (!re.test(e.key) || e.target.value.length > 11) {
+		console.log(e.target.selectionStart)
+		if (!re.test(e.key) || e.target.selectionStart > 11) {
 			e.preventDefault();
 		}
 	}
@@ -200,6 +201,7 @@ const Profile = () => {
 		if(Object.keys(profileData).length > 0) {
 			upload(profileData).then(() => {
 				setSuccess(true)
+				console.log("Hi")
 				setSubmitText("Changes saved successfully!")
 			}).catch((error) => {
 				if(error.code == "auth/wrong-password") {
