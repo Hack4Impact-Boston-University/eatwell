@@ -110,6 +110,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   })
 
   const [imgList, setImages] = React.useState(obj.images);
+  console.log(imgList)
   useEffect(() => { setImages(obj.images)}, [obj.images] );
   var settings = {
     dots: true,
@@ -218,9 +219,11 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                     <style>{cssstyle}</style>
                     
                     <Slider {...settings}>
-                      {imgList.map((cell, index) => {
-                        return <img className={classes.media} src={imgList[index]}/>
-                      })}
+                      {Array.isArray(imgList) && imgList.map((cell, index) => {
+                          return <img className={classes.media} src={imgList[index]}/>
+                        })
+                      }
+                      
                     </Slider>
                     
                   </Grid>
