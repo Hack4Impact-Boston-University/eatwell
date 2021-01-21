@@ -114,8 +114,8 @@ export default function RecipeReviewCard() {
   }
 
   const recipesUser = [];
-  if (user.role != "admin") {
-    if (user?.program != undefined || user?.program != "") {
+  if (_.isEqual(user?.role, "user")) {
+    if (!_.isEqual(user?.program, "")) {
       if (programsDic[user.program].programRecipes != null) {
         if (programsDic[user.program].programRecipes!=[]) {
           var i;

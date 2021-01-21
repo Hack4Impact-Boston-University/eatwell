@@ -227,7 +227,7 @@ export default function Admin() {
         setProgramsDic(programsDic)
       }
     }
-
+console.log(currentUserProgram)
     if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser) && prevProgram != currentUserProgram) {
       programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
       firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
@@ -675,13 +675,19 @@ export default function Admin() {
   };
 
 
-  if (!users || !programs || !recipes) {
+  if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic) {
     if (!users) {
       return "Loading users...";
     } else if (!programs) {
       return "Loading programs...";
-    } else {
+    } else if (!recipes) {
       return "Loading recipes...";
+    } else if (!usersDic) {
+      return "Loading usersDic...";
+    } else if (!recipesDic) {
+      return "Loading recipesDic...";
+    } else if (!programsDic) {
+      return "Loading programsDic...";
     }
   }
 
