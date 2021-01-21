@@ -63,7 +63,6 @@ const useUser = () => {
 						delete updateData.newPassword
 					}
 					if(Object.keys(updateData).length > 0) {
-						console.log("Hey")
 						var u = db.collection("users").doc(user.id).update(updateData)	
 						if(!auth) {
 							return u
@@ -131,7 +130,6 @@ const useUser = () => {
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	//console.log(user)
 	return { user, logout, resolveUser, upload};
 };
 
