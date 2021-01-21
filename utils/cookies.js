@@ -23,11 +23,13 @@ export const editUserCookie = (updateData) => {
   const cookie = cookies.get('auth') || '{}';
   var data = JSON.parse(cookie);
   Object.keys(updateData).forEach((key) => {
+    console.log(key);
     if(key in data) {
+      console.log(key);
       data[key] = updateData[key];
     }
   })
-  setRatingsCookie(data);
+  setUserCookie(data);
 }
 
 export const removeUserCookie = () => cookies.remove('auth')

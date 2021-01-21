@@ -146,7 +146,7 @@ const Navbar = () => {
 	const AdminDrawerItems = (props) => {
 		return (
 			<Box>
-				<MenuItem button key={1}  className={classes.menuItems}>
+				<MenuItem button key={2}  className={classes.menuItems}>
 					<Button href={`/recipes/upload`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
 						<ListItemIcon>
 							<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
@@ -155,7 +155,7 @@ const Navbar = () => {
 					</Button>
 				</MenuItem>
 
-				<MenuItem button key={2} className={classes.menuItems}>
+				<MenuItem button key={3} className={classes.menuItems}>
 					<Button href={`/profile/admin`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
 						<ListItemIcon>
 							<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
@@ -226,7 +226,7 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Profile</Typography>
 									</Button>
 								</MenuItem>
-								<MenuItem button key={0}>
+								<MenuItem button key={1}>
 									<Button href={`/recipes/recipeList`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
 										<ListItemIcon>
 											<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
@@ -235,7 +235,7 @@ const Navbar = () => {
 									</Button>
 								</MenuItem>
 								{user.role == "user" ? <UserDrawerItems/> : <AdminDrawerItems/>}
-								<MenuItem button key={3} className={classes.menuItems}>
+								<MenuItem button key={4} className={classes.menuItems}>
 									<Button onClick={() => logout()} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
 										<ListItemIcon>
 											<ExitToApp className={`${classes.menuIcon} ${classes.menuItems}`}/>

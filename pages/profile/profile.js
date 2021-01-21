@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import styles from '../../styles/Home.module.css'
+import {editUserCookie} from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -122,7 +123,7 @@ const Profile = () => {
 
 	const phonenum = (e) => {
 		const re = /[0-9]+/g;
-		if (!re.test(e.key) || e.target.value.length > 11) {
+		if (!re.test(e.key) || e.target.selectionStart > 11) {
 			e.preventDefault();
 		}
 	}
@@ -154,18 +155,18 @@ const Profile = () => {
 
 	const handleUpload = (e) => {
 		e.preventDefault();
-		console.log(e.target.files);
+		//console.log(e.target.files);
 		const re = /(?:\.([^.]+))?$/;
 		let ext = re.exec(e.target.files[0].name)[1];
-		console.log("ext");
+		//console.log("ext");
 		if (ext !== "png" && ext !== "jpg" && ext !== "jpeg") {
-			console.log("Please upload a .png, .jpg, or .jpeg file");
+			//console.log("Please upload a .png, .jpg, or .jpeg file");
 			setErrorAlert(true);
 		} else {
-			console.log("file uploaded");
+			//console.log("file uploaded");
 			setSuccessAlert(true);
 		}
-		console.log(successAlert);
+		//console.log(successAlert);
 	};
 
 	const submitChanges = () => {
@@ -198,6 +199,7 @@ const Profile = () => {
 			profileData.newPassword = newPassword
 		}
 		if(Object.keys(profileData).length > 0) {
+			editUserCookie(profileData);
 			upload(profileData).then(() => {
 				setSuccess(true)
 				setSubmitText("Changes saved successfully!")
@@ -209,14 +211,13 @@ const Profile = () => {
 				} else if(error.code == "auth/too-many-requests"){
 					setSubmitText("Too many attempts made. Please try again later")
 				} else {
-					console.log(error.code)
+					console.error(error.code)
 				} 
 			});
 		}
 	}
 
 	if (!user) {
-		console.log("User not logged in.");
 		return (
 			<div>
 				<div className={styles.nav}>
@@ -230,7 +231,7 @@ const Profile = () => {
 	return (
 		<div>
 			<Box component="div" className={classes.container}>
-				<Grid justify="center" alignItems="center" direction="column" className={classes.body} spacing="100rem" container>
+				<Grid justify="center" alignItems="center" direction="column" className={classes.body} container>
 					<Grid xs={12} item>
 						<Avatar
 							src="https://pbs.twimg.com/profile_images/988263662761775104/Bu1EDlWo.jpg"
@@ -309,7 +310,6 @@ const Profile = () => {
 						value={lastName}
 						onChange={(e) => setLastName(e.target.value)}
 						onKeyPress={(e) => name(e)}
-						defaultValue="Doe"
 						InputProps={{
 							className: classes.root,
 							classes: {input: classes.text},
@@ -327,7 +327,6 @@ const Profile = () => {
 						value={phone}
 						onChange={(e) => telnum(e)}
 						onKeyPress={(e) => phonenum(e)}
-						defaultValue="123-456-7890"
 						type="tel"
 						InputProps={{
 							className: classes.root,
