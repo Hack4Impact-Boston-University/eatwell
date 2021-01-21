@@ -235,7 +235,7 @@ export default function Admin() {
     }
 
     if (prevProgram != currentUserProgram) {
-      firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram });
+      firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
     }
 
     setProgramsDic(programsDic)

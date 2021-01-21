@@ -422,7 +422,7 @@ const Profile = () => {
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
-								Enrolled Program: {user.program}
+								Enrolled Program: {user.programName}
 							</Typography>
 						</Box>
 					</Grid>

@@ -159,7 +159,7 @@ export default function Recipe() {
           break;
       }
     });
-    console.log(data.videoRecipe)
+
     return (
       <div className={classes.root}>
         <SwipeableViews

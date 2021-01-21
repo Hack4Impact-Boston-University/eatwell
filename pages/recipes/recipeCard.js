@@ -92,25 +92,24 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  useEffect(()=> {
-    const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
-      if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
-        setObj(Object.assign(doc.data(), {id: obj.id}, {}));
-      }
-    });
+  // useEffect(()=> {
+  //   const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
+  //     if(doc.data()?.numRatings != obj?.numRatings || doc.data()?.avgRating != obj?.avgRating) {
+  //       setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+  //     }
+  //   });
 
-    // const cancelRecipeListener = db.collection("recipes").doc(obj.id).onSnapshot((doc) => {
-    //   if(doc.data().numRatings != obj.numRatings || doc.data().avgRating != obj.avgRating) {
-    //     setObj(Object.assign(doc.data(), {id: obj.id}, {}));
-    //   }
-    // });
-    return () => {
-			cancelRecipeListener();
-		};
-  })
+  //   // const cancelRecipeListener = db.collection("recipes").doc(obj.id).onSnapshot((doc) => {
+  //   //   if(doc.data()?.numRatings != obj?.numRatings || doc.data()?.avgRating != obj?.avgRating) {
+  //   //     setObj(Object.assign(doc.data(), {id: obj.id}, {}));
+  //   //   }
+  //   // });
+  //   return () => {
+	// 		cancelRecipeListener();
+	// 	};
+  // })
 
   const [imgList, setImages] = React.useState(obj.images);
-  console.log(imgList)
   useEffect(() => { setImages(obj.images)}, [obj.images] );
   var settings = {
     dots: true,
@@ -267,7 +266,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                   </Grid>
                   <Grid item>
                     <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
-                      {obj.numRatings} Rating{obj.numRatings > 1 ? "s" : ""}
+                      {obj?.numRatings} Rating{obj?.numRatings > 1 ? "s" : ""}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -386,7 +385,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   //                 value={rating}
   //             />
   //             {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} />}
-  //             {obj.numRatings}
+  //             {obj?.numRatings}
   //           </Grid>
 
   //           <Grid item xs={12} >
