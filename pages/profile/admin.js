@@ -30,6 +30,7 @@ import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
 import _, { map } from 'underscore';
+import {getUserFromCookie} from "../../utils/cookies";
 
 
 function useWindowSize() {
@@ -127,6 +128,7 @@ const fetcher = async (...args) => {
 };
 
 export default function Admin() {
+
   const classes = useStyles();
   const [checked, setChecked] = React.useState([0]);
   const [search, setSearch] = React.useState("");
@@ -227,7 +229,7 @@ export default function Admin() {
         setProgramsDic(programsDic)
       }
     }
-console.log(currentUserProgram)
+    
     if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser) && prevProgram != currentUserProgram) {
       programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
       firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
@@ -729,6 +731,11 @@ console.log(currentUserProgram)
       x?.includes(e.target.value);
     });
   };
+
+  if(!("firstname" in getUserFromCookie())) {
+    router.push("/profile/makeProfile");
+    return (<div></div>);
+  }
 
   return (
     <div className={classes.root}>

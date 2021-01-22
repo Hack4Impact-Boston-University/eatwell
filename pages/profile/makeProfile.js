@@ -73,7 +73,7 @@ const makeProfile = () => {
 	}
 
 	if (!user) {
-		console.log("User not logged in.");
+		//console.log("User not logged in.");
 		return (
 			<div>
 				<h1 align="center">Please sign in to access this page!</h1>
@@ -136,7 +136,7 @@ const makeProfile = () => {
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} onClick={() =>
 							upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}}).then(() => 
-							{router.push('/profile/profile');})}>
+							{router.push('/recipes/recipeList');})}>
 							Submit
 						</Button>
 					</Grid>
@@ -145,7 +145,7 @@ const makeProfile = () => {
 		);
 } else {
 	if(resolveUser === "found") {
-		router.push('/profile/profile');
+		router.push('/recipes/recipeList');
 	}
 	return (<div>
 		<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>

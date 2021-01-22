@@ -22,7 +22,8 @@ import { useEffect, useState } from "react";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { Alert } from "@material-ui/lab";
 import styles from '../../styles/Home.module.css'
-import {editUserCookie} from "../../utils/cookies";
+import {editUserCookie, getUserFromCookie} from "../../utils/cookies";
+import { useRouter } from 'next/router';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -113,6 +114,8 @@ const Profile = () => {
 
 	const [submitText, setSubmitText] = useState("")
 	const [success, setSuccess] = useState(false)
+
+	const router = useRouter();
 
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
@@ -215,6 +218,11 @@ const Profile = () => {
 				} 
 			});
 		}
+	}
+
+	if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
 	}
 
 	if (!user) {

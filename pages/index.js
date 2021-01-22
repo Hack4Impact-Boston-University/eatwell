@@ -15,6 +15,8 @@ import {makeStyles,
         DialogContent
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
+import { useRouter } from 'next/router';
+
 import { DialerSip } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
@@ -39,6 +41,13 @@ const Index = () => {
   function signInClick(event) {
     setLogin(true);
   }
+
+  const router = useRouter();
+
+  if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
+	}
   
   return (
     <div>

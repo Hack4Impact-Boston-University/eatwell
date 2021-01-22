@@ -60,7 +60,6 @@ var db = firebase.firestore();
 // }
 
 export const uploadRating = async (recipe, newRating, oldRating) => {
-	console.log(recipe.id, newRating, oldRating)
 	if(newRating == oldRating) {return;}
 	let newData = {numRatings: recipe.numRatings, avgRating: recipe.avgRating};
 	let sumRatings = recipe.numRatings * recipe.avgRating;

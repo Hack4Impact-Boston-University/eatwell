@@ -11,6 +11,7 @@ import {
   getFavsFromCookie,
   getNotesFromCookie,
   getRatingsFromCookie,
+  getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
 import AppBar from '@material-ui/core/AppBar';
@@ -20,6 +21,8 @@ import PropTypes from 'prop-types';
 import styles from '../../styles/Home.module.css'
 import {uploadRating} from "../../utils/recipes.js";
 import _, { map } from 'underscore';
+
+import { useRouter } from 'next/router';
 
 
 const fetcher = async (...args) => {
@@ -86,6 +89,8 @@ export default function RecipeReviewCard() {
   const [favs, setFavs] = React.useState(value == 1);
   const [dummy, setDummy] = React.useState(true)
 
+  const router = useRouter();
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
     setFavs(newValue == 1)
@@ -131,6 +136,11 @@ export default function RecipeReviewCard() {
       
     }
   }
+
+  if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
+	}
 
   return (
   <div className={styles.container2}>

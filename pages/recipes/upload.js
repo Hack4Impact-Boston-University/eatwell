@@ -20,6 +20,9 @@ import SendIcon from '@material-ui/icons/Send';
 import DraftsIcon from '@material-ui/icons/Send';
 import MultiImageInput from 'react-multiple-image-input';
 
+import {getUserFromCookie} from "../../utils/cookies";
+import { useRouter } from 'next/router';
+
 initFirebase()
 
 const handlePreviewIcon = (fileObject, classes) => {
@@ -39,6 +42,8 @@ const UploadForm = () => {
     const [images, setImages] = useState({});
     const [openConfirm, setOpenConfirm] = React.useState(false);
     var uploadedImages = []
+
+    const router = useRouter();
 
 
     const crop = {
@@ -101,6 +106,11 @@ const UploadForm = () => {
         setImages({});
         setOpenConfirm(false);
     }
+
+	if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
+	}
 
     return (
         <div className={styles.container}>

@@ -25,6 +25,9 @@ import 'firebase/firestore'
 import initFirebase from '../../utils/auth/initFirebase'
 import styles from '../../styles/Home.module.css'
 
+import {getUserFromCookie} from "../../utils/cookies";
+
+
 const fetcher = async (...args) => {
   const res = await fetch(...args);
 
@@ -127,6 +130,11 @@ export default function Recipe() {
   const handleChangeIndex = (index) => {
     setValue(index);
   };
+
+	if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
+	}
 
   if (!data) {
     return 'Loading...';
