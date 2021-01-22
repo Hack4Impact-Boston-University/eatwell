@@ -732,9 +732,14 @@ export default function Admin() {
     });
   };
 
-  if(!("firstname" in getUserFromCookie())) {
-    router.push("/profile/makeProfile");
-    return (<div></div>);
+  if(getUserFromCookie()) {
+    if(!("firstname" in getUserFromCookie())) {
+      router.push("/profile/makeProfile");
+      return (<div></div>);
+    } else if(getUserFromCookie["role"] != "admin") {
+      router.push("/");
+      return (<div></div>);
+    }
   }
 
   return (
