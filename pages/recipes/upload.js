@@ -61,9 +61,6 @@ const UploadForm = () => {
 
         var recipe = recipeName.toLowerCase()
         recipe = recipe.replace(/ /g, "_")
-
-        var date = new Date()
-        var dateUploaded = date.getFullYear().toString() + '/' +date.getMonth().toString() + '/' + date.getDate().toString()
         
         var i;
         var uploadedImages = Object.values(images);
@@ -76,7 +73,7 @@ const UploadForm = () => {
             images: uploadedImages,
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipe+".pdf",
-            dateUploaded: dateUploaded,
+            dateUploaded: Math.round(Date.now() / 1000.0),
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
             numRatings: 1,

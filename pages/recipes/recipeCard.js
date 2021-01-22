@@ -92,6 +92,8 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
+  const date = new Date(obj.dateUploaded * 1000); 
+
   // useEffect(()=> {
   //   const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
   //     if(doc.data()?.numRatings != obj?.numRatings || doc.data()?.avgRating != obj?.avgRating) {
@@ -244,7 +246,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                   </Grid>
                   <Grid item>
                     <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
-                      {obj.dateUploaded}
+                      {date.getFullYear().toString() + '/' + (date.getMonth()+1).toString() + '/' + date.getDate().toString()}
                     </Typography>
                   </Grid>
                 </Grid>

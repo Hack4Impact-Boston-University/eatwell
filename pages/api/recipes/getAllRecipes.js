@@ -3,6 +3,7 @@ import firebase from '../../../utils/firebase';
 export default (req, res) => {
   firebase
     .collection('recipes')
+    .orderBy("dateUploaded", "desc")
     .get()
     .then((querySnapshot) => {
       var recipes = [];

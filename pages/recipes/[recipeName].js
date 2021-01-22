@@ -159,7 +159,6 @@ export default function Recipe() {
           break;
       }
     });
-
     return (
       <div className={classes.root}>
         <SwipeableViews
@@ -173,13 +172,18 @@ export default function Recipe() {
           </div>
           <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
           </TabPanel>
-
-          <TabPanel value={value} index={1} dir={theme.direction}>
-          <iframe src={data.videoSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-          </TabPanel>
-
+          {data.videoSkills != "https://player.vimeo.com/video/" &&
+            <TabPanel value={value} index={1} dir={theme.direction}>
+              <iframe src={data.videoSkills} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+            </TabPanel>
+          }
+          {data.videoTips != "https://player.vimeo.com/video/" &&
+            <TabPanel value={value} index={2} dir={theme.direction}>
+              <iframe src={data.videoTips} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+            </TabPanel>
+          }
           <TabPanel value={value} index={2} dir={theme.direction}>
-          <iframe src={data.videoTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+          <iframe src={data.videoTips} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
           </TabPanel>
         </SwipeableViews>  
 
@@ -201,8 +205,12 @@ export default function Recipe() {
                   aria-label="full width tabs example"
                 >
                   <Tab label="Recipe" {...a11yProps(0)} />
-                  <Tab label="Skill" {...a11yProps(1)} />
-                  <Tab label="Tip" {...a11yProps(2)} />
+                  {data.videoSkills != "https://player.vimeo.com/video/" &&
+                    <Tab label="Skill" {...a11yProps(1)} />
+                  }
+                  {data.videoTips != "https://player.vimeo.com/video/" &&
+                    <Tab label="Tip" {...a11yProps(2)} />
+                  }
                 </Tabs>
               </AppBar>
           </div>

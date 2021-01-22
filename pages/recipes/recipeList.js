@@ -124,6 +124,11 @@ export default function RecipeReviewCard() {
           }
         }
       }
+    } else {
+      recipes.forEach((recipe) => {
+        recipesUser.push(recipe);
+      })
+      
     }
   }
 
