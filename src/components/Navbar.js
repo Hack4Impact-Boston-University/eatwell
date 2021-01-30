@@ -28,7 +28,7 @@ import {
 	KeyboardArrowRight,
 } from "@material-ui/icons";
 import MenuIcon from "@material-ui/icons/Menu";
-import FirebaseAuth from "../components/FirebaseAuth";
+import FirebaseAuth from "./FirebaseAuth";
 
 const drawerWidth = 100;
 const barWidth = 60;
@@ -95,7 +95,6 @@ const useStyles = makeStyles((theme) => ({
 const Navbar = () => {
 	const classes = useStyles();
 	const { user, logout } = useUser();
-
 	const [open, setOpen] = React.useState(false);
 	const [toggle, setToggle] = useState(false);
 

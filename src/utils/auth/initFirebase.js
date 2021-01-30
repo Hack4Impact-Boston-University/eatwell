@@ -1,15 +1,13 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAYd5-p2FwjSRiru6Bmr97jb3-Bg0QisjA",
-  authDomain: "eatwell-f06d9.firebaseapp.com",
-  databaseURL: "https://eatwell-f06d9.firebaseio.com",
-  projectId: "eatwell-f06d9",
-  storageBucket: "eatwell-f06d9.appspot.com",
-  messagingSenderId: "144128258782",
-  appId: "1:144128258782:web:8696a98f98e36226df084f",
-  measurementId: "G-3DZ83WM9V0"
+var firebaseConfig = {
+  apiKey: "AIzaSyC2_aOpnms38eo6G2CmEwfIHMA04utDnis",
+  authDomain: "eatwell-87d0c.firebaseapp.com",
+  projectId: "eatwell-87d0c",
+  storageBucket: "eatwell-87d0c.appspot.com",
+  messagingSenderId: "270259249884",
+  appId: "1:270259249884:web:799489f9bda4607144ca19"
 };
 
 export default function initFirebase() {
