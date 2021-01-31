@@ -422,9 +422,7 @@ export default function Admin() {
     setRecipeName(currentRecipe.nameOfDish)
     setOpenRecipeName(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipeName = () => {
@@ -446,9 +444,7 @@ export default function Admin() {
     setRecipeDescription(currentRecipe.description)
     setOpenRecipeDescription(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipeDescription = () => {
@@ -475,9 +471,7 @@ export default function Admin() {
     setRecipeImages(currentRecipe.images)
     setOpenRecipeImages(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleClickOpenViewRecipeImages = (currentRecipe) => {
@@ -508,12 +502,10 @@ export default function Admin() {
     setRecipePdf(currentRecipe.pdfRecipe)
     setOpenViewRecipePdf(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
     firebase.storage().ref().child(currentRecipe.pdfRecipe).getDownloadURL().then(function(url) {
       setPdfURL(url)
     })
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseViewRecipePdf = () => {
@@ -524,9 +516,7 @@ export default function Admin() {
     setRecipePdf(currentRecipe.pdfRecipe)
     setOpenRecipePdf(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipePdf = () => {
@@ -554,9 +544,7 @@ export default function Admin() {
     setRecipeVideo(currentRecipe.videoRecipe)
     setOpenViewRecipeVideo(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseViewRecipeVideo = () => {
@@ -567,9 +555,7 @@ export default function Admin() {
     setRecipeVideo(currentRecipe.videoRecipe)
     setOpenRecipeVideo(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipeVideo = () => {
@@ -592,9 +578,7 @@ export default function Admin() {
     setRecipeSkills(currentRecipe.videoSkills)
     setOpenViewRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseViewRecipeSkills = () => {
@@ -605,9 +589,7 @@ export default function Admin() {
     setRecipeSkills(currentRecipe.videoSkills)
     setOpenRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipeSkills = () => {
@@ -630,9 +612,7 @@ export default function Admin() {
     setRecipeTips(currentRecipe.videoTips)
     setOpenViewRecipeTips(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseViewRecipeTips = () => {
@@ -643,9 +623,7 @@ export default function Admin() {
     setRecipeTips(currentRecipe.videoTips)
     setOpenRecipeTips(true);
     setCurrentRecipe(currentRecipe);
-    var date = new Date()
-    var dateUploaded = date.getFullYear().toString() + '/' +(date.getMonth()+1).toString() + '/' + date.getDate().toString()
-    setUploadDate(dateUploaded)
+    setUploadDate(Math.round(Date.now() / 1000.0))
   };
 
   const handleCloseRecipeTips = () => {
@@ -676,6 +654,10 @@ export default function Admin() {
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
+
+  const getFormattedDate = () => {
+    return uploadDate.getFullYear().toString() + '/' + (uploadDate.getMonth()+1).toString() + '/' + uploadDate.getDate().toString()
+  }
 
 
   if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic) {
@@ -734,8 +716,7 @@ export default function Admin() {
   };
 
   const userData = getUserFromCookie();
-  console.log(userData)
-  
+
   if(userData) {
     if(!("firstname" in userData)) {
       router.push("/profile/makeProfile");
