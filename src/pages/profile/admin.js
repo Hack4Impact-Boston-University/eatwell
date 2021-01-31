@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import {
   TextField, List, ListItemText, IconButton,
@@ -732,11 +733,14 @@ export default function Admin() {
     });
   };
 
-  if(getUserFromCookie()) {
-    if(!("firstname" in getUserFromCookie())) {
+  const userData = getUserFromCookie();
+  console.log(userData)
+  
+  if(userData) {
+    if(!("firstname" in userData)) {
       router.push("/profile/makeProfile");
       return (<div></div>);
-    } else if(getUserFromCookie["role"] != "admin") {
+    } else if(userData["role"] != "admin") {
       router.push("/");
       return (<div></div>);
     }
