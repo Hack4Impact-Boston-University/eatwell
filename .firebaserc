@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "eatwell-87d0c"
+    "default": "eatwell-87d0c",
+    "eatwell": "eatwell-87d0c"
   }
 }
