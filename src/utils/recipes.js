@@ -59,7 +59,7 @@ var db = firebase.firestore();
 // 	return "";
 // }
 
-export const uploadRating = async (recipe, newRating, oldRating) => {
+export const uploadRating = async (recipe, newRating, oldRating, setObj) => {
 	if(newRating == oldRating) {return;}
 	let newData = {numRatings: recipe.numRatings, avgRating: recipe.avgRating};
 	let sumRatings = recipe.numRatings * recipe.avgRating;
@@ -74,6 +74,7 @@ export const uploadRating = async (recipe, newRating, oldRating) => {
 		sumRatings += newRating;
 	}
 	newData.avgRating = sumRatings / newData.numRatings;
+	setObj({...recipe, ...newData})
 	db.collection("recipes").doc(recipe.id).update(newData);
 }
 
