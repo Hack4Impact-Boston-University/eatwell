@@ -28,7 +28,7 @@ import {
 	KeyboardArrowRight,
 } from "@material-ui/icons";
 import MenuIcon from "@material-ui/icons/Menu";
-import FirebaseAuth from "../components/FirebaseAuth";
+import FirebaseAuth from "./FirebaseAuth";
 
 const drawerWidth = 100;
 const barWidth = 60;

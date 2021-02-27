@@ -150,7 +150,6 @@ export default function RecipeReviewCard() {
       <Grid container spacing={1000} className={classes.gridContainerMain} >
         {recipes.map((obj, idx) => {
           if (!obj.nameOfDish || !obj.id) return;
-          var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
             return( <RecipeCard key={obj.id} object={obj} 
               isFav = {obj.id in favRecipes} 
@@ -170,7 +169,6 @@ export default function RecipeReviewCard() {
       <Grid container spacing={1000} className={classes.gridContainerMain} >
         {recipesUser.map((obj, idx) => {
           if (!obj.nameOfDish || !obj.id) return;
-          var isFav = obj.id in favRecipes;
           if (!favs || obj.id in favRecipes) {
             return( <RecipeCard key={obj.id} object={obj} 
               isFav = {obj.id in favRecipes} 

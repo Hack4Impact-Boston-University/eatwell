@@ -91,26 +91,8 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   const [rating, setRating] = React.useState(initRating);
 
   const [, updateState] = React.useState();
-  const forceUpdate = React.useCallback(() => updateState({}), []);
 
   const date = new Date(obj.dateUploaded * 1000); 
-
-  // useEffect(()=> {
-  //   const cancelRecipeListener = setRecipeListener(obj.id, (doc) => {
-  //     if(doc.data()?.numRatings != obj?.numRatings || doc.data()?.avgRating != obj?.avgRating) {
-  //       setObj(Object.assign(doc.data(), {id: obj.id}, {}));
-  //     }
-  //   });
-
-  //   // const cancelRecipeListener = db.collection("recipes").doc(obj.id).onSnapshot((doc) => {
-  //   //   if(doc.data()?.numRatings != obj?.numRatings || doc.data()?.avgRating != obj?.avgRating) {
-  //   //     setObj(Object.assign(doc.data(), {id: obj.id}, {}));
-  //   //   }
-  //   // });
-  //   return () => {
-	// 		cancelRecipeListener();
-	// 	};
-  // })
 
   const [imgList, setImages] = React.useState(obj.images);
   useEffect(() => { setImages(obj.images)}, [obj.images] );
@@ -180,9 +162,13 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
   }
 
   function changeRating(val) {
-    uploadRating(obj, parseFloat(val), parseFloat(rating));
+    uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
     setRating(val); 
     editRatingsCookie(obj.id, val);
+  }
+
+  if(Object.keys(obj) == 0) {
+    return null;
   }
 
   return (
