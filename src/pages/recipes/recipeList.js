@@ -121,8 +121,8 @@ export default function RecipeReviewCard() {
   const recipesUser = [];
   if (_.isEqual(user?.role, "user")) {
     if (!_.isEqual(user?.program, "")) {
-      if (programsDic[user.program].programRecipes != null) {
-        if (programsDic[user.program].programRecipes!=[]) {
+      if (programsDic[user.program]?.programRecipes != null) {
+        if (programsDic[user.program]?.programRecipes!=[]) {
           var i;
           for (i = 0; i < programsDic[user.program].programRecipes.length; i++) {
             recipesUser.push(recipesDic[programsDic[user.program].programRecipes[i]])
