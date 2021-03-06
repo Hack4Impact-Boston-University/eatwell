@@ -184,6 +184,10 @@ const Navbar = () => {
 				{user ? ( // user logged in show menu items
 					<Toolbar disableGutters>
 						<Grid container className={classes.responsiveMenu}>
+							<Button href={`/demo`} className={classes.menuItems}>
+								<Book />
+								<Typography variant="subtitle2">Demo</Typography>
+							</Button>
 							<Button href={`/profile/profile`} className={classes.menuItems}>
 								<AccountCircle
 									className={`${classes.menuIcon} ${classes.menuItems}`}
