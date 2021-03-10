@@ -200,12 +200,14 @@ export default function Admin() {
 
   const handleCloseRole = () => {
     setOpenRole(false);
+    setRole("");
   };
 
   const handleSubmitRole = (currentUser, currentUserRole) => {
     setRole(currentUserRole);
     firebase.firestore().collection("users").doc(currentUser).update({ role: currentUserRole });
     setOpenRole(false);
+    setRole("");
   };
 
   // edit user program
