@@ -32,6 +32,14 @@ import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
 import _, { map } from 'underscore';
 import {getUserFromCookie} from "../../utils/cookies";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import { withStyles} from '@material-ui/core/styles';
 
 
 function useWindowSize() {
@@ -120,7 +128,8 @@ const useStyles = makeStyles((theme) => ({
   },
   noNum: {
     listStyle: "none"
-  }
+  },
+
 }));
 
 const fetcher = async (...args) => {
@@ -272,6 +281,28 @@ export default function Admin() {
   const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
+
+  const StyledTableCell = withStyles((theme) => ({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  }))(TableCell);
+
+  function createData(name, calories, fat, carbs, protein) {
+    return { name, calories, fat, carbs, protein };
+  }
+  
+  const StyledTableRow = withStyles((theme) => ({
+    root: {
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  }))(TableRow);
 
   var settings = {
     dots: true,
@@ -964,12 +995,51 @@ export default function Admin() {
 
           {/* view recipes list Dialog */}
           {selectedProgramProgram && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}>
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}fullWidth fullHeight
+            maxWidth="sm">
               <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
               <DialogContent>
-                <FormControl className={classes.formControl}>
-                  <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
-                </FormControl>
+              <TableContainer component={Paper}>
+                <Table aria-label="customized table">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>Recipe</StyledTableCell>
+                      <StyledTableCell> Date </StyledTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                      <StyledTableRow>
+                        <StyledTableCell align="left">
+                          <FormControl className={classes.formControl}>
+                            {/* <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/> */}
+                            <Select
+                              labelId="demo-simple-select-helper-label"
+                              id="demo-simple-select-helper"
+                              value={selectedRecipes}
+                              onChange={setSelectedRecipes}
+                            >
+                              <MenuItem value={10}>Ten</MenuItem>
+                              <MenuItem value={20}>Twenty</MenuItem>
+                              <MenuItem value={30}>Thirty</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </StyledTableCell>
+                        <StyledTableCell align="left">
+                          <TextField
+                            id="date"
+                            label="Recipe"
+                            type="date"
+                            defaultValue="2021-01-01"
+                            className={classes.textField}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </StyledTableCell>
+                      </StyledTableRow>
+                  </TableBody>
+                </Table>
+            </TableContainer>
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
