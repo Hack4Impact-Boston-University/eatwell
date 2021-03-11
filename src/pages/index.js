@@ -12,12 +12,15 @@ import {makeStyles,
         Grid,
         Dialog,
         DialogTitle,
-        DialogContent
+        DialogContent,
+        TextField,
+        Typography,
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
-
+import {checkCode} from "../utils/codes.js";
 import { DialerSip } from '@material-ui/icons'
+import { getRecipe } from '../utils/recipes'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -27,11 +30,22 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+function makeid(length) {
+	var result           = '';
+	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var charactersLength = characters.length;
+	for ( var i = 0; i < length; i++ ) {
+	   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
+ }
+
 const Index = () => {
   const classes = useStyles();
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
   const [open, setOpen] = React.useState(false);
+  const [code, setCode] = React.useState("");
   const handleClose = () => {
     setOpen(false);
   };
@@ -43,6 +57,12 @@ const Index = () => {
   }
 
   const router = useRouter();
+
+  const submit = () => {
+    if (checkCode(code)) {
+      router.push("/profile/makeProfile");
+    }
+  }
 
   if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");
@@ -65,9 +85,39 @@ const Index = () => {
             </h2>
 
             {!user && 
-              <Button>
-                <FirebaseAuth/>
-              </Button>
+              <Grid container>
+                <Grid container justify="center">
+                  <Grid container item xs={5} justify="center">
+                    <Grid xs={12} className={classes.welcomeHeader} item>
+                      <Typography align="center" gutterBottom>
+                        Input your organization-provided activation code to register:
+                      </Typography>
+                    </Grid>
+                    <Grid justify="center" className={classes.formItems} container>
+                      <TextField
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        error={false}
+                        label="Activation Code"
+                        placeholder="Your Organization's Code"
+                        required
+                        // helperText="Please enter your first name"
+                      />
+                    </Grid>
+                    <Grid container justify="center" item>
+                      <Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
+                        Submit
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  <Grid container xs={5} justify="center">
+                      <Typography align="center" gutterBottom>
+                        Already registered? Sign in to proceed:
+                      </Typography>
+                      <FirebaseAuth/>
+                  </Grid>
+                </Grid>
+              </Grid>
             }
             
           </main>
