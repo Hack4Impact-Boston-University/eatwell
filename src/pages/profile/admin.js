@@ -413,8 +413,9 @@ export default function Admin() {
     var temp = {};
     for (i = 0; i < selectedRecipes.length; i++) {
       var key = selectedRecipes[i]?.value;
-      if (programsDic[selectedProgramProgram?.programID]?.programRecipes[key] != 0) {
-        var value = programsDic[selectedProgramProgram?.programID].programRecipes[key];
+      if (programsDic[selectedProgramProgram?.programID]?.programRecipes[key] !== undefined &&
+        programsDic[selectedProgramProgram?.programID]?.programRecipes[key] != 0) {
+        var value = programsDic[selectedProgramProgram?.programID]?.programRecipes[key];
         temp[key] = value;
       } else {
         temp[key] = 0
