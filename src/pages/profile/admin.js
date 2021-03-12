@@ -931,7 +931,7 @@ export default function Admin() {
                           <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
                           <StyledTableCell align="left">
                             <TextField
-                              id="date" label="Date" type="date" defaultValue="2021-01-01"
+                              id="date" label="Date" type="date" defaultValue={programsDic[selectedProgramProgram?.programID]?.programRecipes[row.id]}
                               className={classes.textField} InputLabelProps={{shrink: true,}}
                               onChange={(e) => {
                                 var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
