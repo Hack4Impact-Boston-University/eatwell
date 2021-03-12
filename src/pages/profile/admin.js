@@ -148,7 +148,8 @@ export default function Admin() {
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
   // const [selectedUsersProgram, setSelectedUsersProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
-  const [uploadDate, setUploadDate] = React.useState("");
+  var d = new Date();
+  const [uploadDate, setUploadDate] = React.useState(d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString());
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
@@ -283,6 +284,7 @@ export default function Admin() {
   const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
 
   const StyledTableCell = withStyles((theme) => ({
     head: {
@@ -294,8 +296,19 @@ export default function Admin() {
     },
   }))(TableCell);
 
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
+  function createData(name, date) {
+    return { name, date };
+  }
+
+  function setRowsFunc(program) {
+    var recipeslist = program["programRecipes"];
+    var temp = [];
+    Object.keys(recipeslist).forEach(function(key) {
+      var name = recipesDic[key].nameOfDish;
+      var date = recipeslist[key];
+      temp.push(createData(name, date))
+    });
+    setRows(temp);
   }
   
   const StyledTableRow = withStyles((theme) => ({
@@ -365,7 +378,7 @@ export default function Admin() {
     setOpenDeleteProgram(false);
   };
 
-  const [currentProgramRecipes, setCurrentProgramRecipes] = React.useState([]);
+  const [currentProgramRecipes, setCurrentProgramRecipes] = React.useState({});
   const [openEditProgramRecipes, setOpenEditProgramRecipes] = React.useState(false);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
 
@@ -375,7 +388,7 @@ export default function Admin() {
     var originallySelected = []
     var temp = [];
     for (i = 0; i < recipes.length; i++) {
-      if (selectedProgramProgram?.programRecipes.includes(recipes[i].id)) {
+      if (recipes[i].id in selectedProgramProgram?.programRecipes) {
         originallySelected.push({label:recipes[i]?.nameOfDish,value:recipes[i].id})
       }
       temp.push({label:recipes[i]?.nameOfDish,value:recipes[i].id})
@@ -385,7 +398,7 @@ export default function Admin() {
   };
 
   const handleCloseEditProgramRecipes = () => {
-    setCurrentProgramRecipes([])
+    setCurrentProgramRecipes({})
     setOpenEditProgramRecipes(false);
   };
 
@@ -395,13 +408,14 @@ export default function Admin() {
 
   const handleSubmitEditProgramRecipes = () => {
     var i;
-    var temp = [];
+    var temp = {};
     for (i = 0; i < selectedRecipes.length; i++) {
-      temp.push(selectedRecipes[i]?.value)
+      var key = selectedRecipes[i]?.value;
+      temp[key] = 0;
     }
     firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
     setOpenEditProgramRecipes(false);
-    setCurrentProgramRecipes([])
+    setCurrentProgramRecipes({})
   };
 
   const [currentProgramUsers, setCurrentProgramUsers] = React.useState([]);
@@ -455,7 +469,6 @@ export default function Admin() {
     setRecipeName(currentRecipe.nameOfDish)
     setOpenRecipeName(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipeName = () => {
@@ -477,7 +490,6 @@ export default function Admin() {
     setRecipeDescription(currentRecipe.description)
     setOpenRecipeDescription(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipeDescription = () => {
@@ -504,7 +516,6 @@ export default function Admin() {
     setRecipeImages(currentRecipe.images)
     setOpenRecipeImages(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleClickOpenViewRecipeImages = (currentRecipe) => {
@@ -538,7 +549,6 @@ export default function Admin() {
     firebase.storage().ref().child(currentRecipe.pdfRecipe).getDownloadURL().then(function(url) {
       setPdfURL(url)
     })
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseViewRecipePdf = () => {
@@ -549,7 +559,6 @@ export default function Admin() {
     setRecipePdf(currentRecipe.pdfRecipe)
     setOpenRecipePdf(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipePdf = () => {
@@ -577,7 +586,6 @@ export default function Admin() {
     setRecipeVideo(currentRecipe.videoRecipe)
     setOpenViewRecipeVideo(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseViewRecipeVideo = () => {
@@ -588,7 +596,6 @@ export default function Admin() {
     setRecipeVideo(currentRecipe.videoRecipe)
     setOpenRecipeVideo(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipeVideo = () => {
@@ -611,7 +618,6 @@ export default function Admin() {
     setRecipeSkills(currentRecipe.videoSkills)
     setOpenViewRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseViewRecipeSkills = () => {
@@ -622,7 +628,6 @@ export default function Admin() {
     setRecipeSkills(currentRecipe.videoSkills)
     setOpenRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipeSkills = () => {
@@ -645,7 +650,6 @@ export default function Admin() {
     setRecipeTips(currentRecipe.videoTips)
     setOpenViewRecipeTips(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseViewRecipeTips = () => {
@@ -656,7 +660,6 @@ export default function Admin() {
     setRecipeTips(currentRecipe.videoTips)
     setOpenRecipeTips(true);
     setCurrentRecipe(currentRecipe);
-    setUploadDate(Math.round(Date.now() / 1000.0));
   };
 
   const handleCloseRecipeTips = () => {
@@ -687,10 +690,6 @@ export default function Admin() {
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
-
-  const getFormattedDate = () => {
-    return uploadDate.getFullYear().toString() + '/' + (uploadDate.getMonth()+1).toString() + '/' + uploadDate.getDate().toString()
-  }
 
 
   if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic) {
@@ -879,7 +878,7 @@ export default function Admin() {
                       return (
                         <Grid item>                      
                           <ListItem key={value?.programName} button selected={true}
-                            onClick={() => setSelectedProgramProgram(value)}>
+                            onClick={() => {setSelectedProgramProgram(value); setRowsFunc(value)}}>
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
@@ -889,7 +888,7 @@ export default function Admin() {
                         <Grid item>                      
                           <ListItem
                             key={value?.programName} button selected={false} classes={{ selected: classes.active }}
-                            onClick={() => setSelectedProgramProgram(value)}>
+                            onClick={() => {setSelectedProgramProgram(value); setRowsFunc(value)}}>
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
@@ -910,39 +909,33 @@ export default function Admin() {
                   <ListItemText> Recipes List
                   <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}><EditIcon/></IconButton>
                   </ListItemText>
-                </List> </div>}
-              
-              {selectedProgramProgram?.programRecipes != undefined ?
-              selectedProgramProgram?.programRecipes.map((value) => {
-                return (
-                    <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                      <ListItemAvatar>
-                        <Avatar
-                        // alt={`Avatar n°${value + 1}`}
-                        // src={`/static/images/avatar/${value + 1}.jpg`}
-                        />
-                      </ListItemAvatar>
-                      <ListItemText primary={recipesDic[value]?.nameOfDish}/>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <ol className={classes.noNum}>
-                          {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
-                          {/* ----------------------- display images, display pdf, display / edit videos ----------------------- */}
-                          <li>Name of recipe: {recipesDic[value]?.nameOfDish}</li>
-                          <li>Description: {recipesDic[value]?.description}</li>
-                          <li>Date last modified: {recipesDic[value]?.dateUploaded}</li>
-                          <li>Rating: {recipesDic[value]?.avgRating}</li>
-                          <li>Number of ratings: {recipesDic[value]?.numRatings}</li>
-                          <li>Recipe images <IconButton onClick={() => handleClickOpenViewRecipeImages(value)}> <VisibilityIcon/> </IconButton></li>
-                          <li>Recipe pdf <IconButton onClick={() => handleClickOpenViewRecipePdf(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
-                          <li>Recipe video <IconButton onClick={() => handleClickOpenViewRecipeVideo(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
-                          <li>Recipe skills <IconButton onClick={() => handleClickOpenViewRecipeSkills(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>
-                          <li>Recipe tips <IconButton onClick={() => handleClickOpenViewRecipeTips(recipesDic[value])}> <VisibilityIcon/> </IconButton></li>                          
-                        </ol>
-                      </AccordionDetails>
-                  </Accordion>);
-              }) : <Grid></Grid>}
+                </List>
+                <TableContainer component={Paper}>
+                  <Table aria-label="customized table">
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell>Recipe</StyledTableCell>
+                        <StyledTableCell> Date </StyledTableCell>
+                        <StyledTableCell> Schedule Date </StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {rows.map((row) => (
+                        <StyledTableRow key={row.name}>
+                          <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
+                          <StyledTableCell align="left">{row.date}</StyledTableCell>
+                          <StyledTableCell align="left">
+                            <TextField
+                              id="date" label="Date" type="date" defaultValue="2021-01-01"
+                              className={classes.textField} InputLabelProps={{shrink: true,}}
+                            />
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+              </TableContainer>
+              </div>}
 
               {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
               <div> {/* ----------------------- edit users list ----------------------- */}
@@ -997,11 +990,15 @@ export default function Admin() {
 
           {/* view recipes list Dialog */}
           {selectedProgramProgram && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}fullWidth fullHeight
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}fullWidth
             maxWidth="sm">
               <DialogTitle>Edit Recipes List for {selectedProgramProgram?.programName} </DialogTitle>
               <DialogContent>
-              <TableContainer component={Paper}>
+              <FormControl fullWidth className={classes.formControl}>
+                <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
+              </FormControl>
+              <Box height="200px"></Box>
+              {/* <TableContainer component={Paper}>
                 <Table aria-label="customized table">
                   <TableHead>
                     <TableRow>
@@ -1013,16 +1010,15 @@ export default function Admin() {
                       <StyledTableRow>
                         <StyledTableCell align="left">
                           <FormControl className={classes.formControl}>
-                            {/* <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/> */}
+                            <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
                             <Select
-                              labelId="demo-simple-select-helper-label"
-                              id="demo-simple-select-helper"
+                               id="demo-simple-select-helper"
                               value={selectedRecipes}
                               onChange={setSelectedRecipes}
                             >
-                              <MenuItem value={10}>Ten</MenuItem>
-                              <MenuItem value={20}>Twenty</MenuItem>
-                              <MenuItem value={30}>Thirty</MenuItem>
+                              {recipes.map((recipe) =>
+                                <MenuItem value={recipe["id"]}> {recipe["nameOfDish"]} </MenuItem>)
+                              }
                             </Select>
                           </FormControl>
                         </StyledTableCell>
@@ -1041,7 +1037,8 @@ export default function Admin() {
                       </StyledTableRow>
                   </TableBody>
                 </Table>
-            </TableContainer>
+            </TableContainer>  labelId="demo-simple-select-helper-label" */}
+                           
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>

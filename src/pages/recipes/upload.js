@@ -70,22 +70,25 @@ const UploadForm = () => {
         var i;
         var uploadedImages = Object.values(images);
 
-        var collection = firebase.firestore().collection('recipes')
+        var d = new Date();
+        var date = d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString()
+
+        var document = firebase.firestore().collection('recipes').doc();
         var data = {
-            id:recipe,
+            id:document.id,
             nameOfDish: recipeName,
             description: description,
             images: uploadedImages,
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipe+".pdf",
-            dateUploaded: Math.round(Date.now() / 1000.0),
+            dateUploaded: date,
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
             numRatings: 1,
             avgRating: 5
         }
 
-        collection.doc(recipe).set(data)
+        document.set(data)
         firebase.storage().ref().child(recipe+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
             }

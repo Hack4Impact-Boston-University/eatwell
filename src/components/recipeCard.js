@@ -92,8 +92,6 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
 
   const [, updateState] = React.useState();
 
-  const date = new Date(obj.dateUploaded * 1000); 
-
   const [imgList, setImages] = React.useState(obj.images);
   useEffect(() => { setImages(obj.images)}, [obj.images] );
   var settings = {
@@ -233,7 +231,7 @@ export default function RecipeCard({ object, isFav, onFavClick, initNotes, initR
                   </Grid>
                   <Grid item>
                     <Typography style={{ fontSize: "calc(min(4vw, 20px))", fontWeight: 300 }}  >
-                      {date.getFullYear().toString() + '/' + (date.getMonth()+1).toString() + '/' + date.getDate().toString()}
+                      {obj.dateUploaded}
                     </Typography>
                   </Grid>
                 </Grid>
