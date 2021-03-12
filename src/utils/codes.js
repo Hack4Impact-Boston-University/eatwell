@@ -10,28 +10,30 @@ initFirebase();
 var db = firebase.firestore();
 
 export const checkCode = async (code) => {
-	// console.log(getRecipe("chicken_fried_rice"))
-	db.collection("codes").doc(code).get().then((doc) => {
-		if(doc.exists) {
-			return doc.data();
+	console.log("1")
+	return db.collection("codes").doc(code).get()
+	.then((doc) => {
+		console.log("2")
+		if(doc.exists && code == doc.id)  {
+			console.log("3");
+			return db.collection("codes").doc(code).delete().then(() => {
+				return Promise.resolve(true);
+			});
+		} else {
+			return Promise.resolve(false);
 		}
-	}).catch((err) => {
+	})
+	.then((val) => {
+		if (val) {
+			console.log("4")
+			// Save data in cookie
+		}
+		return Promise.resolve(val);
+	})
+	.catch((err) => {
 		console.log(err);
+		return Promise.reject(err);
 	});
-
-	// db.collection("codes").doc("4AWZnp1za2SjhVRI5iYh").get().then((doc) => {
-	// 	if(doc.exists)  {
-	// 		// let data = doc.data()
-	// 		// if (code in data) {
-	// 		// 	//db.collection("codes").doc("codes").set({"codes": {[code] : db.FieldValue.delete()}})
-	// 		// 	return true;
-	// 		// }
-	// 		return true
-	// 	}
-	// }).catch((err) => {
-	// 	console.log(err);
-	// });
-	return false;
 }
 
 
