@@ -296,17 +296,18 @@ export default function Admin() {
     },
   }))(TableCell);
 
-  function createData(name, date) {
-    return { name, date };
+  function createData(id, name, date) {
+    return { id, name, date };
   }
 
   function setRowsFunc(program) {
     var recipeslist = program["programRecipes"];
     var temp = [];
     Object.keys(recipeslist).forEach(function(key) {
+      var id = recipesDic[key].id;
       var name = recipesDic[key].nameOfDish;
       var date = recipeslist[key];
-      temp.push(createData(name, date))
+      temp.push(createData(id, name, date))
     });
     setRows(temp);
   }
@@ -395,6 +396,7 @@ export default function Admin() {
     }
     setSelectedRecipes(originallySelected)
     setCurrentProgramRecipes(temp)
+    setSelectedProgramProgram(programRecipesNow)
   };
 
   const handleCloseEditProgramRecipes = () => {
@@ -411,7 +413,12 @@ export default function Admin() {
     var temp = {};
     for (i = 0; i < selectedRecipes.length; i++) {
       var key = selectedRecipes[i]?.value;
-      temp[key] = 0;
+      if (programsDic[selectedProgramProgram?.programID]?.programRecipes[key] != 0) {
+        var value = programsDic[selectedProgramProgram?.programID].programRecipes[key];
+        temp[key] = value;
+      } else {
+        temp[key] = 0
+      }
     }
     firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
     setOpenEditProgramRecipes(false);
@@ -915,7 +922,6 @@ export default function Admin() {
                     <TableHead>
                       <TableRow>
                         <StyledTableCell>Recipe</StyledTableCell>
-                        <StyledTableCell> Date </StyledTableCell>
                         <StyledTableCell> Schedule Date </StyledTableCell>
                       </TableRow>
                     </TableHead>
@@ -923,11 +929,16 @@ export default function Admin() {
                       {rows.map((row) => (
                         <StyledTableRow key={row.name}>
                           <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
-                          <StyledTableCell align="left">{row.date}</StyledTableCell>
                           <StyledTableCell align="left">
                             <TextField
                               id="date" label="Date" type="date" defaultValue="2021-01-01"
                               className={classes.textField} InputLabelProps={{shrink: true,}}
+                              onChange={(e) => {
+                                var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
+                                dic[row.id] = e.target.value;
+                                firebase.firestore().collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
+                              }
+                              }
                             />
                           </StyledTableCell>
                         </StyledTableRow>
