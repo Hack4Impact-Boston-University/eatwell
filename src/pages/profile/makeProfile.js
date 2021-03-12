@@ -76,9 +76,9 @@ const makeProfile = () => {
 		//console.log("User not logged in.");
 		return (
 			<div>
-				<h1 align="center">Please sign in to access this page!</h1>
 				<div className={styles.nav}>
 					<Navbar/>
+					<h1 align="center">Please sign in to access this page!</h1>
 				</div>
 			</div>
 		);
