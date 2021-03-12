@@ -59,9 +59,17 @@ const Index = () => {
   const router = useRouter();
 
   const submit = () => {
-    if (checkCode(code)) {
-      router.push("/profile/makeProfile");
-    }
+    console.log(makeid(5))
+    checkCode(code).then((res) => {
+      console.log(res)
+      if(res) {
+        console.log("5")
+        router.push("/profile/create");
+      }
+      else {
+        console.log("6")
+      }
+    })
   }
 
   if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
