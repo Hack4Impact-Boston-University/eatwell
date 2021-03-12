@@ -5,10 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "./auth/initFirebase";
 import {getRecipe} from "./recipes.js"
-<<<<<<< HEAD
 import { setUserCookie } from "./cookies";
-=======
->>>>>>> init
 
 initFirebase();
 var db = firebase.firestore();
