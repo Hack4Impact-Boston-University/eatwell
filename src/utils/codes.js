@@ -5,6 +5,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "./auth/initFirebase";
 import {getRecipe} from "./recipes.js"
+import { setUserCookie } from "./cookies";
 
 initFirebase();
 var db = firebase.firestore();
@@ -17,23 +18,29 @@ export const checkCode = async (code) => {
 		if(doc.exists && code == doc.id)  {
 			console.log("3");
 			return db.collection("codes").doc(code).delete().then(() => {
-				return Promise.resolve(true);
+				return Promise.resolve(doc.data());
 			});
 		} else {
 			return Promise.resolve(false);
 		}
 	})
-	.then((val) => {
-		if (val) {
+	.then((data) => {
+		if (data) {
 			console.log("4")
-			// Save data in cookie
+			saveCodeData(data);
 		}
-		return Promise.resolve(val);
+		return Promise.resolve(data != false);
 	})
 	.catch((err) => {
 		console.log(err);
 		return Promise.reject(err);
 	});
+}
+
+const saveCodeData = (data) => {
+	// Manipulation of data from code before putting it in user cookie, for instance retrieving program name from program id
+	console.log(data)
+	setUserCookie(data);
 }
 
 
