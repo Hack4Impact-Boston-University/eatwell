@@ -71,7 +71,8 @@ const UploadForm = () => {
         var uploadedImages = Object.values(images);
 
         var d = new Date();
-        var date = d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString()
+        var date = d.now()
+        // var date = d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString()
 
         var document = firebase.firestore().collection('recipes').doc();
         var data = {

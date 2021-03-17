@@ -132,6 +132,24 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+const getTimeString = timestamp => {
+  let date = new Date(timestamp);
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+  let hour = date.getHours();
+  let min = date.getMinutes();
+  let sec = date.getSeconds();
+
+  month = (month < 10 ? "0" : "") + month;
+  day = (day < 10 ? "0" : "") + day;
+  hour = (hour < 10 ? "0" : "") + hour;
+  min = (min < 10 ? "0" : "") + min;
+  sec = (sec < 10 ? "0" : "") + sec;
+
+  let str = hour + ":" + min + ":" + sec + " on " + month + "/" + day + "/" + date.getFullYear();
+  return str;
+}
+
 const fetcher = async (...args) => {
   const res = await fetch(...args);
   return res.json();
@@ -146,10 +164,8 @@ export default function Admin() {
   const theme = useTheme();
   const { width } = useWindowSize();
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
-  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
-  var d = new Date();
-  const [uploadDate, setUploadDate] = React.useState(d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString());
+  const [uploadDate, setUploadDate] = React.useState(Date.now())
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
@@ -1181,7 +1197,7 @@ export default function Admin() {
                           <li>Name of recipe: {value?.nameOfDish} <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton></li>
                           <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
-                          <li>Date last modified: {value?.dateUploaded}</li>
+                          <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
