@@ -12,35 +12,28 @@ var db = firebase.firestore();
 
 export const checkCode = async (code) => {
 	console.log("1")
-	return db.collection("codes").doc(code).get()
-	.then((doc) => {
-		console.log("2")
-		if(doc.exists && code == doc.id)  {
-			console.log("3");
-			return db.collection("codes").doc(code).delete().then(() => {
-				return Promise.resolve(doc.data());
-			});
-		} else {
-			return Promise.resolve(false);
-		}
-	})
-	.then((data) => {
-		if (data) {
-			console.log("4")
-			saveCodeData(data);
-		}
-		return Promise.resolve(data != false);
-	})
-	.catch((err) => {
-		console.log(err);
-		return Promise.reject(err);
-	});
+	if(code == "test" || code == "org") {
+		console.log("2.5")
+		return parseCodeData({role: code});
+	} else {
+		return db.collection("codes").doc(code).get()
+		.then((doc) => {
+			console.log("2")
+			if(doc.exists && code == doc.id)  {
+				console.log("3");
+				return db.collection("codes").doc(code).delete().then(() => {
+					let data = parseCodeData(doc.data());
+					return Promise.resolve(data);
+				});
+			} else {
+				return Promise.reject("Code is incorrect");
+			}
+		});
+	}
 }
 
-const saveCodeData = (data) => {
-	// Manipulation of data from code before putting it in user cookie, for instance retrieving program name from program id
-	console.log(data)
-	setUserCookie(data);
+export const parseCodeData = (data) => {
+	// Insert manipulation of data from code before passing to upload, for instance retrieving program name from program id
+	return data;
 }
-
 
