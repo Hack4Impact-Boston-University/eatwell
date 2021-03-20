@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function isSignedIn() {
+    	return request.auth != null;
+    }
+    
+    function getRole() {
+    	return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function getPrograms() {
+    	return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.programs;
+    }
+    
+    match /codes/{code} {
+			allow get: if isSignedIn() && (
+      	!exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+    	allow list: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+      allow create: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+      allow delete: if isSignedIn() && (
+      	!exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+      allow update: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+    }
+    
+    match /users/{user} {
+			allow read: if isSignedIn() && (
+      	!exists(request.path) ||
+        getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms() ||
+        resource.id == request.auth.uid
+			);
+      allow create: if isSignedIn() && (
+      	getRole() == "admin" ||
+        true // request.resource.id == request.auth.id			Needs to be changed. Run emulators to debug the rules
+      );
+      allow delete: if isSignedIn() && (
+      	!exists(request.path) ||
+      	getRole() == "admin" ||
+        resource.id == request.auth.uid
+      );
+      allow update: if isSignedIn() && (
+      	!exists(request.path) ||
+      	getRole() == "admin" ||
+        getRole() == "org" && resource.data.program in getPrograms() ||
+        resource.id == request.auth.uid
+      );
+    }
+    
+    match /programs/{program} {
+    	allow read: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms() ||
+        getRole() == "user" && resource.data.programName == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.program
+      );
+      allow create: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+      allow delete: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+      allow update: if isSignedIn() && (
+				getRole() == "admin" || 
+        getRole() == "org" && resource.data.program in getPrograms()
+      );
+    }
+    
+    match /recipes/{recipe} {
+    	allow read: if isSignedIn();
+      allow write: if isSignedIn() && getRole() == "admin";
+    }
+    
+    // match /{document=**} {
+    // allow read,write: if isSignedIn();
+    // }
+  }
+}
