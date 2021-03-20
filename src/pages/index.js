@@ -12,11 +12,12 @@ import {makeStyles,
         Grid,
         Dialog,
         DialogTitle,
-        DialogContent
+        DialogContent,
+        TextField,
+        Typography,
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
-
 import { DialerSip } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +33,7 @@ const Index = () => {
   const { user, logout } = useUser()
   const [login, setLogin] = useState(false);
   const [open, setOpen] = React.useState(false);
+  const [code, setCode] = React.useState("");
   const handleClose = () => {
     setOpen(false);
   };
@@ -48,7 +50,8 @@ const Index = () => {
 		router.push("/profile/makeProfile");
 		return (<div></div>);
 	}
-  
+
+
   return (
     <div>
       <Box className={classes.container}>
@@ -75,7 +78,7 @@ const Index = () => {
         <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
           <DialogTitle id="form-dialog-title">Login</DialogTitle>
             <DialogContent>
-              <FirebaseAuth/>
+              {/* <FirebaseAuth/> */}
             </DialogContent>
         </Dialog>
       </Box>

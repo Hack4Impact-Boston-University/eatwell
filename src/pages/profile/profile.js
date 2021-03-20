@@ -230,8 +230,8 @@ const Profile = () => {
 			<div>
 				<div className={styles.nav}>
 					<Navbar/>
+					<h1 align="center">Please sign in to access this page!</h1>
 				</div>
-				<h1 align="center">Please sign in to access this page!</h1>
 			</div>
 		);
 	}

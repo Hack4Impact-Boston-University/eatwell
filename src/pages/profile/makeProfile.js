@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Grid,
 	makeStyles,
@@ -14,6 +15,7 @@ import 'firebase/firestore'
 import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
+import {checkCode} from "../../utils/codes.js";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -37,6 +39,14 @@ const useStyles = makeStyles((theme) => ({
 		textAlign: "center",
 		marginTop: "1rem",
 	},
+	container: {
+		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
+		height: "100vh",
+		overflow: "hidden",
+	},
+	items: {
+		marginTop: "10vh",
+	}
 }));
 
 const makeProfile = () => {
@@ -45,7 +55,19 @@ const makeProfile = () => {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [tel, setTel] = useState("");
+	const [code, setCode] = React.useState("");
 	const router = useRouter();
+	const [errorText, setErrorText] = useState("");
+
+	function makeid(length) {
+		var result           = '';
+		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < length; i++ ) {
+		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	}
 
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
@@ -72,21 +94,36 @@ const makeProfile = () => {
 		setTel(val);
 	}
 
+	const submit = () => {
+		console.log(makeid(5))
+		checkCode(code).then((data) => {
+			console.log(data);
+			setErrorText("");
+			return upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}, ...data})
+		}).then(() => {
+			router.push('/recipes/recipeList');
+		}).catch((err) => {
+			// Check if firebase error or incorrect code, return error accordingly
+			console.log(err);
+			setErrorText(err);
+		});
+	}
+
 	if (!user) {
 		//console.log("User not logged in.");
 		return (
 			<div>
-				<h1 align="center">Please sign in to access this page!</h1>
 				<div className={styles.nav}>
 					<Navbar/>
+					<h1 align="center">Please sign in to access this page!</h1>
 				</div>
 			</div>
 		);
 	}
 	if(resolveUser === "not found") {
 		return (
-			<div>
-				<Grid container>
+			<Box className={classes.container}>
+				<Grid container className={classes.items}>
 					<Grid xs={12} className={classes.welcomeHeader} item>
 						<Typography variant="h3" align="center" gutterBottom>
 							Welcome {user?.email}
@@ -133,15 +170,31 @@ const makeProfile = () => {
 							required
 						/>
 					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+                      <TextField
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        error={false}
+                        label="Activation Code"
+                        placeholder="Your Organization's Code"
+                        required
+                        // helperText="Please enter your first name"
+                      />
+                    </Grid>
 					<Grid container justify="center" item>
-						<Button variant="contained" color="primary" className={classes.btn} onClick={() =>
-							upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}}).then(() => 
-							{router.push('/recipes/recipeList');})}>
+						<Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
 							Submit
 						</Button>
 					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+							<Box component="div" textOverflow="clip">
+								<Typography variant="h5" color={'error'}>
+									{errorText}
+								</Typography>
+							</Box>
+					</Grid>
 				</Grid>
-			</div>
+			</Box>
 		);
 } else {
 	if(resolveUser === "found") {
