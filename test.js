@@ -38,6 +38,27 @@ after(async () => {
 });
 
 describe("My app", () => {
-  
+  it("should allow users to create only their own user document", async () => {
+    const db = getAuthedFirestore({ uid: "eVJIxhBGc5ep3z60lyakypHjg9N2" });
+    const profile = db.collection("users").doc("alice");
+    await firebase.assertSucceeds(
+      db.collection("users").doc("eVJIxhBGc5ep3z60lyakypHjg9N2").set({
+        programName: "Hospital 1"
+      })
+    );
+    await firebase.assertFails(
+      db.collection("users").doc("alice").set({
+        programName: "Hospital 1"
+      })
+    );
+  });
+
+  it("should approve a user document read or delete if it does not exist", async () => {
+    const db = getAuthedFirestore({ uid: "eVJIxhBGc5ep3z60lyakypHjg9N2" });
+    const profile = db.collection("users").doc("alice");
+    await firebase.assertSucceeds(
+      db.collection("users").doc("eVJIxhBGc5ep3z60lyakypHjg9N2").get()
+    );
+  });
 });
 
