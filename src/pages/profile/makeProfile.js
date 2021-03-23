@@ -16,7 +16,6 @@ import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
 import {checkCode} from "../../utils/codes.js";
-import { LocalDiningOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
