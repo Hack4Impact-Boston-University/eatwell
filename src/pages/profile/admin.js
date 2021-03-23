@@ -297,8 +297,7 @@ export default function Admin() {
   // ---------------------- 1: ADMIN MANAGE PROGRAMS ----------------------
   const [searchProgram, setSearchProgram] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
-  const [addedProgram, setAddedProgram] = useState('');
-  const [addedProgramNumUsers, setAddedProgramNumUsers] = useState(0);
+  const [addedProgram, setAddedProgram] = useState('')
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
@@ -372,41 +371,14 @@ export default function Admin() {
     setOpenAddProgram(false);
   };
 
-  function makeCode(length) {
-		var result           = '';
-		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		var charactersLength = characters.length;
-		for ( var i = 0; i < length; i++ ) {
-		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
-		}
-		return result;
-	}
-
   const addProgram = () => {
     const db = firebase.firestore();
     const ref = db.collection('programs').doc();
     const id = ref.id;
     firebase.firestore().collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
-    .then(() => {
-      if(addedProgramNumUsers > 500) {
-        throw new Error("Too many users, cannot write codes");
-      }
-      var batch = db.batch();
-      var index;
-      for(index = 0; index < addedProgramNumUsers; index++) {
-        const code = makeCode(6);
-        batch.set(db.collection('programs').doc(code), {programName: addedProgram});
-      }
-      return batch.commit();
-    }).then(() => {
-      alert("successfully added new program!");
-      setSelectedProgramProgram(addedProgram);
-      setAddedProgram('');
-      setOpenAddProgram(false);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    alert("successfully added new program!");
+    setAddedProgram('');
+    setOpenAddProgram(false);
   };
 
   const handleClickOpenDeleteProgram = (disabled) => {
@@ -919,7 +891,7 @@ export default function Admin() {
           <Grid container spacing={3}>
             <Grid item sm={2}>
               <List dense>
-                <ListItem key={"Add New Program"} button selected={true}>
+                <ListItem key={"Add New Program"} button selected={true} onClick={() => setSelectedProgramProgram(value)}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
                 </ListItem>
 
@@ -1032,10 +1004,8 @@ export default function Admin() {
             <DialogActions>
               <h4>Add New Program</h4>
               <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
-              <TextField value={addedProgramNumUsers} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
               <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
               <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
-
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
