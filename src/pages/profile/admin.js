@@ -132,6 +132,24 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+const getTimeString = timestamp => {
+  let date = new Date(timestamp);
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+  let hour = date.getHours();
+  let min = date.getMinutes();
+  let sec = date.getSeconds();
+
+  month = (month < 10 ? "0" : "") + month;
+  day = (day < 10 ? "0" : "") + day;
+  hour = (hour < 10 ? "0" : "") + hour;
+  min = (min < 10 ? "0" : "") + min;
+  sec = (sec < 10 ? "0" : "") + sec;
+
+  let str = hour + ":" + min + ":" + sec + " on " + month + "/" + day + "/" + date.getFullYear();
+  return str;
+}
+
 const fetcher = async (...args) => {
   const res = await fetch(...args);
   return res.json();
@@ -146,10 +164,8 @@ export default function Admin() {
   const theme = useTheme();
   const { width } = useWindowSize();
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
-  // const [selectedUsersProgram, setSelectedUsersProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
-  var d = new Date();
-  const [uploadDate, setUploadDate] = React.useState(d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString());
+  const [uploadDate, setUploadDate] = React.useState(Date.now())
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
@@ -214,7 +230,7 @@ export default function Admin() {
   // edit user program
   const [openProgram, setOpenProgram] = React.useState(false);
   const [program, setProgram] = React.useState("");
-  const [prevProgram, setPrevProgram] = React.useState("");
+  // const [prevProgram, setPrevProgram] = React.useState("");
 
   const handleChangeProgram = (event) => {
     setProgram(event.target.value || "");
@@ -224,7 +240,7 @@ export default function Admin() {
     setProgram(prev)
     setOpenProgram(true);
     setCurrentUser(currentUser);
-    setPrevProgram(prev)
+    // setPrevProgram(prev)
   };
 
   const handleCloseProgram = () => {
@@ -234,24 +250,24 @@ export default function Admin() {
 
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
     
-    if (prevProgram != undefined && programsDic[prevProgram] != undefined) {
-      var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
-      if (index.toString != "-1" && prevProgram != currentUserProgram) {
-        delete programsDic[prevProgram].programUsers[index]
-        firebase.firestore().collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
-        setProgramsDic(programsDic)
-      }
-    }
+    // if (prevProgram != undefined && programsDic[prevProgram] != undefined) {
+    //   var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
+    //   if (index.toString != "-1" && prevProgram != currentUserProgram) {
+    //     delete programsDic[prevProgram].programUsers[index]
+    //     firebase.firestore().collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
+    //     setProgramsDic(programsDic)
+    //   }
+    // }
     
-    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser) && prevProgram != currentUserProgram) {
+    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
       programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
       firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
       setProgramsDic(programsDic)
     }
 
-    if (prevProgram != currentUserProgram) {
+    // if (prevProgram != currentUserProgram) {
       firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
-    }
+    // }
 
     setProgramsDic(programsDic)
     setOpenProgram(false);
@@ -759,7 +775,7 @@ export default function Admin() {
 
   if(userData) {
     if(!("firstname" in userData)) {
-      router.push("/profile/makeProfile");
+      router.push("/fprofile/makeProfile");
       return (<div></div>);
     } else if(userData["role"] != "admin") {
       router.push("/");
@@ -1181,7 +1197,7 @@ export default function Admin() {
                           <li>Name of recipe: {value?.nameOfDish} <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton></li>
                           <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
-                          <li>Date last modified: {value?.dateUploaded}</li>
+                          <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
