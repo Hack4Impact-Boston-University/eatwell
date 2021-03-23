@@ -16,6 +16,7 @@ import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
 import {checkCode} from "../../utils/codes.js";
+import { LocalDiningOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -59,16 +60,6 @@ const makeProfile = () => {
 	const router = useRouter();
 	const [errorText, setErrorText] = useState("");
 
-	function makeid(length) {
-		var result           = '';
-		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		var charactersLength = characters.length;
-		for ( var i = 0; i < length; i++ ) {
-		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
-		}
-		return result;
-	}
-
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 		if (!re.test(e.key)) {
@@ -95,7 +86,6 @@ const makeProfile = () => {
 	}
 
 	const submit = () => {
-		console.log(makeid(5))
 		checkCode(code).then((data) => {
 			console.log(data);
 			setErrorText("");
@@ -105,7 +95,7 @@ const makeProfile = () => {
 		}).catch((err) => {
 			// Check if firebase error or incorrect code, return error accordingly
 			console.log(err);
-			setErrorText(err);
+			setErrorText(err.message);
 		});
 	}
 

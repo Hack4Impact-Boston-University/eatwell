@@ -30,7 +30,7 @@ import { PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
-import _, { map } from 'underscore';
+import _, { create, map } from 'underscore';
 import {getUserFromCookie} from "../../utils/cookies";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -155,6 +155,8 @@ const fetcher = async (...args) => {
   return res.json();
 };
 
+var db = firebase.firestore();
+
 export default function Admin() {
 
   const classes = useStyles();
@@ -170,14 +172,21 @@ export default function Admin() {
   const [currentRecipe, setCurrentRecipe] = React.useState("");
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+  // const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
+  const {data: codes } = useSWR(`/api/codes/getAllCodes`, fetcher);
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
   const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
   const { data: programsTempDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-  const [programsDic, setProgramsDic] = React.useState("");
-  useEffect(() => { setProgramsDic(programsTempDic)}, programsTempDic );
+  const [programs, setPrograms] = React.useState([])
+  const [programsDic, setProgramsDic] = React.useState({});
+  useEffect(() => { 
+    setProgramsDic(programsTempDic);
+    if(programsTempDic) {
+      setPrograms(Object.keys(programsTempDic).map((key) => programsTempDic[key]));
+    }
+  }, programsTempDic );
   
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -222,7 +231,7 @@ export default function Admin() {
 
   const handleSubmitRole = (currentUser, currentUserRole) => {
     setRole(currentUserRole);
-    firebase.firestore().collection("users").doc(currentUser).update({ role: currentUserRole });
+    db.collection("users").doc(currentUser).update({ role: currentUserRole });
     setOpenRole(false);
     setRole("");
   };
@@ -254,19 +263,19 @@ export default function Admin() {
     //   var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
     //   if (index.toString != "-1" && prevProgram != currentUserProgram) {
     //     delete programsDic[prevProgram].programUsers[index]
-    //     firebase.firestore().collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
+    //     db.collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
     //     setProgramsDic(programsDic)
     //   }
     // }
     
     if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
       programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
-      firebase.firestore().collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
+      db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
       setProgramsDic(programsDic)
     }
 
     // if (prevProgram != currentUserProgram) {
-      firebase.firestore().collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
+      db.collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
     // }
 
     setProgramsDic(programsDic)
@@ -288,7 +297,7 @@ export default function Admin() {
   };
 
   const handleSubmitDeleteUser = () => {
-    firebase.firestore().collection("users").doc(currentUser).delete();
+    db.collection("users").doc(currentUser).delete();
     setOpenDeleteUser(false);
     alert("successfully deleted the user.");
   };
@@ -297,7 +306,8 @@ export default function Admin() {
   // ---------------------- 1: ADMIN MANAGE PROGRAMS ----------------------
   const [searchProgram, setSearchProgram] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
-  const [addedProgram, setAddedProgram] = useState('')
+  const [addedProgram, setAddedProgram] = useState('');
+  const [addedProgramNumUsers, setAddedProgramNumUsers] = useState('');
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
@@ -371,14 +381,49 @@ export default function Admin() {
     setOpenAddProgram(false);
   };
 
+  function generate(length) {
+		var result           = '';
+		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < length; i++ ) {
+		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	}
+
+  function createCodes(num, id) {
+    if(num > 500) {
+      alert("Too many users, cannot write codes");
+      throw new Error("Too many users, cannot write codes");
+    }
+    var batch = db.batch();
+    var index;
+    for(index = 0; index < num; index++) {
+      const code = generate(6);
+      batch.set(db.collection('codes').doc(code), {programName: addedProgram, programID:id});
+    }
+    return batch.commit();
+  }
+
   const addProgram = () => {
-    const db = firebase.firestore();
     const ref = db.collection('programs').doc();
     const id = ref.id;
-    firebase.firestore().collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
-    alert("successfully added new program!");
-    setAddedProgram('');
-    setOpenAddProgram(false);
+    if (addedProgram === "") {
+      alert("No program name specified");
+      return; 
+    }
+    db.collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
+    .then(() => {
+      return createCodes(addedProgramNumUsers, id);
+    }).then(() => {
+      alert("successfully added new program!");
+      setSelectedProgramProgram(addedProgram);
+      setAddedProgram('');
+      setOpenAddProgram(false);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   };
 
   const handleClickOpenDeleteProgram = (disabled) => {
@@ -390,7 +435,7 @@ export default function Admin() {
   };
 
   const deleteProgram = () => {
-    firebase.firestore().collection('programs').doc(selectedProgramProgram.programID).delete()
+    db.collection('programs').doc(selectedProgramProgram.programID).delete()
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
@@ -437,7 +482,7 @@ export default function Admin() {
         temp[key] = 0
       }
     }
-    firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
+    db.collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
     setOpenEditProgramRecipes(false);
     setCurrentProgramRecipes({})
   };
@@ -478,7 +523,7 @@ export default function Admin() {
     for (i = 0; i < selectedUsers.length; i++) {
       temp.push(selectedUsers[i]?.value)
     }
-    firebase.firestore().collection("programs").doc(selectedProgramProgram?.programID).update({ programUsers: temp });
+    db.collection("programs").doc(selectedProgramProgram?.programID).update({ programUsers: temp });
     setOpenEditProgramUsers(false);
     setCurrentProgramUsers([])
   };
@@ -500,7 +545,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeName = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({nameOfDish:recipeName, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({nameOfDish:recipeName, dateUploaded: uploadDate})
     alert("successfully edited recipe name!");
     setRecipeName('');
     setOpenRecipeName(false);
@@ -521,7 +566,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeDescription = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({description:recipeDescription, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({description:recipeDescription, dateUploaded: uploadDate})
     alert("successfully edited recipe description!");
     setRecipeDescription('');
     setOpenRecipeDescription(false);
@@ -553,7 +598,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeImages = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({images:recipeImages, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({images:recipeImages, dateUploaded: uploadDate})
     alert("successfully edited recipe images!");
     setRecipeImages([]);
     setOpenRecipeImages(false);
@@ -595,7 +640,7 @@ export default function Admin() {
       'complete': function() {
       }
     })
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({pdfRecipe:recipePdf, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({pdfRecipe:recipePdf, dateUploaded: uploadDate})
     alert("successfully edited recipe pdf!");
     setRecipePdf('');
     setOpenRecipePdf(false);
@@ -627,7 +672,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeVideo = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoRecipe:recipeVideo, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({videoRecipe:recipeVideo, dateUploaded: uploadDate})
     alert("successfully edited recipe video!");
     setRecipeVideo('');
     setOpenRecipeVideo(false);
@@ -659,7 +704,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeSkills = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoSkills:recipeSkills, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({videoSkills:recipeSkills, dateUploaded: uploadDate})
     alert("successfully edited recipe skills!");
     setRecipeSkills('');
     setOpenRecipeSkills(false);
@@ -691,7 +736,7 @@ export default function Admin() {
   };
 
   const handleSubmitRecipeTips = (currentRecipe) => {
-    firebase.firestore().collection('recipes').doc(currentRecipe.id).update({videoTips:recipeTips, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({videoTips:recipeTips, dateUploaded: uploadDate})
     alert("successfully edited recipe skills!");
     setRecipeTips('');
     setOpenRecipeTips(false);
@@ -710,7 +755,7 @@ export default function Admin() {
   };
 
   const handleSubmitDeleteRecipe = () => {
-    firebase.firestore().collection("recipes").doc(currentRecipe).delete();
+    db.collection("recipes").doc(currentRecipe).delete();
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
@@ -782,6 +827,8 @@ export default function Admin() {
       return (<div></div>);
     }
   }
+
+  console.log(selectedProgramProgram, codes);
 
   return (
     <div className={classes.root}>
@@ -891,7 +938,7 @@ export default function Admin() {
           <Grid container spacing={3}>
             <Grid item sm={2}>
               <List dense>
-                <ListItem key={"Add New Program"} button selected={true} onClick={() => setSelectedProgramProgram(value)}>
+                <ListItem key={"Add New Program"} button selected={true}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
                 </ListItem>
 
@@ -953,7 +1000,7 @@ export default function Admin() {
                               onChange={(e) => {
                                 var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
                                 dic[row.id] = e.target.value;
-                                firebase.firestore().collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
+                                db.collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
                               }
                               }
                             />
@@ -995,7 +1042,44 @@ export default function Admin() {
                         </ol>
                       </AccordionDetails>
                   </Accordion>
-                  );}) : <Grid></Grid>}
+                  );
+                }) : <Grid></Grid>
+              }
+              
+              
+              {Object.keys(selectedProgramProgram).length > 0 && codes != null ? 
+                <div> {/* ----------------------- edit users list ----------------------- */}
+                  <List>
+                    <ListItemText> Unused Codes
+                    {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
+                    </ListItemText>
+                  </List>
+                  {codes.map((code) => {
+                    if(code?.programID == selectedProgramProgram.programID) {
+                      return (<Accordion>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                          <ListItemAvatar>
+                            <Avatar
+                            // alt={`Avatar n°${value + 1}`}
+                            // src={`/static/images/avatar/${value + 1}.jpg`}
+                            />
+                          </ListItemAvatar>
+                          <ListItemText primary={code?.id}/>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <ol className={classes.noNum}>
+                              {Object.keys(code).map((key) => {
+                                if(key != "id") {
+                                  return <li>{key}: {code[key]}</li>
+                                }
+                              })}
+                            </ol>
+                        </AccordionDetails>
+                      </Accordion>)
+                    }
+                  })}
+                </div> : <Grid></Grid>
+              }
             </Grid>
           </Grid>
 
@@ -1004,6 +1088,7 @@ export default function Admin() {
             <DialogActions>
               <h4>Add New Program</h4>
               <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
+              <TextField value={addedProgramNumUsers || ''} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
               <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
               <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
             </DialogActions>
