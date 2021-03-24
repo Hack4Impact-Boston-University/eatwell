@@ -309,6 +309,7 @@ export default function Admin() {
   const [addedProgram, setAddedProgram] = useState('');
   const [addedProgramNumUsers, setAddedProgramNumUsers] = useState('');
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
+  const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
 
@@ -972,7 +973,8 @@ export default function Admin() {
               <div> {/* ----------------------- delete program ----------------------- */}
                 <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
-                </ListItem> </div>}
+                </ListItem>
+              </div>}
 
               {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
               <div> {/* ----------------------- edit recipes list ----------------------- */}
@@ -1080,6 +1082,9 @@ export default function Admin() {
                   })}
                 </div> : <Grid></Grid>
               }
+              <ListItem key={"Add Code"}>
+                  <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
+              </ListItem>
             </Grid>
           </Grid>
 
@@ -1098,6 +1103,14 @@ export default function Admin() {
               <h4>Delete Program {selectedProgramProgram.programName} </h4>
               <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
               <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodes}>
+            <DialogActions>
+              <h4>Add Codes</h4>
+              <TextField value={addedProgramNumUsers || ''} label="Number of Users" onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
+              <Button onClick={() => setOpenAddCodes(false)} color="primary"> Cancel </Button>
+              <Button onClick={() => createCodes(addedProgramNumUsers, selectedProgramProgram?.programID).then(()=>{setOpenAddCodes(false); alert("Successfully added codes!")}).catch((err) => alert(err))} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
 
