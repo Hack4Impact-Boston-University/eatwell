@@ -82,10 +82,10 @@ const UploadForm = () => {
     const [videoID, setVideoID] = useState('')
     const [pdfFile, setPdfFile] = useState('')
     const [description, setDescription] = useState('')
-    const [videoSkills, setVideoSkills] = useState('')
+    const [videoSkill, setVideoSkill] = useState('')
     const [skillName, setSkillName] = useState('')
     const [tipName, setTipName] = useState('')
-    const [videoTips, setVideoTips] = useState('')
+    const [videoTip, setVideoTip] = useState('')
     const [images, setImages] = useState({});
     const [openConfirm, setOpenConfirm] = React.useState(false);
     var uploadedImages = []
@@ -122,11 +122,11 @@ const UploadForm = () => {
         const ref = db.collection('skills').doc();
         const id = ref.id;
         const name = skillName;
-        const link = videoSkills;
+        const link = videoSkill;
         const videoUrl = "https://player.vimeo.com/video/"
 
         firebase.firestore().collection('skills').doc(id).set({skillID:id, skillName:name, url:videoUrl+link})
-        alert("successfully added new skills!");
+        alert("successfully added new skill!");
         setSkillName('');
         setVideoSkills('');
         setOpenSkill(false);
@@ -150,9 +150,18 @@ const UploadForm = () => {
     };
 
     const handleSubmitTip = () => {
-        firebase.firestore().collection("users").doc(currentUser).delete();
-        // setOpenDeleteUser(false);
-        // alert("successfully submitted the tip.");
+        const db = firebase.firestore();
+        const ref = db.collection('tips').doc();
+        const id = ref.id;
+        const name = tipName;
+        const link = videoTip;
+        const videoUrl = "https://player.vimeo.com/video/"
+
+        firebase.firestore().collection('tips').doc(id).set({skillID:id, skillName:name, url:videoUrl+link})
+        alert("successfully added new tip!");
+        setTipName('');
+        setVideoTip('');
+        setOpenTip(false);
     };    
 
 
@@ -196,7 +205,7 @@ const UploadForm = () => {
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipe+".pdf",
             dateUploaded: Date.now(),
-            videoSkills: skill,
+            // videoSkills: skill,
             // videoTips: tips,
             numRatings: 1,
             avgRating: 5
@@ -218,8 +227,8 @@ const UploadForm = () => {
         setVideoID('')
         setPdfFile('')
         setDescription('')
-        setVideoSkills('')
-        setVideoTips('')
+        setVideoSkill('')
+        setVideoTip('')
         setImages({});
         setOpenConfirm(false);
     }
@@ -241,18 +250,17 @@ const UploadForm = () => {
         <div className={styles.container}>
         <div
             style={{
-            paddingTop: "10vh",
+            paddingTop: "5vh",
             width: "100%",
             minWidth: "29%",
             }}
         ></div>
         <React.Fragment>
-            <ui.Typography variant="h6" gutterBottom>
-                Upload New Recipe
-            </ui.Typography>
-
             <SwipeableViews axis={theme.direction === "rtl" ? "x-reverse" : "x"} index={value} onChangeIndex={handleChangeIndex}>
                 <TabPanel value={value} index={0} dir={theme.direction}>
+                <ui.Typography align="center" variant="h6" gutterBottom>
+                    Upload New Recipe
+                </ui.Typography>
                 <ui.Grid container spacing={3}>
                     <ui.Grid item xs={12} sm={6}>
                         <ui.TextField
@@ -390,7 +398,11 @@ const UploadForm = () => {
                 </TabPanel>
 
                 <TabPanel value={value} index={1} dir={theme.direction}>
-                    <ui.Grid item xs={12} sm={6}>
+                    <ui.Typography align="center" variant="h6" gutterBottom>
+                        Upload New Skill
+                    </ui.Typography>
+                    <ui.Grid container spacing={3}>
+                        <ui.Grid item xs={12} sm={6}>
                         <ui.TextField
                             value={skillName}
                             label="Skill name"
@@ -399,9 +411,9 @@ const UploadForm = () => {
                             variant="outlined"
                         />
                         <ui.TextField
-                            value={videoSkills}
+                            value={videoSkill}
                             label="Vimeo Skill Video ID"
-                            onChange={(e) => setVideoSkills(e.target.value)}
+                            onChange={(e) => setVideoSkill(e.target.value)}
                             fullWidth
                             variant="outlined"
                         />
@@ -409,10 +421,15 @@ const UploadForm = () => {
                             Submit Skill
                         </ui.Button>
                     </ui.Grid>
+                    </ui.Grid>
                 </TabPanel>
 
                 <TabPanel value={value} index={2} dir={theme.direction}>
-                    <ui.Grid item xs={12} sm={6}>
+                    <ui.Typography align="center" variant="h6" gutterBottom>
+                        Upload New Tip
+                    </ui.Typography>
+                    <ui.Grid container spacing={3}>
+                        <ui.Grid item xs={12} sm={6}>
                         <ui.TextField
                             value={tipName}
                             label="Tip name"
@@ -421,15 +438,16 @@ const UploadForm = () => {
                             variant="outlined"
                         />
                         <ui.TextField
-                            value={videoTips}
+                            value={videoTip}
                             label="Vimeo Tip Video ID"
-                            onChange={(e) => setVideoTips(e.target.value)}
+                            onChange={(e) => setVideoTip(e.target.value)}
                             fullWidth
                             variant="outlined"
                         />
                         <ui.Button onClick={() => handleSubmitTip()} variant="contained" color="primary" disableElevation>
                             Submit Tip 
                         </ui.Button>
+                    </ui.Grid>
                     </ui.Grid>
                 </TabPanel>
             </SwipeableViews>
