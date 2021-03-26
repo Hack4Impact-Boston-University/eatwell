@@ -157,7 +157,7 @@ const UploadForm = () => {
         const link = videoTip;
         const videoUrl = "https://player.vimeo.com/video/"
 
-        firebase.firestore().collection('tips').doc(id).set({skillID:id, skillName:name, url:videoUrl+link})
+        firebase.firestore().collection('tips').doc(id).set({tipID:id, tipName:name, url:videoUrl+link})
         alert("successfully added new tip!");
         setTipName('');
         setVideoTip('');
