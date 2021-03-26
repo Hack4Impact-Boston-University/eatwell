@@ -162,7 +162,7 @@ export default function Admin() {
   const [search, setSearch] = React.useState("");
   const [value, setValue] = React.useState(1);
   const theme = useTheme();
-  const { width } = useWindowSize();
+  const { width } = useWindowSize();0
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState(Date.now())
