@@ -194,6 +194,14 @@ const Navbar = () => {
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
+							<Button href={`/recipes/skillList`} className={classes.menuItems}>
+								<Book />
+								<Typography variant="subtitle2">Skills</Typography>
+							</Button>
+							<Button href={`/recipes/tipList`} className={classes.menuItems}>
+								<Book />
+								<Typography variant="subtitle2">Tips</Typography>
+							</Button>
 							{user.role == "user" ? 
 								<UserMenuItems/> 
 								: 

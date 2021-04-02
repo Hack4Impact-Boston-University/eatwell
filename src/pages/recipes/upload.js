@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
-import * as ui from '@material-ui/core'
-import * as firebase from 'firebase'
-import 'firebase/firestore'
-import initFirebase from '../../utils/auth/initFirebase'
-import { DropzoneArea } from 'material-ui-dropzone'
-import { PictureAsPdf, Router } from '@material-ui/icons'
+import React, { useState } from "react";
+import * as ui from "@material-ui/core";
+import * as firebase from "firebase";
+import "firebase/firestore";
+import initFirebase from "../../utils/auth/initFirebase";
+import { DropzoneArea } from "material-ui-dropzone";
+import { PictureAsPdf, Router } from "@material-ui/icons";
 import Navbar from "../../components/Navbar";
 import styles from '../../styles/Home.module.css'
 import useSWR from "swr";
@@ -30,11 +30,11 @@ import { useRouter } from 'next/router';
 initFirebase()
 
 const handlePreviewIcon = (fileObject, classes) => {
-    const iconProps = {
-      className : classes.image,
-    }
-    return <PictureAsPdf {...iconProps} />
-}
+	const iconProps = {
+		className: classes.image,
+	};
+	return <PictureAsPdf {...iconProps} />;
+};
 
 
 function TabPanel(props) {
@@ -125,10 +125,11 @@ const UploadForm = () => {
         const link = videoSkill;
         const videoUrl = "https://player.vimeo.com/video/"
 
-        firebase.firestore().collection('skills').doc(id).set({skillID:id, skillName:name, url:videoUrl+link})
+        firebase.firestore().collection('skills').doc(id).set(
+            {skillID:id, skillName:name, url:videoUrl+link,dateUploaded: Date.now()})
         alert("successfully added new skill!");
         setSkillName('');
-        setVideoSkills('');
+        setVideoSkill('');
         setOpenSkill(false);
     };
 
@@ -157,7 +158,8 @@ const UploadForm = () => {
         const link = videoTip;
         const videoUrl = "https://player.vimeo.com/video/"
 
-        firebase.firestore().collection('tips').doc(id).set({tipID:id, tipName:name, url:videoUrl+link})
+        firebase.firestore().collection('tips').doc(id).set(
+            {tipID:id, tipName:name, url:videoUrl+link,dateUploaded: Date.now()})
         alert("successfully added new tip!");
         setTipName('');
         setVideoTip('');
@@ -235,7 +237,7 @@ const UploadForm = () => {
 
 	if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");
-		return (<div></div>);
+		return <div></div>;
 	}
 
     if (!skills || !tips) {

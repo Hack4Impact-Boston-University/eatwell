@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
-import RecipeCard from "../../components/recipeCard";
+import TipCard from "../../components/tipCard";
 import {
 	getFavsFromCookie,
 	getNotesFromCookie,
@@ -19,7 +19,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadRating } from "../../utils/recipes.js";
+import { uploadRating } from "../../utils/tips.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
@@ -73,17 +73,17 @@ function a11yProps(index) {
 	};
 }
 
-export default function RecipeReviewCard() {
+export default function TipReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now())
 	const { user, upload } = useUser();
-	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+	const { data: tips } = useSWR(`/api/recipes/getAllTips`, fetcher);
+	const { data: tipsDic } = useSWR(`/api/recipes/getAllTipsDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	let favRecipes = getFavsFromCookie() || {};
-	const recipeNotes = getNotesFromCookie() || {};
-	const recipeRatings = getRatingsFromCookie() || {};
-	//const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
+	let favTips = getFavsFromCookie() || {};
+	const tipNotes = getNotesFromCookie() || {};
+	const tipRatings = getRatingsFromCookie() || {};
+	//const { data: userData } = useSWR(`/api/favoriteTips/${favoriteTip}`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
@@ -99,45 +99,45 @@ export default function RecipeReviewCard() {
 		window.addEventListener("beforeunload", () => {
 			if (!_.isEqual(getFavsFromCookie(), undefined)) {
 				upload({
-					favoriteRecipes: Object.keys(getFavsFromCookie()),
+					favoriteTips: Object.keys(getFavsFromCookie()),
 					notes: getNotesFromCookie(),
 					ratings: getRatingsFromCookie(),
 				});
-				//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
+				//uploadRating(getRatingsFromCookie(), tipRatings, tips);
 			}
 		});
 	});
 
 	const onFavClick = () => {
 		setDummy(!dummy);
-		favRecipes = getFavsFromCookie() || {};
-		//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
+		favTips = getFavsFromCookie() || {};
+		//uploadRating(getRatingsFromCookie(), tipRatings, tips);
 	};
 
-	if (!recipes || !recipesDic || !programsDic || !user || !favRecipes) {
-		return "Loading recipes...";
+	if (!tips || !tipsDic || !programsDic || !user || !favTips) {
+		return "Loading tips...";
 	}
 
-	const recipesUser = [];
-	if (!user.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programRecipes)
-		if (_.isEqual(user?.role, "user")) {
-			if (!_.isEqual(user.program, "")) {
-				if (programsDic[user.program]?.programRecipes != null || programsDic[user.program]?.programRecipes != []) {
-					var i;
-					for (i = 0; i < keysList.length; i++) {
-						console.log(programsDic[user.program].programRecipes[keysList[i]])
-						var d = Date.parse(programsDic[user.program].programRecipes[keysList[i]]+"T00:00:00.0000");
-						if (d < uploadDate) {
-							recipesUser.push(
-								recipesDic[keysList[i]]
-							);
-						}
-					}
-				}
-			}
-		}
-	}	
+	const tipsUser = [];
+	// if (!user.program == "") {
+	// 	const keysList = Object.keys(programsDic[user.program]?.programTips)
+	// 	if (_.isEqual(user?.role, "user")) {
+	// 		if (!_.isEqual(user.program, "")) {
+	// 			if (programsDic[user.program]?.programTips != null || programsDic[user.program]?.programTips != []) {
+	// 				var i;
+	// 				for (i = 0; i < keysList.length; i++) {
+	// 					console.log(programsDic[user.program].programTips[keysList[i]])
+	// 					var d = Date.parse(programsDic[user.program].programTips[keysList[i]]+"T00:00:00.0000");
+	// 					if (d < uploadDate) {
+	// 						tipsUser.push(
+	// 							tipsDic[keysList[i]]
+	// 						);
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }	
 
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
@@ -148,60 +148,59 @@ export default function RecipeReviewCard() {
 	return (
 		<div className={styles.container2}>
 			{user.role == "admin" ? (
-				!_.isEqual(recipes, []) ? (
+				!_.isEqual(tips, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
-						{recipes.map((obj, idx) => {
+						{tips.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) return;
-							if (!favs || obj.id in favRecipes) {
+							if (!favs || obj.id in favTips) {
 								return (
-									<RecipeCard
+									<TipCard
 										key={obj.id}
 										object={obj}
-										isFav={obj.id in favRecipes}
+										isFav={obj.id in favTips}
 										onFavClick={() => onFavClick()}
-										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+										initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
 										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+											obj.id in tipRatings ? tipRatings[obj.id] : 0
 										}
 									/>
 								);
 							} else {
 								return;
 							}
-							//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
+							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].dishID)} />
 						})}
 					</Grid>
 				) : (
 					<Grid>
-						<h4>No recipes to display</h4>
+						<h4>No tips to display</h4>
 					</Grid>
 				)
-			) : !_.isEqual(recipesUser, []) ? (
+			) : !_.isEqual(tipsUser, []) ? (
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{recipesUser.map((obj, idx) => {
+					{/* {tipsUser.map((obj, idx) => {
 						if (!obj.nameOfDish || !obj.id) return;
-						if (!favs || obj.id in favRecipes) {
+						if (!favs || obj.id in favTips) {
 							return (
-								<RecipeCard
+								<TipCard
 									key={obj.id}
 									object={obj}
-									isFav={obj.id in favRecipes}
+									isFav={obj.id in favTips}
 									onFavClick={() => onFavClick()}
-									initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+									initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
 									initRating={
-										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+										obj.id in tipRatings ? tipRatings[obj.id] : 0
 									}
 								/>
 							);
 						} else {
 							return;
 						}
-						//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
-					})}
+					})} */}
 				</Grid>
 			) : (
 				<Grid>
-					<h4>No recipes to display</h4>
+					<h4>No tips to display</h4>
 				</Grid>
 			)}
 
@@ -218,7 +217,7 @@ export default function RecipeReviewCard() {
 						aria-label="full width tabs example"
 					>
 						<Tab
-							label="All Recipes"
+							label="All Tips"
 							{...a11yProps(0)}
 							className={classes.viewTabLabel}
 						/>
