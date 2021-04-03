@@ -31,16 +31,21 @@ const handlePreviewIcon = (fileObject, classes) => {
 	};
 	return <PictureAsPdf {...iconProps} />;
 };
-
+/*
+but we need to be able to : upload multiple images on the upload page
+just like how the upload page already has multiple image selection for the recipe image, we needa replicate it for uploading recipe itself
+and then ill work on doing the slideshow on the recipes page
+*/
 const UploadForm = () => {
 	const [recipeName, setRecipeName] = useState("");
 	const [videoID, setVideoID] = useState("");
-	const [pdfFile, setPdfFile] = useState("");
+	const [recipeImg, setRecipeImg] = useState({});
 	const [description, setDescription] = useState("");
 	const [videoSkills, setVideoSkills] = useState("");
 	const [videoTips, setVideoTips] = useState("");
 	const [images, setImages] = useState({});
 	const [openConfirm, setOpenConfirm] = React.useState(false);
+	var uploadedRecipeImgs = [];
 	var uploadedImages = [];
 
 	const router = useRouter();
@@ -67,6 +72,7 @@ const UploadForm = () => {
 
 		var i;
 		var uploadedImages = Object.values(images);
+		var uploadedRecipeImgs = Object.values(recipeImg);
 
 		var document = firebase.firestore().collection("recipes").doc();
 		var data = {
@@ -75,7 +81,7 @@ const UploadForm = () => {
 			description: description,
 			images: uploadedImages,
 			videoRecipe: videoUrl + videoID,
-			pdfRecipe: recipe + ".pdf",
+			recipeImgs: uploadedRecipeImgs,
 			dateUploaded: Date.now(),
 			videoSkills: videoUrl + videoSkills,
 			videoTips: videoUrl + videoTips,
@@ -84,14 +90,16 @@ const UploadForm = () => {
 		};
 
 		document.set(data);
-		firebase
-			.storage()
-			.ref()
-			.child(recipe + ".pdf")
-			.put(pdfFile)
-			.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-				complete: function () {},
-			});
+		for (i = 0; i < uploadedRecipeImgs.length; i++) {
+			firebase
+				.storage()
+				.ref()
+				.child(recipe + i + ".pdf")
+				.putString(uploadedRecipeImgs[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
 		for (i = 0; i < uploadedImages.length; i++) {
 			firebase
 				.storage()
@@ -105,7 +113,7 @@ const UploadForm = () => {
 
 		setRecipeName("");
 		setVideoID("");
-		setPdfFile("");
+		setRecipeImg({});
 		setDescription("");
 		setVideoSkills("");
 		setVideoTips("");
@@ -182,13 +190,10 @@ const UploadForm = () => {
 						/>
 					</ui.Grid>
 					<ui.Grid item xs={12}>
-						<DropzoneArea
-							accept="application/pdf"
-							maxFileSize={10485760}
-							dropzoneText="Click to select or drag and drop recipe image"
-							filesLimit={1}
-							getPreviewIcon={handlePreviewIcon}
-							onChange={(files) => setPdfFile(files[0])}
+						<MultiImageInput
+							images={recipeImg}
+							setImages={setRecipeImg}
+							inputId
 						/>
 					</ui.Grid>
 
@@ -200,7 +205,8 @@ const UploadForm = () => {
 						>
 							Upload
 						</ui.Button>
-						{recipeName == "" || uploadedImages == [] || videoID == "" ? (
+						{/* {recipeName == "" || uploadedImages == [] || videoID == "" ? ( */}
+						{recipeName == "" || uploadedImages == [] || uploadedRecipeImgs == [] || videoID == "" ? (
 							<ui.Dialog
 								disableBackdropClick
 								disableEscapeKeyDown
