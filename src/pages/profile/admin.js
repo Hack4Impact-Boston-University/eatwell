@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import {
   TextField, List, ListItemText, IconButton,
   Accordion, AccordionSummary, AccordionDetails,
-  ListItemAvatar, Typography, Tabs, Tab, Box,
+  ListItemAvatar, ListItemSecondaryAction, Typography, Tabs, Tab, Box,
   Avatar, makeStyles, useTheme, Grid, ListItem,
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
@@ -82,7 +82,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component={'span'}>{children}</Typography>
         </Box>
       )}
     </div>
@@ -308,8 +308,11 @@ export default function Admin() {
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('');
   const [addedProgramNumUsers, setAddedProgramNumUsers] = useState('');
+  const [numCodes, setNumCodes] = useState('');
+  const [numProgramCodes, setNumProgramCodes] = useState('');
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
+  const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
 
@@ -373,6 +376,20 @@ export default function Admin() {
         color: #000;
     }`
 
+  const setSelectedProgram = (p) => {
+    setSelectedProgramProgram(p)
+    setNumProgramCodes(
+      codes.reduce((acc, code) => {
+        if(code?.programID == p?.programID) {
+          acc++;
+        }
+        console.log(acc)
+        return acc
+      }, 0)
+    )
+  }
+
+
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
   };
@@ -392,7 +409,7 @@ export default function Admin() {
 		return result;
 	}
 
-  function createCodes(num, id) {
+  function createCodes(name, num, id) {
     if(num > 500) {
       alert("Too many users, cannot write codes");
       throw new Error("Too many users, cannot write codes");
@@ -401,7 +418,7 @@ export default function Admin() {
     var index;
     for(index = 0; index < num; index++) {
       const code = generate(6);
-      batch.set(db.collection('codes').doc(code), {programName: addedProgram, programID:id});
+      batch.set(db.collection('codes').doc(code), {programName: name, programID:id});
     }
     return batch.commit();
   }
@@ -415,10 +432,10 @@ export default function Admin() {
     }
     db.collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
     .then(() => {
-      return createCodes(addedProgramNumUsers, id);
+      return createCodes(addedProgram, addedProgramNumUsers, id);
     }).then(() => {
       alert("successfully added new program!");
-      setSelectedProgramProgram(addedProgram);
+      setSelectedProgram(addedProgram);
       setAddedProgram('');
       setOpenAddProgram(false);
     })
@@ -426,6 +443,52 @@ export default function Admin() {
       console.log(err);
     });
   };
+
+  function addCodes() {
+    console.log(program);
+    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.programID)
+    .then(()=>{
+      setOpenAddCodes(false); 
+      setNumCodes('');
+      alert("Successfully added codes!")
+    }).catch((err) => alert(err))
+  }
+
+  function deleteCode(id) {
+    db.collection("codes").doc(id).delete().then(() => {
+      alert("Successfully delete code!")
+    }).catch((err) => alert(err))
+  }
+
+  function getRandom(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandom: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+
+  function deleteCodes() {
+    if(numCodes > numProgramCodes) {
+      alert("There are only " + numProgramCodes + " codes!");
+    }
+    let delCodes = getRandom(codes, numCodes);
+    var batch = db.batch();
+    delCodes.forEach((code) => {
+      batch.delete(db.collection("codes").doc(code?.id))
+    })
+    batch.commit().then(()=> {
+      setOpenDeleteCodes(false); 
+      setNumCodes('');
+      alert("Successfully deleted codes!")
+    }).catch((err) => alert(err))
+  }
 
   const handleClickOpenDeleteProgram = (disabled) => {
     setOpenDeleteProgram(true);
@@ -436,7 +499,7 @@ export default function Admin() {
   };
 
   const deleteProgram = () => {
-    db.collection('programs').doc(selectedProgramProgram.programID).delete()
+    db.collection('programs').doc(selectedProgramProgram?.programID).delete()
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
@@ -458,7 +521,7 @@ export default function Admin() {
     }
     setSelectedRecipes(originallySelected)
     setCurrentProgramRecipes(temp)
-    setSelectedProgramProgram(programRecipesNow)
+    setSelectedProgram(programRecipesNow)
   };
 
   const handleCloseEditProgramRecipes = () => {
@@ -829,8 +892,6 @@ export default function Admin() {
     }
   }
 
-  console.log(selectedProgramProgram, codes);
-
   return (
     <div className={classes.root}>
       <div
@@ -950,7 +1011,7 @@ export default function Admin() {
                       return (
                         <Grid item>                      
                           <ListItem key={value?.programName} button selected={true}
-                            onClick={() => {setSelectedProgramProgram(value); setRowsFunc(value)}}>
+                            onClick={() => {setSelectedProgram(value); setRowsFunc(value)}}>
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
@@ -960,7 +1021,7 @@ export default function Admin() {
                         <Grid item>                      
                           <ListItem
                             key={value?.programName} button selected={false} classes={{ selected: classes.active }}
-                            onClick={() => {setSelectedProgramProgram(value); setRowsFunc(value)}}>
+                            onClick={() => {setSelectedProgram(value); setRowsFunc(value)}}>
                             <ListItemText>{value?.programName}</ListItemText>
                           </ListItem>
                           <Divider light />
@@ -971,7 +1032,7 @@ export default function Admin() {
             <Grid item sm={5}>
               {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
               <div> {/* ----------------------- delete program ----------------------- */}
-                <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgramProgram(selectedProgramProgram)}>
+                <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgram(selectedProgramProgram)}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
                 </ListItem>
               </div>}
@@ -1021,7 +1082,6 @@ export default function Admin() {
                 {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
                 </ListItemText>
               </List> </div>}
-
               {selectedProgramProgram?.programUsers != undefined ?
               Object.values(selectedProgramProgram?.programUsers).map((value) => {
                 return (
@@ -1049,42 +1109,62 @@ export default function Admin() {
               }
               
               
-              {Object.keys(selectedProgramProgram).length > 0 && codes != null ? 
+              {Object.keys(selectedProgramProgram).length > 0 && codes != null && numProgramCodes > 0 ?
                 <div> {/* ----------------------- edit users list ----------------------- */}
                   <List>
-                    <ListItemText> Unused Codes
+                    <ListItemText> Unused Codes - {numProgramCodes}
                     {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
                     </ListItemText>
                   </List>
-                  {codes.map((code) => {
-                    if(code?.programID == selectedProgramProgram.programID) {
-                      return (<Accordion>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                          <ListItemAvatar>
-                            <Avatar
-                            // alt={`Avatar n°${value + 1}`}
-                            // src={`/static/images/avatar/${value + 1}.jpg`}
-                            />
-                          </ListItemAvatar>
-                          <ListItemText primary={code?.id}/>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <ol className={classes.noNum}>
-                              {Object.keys(code).map((key) => {
-                                if(key != "id") {
-                                  return <li>{key}: {code[key]}</li>
-                                }
-                              })}
-                            </ol>
-                        </AccordionDetails>
-                      </Accordion>)
-                    }
-                  })}
+                  <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+                    <List>
+                      {codes.map((code) => {
+                      if(code?.programID == selectedProgramProgram?.programID) {
+                        return (
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar/>
+                            </ListItemAvatar>
+                            <ListItemText primary={code?.id}/>
+                            <ListItemSecondaryAction>
+                              <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        // <Accordion>
+                        //   <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                        //     <ListItemAvatar>
+                        //       <Avatar
+                        //       // alt={`Avatar n°${value + 1}`}
+                        //       // src={`/static/images/avatar/${value + 1}.jpg`}
+                        //       />
+                        //     </ListItemAvatar>
+                        //     <ListItemText primary={code?.id}/>
+                        //   </AccordionSummary>
+                        //   <AccordionDetails>
+                        //       <ol className={classes.noNum}>
+                        //         {Object.keys(code).map((key) => {
+                        //           if(key != "id") {
+                        //             return <li>{key}: {code[key]}</li>
+                        //           }
+                        //         })}
+                        //       </ol>
+                        //   </AccordionDetails>
+                        // </Accordion>
+                        )}
+                      })}
+                    </List>
+                  </Paper>
+                  <ListItem key={"Add Code"}>
+                    <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
+                  </ListItem>
+                  <ListItem key={"Delete Code"}>
+                    <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
+                  </ListItem>
                 </div> : <Grid></Grid>
               }
-              <ListItem key={"Add Code"}>
-                  <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
-              </ListItem>
+              
             </Grid>
           </Grid>
 
@@ -1108,9 +1188,17 @@ export default function Admin() {
           <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodes}>
             <DialogActions>
               <h4>Add Codes</h4>
-              <TextField value={addedProgramNumUsers || ''} label="Number of Users" onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
+              <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
               <Button onClick={() => setOpenAddCodes(false)} color="primary"> Cancel </Button>
-              <Button onClick={() => createCodes(addedProgramNumUsers, selectedProgramProgram?.programID).then(()=>{setOpenAddCodes(false); alert("Successfully added codes!")}).catch((err) => alert(err))} color="primary"> Confirm </Button>
+              <Button onClick={() => addCodes()} color="primary"> Confirm </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteCodes}>
+            <DialogActions>
+              <h4>Delete Codes</h4>
+              <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
+              <Button onClick={() => setOpenDeleteCodes(false)} color="primary"> Cancel </Button>
+              <Button onClick={() => deleteCodes()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
 
