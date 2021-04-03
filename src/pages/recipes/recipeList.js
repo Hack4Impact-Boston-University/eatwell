@@ -23,6 +23,7 @@ import { uploadRating } from "../../utils/recipes.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
+import { ColorLensOutlined } from "@material-ui/icons";
 
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
@@ -74,14 +75,11 @@ function a11yProps(index) {
 
 export default function RecipeReviewCard() {
 	const classes = useStyles();
-
+	const [uploadDate, setUploadDate] = React.useState(Date.now())
 	const { user, upload } = useUser();
 	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-	const { data: programsDic } = useSWR(
-		`/api/programs/getAllProgramsDic`,
-		fetcher
-	);
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	let favRecipes = getFavsFromCookie() || {};
 	const recipeNotes = getNotesFromCookie() || {};
 	const recipeRatings = getRatingsFromCookie() || {};
@@ -121,28 +119,26 @@ export default function RecipeReviewCard() {
 	}
 
 	const recipesUser = [];
-	if (_.isEqual(user?.role, "user")) {
-		if (!_.isEqual(user?.program, "")) {
-			if (programsDic[user.program]?.programRecipes != null) {
-				if (programsDic[user.program]?.programRecipes != []) {
+	if (!user.program == "") {
+		const keysList = Object.keys(programsDic[user.program]?.programRecipes)
+		if (_.isEqual(user?.role, "user")) {
+			if (!_.isEqual(user.program, "")) {
+				if (programsDic[user.program]?.programRecipes != null || programsDic[user.program]?.programRecipes != []) {
 					var i;
-					for (
-						i = 0;
-						i < programsDic[user.program].programRecipes.length;
-						i++
-					) {
-						recipesUser.push(
-							recipesDic[programsDic[user.program].programRecipes[i]]
-						);
+					for (i = 0; i < keysList.length; i++) {
+						console.log(programsDic[user.program].programRecipes[keysList[i]])
+						var d = Date.parse(programsDic[user.program].programRecipes[keysList[i]]+"T00:00:00.0000");
+						if (d < uploadDate) {
+							recipesUser.push(
+								recipesDic[keysList[i]]
+							);
+						}
 					}
 				}
 			}
-		} else {
-			recipes.forEach((recipe) => {
-				recipesUser.push(recipe);
-			});
 		}
-	}
+	}	
+
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");

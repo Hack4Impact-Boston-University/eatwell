@@ -70,9 +70,6 @@ const UploadForm = () => {
         var i;
         var uploadedImages = Object.values(images);
 
-        var d = new Date();
-        var date = d.getFullYear().toString() + '/' + (d.getMonth()+1).toString() + '/' + d.getDate().toString()
-
         var document = firebase.firestore().collection('recipes').doc();
         var data = {
             id:document.id,
@@ -81,7 +78,7 @@ const UploadForm = () => {
             images: uploadedImages,
             videoRecipe: videoUrl + videoID,
             pdfRecipe: recipe+".pdf",
-            dateUploaded: date,
+            dateUploaded: Date.now(),
             videoSkills: videoUrl + videoSkills,
             videoTips: videoUrl + videoTips,
             numRatings: 1,
