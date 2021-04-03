@@ -31,11 +31,7 @@ const handlePreviewIcon = (fileObject, classes) => {
 	};
 	return <PictureAsPdf {...iconProps} />;
 };
-/*
-but we need to be able to : upload multiple images on the upload page
-just like how the upload page already has multiple image selection for the recipe image, we needa replicate it for uploading recipe itself
-and then ill work on doing the slideshow on the recipes page
-*/
+
 const UploadForm = () => {
 	const [recipeName, setRecipeName] = useState("");
 	const [videoID, setVideoID] = useState("");
