@@ -104,7 +104,9 @@ const UploadForm = () => {
     const { data: skills } = useSWR(`/api/programs/getAllSkills`, fetcher);
     const [skill, setSkill] = React.useState('');
     const [openSkill, setOpenSkill] = React.useState(false);
-  
+    const [descriptionSkill, setDescriptionSkill] = useState('')
+    const [imagesSkill, setImagesSkill] = useState({});
+
     const handleChangeSkill = (event) => {
       setSkill(event.target.value);
     };
@@ -124,12 +126,26 @@ const UploadForm = () => {
         const name = skillName;
         const link = videoSkill;
         const videoUrl = "https://player.vimeo.com/video/"
+        var uploadedImages = Object.values(imagesSkill);
 
-        firebase.firestore().collection('skills').doc(id).set(
-            {skillID:id, skillName:name, url:videoUrl+link,dateUploaded: Date.now()})
+        firebase.firestore().collection('skills').doc(id).set({
+            skillID:id,
+            skillName:name,
+            url:videoUrl+link,
+            dateUploaded: Date.now(),
+            images: uploadedImages,
+            numRatings: 1,
+            avgRating: 5
+        })
+        firebase.storage().ref().child(id+".jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+            'complete': function() {
+            }
+        })
         alert("successfully added new skill!");
         setSkillName('');
         setVideoSkill('');
+        setDescriptionSkill('');
+        setImagesSkill({});
         setOpenSkill(false);
     };
 
@@ -137,7 +153,9 @@ const UploadForm = () => {
     const { data: tips } = useSWR(`/api/programs/getAllTips`, fetcher);
     const [tip, setTip] = React.useState('');
     const [openTip, setOpenTip] = React.useState(false);
-      
+    const [descriptionTip, setDescriptionTip] = useState('')
+    const [imagesTip, setImagesTip] = useState({});
+
     const handleChangeTip = (event) => {
       setTip(event.target.value);
     };
@@ -157,12 +175,26 @@ const UploadForm = () => {
         const name = tipName;
         const link = videoTip;
         const videoUrl = "https://player.vimeo.com/video/"
+        var uploadedImages = Object.values(imagesTip);
 
-        firebase.firestore().collection('tips').doc(id).set(
-            {tipID:id, tipName:name, url:videoUrl+link,dateUploaded: Date.now()})
+        firebase.firestore().collection('tips').doc(id).set({
+            tipID:id,
+            tipName:name,
+            url:videoUrl+link,
+            dateUploaded: Date.now(),
+            images: uploadedImages,
+            numRatings: 1,
+            avgRating: 5
+        })
+        firebase.storage().ref().child(id+".jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+            'complete': function() {
+            }
+        })
         alert("successfully added new tip!");
         setTipName('');
         setVideoTip('');
+        setDescriptionTip('');
+        setImagesTip({});
         setOpenTip(false);
     };    
 
@@ -405,24 +437,45 @@ const UploadForm = () => {
                     </ui.Typography>
                     <ui.Grid container spacing={3}>
                         <ui.Grid item xs={12} sm={6}>
-                        <ui.TextField
-                            value={skillName}
-                            label="Skill name"
-                            onChange={(e) => setSkillName(e.target.value)}
-                            fullWidth
-                            variant="outlined"
-                        />
-                        <ui.TextField
-                            value={videoSkill}
-                            label="Vimeo Skill Video ID"
-                            onChange={(e) => setVideoSkill(e.target.value)}
-                            fullWidth
-                            variant="outlined"
-                        />
+                            <ui.TextField
+                                value={skillName}
+                                label="Skill name"
+                                onChange={(e) => setSkillName(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <ui.TextField
+                                value={videoSkill}
+                                label="Vimeo Skill Video ID"
+                                onChange={(e) => setVideoSkill(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <ui.TextField
+                                value={descriptionSkill}
+                                label="Skill Description"
+                                multiline
+                                onChange={(e) => setDescriptionSkill(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <MultiImageInput
+                                images={imagesSkill}
+                                setImages={setImagesSkill}
+                                cropConfig={{ crop, ruleOfThirds: true }}
+                                inputId
+                                max = {1}
+                            />
+                        </ui.Grid>
                         <ui.Button onClick={() => handleSubmitSkill()} variant="contained" color="primary" disableElevation>
                             Submit Skill
                         </ui.Button>
-                    </ui.Grid>
                     </ui.Grid>
                 </TabPanel>
 
@@ -432,24 +485,45 @@ const UploadForm = () => {
                     </ui.Typography>
                     <ui.Grid container spacing={3}>
                         <ui.Grid item xs={12} sm={6}>
-                        <ui.TextField
-                            value={tipName}
-                            label="Tip name"
-                            onChange={(e) => setTipName(e.target.value)}
-                            fullWidth
-                            variant="outlined"
-                        />
-                        <ui.TextField
-                            value={videoTip}
-                            label="Vimeo Tip Video ID"
-                            onChange={(e) => setVideoTip(e.target.value)}
-                            fullWidth
-                            variant="outlined"
-                        />
+                            <ui.TextField
+                                value={tipName}
+                                label="Tip name"
+                                onChange={(e) => setTipName(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <ui.TextField
+                                value={videoTip}
+                                label="Vimeo Tip Video ID"
+                                onChange={(e) => setVideoTip(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <ui.TextField
+                                value={descriptionTip}
+                                label="Tip Description"
+                                multiline
+                                onChange={(e) => setDescriptionTip(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </ui.Grid>
+                        <ui.Grid item xs={12} sm={6}>
+                            <MultiImageInput
+                                images={imagesTip}
+                                setImages={setImagesTip}
+                                cropConfig={{ crop, ruleOfThirds: true }}
+                                inputId
+                                max = {1}
+                            />
+                        </ui.Grid>
                         <ui.Button onClick={() => handleSubmitTip()} variant="contained" color="primary" disableElevation>
                             Submit Tip 
                         </ui.Button>
-                    </ui.Grid>
                     </ui.Grid>
                 </TabPanel>
             </SwipeableViews>

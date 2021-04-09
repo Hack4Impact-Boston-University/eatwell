@@ -18,7 +18,6 @@ import {makeStyles,
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
-import { DialerSip } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
   container: {

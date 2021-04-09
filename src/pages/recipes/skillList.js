@@ -103,7 +103,7 @@ export default function SkillReviewCard() {
 					notes: getNotesFromCookie(),
 					ratings: getRatingsFromCookie(),
 				});
-				//uploadRating(getRatingsFromCookie(), skillRatings, skills);
+				uploadRating(getRatingsFromCookie(), skillRatings, skills);
 			}
 		});
 	});
@@ -111,33 +111,33 @@ export default function SkillReviewCard() {
 	const onFavClick = () => {
 		setDummy(!dummy);
 		favSkills = getFavsFromCookie() || {};
-		//uploadRating(getRatingsFromCookie(), skillRatings, skills);
+		uploadRating(getRatingsFromCookie(), skillRatings, skills);
 	};
 
 	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {
 		return "Loading skills...";
 	}
 
-	const skillsUser = [];
-	if (!user.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programSkills)
-		if (_.isEqual(user?.role, "user")) {
-			if (!_.isEqual(user.program, "")) {
-				if (programsDic[user.program]?.programSkills != null || programsDic[user.program]?.programSkills != []) {
-					var i;
-					for (i = 0; i < keysList.length; i++) {
-						console.log(programsDic[user.program].programSkills[keysList[i]])
-						var d = Date.parse(programsDic[user.program].programSkills[keysList[i]]+"T00:00:00.0000");
-						if (d < uploadDate) {
-							skillsUser.push(
-								skillsDic[keysList[i]]
-							);
-						}
-					}
-				}
-			}
-		}
-	}	
+	// const skillsUser = [];
+	// if (!user.program == "") {
+	// 	const keysList = Object.keys(programsDic[user.program]?.programSkills)
+	// 	if (_.isEqual(user?.role, "user")) {
+	// 		if (!_.isEqual(user.program, "")) {
+				// if (programsDic[user.program]?.programSkills != null || programsDic[user.program]?.programSkills != []) {
+				// 	var i;
+				// 	for (i = 0; i < keysList.length; i++) {
+				// 		console.log(programsDic[user.program].programSkills[keysList[i]])
+				// 		var d = Date.parse(programsDic[user.program].programSkills[keysList[i]]+"T00:00:00.0000");
+				// 		if (d < uploadDate) {
+				// 			skillsUser.push(
+				// 				skillsDic[keysList[i]]
+				// 			);
+				// 		}
+				// 	}
+				// }
+			// }
+	// 	}
+	// }	
 
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
@@ -147,21 +147,21 @@ export default function SkillReviewCard() {
 
 	return (
 		<div className={styles.container2}>
-			{user.role == "admin" ? (
-				!_.isEqual(skills, []) ? (
+			{/* {user.role == "admin" ? ( */}
+				{!_.isEqual(skills, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{skills.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) return;
+							if (!obj?.skillName || !obj?.skillID) return;
 							if (!favs || obj.id in favSkills) {
 								return (
-									<SkillsCard
-										key={obj.id}
+									<SkillCard
+										key={obj.skillID}
 										object={obj}
-										isFav={obj.id in favSkills}
+										isFav={obj.skillID in favSkills}
 										onFavClick={() => onFavClick()}
-										initNotes={obj.id in skillNotes ? skillNotes[obj.id] : []}
+										initNotes={obj.skillId in skillNotes ? skillNotes[obj.skillId] : []}
 										initRating={
-											obj.id in skillRatings ? skillRatings[obj.id] : 0
+											obj.skillId in skillRatings ? skillRatings[obj.skillId] : 0
 										}
 									/>
 								);
@@ -176,34 +176,34 @@ export default function SkillReviewCard() {
 						<h4>No skills to display</h4>
 					</Grid>
 				)
-			) : !_.isEqual(skillsUser, []) ? (
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{skillsUser.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) return;
-						if (!favs || obj.id in favSkills) {
-							return (
-								<skillCard
-									key={obj.id}
-									object={obj}
-									isFav={obj.id in favSkills}
-									onFavClick={() => onFavClick()}
-									initNotes={obj.id in skillNotes ? skillNotes[obj.id] : []}
-									initRating={
-										obj.id in skillRatings ? skillRatings[obj.id] : 0
-									}
-								/>
-							);
-						} else {
-							return;
-						}
-						//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].dishID)} />
-					})}
-				</Grid>
-			) : (
-				<Grid>
-					<h4>No skills to display</h4>
-				</Grid>
-			)}
+			/* // ) : !_.isEqual(skillsUser, []) ? (
+			// 	<Grid container spacing={1000} className={classes.gridContainerMain}>
+			// 		{skillsUser.map((obj, idx) => {
+			// 			if (!obj.nameOfDish || !obj.id) return;
+			// 			if (!favs || obj.id in favSkills) {
+			// 				return (
+			// 					<skillCard
+			// 						key={obj.id}
+			// 						object={obj}
+			// 						isFav={obj.id in favSkills}
+			// 						onFavClick={() => onFavClick()}
+			// 						initNotes={obj.id in skillNotes ? skillNotes[obj.id] : []}
+			// 						initRating={
+			// 							obj.id in skillRatings ? skillRatings[obj.id] : 0
+			// 						}
+			// 					/>
+			// 				);
+			// 			} else {
+			// 				return;
+			// 			}
+			// 			//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].dishID)} />
+			// 		})}
+			// 	</Grid>
+			// ) : (
+			// 	<Grid>
+			// 		<h4>No skills to display</h4>
+			// 	</Grid>
+			// )} */}
 
 			<div className={styles.nav}>
 				<Navbar />

@@ -20,10 +20,10 @@ import { mapUserData } from "./auth/mapUserData";
 initFirebase();
 var db = firebase.firestore();
 
-export const uploadRating = async (skill, newRating, oldRating, setObj) => {
+export const uploadRating = async (tip, newRating, oldRating, setObj) => {
 	if(newRating == oldRating) {return;}
-	let newData = {numRatings: skill.numRatings, avgRating: skill.avgRating};
-	let sumRatings = skill.numRatings * skill.avgRating;
+	let newData = {numRatings: tip.numRatings, avgRating: tip.avgRating};
+	let sumRatings = tip.numRatings * tip.avgRating;
 	if(oldRating == 0) {
 		sumRatings += newRating;
 		newData.numRatings = newData.numRatings + 1;
@@ -35,18 +35,18 @@ export const uploadRating = async (skill, newRating, oldRating, setObj) => {
 		sumRatings += newRating;
 	}
 	newData.avgRating = sumRatings / newData.numRatings;
-	setObj({...skill, ...newData});
-	db.collection("skills").doc(skill.id).update(newData);
+	setObj({...tip, ...newData});
+	db.collection("tips").doc(tip.id).update(newData);
 }
 
-export const getSkill = async (id) => {
-	db.collection("skills").doc(id).get().then((doc) => {
+export const getTip = async (id) => {
+	db.collection("tips").doc(id).get().then((doc) => {
 		if(doc.exists) {
 			return doc.data();
 		}
 	});
 }
 
-export const setSkillListener = (id, callback) => {
-	return db.collection("skills").doc(id).onSnapshot((doc) => callback(doc))
+export const setTipListener = (id, callback) => {
+	return db.collection("tips").doc(id).onSnapshot((doc) => callback(doc))
 }

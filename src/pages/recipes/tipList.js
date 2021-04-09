@@ -147,19 +147,19 @@ export default function TipReviewCard() {
 
 	return (
 		<div className={styles.container2}>
-			{user.role == "admin" ? (
-				!_.isEqual(tips, []) ? (
+			{/* {user.role == "admin" ? ( */}
+				{!_.isEqual(tips, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{tips.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) return;
-							if (!favs || obj.id in favTips) {
+							if (!obj.tipName || !obj.tipID) return;
+							if (!favs || obj.tipID in favTips) {
 								return (
 									<TipCard
-										key={obj.id}
+										key={obj.tipID}
 										object={obj}
-										isFav={obj.id in favTips}
+										isFav={obj.tipID in favTips}
 										onFavClick={() => onFavClick()}
-										initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
+										initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
 										initRating={
 											obj.id in tipRatings ? tipRatings[obj.id] : 0
 										}
@@ -176,33 +176,34 @@ export default function TipReviewCard() {
 						<h4>No tips to display</h4>
 					</Grid>
 				)
-			) : !_.isEqual(tipsUser, []) ? (
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{/* {tipsUser.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) return;
-						if (!favs || obj.id in favTips) {
-							return (
-								<TipCard
-									key={obj.id}
-									object={obj}
-									isFav={obj.id in favTips}
-									onFavClick={() => onFavClick()}
-									initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
-									initRating={
-										obj.id in tipRatings ? tipRatings[obj.id] : 0
-									}
-								/>
-							);
-						} else {
-							return;
-						}
-					})} */}
-				</Grid>
-			) : (
-				<Grid>
-					<h4>No tips to display</h4>
-				</Grid>
-			)}
+			// ) : !_.isEqual(tipsUser, []) ? (
+			// 	<Grid container spacing={1000} className={classes.gridContainerMain}>
+			// 		{tipsUser.map((obj, idx) => {
+			// 			if (!obj.nameOfDish || !obj.id) return;
+			// 			if (!favs || obj.id in favTips) {
+			// 				return (
+			// 					<TipCard
+			// 						key={obj.id}
+			// 						object={obj}
+			// 						isFav={obj.id in favTips}
+			// 						onFavClick={() => onFavClick()}
+			// 						initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
+			// 						initRating={
+			// 							obj.id in tipRatings ? tipRatings[obj.id] : 0
+			// 						}
+			// 					/>
+			// 				);
+			// 			} else {
+			// 				return;
+			// 			}
+			// 		})}
+			// 	</Grid>
+			// ) : (
+			// 	<Grid>
+			// 		<h4>No tips to display</h4>
+			// 	</Grid>
+			// )}
+			}
 
 			<div className={styles.nav}>
 				<Navbar />
