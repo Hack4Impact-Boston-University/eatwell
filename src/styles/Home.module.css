@@ -71,7 +71,7 @@
   .title {
     margin: 0;
     line-height: 1.15;
-    font-size: min(10vw, 100px);
+    font-size: min(10vw, 75px);
     padding-top: 2rem;
     padding-bottom: 2rem;
   }

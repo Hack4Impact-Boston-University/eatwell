@@ -18,6 +18,7 @@ import {makeStyles,
         } from "@material-ui/core";
 import {getUserFromCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
+import {checkCode} from "../utils/codes.js";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,6 +34,7 @@ const Index = () => {
   const [login, setLogin] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [code, setCode] = React.useState("");
+  const [errorText, setErrorText] = useState("");
   const handleClose = () => {
     setOpen(false);
   };
@@ -44,6 +46,23 @@ const Index = () => {
   }
 
   const router = useRouter();
+
+  const submit = () => {
+    if(code != "") {
+      checkCode(code.trim().toUpperCase()).then((data) => {
+        console.log(data)
+        setErrorText("");
+        // Save program info for later
+        router.push("/profile/create");
+      }).catch((err) => {
+        // Check if firebase error or incorrect code, return error accordingly
+        console.log(err);
+        setErrorText(typeof(err) == "string" ? err : err.message);
+      });
+    } else {
+      setErrorText("");
+    }
+  }
 
   if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");
@@ -62,14 +81,51 @@ const Index = () => {
           <main className={styles.main}>
             <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
-            <h2 className={styles.title}>
+            <h4 className={styles.title}>
               Welcome to EatWell!
-            </h2>
+            </h4>
 
             {!user && 
-              <Button>
-                <FirebaseAuth/>
-              </Button>
+                <Grid container justify="center">
+                  <Grid container item xs={5} justify="center">
+                    <Grid xs={12} className={classes.welcomeHeader} item>
+                      <Typography align="center" gutterBottom>
+                        Input your organization-provided activation code to register:
+                      </Typography>
+                    </Grid>
+                    <Grid justify="center" className={classes.formItems} container>
+                      <TextField
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        error={false}
+                        label="Activation Code"
+                        placeholder="Your Organization's Code"
+                        required
+                        // helperText="Please enter your first name"
+                      />
+                    </Grid>
+                    <Grid container justify="center" item>
+                      <Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
+                        Submit
+                      </Button>
+                    </Grid>
+                    <Grid justify="center" className={classes.formItems} container>
+                        <Box component="div" textOverflow="clip">
+                          <Typography variant="h6" color={'error'}>
+                            {errorText}
+                          </Typography>
+                        </Box>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={5} justify="center">
+                      <Typography align="center" gutterBottom>
+                        Already registered? Sign in to proceed:
+                      </Typography>
+                      <Grid container justify="center">
+                        <FirebaseAuth/>
+                      </Grid>
+                  </Grid>
+                </Grid>
             }
             
           </main>
