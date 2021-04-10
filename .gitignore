@@ -2,8 +2,11 @@
 
 # dependencies
 /node_modules
+.next/
 
 # testing
 firestore-coverage.html
 firestore-debug.log
 firestore.rules
+
+admin_key.json

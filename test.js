@@ -60,5 +60,15 @@ describe("My app", () => {
       db.collection("users").doc("eVJIxhBGc5ep3z60lyakypHjg9N2").get()
     );
   });
+
+  it("should approve a code single document read or delete from an unauthenticated user", async () => {
+    const db = getAuthedFirestore(null);
+    await firebase.assertSucceeds(
+      db.collection("codes").doc("9JRMU2").get()
+    );
+    // await firebase.assertSucceeds(
+    //   db.collection("code").doc("9JRMU2").delete()
+    // );
+  });
 });
 
