@@ -88,7 +88,23 @@ const makeProfile = () => {
 		checkCode(code).then((data) => {
 			console.log(data);
 			setErrorText("");
-			return upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}, ...data})
+			return upload({
+				firstname: firstName,
+				lastname: lastName,
+				phone: tel,
+				program: "",
+				programName: "",
+				favoriteRecipes:[],
+				favoriteSkills:[],
+				favoriteTips:[],
+				notes:{},
+				notesSkills:{},
+				notesTips:{},
+				ratings:{},
+				ratingsSkills:{},
+				ratingsTips:{},
+				...data
+			})
 		}).then(() => {
 			router.push('/recipes/recipeList');
 		}).catch((err) => {

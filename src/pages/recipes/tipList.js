@@ -8,9 +8,9 @@ import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import TipCard from "../../components/tipCard";
 import {
-	getFavsFromCookie,
-	getNotesFromCookie,
-	getRatingsFromCookie,
+	getFavsTipsFromCookie,
+	getNotesTipsFromCookie,
+	getRatingsTipsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -19,7 +19,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadRating } from "../../utils/tips.js";
+import { uploadTipsRating } from "../../utils/tips.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
@@ -80,9 +80,9 @@ export default function TipReviewCard() {
 	const { data: tips } = useSWR(`/api/recipes/getAllTips`, fetcher);
 	const { data: tipsDic } = useSWR(`/api/recipes/getAllTipsDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	let favTips = getFavsFromCookie() || {};
-	const tipNotes = getNotesFromCookie() || {};
-	const tipRatings = getRatingsFromCookie() || {};
+	let favTips = getFavsTipsFromCookie() || {};
+	const tipNotes = getNotesTipsFromCookie() || {};
+	const tipRatings = getRatingsTipsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteTips/${favoriteTip}`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const [favs, setFavs] = React.useState(value == 1);
@@ -97,21 +97,21 @@ export default function TipReviewCard() {
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
-			if (!_.isEqual(getFavsFromCookie(), undefined)) {
+			if (!_.isEqual(getFavsTipsFromCookie(), undefined)) {
 				upload({
-					favoriteTips: Object.keys(getFavsFromCookie()),
-					notes: getNotesFromCookie(),
-					ratings: getRatingsFromCookie(),
+					favoriteTips: Object.keys(getFavsTipsFromCookie()),
+					notes: getNotesTipsFromCookie(),
+					ratings: getRatingsTipsFromCookie(),
 				});
-				//uploadRating(getRatingsFromCookie(), tipRatings, tips);
+				uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 			}
 		});
 	});
 
 	const onFavClick = () => {
 		setDummy(!dummy);
-		favTips = getFavsFromCookie() || {};
-		//uploadRating(getRatingsFromCookie(), tipRatings, tips);
+		favTips = getFavsTipsFromCookie() || {};
+		uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 	};
 
 	if (!tips || !tipsDic || !programsDic || !user || !favTips) {
@@ -168,7 +168,7 @@ export default function TipReviewCard() {
 							} else {
 								return;
 							}
-							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].dishID)} />
+							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].tipID)} />
 						})}
 					</Grid>
 				) : (

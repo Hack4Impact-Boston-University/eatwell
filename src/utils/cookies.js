@@ -41,8 +41,44 @@ export const getFavsFromCookie = () => {
   return JSON.parse(cookie)
 }
 
+export const getFavsSkillsFromCookie = () => {
+  const cookie = cookies.get('favSkills')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
+export const getFavsTipsFromCookie = () => {
+  const cookie = cookies.get('favTips')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
 export const setFavCookie = (favs) => {
   cookies.set('fav', favs, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setFavSkillsCookie = (favs) => {
+  cookies.set('favSkills', favs, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setFavTipsCookie = (favs) => {
+  cookies.set('favTips', favs, {
     // firebase id tokens expire in one hour
     // set cookie expiry to match
     expires: 1 / 24,
@@ -63,7 +99,33 @@ export const editFavCookie = (dishID, add) => {
   setFavCookie(data);
 }
 
+export const editFavSkillsCookie = (skillID, add) => {
+  const cookie = cookies.get('favSkills') || '{}';
+  var data = JSON.parse(cookie);
+  if(add) {
+    data[skillID] = "";
+  }
+  else {
+    delete data[skillID]
+  }
+  setFavCookie(data);
+}
+
+export const editFavTipsCookie = (tipID, add) => {
+  const cookie = cookies.get('favTips') || '{}';
+  var data = JSON.parse(cookie);
+  if(add) {
+    data[tipID] = "";
+  }
+  else {
+    delete data[tipID]
+  }
+  setFavCookie(data);
+}
+
 export const removeFavCookie = () => cookies.remove('fav')
+export const removeFavSkillsCookie = () => cookies.remove('favSkills')
+export const removeFavTipsCookie = () => cookies.remove('favTips')
 
 export const getNotesFromCookie = () => {
   const cookie = cookies.get('notes')
@@ -73,8 +135,44 @@ export const getNotesFromCookie = () => {
   return JSON.parse(cookie)
 }
 
+export const getNotesSkillsFromCookie = () => {
+  const cookie = cookies.get('notesSkills')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
+export const getNotesTipsFromCookie = () => {
+  const cookie = cookies.get('notesTips')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
 export const setNotesCookie = (notes) => {
   cookies.set('notes', notes, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setNotesSkillsCookie = (notes) => {
+  cookies.set('notesSkills', notes, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setNotesTipsCookie = (notes) => {
+  cookies.set('notesTips', notes, {
     // firebase id tokens expire in one hour
     // set cookie expiry to match
     expires: 1 / 24,
@@ -95,7 +193,33 @@ export const editNotesCookie = (dishID, notes) => {
   setNotesCookie(data);
 }
 
+export const editNotesSkillsCookie = (skillID, notes) => {
+  const cookie = cookies.get('notesSkills') || '{}';
+  var data = JSON.parse(cookie);
+  if(notes === undefined || notes.length == 0) {
+    delete data[skillID]
+  }
+  else {
+    data[skillID] = notes;
+  }
+  setNotesSkillsCookie(data);
+}
+
+export const editNotesTipsCookie = (tipID, notes) => {
+  const cookie = cookies.get('notesTips') || '{}';
+  var data = JSON.parse(cookie);
+  if(notes === undefined || notes.length == 0) {
+    delete data[tipID]
+  }
+  else {
+    data[tipID] = notes;
+  }
+  setNotesTipsCookie(data);
+}
+
 export const removeNotesCookie = () => cookies.remove('notes')
+export const removeNotesSkillsCookie = () => cookies.remove('notesSkills')
+export const removeNotesTipsCookie = () => cookies.remove('notesTips')
 
 export const getRatingsFromCookie = () => {
   const cookie = cookies.get('ratings')
@@ -105,8 +229,44 @@ export const getRatingsFromCookie = () => {
   return JSON.parse(cookie)
 }
 
+export const getRatingsSkillsFromCookie = () => {
+  const cookie = cookies.get('ratingsSkills')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
+export const getRatingsTipsFromCookie = () => {
+  const cookie = cookies.get('ratingsTips')
+  if (!cookie) {
+    return
+  }
+  return JSON.parse(cookie)
+}
+
 export const setRatingsCookie = (rates) => {
   cookies.set('ratings', rates, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setRatingsSkillsCookie = (rates) => {
+  cookies.set('ratingsSkills', rates, {
+    // firebase id tokens expire in one hour
+    // set cookie expiry to match
+    expires: 1 / 24,
+    //secure: true,
+    sameSite: "lax",
+  })
+}
+
+export const setRatingsTipsCookie = (rates) => {
+  cookies.set('ratingsTips', rates, {
     // firebase id tokens expire in one hour
     // set cookie expiry to match
     expires: 1 / 24,
@@ -127,4 +287,30 @@ export const editRatingsCookie = (dishID, rating) => {
   setRatingsCookie(data);
 }
 
+export const editRatingsSkillsCookie = (skillID, rating) => {
+  const cookie = cookies.get('ratingsSkills') || '{}';
+  var data = JSON.parse(cookie);
+  if(rating == 0) {
+    delete data[skillID]
+  }
+  else {
+    data[skillID] = rating;
+  }
+  setRatingsSkillsCookie(data);
+}
+
+export const editRatingsTipsCookie = (tipID, rating) => {
+  const cookie = cookies.get('ratingsTips') || '{}';
+  var data = JSON.parse(cookie);
+  if(rating == 0) {
+    delete data[tipID]
+  }
+  else {
+    data[tipID] = rating;
+  }
+  setRatingsTipsCookie(data);
+}
+
 export const removeRatingsCookie = () => cookies.remove('ratings')
+export const removeRatingsSkillsCookie = () => cookies.remove('ratingsSkills')
+export const removeRatingsTipsCookie = () => cookies.remove('ratingsTips')

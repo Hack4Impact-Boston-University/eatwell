@@ -8,19 +8,19 @@ import {
 	removeUserCookie,
 	setUserCookie,
 	getUserFromCookie,
-	removeFavCookie,
-	setFavCookie,
-	setNotesCookie,
-	removeNotesCookie,
-	setRatingsCookie,
-	removeRatingsCookie,
+	removeFavTipsCookie,
+	setFavTipsCookie,
+	setNotesTipsCookie,
+	removeNotesTipsCookie,
+	setRatingsTipsCookie,
+	removeRatingsTipsCookie,
 } from "./cookies";
 import { mapUserData } from "./auth/mapUserData";
 
 initFirebase();
 var db = firebase.firestore();
 
-export const uploadRating = async (tip, newRating, oldRating, setObj) => {
+export const uploadTipsRating = async (tip, newRating, oldRating, setObj) => {
 	if(newRating == oldRating) {return;}
 	let newData = {numRatings: tip.numRatings, avgRating: tip.avgRating};
 	let sumRatings = tip.numRatings * tip.avgRating;
@@ -36,7 +36,7 @@ export const uploadRating = async (tip, newRating, oldRating, setObj) => {
 	}
 	newData.avgRating = sumRatings / newData.numRatings;
 	setObj({...tip, ...newData});
-	db.collection("tips").doc(tip.id).update(newData);
+	db.collection("tips").doc(tip.tipID).update(newData);
 }
 
 export const getTip = async (id) => {

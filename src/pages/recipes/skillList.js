@@ -8,9 +8,9 @@ import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import SkillCard from "../../components/skillCard";
 import {
-	getFavsFromCookie,
-	getNotesFromCookie,
-	getRatingsFromCookie,
+	getFavsSkillsFromCookie,
+	getNotesSkillsFromCookie,
+	getRatingsSkillsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -19,7 +19,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadRating } from "../../utils/skills.js";
+import { uploadSkillsRating } from "../../utils/skills.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
@@ -80,9 +80,9 @@ export default function SkillReviewCard() {
 	const { data: skills } = useSWR(`/api/recipes/getAllSkills`, fetcher);
 	const { data: skillsDic } = useSWR(`/api/recipes/getAllSkillsDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	let favSkills = getFavsFromCookie() || {};
-	const skillNotes = getNotesFromCookie() || {};
-	const skillRatings = getRatingsFromCookie() || {};
+	let favSkills = getFavsSkillsFromCookie() || {};
+	const skillNotes = getNotesSkillsFromCookie() || {};
+	const skillRatings = getRatingsSkillsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteSkills/${favoriteSkill}`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const [favs, setFavs] = React.useState(value == 1);
@@ -97,21 +97,21 @@ export default function SkillReviewCard() {
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
-			if (!_.isEqual(getFavsFromCookie(), undefined)) {
+			if (!_.isEqual(getFavsSkillsFromCookie(), undefined)) {
 				upload({
-					favoriteSkills: Object.keys(getFavsFromCookie()),
-					notes: getNotesFromCookie(),
-					ratings: getRatingsFromCookie(),
+					favoriteSkills: Object.keys(getFavsSkillsFromCookie()),
+					notes: getNotesSkillsFromCookie(),
+					ratings: getRatingsSkillsFromCookie(),
 				});
-				uploadRating(getRatingsFromCookie(), skillRatings, skills);
+				uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 			}
 		});
 	});
 
 	const onFavClick = () => {
 		setDummy(!dummy);
-		favSkills = getFavsFromCookie() || {};
-		uploadRating(getRatingsFromCookie(), skillRatings, skills);
+		favSkills = getFavsSkillsFromCookie() || {};
+		uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 	};
 
 	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {
@@ -159,16 +159,16 @@ export default function SkillReviewCard() {
 										object={obj}
 										isFav={obj.skillID in favSkills}
 										onFavClick={() => onFavClick()}
-										initNotes={obj.skillId in skillNotes ? skillNotes[obj.skillId] : []}
+										initNotes={obj.skillID in skillNotes ? skillNotes[obj.skillID] : []}
 										initRating={
-											obj.skillId in skillRatings ? skillRatings[obj.skillId] : 0
+											obj.skillID in skillRatings ? skillRatings[obj.skillID] : 0
 										}
 									/>
 								);
 							} else {
 								return;
 							}
-							//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].dishID)} />
+							//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 						})}
 					</Grid>
 				) : (
@@ -196,7 +196,7 @@ export default function SkillReviewCard() {
 			// 			} else {
 			// 				return;
 			// 			}
-			// 			//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].dishID)} />
+			// 			//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 			// 		})}
 			// 	</Grid>
 			// ) : (

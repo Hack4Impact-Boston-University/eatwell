@@ -20,18 +20,18 @@ import { Rating } from "@material-ui/lab";
 import clsx from "clsx";
 import Link from "next/link";
 import {
-	editFavCookie,
-	editNotesCookie,
-	editRatingsCookie,
+	editFavSkillsCookie,
+	editNotesSkillsCookie,
+	editRatingsSkillsCookie,
 } from "../utils/cookies";
 import ClearIcon from "@material-ui/icons/Clear";
 import StarIcon from "@material-ui/icons/Star";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import {
-	uploadRating,
+	uploadSkillsRating,
 	getRecipe,
 	setRecipeListener,
-} from "../utils/recipes.js";
+} from "../utils/skills.js";
 import Slider from "react-slick";
 import firebase from "firebase/app";
 import "firebase/auth";
@@ -174,7 +174,7 @@ export default function SkillCard({
 
 	function favButtonClick() {
 		setFav(!favorited);
-		editFavCookie(obj.id, !favorited);
+		editFavSkillsCookie(obj.id, !favorited);
 		onFavClick();
 	}
 
@@ -202,7 +202,7 @@ export default function SkillCard({
 				.concat([st])
 				.concat(notes.slice(i + 1))
 		);
-		editNotesCookie(
+		editNotesSkillsCookie(
 			obj.id,
 			notes
 				.slice(0, i)
@@ -214,17 +214,17 @@ export default function SkillCard({
 	function deleteStr(i) {
 		if (notes.slice(0, i).length != 0) {
 			setNotes(notes.slice(0, i).concat(notes.slice(i + 1)));
-			editNotesCookie(obj.id, notes.slice(0, i).concat(notes.slice(i + 1)));
+			editNotesSkillsCookie(obj.id, notes.slice(0, i).concat(notes.slice(i + 1)));
 		} else {
 			setNotes(notes.slice(i + 1));
-			editNotesCookie(obj.id, notes.slice(i + 1));
+			editNotesSkillsCookie(obj.id, notes.slice(i + 1));
 		}
 	}
 
 	function changeRating(val) {
-		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
+		uploadSkillsRating(obj, parseFloat(val), parseFloat(rating), setObj);
 		setRating(val);
-		editRatingsCookie(obj.id, val);
+		editRatingsSkillsCookie(obj.id, val);
 	}
 
 	if (Object.keys(obj) == 0) {

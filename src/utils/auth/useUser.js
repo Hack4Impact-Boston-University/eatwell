@@ -14,6 +14,20 @@ import {
 	removeNotesCookie,
 	setRatingsCookie,
 	removeRatingsCookie,
+
+	removeFavSkillsCookie,
+	setFavSkillsCookie,
+	setNotesSkillsCookie,
+	removeNotesSkillsCookie,
+	setRatingsSkillsCookie,
+	removeRatingsSkillsCookie,
+
+	removeFavTipsCookie,
+	setFavTipsCookie,
+	setNotesTipsCookie,
+	removeNotesTipsCookie,
+	setRatingsTipsCookie,
+	removeRatingsTipsCookie,
 } from "../cookies";
 import { mapUserData } from "./mapUserData";
 
@@ -75,7 +89,15 @@ const useUser = () => {
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}
-		}	
+		} else if("favoriteSkills" in newData){
+			if(user) {
+				return db.collection("users").doc(user.id).update(newData);
+			}
+		} else if("favoriteTips" in newData){
+			if(user) {
+				return db.collection("users").doc(user.id).update(newData);
+			}
+		}
 	}
 
 	useEffect(() => {
@@ -107,6 +129,23 @@ const useUser = () => {
 						setFavCookie(favData);
 						setNotesCookie(userData["notes"] || {})
 						setRatingsCookie(userData["ratings"] || {})
+
+						var favSkillsData = {}
+						for(var i in userData["favoriteSkills"]) {
+							favSkillsData[userData["favoriteSkills"][i]] = "";
+						}
+						setFavSkillsCookie(favSkillsData);
+						setNotesSkillsCookie(userData["notesSkills"] || {})
+						setRatingsSkillsCookie(userData["ratingsSkills"] || {})
+
+
+						var favTipsData = {}
+						for(var i in userData["favoriteTips"]) {
+							favTipsData[userData["favoriteTips"][i]] = "";
+						}
+						setFavTipsCookie(favTipsData);
+						setNotesTipsCookie(userData["notesTips"] || {})
+						setRatingsTipsCookie(userData["ratingsTips"] || {})
 					});
 			} else if(!u){
 				removeUserCookie();
@@ -114,6 +153,14 @@ const useUser = () => {
 				removeFavCookie();
 				removeNotesCookie();
 				removeRatingsCookie();
+
+				removeFavSkillsCookie();
+				removeNotesSkillsCookie();
+				removeRatingsSkillsCookie();
+
+				removeFavTipsCookie();
+				removeNotesTipsCookie();
+				removeRatingsTipsCookie();
 			}
 		});
 		if(!user) {
