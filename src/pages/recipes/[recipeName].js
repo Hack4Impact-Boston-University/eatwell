@@ -22,253 +22,261 @@ import { getUserFromCookie } from "../../utils/cookies";
 import Slider from "react-slick";
 
 const fetcher = async (...args) => {
-	const res = await fetch(...args);
+    const res = await fetch(...args);
 
-	return res.json();
+    return res.json();
 };
 
 function useWindowSize() {
-	// Initialize state with undefined width/height so server and client renders match
-	// Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
-	const [windowSize, setWindowSize] = useState({
-		width: undefined,
-		height: undefined,
-	});
+    // Initialize state with undefined width/height so server and client renders match
+    // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
+    const [windowSize, setWindowSize] = useState({
+        width: undefined,
+        height: undefined,
+    });
 
-	useEffect(() => {
-		// only execute all the code below in client side
-		if (typeof window !== "undefined") {
-			// Handler to call on window resize
-			function handleResize() {
-				// Set window width/height to state
-				setWindowSize({
-					width: window.innerWidth,
-					height: window.innerHeight,
-				});
-			}
+    useEffect(() => {
+        // only execute all the code below in client side
+        if (typeof window !== "undefined") {
+            // Handler to call on window resize
+            function handleResize() {
+                // Set window width/height to state
+                setWindowSize({
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                });
+            }
 
-			// Add event listener
-			window.addEventListener("resize", handleResize);
+            // Add event listener
+            window.addEventListener("resize", handleResize);
 
-			// Call handler right away so state gets updated with initial window size
-			handleResize();
+            // Call handler right away so state gets updated with initial window size
+            handleResize();
 
-			// Remove event listener on cleanup
-			return () => window.removeEventListener("resize", handleResize);
-		}
-	}, []); // Empty array ensures that effect is only run on mount
-	return windowSize;
+            // Remove event listener on cleanup
+            return () => window.removeEventListener("resize", handleResize);
+        }
+    }, []); // Empty array ensures that effect is only run on mount
+    return windowSize;
 }
 
 function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+    const { children, value, index, ...other } = props;
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`full-width-tabpanel-${index}`}
-			aria-labelledby={`full-width-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box p={3}>
-					<Typography>{children}</Typography>
-				</Box>
-			)}
-		</div>
-	);
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`full-width-tabpanel-${index}`}
+            aria-labelledby={`full-width-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box p={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
 }
 
 TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
 };
 
 function a11yProps(index) {
-	return {
-		id: `full-width-tab-${index}`,
-		"aria-controls": `full-width-tabpanel-${index}`,
-	};
+    return {
+        id: `full-width-tab-${index}`,
+        "aria-controls": `full-width-tabpanel-${index}`,
+    };
 }
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		backgroundColor: theme.palette.background.paper,
-		width: "100%",
-		paddingTop: "5vh",
-	},
-	video: {
-		marginTop: "12vh",
-		marginBottom: "3vh",
-	},
+    root: {
+        backgroundColor: theme.palette.background.paper,
+        width: "100%",
+        paddingTop: "5vh",
+    },
+    video: {
+        marginTop: "12vh",
+        marginBottom: "3vh",
+    },
 }));
 
 export default function Recipe() {
-	const router = useRouter();
-	const { recipeName } = router.query;
-	const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
-	const { width } = useWindowSize();
+    const router = useRouter();
+    const { recipeName } = router.query;
+    const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
+    const { width } = useWindowSize();
 
-	const classes = useStyles();
-	const theme = useTheme();
-	const [value, setValue] = React.useState(0);
-	const [testImg, setTestImg] = React.useState("");
+    const classes = useStyles();
+    const theme = useTheme();
+    const [value, setValue] = React.useState(0);
+    const [testImg, setTestImg] = React.useState("");
 
-	// image slideshow for recipe instructions
-	const [imgList, setImgList] = React.useState([]);
+    // image slideshow for recipe instructions
+    const [imgList, setImgList] = React.useState([]);
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-	};
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
 
-	const handleChangeIndex = (index) => {
-		setValue(index);
-	};
+    const handleChangeIndex = (index) => {
+        setValue(index);
+    };
 
-	var settings = {
-		dots: true,
-		infinite: true,
-		speed: 500,
-		slidesToShow: 1,
-		slidesToScroll: 1,
-	};
+    var settings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+    };
 
-	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return <div></div>;
-	}
+    if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
+        router.push("/profile/makeProfile");
+        return <div></div>;
+    }
 
-	useEffect(() => {
-		// function for firebase storage
-		const getImg = async (i) => {
-			var storageRef = firebase.storage().ref();
+    useEffect(() => {
+        // function for firebase storage
+        const getImg = async (i) => {
+            var storageRef = firebase.storage().ref();
 
-			// Create a reference to the file we want to download
-			var imgRef = storageRef.child(data.id + i + ".pdf");
-			// Get the download URLs for each image
-			await imgRef
-				.getDownloadURL()
-				.then((url) => {
-					// append new image url to state var
-					setImgList((imgList) => [...imgList, url]);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		};
+            // Create a reference to the file we want to download
+            var imgRef = storageRef.child(data.id + i + ".pdf");
+            // Get the download URLs for each image
+            await imgRef
+                .getDownloadURL()
+                .then((url) => {
+                    // append new image url to state var
+                    setImgList((imgList) => [...imgList, url]);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        };
 
-		// make sure data exists before trying to fetch all the images
-		// from firebase storage
-		if (data) {
-			for (let i = 0; i < data.recipeImgs.length; i++) {
-				getImg(i);
-			}
-		}
-	}, [data]);
+        // make sure data exists before trying to fetch all the images
+        // from firebase storage
+        if (data) {
+            for (let i = 0; i < data.recipeImgs.length; i++) {
+                getImg(i);
+            }
+        }
+    }, [data]);
 
-	// wait for data to finish loading
-	if (!data) {
-		return "Loading...";
-	}
-	return (
-		<div className={classes.root}>
-			<SwipeableViews
-				axis={theme.direction === "rtl" ? "x-reverse" : "x"}
-				index={value}
-				onChangeIndex={handleChangeIndex}
-			>
-				<TabPanel value={value} index={0} dir={theme.direction}>
-					<div position="fixed" className={classes.video}>
-						<iframe
-							position="fixed"
-							src={data.videoRecipe}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</div>
+    // wait for data to finish loading
+    if (!data) {
+        return "Loading...";
+    }
+    return (
+        // <div className={classes.root}>
+        // 	<SwipeableViews
+        // 		axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+        // 		index={value}
+        // 		onChangeIndex={handleChangeIndex}
+        // 	>
+        // 		<TabPanel value={value} index={0} dir={theme.direction}>
+        // 			<div position="fixed" className={classes.video}>
+        // 				<iframe
+        // 					position="fixed"
+        // 					src={data.videoRecipe}
+        // 					width="100%"
+        // 					height={width * 0.4}
+        // 					frameBorder="0"
+        // 					align="center"
+        // 					position="sticky"
+        // 					allow="autoplay; fullscreen"
+        // 				></iframe>
+        // 			</div>
 
-					{/* map out the image urls to img tags */}
-					<ui.Grid container>
-						<ui.Grid item xs={12}>
-							{imgList.map((url) => {
-								return <img src={url} alt="Recipe image" />;
-							})}
-						</ui.Grid>
-					</ui.Grid>
-				</TabPanel>
-				{data.videoSkills != "https://player.vimeo.com/video/" && (
-					<TabPanel value={value} index={1} dir={theme.direction}>
-						<iframe
-							src={data.videoSkills}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</TabPanel>
-				)}
-				{data.videoTips != "https://player.vimeo.com/video/" && (
-					<TabPanel value={value} index={2} dir={theme.direction}>
-						<iframe
-							src={data.videoTips}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</TabPanel>
-				)}
-				<TabPanel value={value} index={2} dir={theme.direction}>
-					<iframe
-						src={data.videoTips}
-						width="100%"
-						height={width * 0.4}
-						frameBorder="0"
-						align="center"
-						position="sticky"
-						allow="autoplay; fullscreen"
-					></iframe>
-				</TabPanel>
-			</SwipeableViews>
+        // 			{/* map out the image urls to img tags */}
+        // 			<ui.Grid container>
+        // 				<ui.Grid item xs={12}>
+        // 					{imgList.map((url) => {
+        // 						return <img src={url} alt="Recipe image" />;
+        // 					})}
+        // 				</ui.Grid>
+        // 			</ui.Grid>
+        // 		</TabPanel>
+        // 		{data.videoSkills != "https://player.vimeo.com/video/" && (
+        // 			<TabPanel value={value} index={1} dir={theme.direction}>
+        // 				<iframe
+        // 					src={data.videoSkills}
+        // 					width="100%"
+        // 					height={width * 0.4}
+        // 					frameBorder="0"
+        // 					align="center"
+        // 					position="sticky"
+        // 					allow="autoplay; fullscreen"
+        // 				></iframe>
+        // 			</TabPanel>
+        // 		)}
+        // 		{data.videoTips != "https://player.vimeo.com/video/" && (
+        // 			<TabPanel value={value} index={2} dir={theme.direction}>
+        // 				<iframe
+        // 					src={data.videoTips}
+        // 					width="100%"
+        // 					height={width * 0.4}
+        // 					frameBorder="0"
+        // 					align="center"
+        // 					position="sticky"
+        // 					allow="autoplay; fullscreen"
+        // 				></iframe>
+        // 			</TabPanel>
+        // 		)}
+        // 		<TabPanel value={value} index={2} dir={theme.direction}>
+        // 			<iframe
+        // 				src={data.videoTips}
+        // 				width="100%"
+        // 				height={width * 0.4}
+        // 				frameBorder="0"
+        // 				align="center"
+        // 				position="sticky"
+        // 				allow="autoplay; fullscreen"
+        // 			></iframe>
+        // 		</TabPanel>
+        // 	</SwipeableViews>
 
-			<div className={styles.nav}>
-				<div
-					style={{
-						width: "100%",
-						minWidth: "29%",
-					}}
-				>
-					<Navbar />
-					<AppBar position="static" color="default">
-						<Tabs
-							value={value}
-							onChange={handleChange}
-							indicatorColor="primary"
-							textColor="primary"
-							variant="fullWidth"
-							aria-label="full width tabs example"
-						>
-							<Tab label="Recipe" {...a11yProps(0)} />
-							{data.videoSkills != "https://player.vimeo.com/video/" && (
-								<Tab label="Skill" {...a11yProps(1)} />
-							)}
-							{data.videoTips != "https://player.vimeo.com/video/" && (
-								<Tab label="Tip" {...a11yProps(2)} />
-							)}
-						</Tabs>
-					</AppBar>
-				</div>
-			</div>
-		</div>
-	);
+        // 	<div className={styles.nav}>
+        // 		<div
+        // 			style={{
+        // 				width: "100%",
+        // 				minWidth: "29%",
+        // 			}}
+        // 		>
+        // 			<Navbar />
+        // 			<AppBar position="static" color="default">
+        // 				<Tabs
+        // 					value={value}
+        // 					onChange={handleChange}
+        // 					indicatorColor="primary"
+        // 					textColor="primary"
+        // 					variant="fullWidth"
+        // 					aria-label="full width tabs example"
+        // 				>
+        // 					<Tab label="Recipe" {...a11yProps(0)} />
+        // 					{data.videoSkills != "https://player.vimeo.com/video/" && (
+        // 						<Tab label="Skill" {...a11yProps(1)} />
+        // 					)}
+        // 					{data.videoTips != "https://player.vimeo.com/video/" && (
+        // 						<Tab label="Tip" {...a11yProps(2)} />
+        //)}
+        // 				</Tabs>
+        // 			</AppBar>
+        // 		</div>
+        // 	</div>
+        // </div>
+        <Slider {...settings}>
+            <div>
+                <h1>hi</h1>
+            </div>
+            <div>
+                <h1>hi</h1>
+            </div>
+        </Slider>
+    );
 }
