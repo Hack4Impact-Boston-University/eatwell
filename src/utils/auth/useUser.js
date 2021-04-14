@@ -43,9 +43,18 @@ const useUser = () => {
 				if(!("firstname" in currData)) {
 					newData["role"] = "user";
 					var userData = Object.assign({}, currData, newData);
-					setUserCookie(userData);
-					setUser(userData);
-					return db.collection("users").doc(user.id).set(userData);
+					if("code" in userData) {
+						return db.collection("codes").doc(code).delete().then(() => {
+							delete userData["code"];
+							setUserCookie(userData);
+							setUser(userData);
+							return db.collection("users").doc(user.id).set(userData);
+					    });
+					} else {
+						setUserCookie(userData);
+						setUser(userData);
+						return db.collection("users").doc(user.id).set(userData);
+					}
 				} else {
 					var updateData = {...newData}
 					var auth = null;
@@ -98,8 +107,9 @@ const useUser = () => {
 							setResolve("not found");
 							userData = mapUserData(u);
 						}
-						setUserCookie(userData);
-						setUser(userData);
+						var fullData = {...userData, ...getUserFromCookie()};
+						setUserCookie(fullData);
+						setUser(fullData);
 						var favData = {}
 						for(var i in userData["favoriteRecipes"]) {
 							favData[userData["favoriteRecipes"][i]] = "";

@@ -21,10 +21,11 @@ export const checkCode = async (code) => {
 			console.log("2")
 			if(doc.exists && code == doc.id)  {
 				console.log("3");
-				return db.collection("codes").doc(code).delete().then(() => {
-					let data = parseCodeData(doc.data());
+				// return db.collection("codes").doc(code).delete().then(() => {
+					 let data = parseCodeData(doc.data());
+					 setUserCookie({...data, code: code});
 					return Promise.resolve(data);
-				});
+				//});
 			} else {
 				return Promise.reject("Code is incorrect");
 			}

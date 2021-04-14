@@ -16,7 +16,7 @@ import {makeStyles,
         TextField,
         Typography,
         } from "@material-ui/core";
-import {getUserFromCookie} from "../utils/cookies"
+import {getUserFromCookie, removeUserCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
 import {checkCode} from "../utils/codes.js";
 
@@ -64,9 +64,14 @@ const Index = () => {
     }
   }
 
-  if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return (<div></div>);
+  if(getUserFromCookie()) {
+    if("code" in getUserFromCookie()) {
+      removeUserCookie();
+    }
+    else if(!("firstname" in getUserFromCookie())) {
+		  router.push("/profile/makeProfile");
+      return (<div></div>);
+    }
 	}
 
 

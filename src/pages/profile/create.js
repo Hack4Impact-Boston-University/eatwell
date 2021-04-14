@@ -27,6 +27,11 @@ const useStyles = makeStyles((theme) => ({
 export default function create() {
     const classes = useStyles();
     //console.log("User not logged in.");
+
+    if(!getUserFromCookie || !("code" in getUserFromCookie())) {
+        removeUserCookie();
+    }
+
     return (
         <Box className={classes.container}>
             <div className={styles.nav}>
@@ -41,7 +46,7 @@ export default function create() {
                 >
                     <Grid item>
                         <h1 align="center">Click below to create an account</h1>
-                        <FirebaseAuth/>
+                        <Grid container justify="center"><FirebaseAuth/></Grid>
                     </Grid>   
                 </Grid> 
                 
