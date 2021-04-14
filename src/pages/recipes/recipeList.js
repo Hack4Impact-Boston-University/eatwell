@@ -96,7 +96,7 @@ export default function RecipeReviewCard() {
 	};
 
 	useEffect(() => {
-		window.addEventListener("beforeunload", () => {
+		const uploadData = () => {
 			if (!_.isEqual(getFavsFromCookie(), undefined)) {
 				upload({
 					favoriteRecipes: Object.keys(getFavsFromCookie()),
@@ -105,7 +105,11 @@ export default function RecipeReviewCard() {
 				});
 				//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
 			}
-		});
+		}
+
+		window.addEventListener("beforeunload", uploadData);
+
+		return () => window.removeEventListener("beforeunload", uploadData);
 	});
 
 	const onFavClick = () => {
@@ -113,6 +117,17 @@ export default function RecipeReviewCard() {
 		favRecipes = getFavsFromCookie() || {};
 		//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
 	};
+
+	const userData = getUserFromCookie();
+
+	if(userData) {
+	  if(!("firstname" in userData)) {
+		router.push("/profile/makeProfile");
+		return (<div></div>);
+	  }
+	} else {
+		router.push("/");
+	}
 
 	if (!recipes || !recipesDic || !programsDic || !user || !favRecipes) {
 		return "Loading...";
@@ -138,12 +153,6 @@ export default function RecipeReviewCard() {
 			}
 		}
 	}	
-
-
-	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return <div></div>;
-	}
 
 	return (
 		<div className={styles.container2}>

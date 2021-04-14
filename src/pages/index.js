@@ -48,7 +48,9 @@ const Index = () => {
   const router = useRouter();
 
   const submit = () => {
+    console.log("0");
     if(code != "") {
+      console.log("1");
       checkCode(code.trim().toUpperCase()).then((data) => {
         console.log(data)
         setErrorText("");
@@ -64,16 +66,18 @@ const Index = () => {
     }
   }
 
-  if(getUserFromCookie()) {
-    if("code" in getUserFromCookie()) {
-      removeUserCookie();
-    }
-    else if(!("firstname" in getUserFromCookie())) {
-		  router.push("/profile/makeProfile");
+  const userData = getUserFromCookie();
+
+  if(userData) {
+    if(!("firstname" in userData)) {
+      if(!("id" in userData)) {
+        router.push("/profile/create");
+      } else {
+        router.push("/profile/makeProfile");
+      }
       return (<div></div>);
     }
 	}
-
 
   return (
     <div>

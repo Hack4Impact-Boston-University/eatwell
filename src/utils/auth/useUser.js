@@ -119,7 +119,10 @@ const useUser = () => {
 						setRatingsCookie(userData["ratings"] || {})
 					});
 			} else if(!u){
-				removeUserCookie();
+				var userData = getUserFromCookie();
+				if(userData && "id" in userData) {
+					removeUserCookie();
+				}
 				setUser();
 				removeFavCookie();
 				removeNotesCookie();

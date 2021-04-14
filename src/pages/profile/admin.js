@@ -887,13 +887,15 @@ export default function Admin() {
 
   if(userData) {
     if(!("firstname" in userData)) {
-      router.push("/fprofile/makeProfile");
+      router.push("/profile/makeProfile");
       return (<div></div>);
     } else if(userData["role"] != "admin") {
       router.push("/");
       return (<div></div>);
     }
-  }
+  } else {
+		router.push("/");
+	}
 
   return (
     <div className={classes.root}>

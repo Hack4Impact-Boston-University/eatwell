@@ -55,9 +55,7 @@ const makeProfile = () => {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [tel, setTel] = useState("");
-	const [code, setCode] = React.useState("");
 	const router = useRouter();
-	const [errorText, setErrorText] = useState("");
 
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
@@ -85,16 +83,12 @@ const makeProfile = () => {
 	}
 
 	const submit = () => {
-		checkCode(code).then((data) => {
-			console.log(data);
-			setErrorText("");
-			return upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}, ...data})
-		}).then(() => {
+		upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}})
+		.then(() => {
 			router.push('/recipes/recipeList');
 		}).catch((err) => {
 			// Check if firebase error or incorrect code, return error accordingly
 			console.log(err);
-			setErrorText(err.message);
 		});
 	}
 
@@ -159,28 +153,10 @@ const makeProfile = () => {
 							required
 						/>
 					</Grid>
-					<Grid justify="center" className={classes.formItems} container>
-                      <TextField
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        error={false}
-                        label="Activation Code"
-                        placeholder="Your Organization's Code"
-                        required
-                        // helperText="Please enter your first name"
-                      />
-                    </Grid>
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
 							Submit
 						</Button>
-					</Grid>
-					<Grid justify="center" className={classes.formItems} container>
-							<Box component="div" textOverflow="clip">
-								<Typography variant="h5" color={'error'}>
-									{errorText}
-								</Typography>
-							</Box>
 					</Grid>
 				</Grid>
 			</Box>
