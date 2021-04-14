@@ -8,7 +8,8 @@ import {
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControl,
+	Collapse,
+  FormControl, 
   GridList
 } from "@material-ui/core";
 import { DropzoneArea } from 'material-ui-dropzone'
@@ -129,7 +130,9 @@ const useStyles = makeStyles((theme) => ({
   noNum: {
     listStyle: "none"
   },
-
+  codes: {
+    columns: "1 auto"
+  }
 }));
 
 const getTimeString = timestamp => {
