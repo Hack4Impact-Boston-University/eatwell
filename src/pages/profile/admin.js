@@ -885,17 +885,12 @@ export default function Admin() {
 
   const userData = getUserFromCookie();
 
-  if(userData) {
-    if(!("firstname" in userData)) {
-      router.push("/profile/makeProfile");
-      return (<div></div>);
-    } else if(userData["role"] != "admin") {
-      router.push("/");
-      return (<div></div>);
-    }
-  } else {
-		router.push("/");
-	}
+  if(!userData || "code" in userData || userData["role"] != "admin") {
+    router.push("/");
+  }
+  else if(!("firstname" in userData)) {
+    router.push("/profile/makeProfile");
+  }
 
   return (
     <div className={classes.root}>

@@ -7,7 +7,7 @@ import {
 	Typography,
 	CircularProgress,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import { useUser } from "../../utils/auth/useUser";
 import * as firebase from 'firebase'
@@ -16,6 +16,7 @@ import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
 import {checkCode} from "../../utils/codes.js";
+import { getUserFromCookie } from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -50,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const makeProfile = () => {
-	const { user, resolveUser, upload} = useUser();
+	const { user, resolveUser, upload, logout} = useUser();
 	const classes = useStyles();
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -83,7 +84,7 @@ const makeProfile = () => {
 	}
 
 	const submit = () => {
-		upload({firstname: firstName, lastname: lastName, phone: tel, program: "", programName: "", favoriteRecipes:[], notes:{}, ratings:{}})
+		upload({firstname: firstName, lastname: lastName, phone: tel, favoriteRecipes:[], notes:{}, ratings:{}})
 		.then(() => {
 			router.push('/recipes/recipeList');
 		}).catch((err) => {
@@ -91,6 +92,23 @@ const makeProfile = () => {
 			console.log(err);
 		});
 	}
+
+	const userData = getUserFromCookie();
+	if(!userData) {
+		router.push("/");
+	}
+
+        // window.onbeforeunload = () => {
+		// 	if (!("id" in userData)) {
+        //         console.log(userData);
+		// 		removeUserCookie();
+        //         router.push("/");
+		// 	}
+		// }
+
+		//window.addEventListener("beforeunload", checkUserData);
+
+        //return () => window.removeEventListener("beforeunload", checkUserData);
 
 	if (!user) {
 		//console.log("User not logged in.");
@@ -156,6 +174,11 @@ const makeProfile = () => {
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
 							Submit
+						</Button>
+					</Grid>
+					<Grid container justify="center" item>
+						<Button variant="contained" color="primary" className={classes.btn} onClick={() => logout()}>
+							Take me back!
 						</Button>
 					</Grid>
 				</Grid>

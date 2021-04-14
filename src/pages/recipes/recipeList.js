@@ -119,14 +119,11 @@ export default function RecipeReviewCard() {
 	};
 
 	const userData = getUserFromCookie();
-
-	if(userData) {
-	  if(!("firstname" in userData)) {
-		router.push("/profile/makeProfile");
-		return (<div></div>);
-	  }
-	} else {
+	if(!userData || "code" in userData) {
 		router.push("/");
+	}
+	else if(!("firstname" in userData)) {
+		router.push("/profile/makeProfile");
 	}
 
 	if (!recipes || !recipesDic || !programsDic || !user || !favRecipes) {

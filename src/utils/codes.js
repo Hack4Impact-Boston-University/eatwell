@@ -22,8 +22,9 @@ export const checkCode = async (code) => {
 			if(doc.exists && code == doc.id)  {
 				// return db.collection("codes").doc(code).delete().then(() => {
 					 let data = parseCodeData(doc.data());
+					 data = {...data, code: code};
 					 console.log("3");
-					 setUserCookie({...data, code: code});
+					 setUserCookie(data);
 					return Promise.resolve(data);
 				//});
 			} else {

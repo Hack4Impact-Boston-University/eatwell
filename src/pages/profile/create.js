@@ -15,7 +15,7 @@ import 'firebase/firestore'
 import { Redirect, Router } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
-import { getUserFromCookie, removeUserCookie } from "../../utils/cookies";
+import { getUserFromCookie } from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -30,21 +30,25 @@ export default function create() {
     const router = useRouter();
     //console.log("User not logged in.");
 
-    useEffect(() => {
-        var userData = getUserFromCookie();
+    const userData = getUserFromCookie();
+    if(!userData) {
+        router.push("/");
+    }
+    else if("id" in userData) {
+        router.push("/profile/makeProfile");
+    }
 
-        window.onbeforeunload = () => {
-			if (!("id" in userData)) {
-                console.log(userData);
-				removeUserCookie();
-                router.push("/");
-			}
-		}
+        // window.onbeforeunload = () => {
+		// 	if (!("id" in userData)) {
+        //         console.log(userData);
+		// 		removeUserCookie();
+        //         router.push("/");
+		// 	}
+		// }
 
 		//window.addEventListener("beforeunload", checkUserData);
 
         //return () => window.removeEventListener("beforeunload", checkUserData);
-	});
 
     return (
         <Box className={classes.container}>

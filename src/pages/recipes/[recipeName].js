@@ -132,17 +132,12 @@ export default function Recipe() {
   };
 
   const userData = getUserFromCookie();
-
-	if(userData) {
-	  if(!("firstname" in userData)) {
-		if(!("id" in userData)) {
-		  router.push("/profile/create");
-		} else {
-		  router.push("/profile/makeProfile");
-		}
-		return (<div></div>);
-	  }
-	}
+  if(!userData || "code" in userData) {
+    router.push("/");
+  }
+  else if(!("firstname" in userData)) {
+    router.push("/profile/makeProfile");
+  }
 
   if (!data) {
     return 'Loading...';

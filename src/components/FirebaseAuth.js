@@ -4,7 +4,7 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
 import initFirebase from "../utils/auth/initFirebase";
-import { setUserCookie } from "../utils/cookies";
+import { setUserCookie, getUserFromCookie } from "../utils/cookies";
 import { mapUserData } from "../utils/auth/mapUserData";
 import { useUser } from "../utils/auth/useUser";
 import { useRadioGroup } from "@material-ui/core";
@@ -28,7 +28,8 @@ const firebaseAuthConfig = {
 	callbacks: {
 		signInSuccessWithAuthResult: async ({ user }, redirectUrl) => {
 			const userData = mapUserData(user);
-			setUserCookie(userData);
+			const fullData = {...userData, ...getUserFromCookie()};
+			setUserCookie(fullData);
 		},
 	},
 };

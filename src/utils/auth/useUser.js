@@ -44,7 +44,7 @@ const useUser = () => {
 					newData["role"] = "user";
 					var userData = Object.assign({}, currData, newData);
 					if("code" in userData) {
-						return db.collection("codes").doc(code).delete().then(() => {
+						return db.collection("codes").doc(userData["code"]).delete().then(() => {
 							delete userData["code"];
 							setUserCookie(userData);
 							setUser(userData);
