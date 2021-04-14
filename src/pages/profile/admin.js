@@ -8,7 +8,8 @@ import {
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControl,
+	Collapse,
+  FormControl, 
   GridList
 } from "@material-ui/core";
 import { DropzoneArea } from 'material-ui-dropzone'
@@ -129,7 +130,9 @@ const useStyles = makeStyles((theme) => ({
   noNum: {
     listStyle: "none"
   },
-
+  codes: {
+    columns: "1 auto"
+  }
 }));
 
 const getTimeString = timestamp => {
@@ -1051,40 +1054,52 @@ export default function Admin() {
               
               {Object.keys(selectedProgramProgram).length > 0 && codes != null ? 
                 <div> {/* ----------------------- edit users list ----------------------- */}
-                  <List>
-                    <ListItemText> Unused Codes
-                    {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
-                    </ListItemText>
-                  </List>
-                  {codes.map((code) => {
-                    if(code?.programID == selectedProgramProgram.programID) {
-                      return (<Accordion>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                          <ListItemAvatar>
-                            <Avatar
-                            // alt={`Avatar n°${value + 1}`}
-                            // src={`/static/images/avatar/${value + 1}.jpg`}
-                            />
-                          </ListItemAvatar>
-                          <ListItemText primary={code?.id}/>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <ol className={classes.noNum}>
-                              {Object.keys(code).map((key) => {
-                                if(key != "id") {
-                                  return <li>{key}: {code[key]}</li>
-                                }
-                              })}
-                            </ol>
-                        </AccordionDetails>
-                      </Accordion>)
-                    }
-                  })}
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                      <ListItemText> Unused Codes
+                      {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
+                      </ListItemText>
+                    </AccordionSummary>
+                    <AccordionDetails className={classes.codes}>
+                      <List>
+                        {codes.map((code) => {
+                          if(code?.programID == selectedProgramProgram.programID) {
+                            return (
+                            <ListItem>
+                              <Accordion>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                                  <ListItemAvatar>
+                                    <Avatar
+                                    // alt={`Avatar n°${value + 1}`}
+                                    // src={`/static/images/avatar/${value + 1}.jpg`}
+                                    />
+                                  </ListItemAvatar>
+                                  <ListItemText primary={code?.id}/>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ol className={classes.noNum}>
+                                      {Object.keys(code).map((key) => {
+                                        if(key != "id") {
+                                          return <li>{key}: {code[key]}</li>
+                                        }
+                                      })}
+                                    </ol>
+                                </AccordionDetails>
+                              </Accordion>
+                            </ListItem>
+                            )
+                          }
+                        })}
+                      </List>
+                    </AccordionDetails>
+                  </Accordion>
                 </div> : <Grid></Grid>
               }
+              {selectedProgramProgram?.programUsers != undefined ?
               <ListItem key={"Add Code"}>
                   <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
               </ListItem>
+              : <Grid></Grid>}
             </Grid>
           </Grid>
 
