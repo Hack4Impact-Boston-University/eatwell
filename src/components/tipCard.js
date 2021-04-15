@@ -93,8 +93,8 @@ export default function TipCard({
 	object,
 	isFav,
 	onFavClick,
-	initNotes,
-	initRating,
+	// initNotes,
+	// initRating,
 }) {
 	const classes = useStyles();
 	const [obj, setObj] = React.useState(object);
@@ -104,12 +104,12 @@ export default function TipCard({
 		setExpanded(!expanded);
 	};
 
-	const [notes, setNotes] = React.useState(initNotes);
-	const [note, setNote] = React.useState("");
+	// const [notes, setNotes] = React.useState(initNotes);
+	// const [note, setNote] = React.useState("");
 
-	const maxChar = 30.0; // Should be dynamic with width of the card
+	const maxChar = 30.0;
 
-	const [rating, setRating] = React.useState(initRating);
+	// const [rating, setRating] = React.useState(initRating);
 
 	const [, updateState] = React.useState();
 
@@ -221,11 +221,11 @@ export default function TipCard({
 		}
 	}
 
-	function changeRating(val) {
-		uploadTipsRating(obj, parseFloat(val), parseFloat(rating), setObj);
-		setRating(val);
-		editRatingsTipsCookie(obj.id, val);
-	}
+	// function changeRating(val) {
+	// 	uploadTipsRating(obj, parseFloat(val), parseFloat(rating), setObj);
+	// 	setRating(val);
+	// 	editRatingsTipsCookie(obj.id, val);
+	// }
 
 	if (Object.keys(obj) == 0) {
 		return null;
@@ -240,7 +240,7 @@ export default function TipCard({
 	return (
 		<Grid item xs={5}>
 			<Box pb={3} mr={0.5} ml={0.5}>
-				<ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
+				{/* <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal"> */}
 					<div>
 						<Card className={classes.card}>
 							<CardContent p={0}>
@@ -270,12 +270,12 @@ export default function TipCard({
 														fontWeight: 300,
 													}}
 												>
-													{obj.nameOfDish}
+													{obj.tipName}
 												</Typography>
 											</Link>
 										</Grid>
 									</Grid>
-									{/* <Grid container justify="center">
+									<Grid container justify="center">
 										{obj.images == undefined ? (
 											<Grid item xs={12}></Grid>
 										) : (
@@ -283,7 +283,7 @@ export default function TipCard({
 												<link
 													rel="stylesheet"
 													type="text/css"
-													charset="UTF-8"
+													charSet="UTF-8"
 													href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
 												/>
 												<link
@@ -306,17 +306,17 @@ export default function TipCard({
 												</Slider>
 											</Grid>
 										)}
-									</Grid> */}
+									</Grid>
 									<Grid container item xs={12} justify="center">
 										<Button
 											variant="contained"
 											color="secondary"
 											classes={{ label: classes.viewButtonLabel }}
 										>
-											<Link href={obj.id}>Make this Recipe</Link>
+											<Link href={obj?.tipID}>Watch Video</Link>
 										</Button>
 									</Grid>
-									<Grid
+									{/* <Grid
 										container
 										justify="center"
 										style={{ marginTop: "3vh", marginBottom: "1vh" }}
@@ -400,8 +400,8 @@ export default function TipCard({
 												</Typography>
 											</Grid>
 										</Grid>
-									</Grid>
-									<Grid container spacing={3}>
+									</Grid> */}
+									{/* <Grid container spacing={3}>
 										<Grid item xs={12}>
 											<Typography
 												style={{
@@ -412,10 +412,10 @@ export default function TipCard({
 												{obj.description}
 											</Typography>
 										</Grid>
-									</Grid>
+									</Grid> */}
 								</Box>
 							</CardContent>
-							<CardActions disableSpacing>
+							{/* <CardActions disableSpacing>
 								<Grid
 									container
 									direction="row"
@@ -441,8 +441,8 @@ export default function TipCard({
 								>
 									<ExpandMoreIcon />
 								</IconButton>
-							</CardActions>
-							<Collapse in={expanded} timeout="auto" unmountOnExit>
+							</CardActions> */}
+							{/* <Collapse in={expanded} timeout="auto" unmountOnExit>
 								<Grid
 									container
 									direction="column"
@@ -497,12 +497,12 @@ export default function TipCard({
 										})}
 									</Box>
 								</Grid>
-							</Collapse>
+							</Collapse> */}
 						</Card>
-						<button onClick={flipClick}>Click to flip</button>
+						{/* <button onClick={flipClick}>Click to flip</button> */}
 					</div>
 
-					<div>
+					{/* <div>
 						<Card className={classes.card + "back"}>
 							<CardContent p={0}>
 								<Box m={"0.25vw"}>
@@ -761,8 +761,8 @@ export default function TipCard({
 							</Collapse>
 						</Card>
 						<button onClick={flipClick}>Click to flip</button>
-					</div>
-				</ReactCardFlip>
+					</div> */}
+				{/* </ReactCardFlip> */}
 			</Box>
 		</Grid>
 	);

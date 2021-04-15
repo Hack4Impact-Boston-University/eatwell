@@ -194,11 +194,11 @@ const Navbar = () => {
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
-							<Button href={`/recipes/skillList`} className={classes.menuItems}>
+							<Button href={`/skills/skillList`} className={classes.menuItems}>
 								<Book />
 								<Typography variant="subtitle2">Skills</Typography>
 							</Button>
-							<Button href={`/recipes/tipList`} className={classes.menuItems}>
+							<Button href={`/tips/tipList`} className={classes.menuItems}>
 								<Book />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>

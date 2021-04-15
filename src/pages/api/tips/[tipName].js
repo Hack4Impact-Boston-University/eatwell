@@ -3,13 +3,10 @@ import firebase from '../../../utils/firebase';
 export default (req, res) => {
   firebase
     .collection('tips')
+    .doc(req.query.tipName)
     .get()
-    .then((querySnapshot) => {
-      var tips = [];
-      querySnapshot.forEach((doc) => {
-        tips.push({...doc.data()})
-      })
-      res.json(tips);
+    .then((doc) => {
+      res.json(doc.data());
     })
     .catch((error) => {
       res.json({ error });

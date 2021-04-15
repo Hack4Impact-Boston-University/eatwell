@@ -320,7 +320,7 @@ const UploadForm = () => {
                     </ui.Grid>
                     
                     <ui.Grid item xs={12} sm={6}>
-                        <InputLabel id="demo-simple-select-label">Skills</InputLabel>
+                        <InputLabel id="demo-simple-select-label">Skill</InputLabel>
                         <ui.Select
                             autoWidth="false"
                             labelId="demo-controlled-open-select-label"
@@ -341,7 +341,7 @@ const UploadForm = () => {
                     </ui.Grid>        
 
                     <ui.Grid item xs={12} sm={6}>
-                        <InputLabel id="demo-simple-select-label">Tips</InputLabel>
+                        <InputLabel id="demo-simple-select-label">Tip</InputLabel>
                         <ui.Select
                             autoWidth="false"
                             labelId="demo-controlled-open-select-label"
@@ -438,6 +438,7 @@ const UploadForm = () => {
                     <ui.Grid container spacing={3}>
                         <ui.Grid item xs={12} sm={6}>
                             <ui.TextField
+                                required
                                 value={skillName}
                                 label="Skill name"
                                 onChange={(e) => setSkillName(e.target.value)}
@@ -447,6 +448,7 @@ const UploadForm = () => {
                         </ui.Grid>
                         <ui.Grid item xs={12} sm={6}>
                             <ui.TextField
+                                required
                                 value={videoSkill}
                                 label="Vimeo Skill Video ID"
                                 onChange={(e) => setVideoSkill(e.target.value)}
@@ -486,6 +488,7 @@ const UploadForm = () => {
                     <ui.Grid container spacing={3}>
                         <ui.Grid item xs={12} sm={6}>
                             <ui.TextField
+                                required
                                 value={tipName}
                                 label="Tip name"
                                 onChange={(e) => setTipName(e.target.value)}
@@ -495,6 +498,7 @@ const UploadForm = () => {
                         </ui.Grid>
                         <ui.Grid item xs={12} sm={6}>
                             <ui.TextField
+                                required
                                 value={videoTip}
                                 label="Vimeo Tip Video ID"
                                 onChange={(e) => setVideoTip(e.target.value)}

@@ -6,11 +6,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
-import TipCard from "../../components/tipCard";
+import SkillCard from "../../components/skillCard";
 import {
-	getFavsTipsFromCookie,
-	getNotesTipsFromCookie,
-	getRatingsTipsFromCookie,
+	getFavsSkillsFromCookie,
+	getNotesSkillsFromCookie,
+	getRatingsSkillsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -19,7 +19,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadTipsRating } from "../../utils/tips.js";
+import { uploadSkillsRating } from "../../utils/skills.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
@@ -73,17 +73,17 @@ function a11yProps(index) {
 	};
 }
 
-export default function TipReviewCard() {
+export default function SkillReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now())
 	const { user, upload } = useUser();
-	const { data: tips } = useSWR(`/api/recipes/getAllTips`, fetcher);
-	const { data: tipsDic } = useSWR(`/api/recipes/getAllTipsDic`, fetcher);
+	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
+	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	let favTips = getFavsTipsFromCookie() || {};
-	const tipNotes = getNotesTipsFromCookie() || {};
-	const tipRatings = getRatingsTipsFromCookie() || {};
-	//const { data: userData } = useSWR(`/api/favoriteTips/${favoriteTip}`, fetcher);
+	let favSkills = getFavsSkillsFromCookie() || {};
+	const skillNotes = getNotesSkillsFromCookie() || {};
+	const skillRatings = getRatingsSkillsFromCookie() || {};
+	//const { data: userData } = useSWR(`/api/favoriteSkills/${favoriteSkill}`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
@@ -97,45 +97,45 @@ export default function TipReviewCard() {
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
-			if (!_.isEqual(getFavsTipsFromCookie(), undefined)) {
+			if (!_.isEqual(getFavsSkillsFromCookie(), undefined)) {
 				upload({
-					favoriteTips: Object.keys(getFavsTipsFromCookie()),
-					notes: getNotesTipsFromCookie(),
-					ratings: getRatingsTipsFromCookie(),
+					favoriteSkills: Object.keys(getFavsSkillsFromCookie()),
+					notes: getNotesSkillsFromCookie(),
+					ratings: getRatingsSkillsFromCookie(),
 				});
-				uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
+				uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 			}
 		});
 	});
 
 	const onFavClick = () => {
 		setDummy(!dummy);
-		favTips = getFavsTipsFromCookie() || {};
-		uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
+		favSkills = getFavsSkillsFromCookie() || {};
+		uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 	};
 
-	if (!tips || !tipsDic || !programsDic || !user || !favTips) {
-		return "Loading tips...";
+	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {
+		return "Loading skills...";
 	}
 
-	const tipsUser = [];
+	// const skillsUser = [];
 	// if (!user.program == "") {
-	// 	const keysList = Object.keys(programsDic[user.program]?.programTips)
+	// 	const keysList = Object.keys(programsDic[user.program]?.programSkills)
 	// 	if (_.isEqual(user?.role, "user")) {
 	// 		if (!_.isEqual(user.program, "")) {
-	// 			if (programsDic[user.program]?.programTips != null || programsDic[user.program]?.programTips != []) {
-	// 				var i;
-	// 				for (i = 0; i < keysList.length; i++) {
-	// 					console.log(programsDic[user.program].programTips[keysList[i]])
-	// 					var d = Date.parse(programsDic[user.program].programTips[keysList[i]]+"T00:00:00.0000");
-	// 					if (d < uploadDate) {
-	// 						tipsUser.push(
-	// 							tipsDic[keysList[i]]
-	// 						);
-	// 					}
-	// 				}
-	// 			}
-	// 		}
+				// if (programsDic[user.program]?.programSkills != null || programsDic[user.program]?.programSkills != []) {
+				// 	var i;
+				// 	for (i = 0; i < keysList.length; i++) {
+				// 		console.log(programsDic[user.program].programSkills[keysList[i]])
+				// 		var d = Date.parse(programsDic[user.program].programSkills[keysList[i]]+"T00:00:00.0000");
+				// 		if (d < uploadDate) {
+				// 			skillsUser.push(
+				// 				skillsDic[keysList[i]]
+				// 			);
+				// 		}
+				// 	}
+				// }
+			// }
 	// 	}
 	// }	
 
@@ -148,62 +148,62 @@ export default function TipReviewCard() {
 	return (
 		<div className={styles.container2}>
 			{/* {user.role == "admin" ? ( */}
-				{!_.isEqual(tips, []) ? (
+				{!_.isEqual(skills, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
-						{tips.map((obj, idx) => {
-							if (!obj.tipName || !obj.tipID) return;
-							if (!favs || obj.tipID in favTips) {
+						{skills.map((obj, idx) => {
+							if (!obj?.skillName || !obj?.skillID) return;
+							if (!favs || obj.id in favSkills) {
 								return (
-									<TipCard
-										key={obj.tipID}
+									<SkillCard
+										key={obj.skillID}
 										object={obj}
-										isFav={obj.tipID in favTips}
+										isFav={obj.skillID in favSkills}
 										onFavClick={() => onFavClick()}
-										initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
-										initRating={
-											obj.id in tipRatings ? tipRatings[obj.id] : 0
-										}
+										// initNotes={obj.skillID in skillNotes ? skillNotes[obj.skillID] : []}
+										// initRating={
+										// 	obj.skillID in skillRatings ? skillRatings[obj.skillID] : 0
+										// }
 									/>
 								);
 							} else {
 								return;
 							}
-							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].tipID)} />
+							//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 						})}
 					</Grid>
 				) : (
 					<Grid>
-						<h4>No tips to display</h4>
+						<h4>No skills to display</h4>
 					</Grid>
 				)
-			// ) : !_.isEqual(tipsUser, []) ? (
+			/* // ) : !_.isEqual(skillsUser, []) ? (
 			// 	<Grid container spacing={1000} className={classes.gridContainerMain}>
-			// 		{tipsUser.map((obj, idx) => {
+			// 		{skillsUser.map((obj, idx) => {
 			// 			if (!obj.nameOfDish || !obj.id) return;
-			// 			if (!favs || obj.id in favTips) {
+			// 			if (!favs || obj.id in favSkills) {
 			// 				return (
-			// 					<TipCard
+			// 					<skillCard
 			// 						key={obj.id}
 			// 						object={obj}
-			// 						isFav={obj.id in favTips}
+			// 						isFav={obj.id in favSkills}
 			// 						onFavClick={() => onFavClick()}
-			// 						initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
+			// 						initNotes={obj.id in skillNotes ? skillNotes[obj.id] : []}
 			// 						initRating={
-			// 							obj.id in tipRatings ? tipRatings[obj.id] : 0
+			// 							obj.id in skillRatings ? skillRatings[obj.id] : 0
 			// 						}
 			// 					/>
 			// 				);
 			// 			} else {
 			// 				return;
 			// 			}
+			// 			//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 			// 		})}
 			// 	</Grid>
 			// ) : (
 			// 	<Grid>
-			// 		<h4>No tips to display</h4>
+			// 		<h4>No skills to display</h4>
 			// 	</Grid>
-			// )}
-			}
+			// )} */}
 
 			<div className={styles.nav}>
 				<Navbar />
@@ -218,7 +218,7 @@ export default function TipReviewCard() {
 						aria-label="full width tabs example"
 					>
 						<Tab
-							label="All Tips"
+							label="All Skills"
 							{...a11yProps(0)}
 							className={classes.viewTabLabel}
 						/>
