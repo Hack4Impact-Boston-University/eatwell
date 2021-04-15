@@ -27,7 +27,7 @@ initFirebase();
 
 const handlePreviewIcon = (fileObject, classes) => {
 	const iconProps = {
-		className: classes.image,
+		className: image,
 	};
 	return <PictureAsPdf {...iconProps} />;
 };
@@ -69,15 +69,19 @@ const UploadForm = () => {
 		var i;
 		var uploadedImages = Object.values(images);
 		var uploadedRecipeImgs = Object.values(recipeImg);
+		var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
+		for (i = 0; i < uploadedRecipeImgs.length; i++) {
+			uploadedRecipeNames.push(document.id + i + ".pdf");
+		}
 		var data = {
 			id: document.id,
 			nameOfDish: recipeName,
 			description: description,
 			images: uploadedImages,
 			videoRecipe: videoUrl + videoID,
-			recipeImgs: uploadedRecipeImgs,
+			recipeImgs: uploadedRecipeNames,
 			dateUploaded: Date.now(),
 			videoSkills: videoUrl + videoSkills,
 			videoTips: videoUrl + videoTips,
@@ -90,7 +94,7 @@ const UploadForm = () => {
 			firebase
 				.storage()
 				.ref()
-				.child(recipe + i + ".pdf")
+				.child(document.id + i + ".pdf")
 				.putString(uploadedRecipeImgs[i], "data_url")
 				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
 					complete: function () {},
@@ -100,7 +104,7 @@ const UploadForm = () => {
 			firebase
 				.storage()
 				.ref()
-				.child(recipe + i + ".jpg")
+				.child(document.id + i + ".jpg")
 				.putString(uploadedImages[i], "data_url")
 				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
 					complete: function () {},
@@ -181,32 +185,56 @@ const UploadForm = () => {
 							variant="outlined"
 						/>
 					</ui.Grid>
-					<ui.Grid item xs={12}>
-						<MultiImageInput
-							images={images}
-							setImages={setImages}
-							cropConfig={{ crop, ruleOfThirds: true }}
-							inputId
-						/>
-					</ui.Grid>
-					<ui.Grid item xs={12}>
-						<MultiImageInput
-							images={recipeImg}
-							setImages={setRecipeImg}
-							inputId
-						/>
+
+					{/* upload recipe result image */}
+					<ui.Grid container item justify="center">
+						<ui.Grid item xs={12}>
+							<ui.Typography variant="h6" align="center" gutterBottom>
+								Upload what the food will look like!
+							</ui.Typography>
+						</ui.Grid>
+						<ui.Grid item sm={10} xs={12}>
+							<MultiImageInput
+								images={images}
+								setImages={setImages}
+								cropConfig={{ crop, ruleOfThirds: true }}
+								inputId
+							/>
+						</ui.Grid>
 					</ui.Grid>
 
-					<ui.Grid item xs={12}>
-						<ui.Button
-							variant="outlined"
-							fullWidth
-							onClick={() => handleClickOpenConfirm()}
-						>
-							Upload
-						</ui.Button>
+					{/* upload recipe instructions image */}
+					<ui.Grid container item justify="center">
+						<ui.Grid item xs={12}>
+							<ui.Typography variant="h6" align="center" gutterBottom>
+								Upload recipe instructions here!
+							</ui.Typography>
+						</ui.Grid>
+						<ui.Grid item sm={10} xs={12}>
+							<MultiImageInput
+								images={recipeImg}
+								setImages={setRecipeImg}
+								allowCrop={false}
+								inputId
+							/>
+						</ui.Grid>
+					</ui.Grid>
+
+					<ui.Grid container item justify="center">
+						<ui.Grid item sm={10} xs={12}>
+							<ui.Button
+								variant="outlined"
+								fullWidth
+								onClick={() => handleClickOpenConfirm()}
+							>
+								Upload
+							</ui.Button>
+						</ui.Grid>
 						{/* {recipeName == "" || uploadedImages == [] || videoID == "" ? ( */}
-						{recipeName == "" || uploadedImages == [] || uploadedRecipeImgs == [] || videoID == "" ? (
+						{recipeName == "" ||
+						uploadedImages == [] ||
+						uploadedRecipeImgs == [] ||
+						videoID == "" ? (
 							<ui.Dialog
 								disableBackdropClick
 								disableEscapeKeyDown

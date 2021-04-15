@@ -117,6 +117,7 @@ export default function RecipeCard({
 	useEffect(() => {
 		setImages(obj.images);
 	}, [obj.images]);
+
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -124,6 +125,7 @@ export default function RecipeCard({
 		slidesToShow: 1,
 		slidesToScroll: 1,
 	};
+
 	const cssstyle = `
     .container {
       margin: 0 auto;
