@@ -93,10 +93,12 @@ const makeProfile = () => {
 		});
 	}
 
-	const userData = getUserFromCookie();
-	if(!userData) {
-		router.push("/");
-	}
+	useEffect(() => {
+		const userData = getUserFromCookie();
+		if(!userData) {
+			//router.push("/");
+		}
+	})
 
         // window.onbeforeunload = () => {
 		// 	if (!("id" in userData)) {

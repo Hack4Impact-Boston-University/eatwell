@@ -1155,10 +1155,14 @@ export default function Admin() {
                         )}
                       })}
                     </List>
-                  </Paper>
-                  <ListItem key={"Add Code"}>
-                    <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
-                  </ListItem>
+                  </Paper>        
+                </div> : <Grid></Grid>
+              }
+              <ListItem key={"Add Code"}>
+                <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
+              </ListItem>
+              {Object.keys(selectedProgramProgram).length > 0 && codes != null && numProgramCodes > 0 ?
+                <div> {/* ----------------------- edit users list ----------------------- */}
                   <ListItem key={"Delete Code"}>
                     <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
                   </ListItem>

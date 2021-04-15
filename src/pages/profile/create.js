@@ -30,13 +30,15 @@ export default function create() {
     const router = useRouter();
     //console.log("User not logged in.");
 
-    const userData = getUserFromCookie();
-    if(!userData) {
-        router.push("/");
-    }
-    else if("id" in userData) {
-        router.push("/profile/makeProfile");
-    }
+    useEffect(() => {
+        const userData = getUserFromCookie();
+        if(!userData) {
+            router.push("/");
+        }
+        else if("id" in userData) {
+            router.push("/profile/makeProfile");
+        }
+    })
 
         // window.onbeforeunload = () => {
 		// 	if (!("id" in userData)) {

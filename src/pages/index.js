@@ -91,35 +91,37 @@ const Index = () => {
             </h4>
 
             {!user && 
-                <Grid container justify="center">
-                  <Grid container item xs={5} justify="center">
-                    <Grid xs={12} className={classes.welcomeHeader} item>
-                      <Typography align="center" gutterBottom>
-                        Input your organization-provided activation code to register:
-                      </Typography>
-                    </Grid>
-                    <Grid justify="center" className={classes.formItems} container>
-                      <TextField
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        error={false}
-                        label="Activation Code"
-                        placeholder="Your Organization's Code"
-                        required
-                        // helperText="Please enter your first name"
-                      />
-                    </Grid>
-                    <Grid container justify="center" item>
-                      <Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
-                        Submit
-                      </Button>
-                    </Grid>
-                    <Grid justify="center" className={classes.formItems} container>
-                        <Box component="div" textOverflow="clip">
-                          <Typography variant="h6" color={'error'}>
-                            {errorText}
-                          </Typography>
-                        </Box>
+                <Grid container justify="center" alignItems="flex-start">
+                  <Grid item xs={5}>
+                    <Grid container justify="center">
+                      <Grid xs={12} className={classes.welcomeHeader} item>
+                        <Typography align="center" gutterBottom>
+                          Input your organization-provided activation code to register:
+                        </Typography>
+                      </Grid>
+                      <Grid justify="center" className={classes.formItems} container style={{marginTop: "20px"}}>
+                        <TextField
+                          value={code}
+                          onChange={(e) => setCode(e.target.value)}
+                          error={false}
+                          label="Activation Code"
+                          placeholder="Your Organization's Code"
+                          required
+                          // helperText="Please enter your first name"
+                        />
+                      </Grid>
+                      <Grid container justify="center" item style={{marginTop: "20px"}}>
+                        <Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
+                          Submit
+                        </Button>
+                      </Grid>
+                      <Grid justify="center" className={classes.formItems} container>
+                          <Box component="div" textOverflow="clip">
+                            <Typography variant="h6" color={'error'}>
+                              {errorText}
+                            </Typography>
+                          </Box>
+                      </Grid>
                     </Grid>
                   </Grid>
                   <Grid item xs={5} justify="center">
@@ -127,7 +129,7 @@ const Index = () => {
                         Already registered? Sign in to proceed:
                       </Typography>
                       <Grid container justify="center">
-                        <FirebaseAuth/>
+                        <FirebaseAuth isLogin={true}/>
                       </Grid>
                   </Grid>
                 </Grid>
