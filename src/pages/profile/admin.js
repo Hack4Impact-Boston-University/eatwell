@@ -169,7 +169,11 @@ export default function Admin() {
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState(Date.now())
   const [searchRecipe, setSearchRecipe] = React.useState("");
+  const [searchSkill, setSearchSkill] = React.useState("");
+  const [searchTip, setSearchTip] = React.useState("");
   const [currentRecipe, setCurrentRecipe] = React.useState("");
+  const [currentSkill, setCurrentSkill] = React.useState("");
+  const [currentTip, setCurrentTip] = React.useState("");
 
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
   // const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
@@ -177,6 +181,10 @@ export default function Admin() {
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+  const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
+  const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+  const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
+  const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
   const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
   const { data: programsTempDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
   const [programs, setPrograms] = React.useState([])
@@ -595,6 +603,7 @@ export default function Admin() {
 
   // ---------------------- 2: ADMIN MANAGE RECIPES ----------------------
   // edit recipe name
+  const [recipeID, setRecipeID] = React.useState("");
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
   
@@ -810,6 +819,7 @@ export default function Admin() {
   const [openDeleteRecipe, setOpenDeleteRecipe] = React.useState(false);
 
   const handleClickOpenDeleteRecipe = (currentRecipe) => {
+    setRecipeID(currentRecipe);
     setOpenDeleteRecipe(true);
     setCurrentRecipe(recipesDic[currentRecipe].nameOfDish);
   };
@@ -819,13 +829,257 @@ export default function Admin() {
   };
 
   const handleSubmitDeleteRecipe = () => {
-    db.collection("recipes").doc(currentRecipe).delete();
+    db.collection("recipes").doc(recipeID).delete();
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
 
+  // ---------------------- 3: ADMIN MANAGE SKILLS ----------------------
+  // edit skill name
+  const [skillName, setSkillName] = React.useState("");
+  const [skillID, setSkillID] = React.useState("");
+  const [openSkillName, setOpenSkillName] = React.useState(false);
+  
+  const handleClickOpenSkillName = (currentSkill) => {
+    setSkillName(currentSkill.skillName)
+    setOpenSkillName(true);
+    setCurrentSkill(currentSkill);
+  };
 
-  if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic) {
+  const handleCloseSkillName = () => {
+    setOpenSkillName(false);
+  };
+
+  const handleSubmitSkillName = (currentSkill) => {
+    db.collection('skills').doc(currentSkill.skillID).update({skillName:skillName, dateUploaded: uploadDate})
+    alert("successfully edited skill name!");
+    setSkillName('');
+    setOpenSkillName(false);
+  };
+
+  // edit skill description
+  const [skillDescription, setSkillDescription] = React.useState("");
+  const [openSkillDescription, setOpenSkillDescription] = React.useState(false);
+
+  const handleClickOpenSkillDescription = (currentSkill) => {
+    setSkillDescription(currentSkill.description)
+    setOpenSkillDescription(true);
+    setCurrentSkill(currentSkill);
+  };
+
+  const handleCloseSkillDescription = () => {
+    setOpenSkillDescription(false);
+  };
+
+  const handleSubmitSkillDescription = (currentSkill) => {
+    db.collection('skills').doc(currentSkill.skillID).update({description:skillDescription, dateUploaded: uploadDate})
+    alert("successfully edited skill description!");
+    setSkillDescription('');
+    setOpenSkillDescription(false);
+  };
+
+  // edit skill images
+  const [skillImages, setSkillImages] = React.useState([]);
+  const [openSkillImages, setOpenSkillImages] = React.useState(false);
+
+  const handleClickOpenSkillImages = (currentSkill) => {
+    setSkillImages(currentSkill.images)
+    setOpenSkillImages(true);
+    setCurrentSkill(currentSkill);
+  };
+
+  const handleClickOpenViewSkillImages = (currentSkill) => {
+    setViewSkillImages(skillsDic[currentSkill].images)
+    setOpenSkillImages(true);
+    setCurrentSkill(currentSkill);
+  };
+
+  const handleCloseSkillImages = () => {
+    setOpenSkillImages(false);
+  };
+
+  const handleSubmitSkillImages = (currentSkill) => {
+    db.collection('skills').doc(currentSkill.skillID).update({images:skillImages, dateUploaded: uploadDate})
+    alert("successfully edited skill images!");
+    setSkillImages([]);
+    setOpenSkillImages(false);
+  };
+
+  // edit skill video
+  const [skillVideo, setSkillVideo] = React.useState("");
+  const [openViewSkillVideo, setOpenViewSkillVideo] = React.useState(false);
+  const [openSkillVideo, setOpenSkillVideo] = React.useState(false);
+
+  const handleClickOpenViewSkillVideo = (currentSkill) => {
+    setSkillVideo(currentSkill.url)
+    setOpenViewSkillVideo(true);
+    setCurrentSkill(currentSkill);
+  };
+
+  const handleCloseViewSkillVideo = () => {
+    setOpenViewSkillVideo(false);
+  };
+  
+  const handleClickOpenSkillVideo = (currentSkill) => {
+    setSkillVideo(currentSkill.url)
+    setOpenSkillVideo(true);
+    setCurrentSkill(currentSkill);
+  };
+
+  const handleCloseSkillVideo = () => {
+    setOpenSkillVideo(false);
+  };
+
+  const handleSubmitSkillVideo = (currentSkill) => {
+    db.collection('skills').doc(currentSkill.skillID).update({url:skillVideo, dateUploaded: uploadDate})
+    alert("successfully edited skill video!");
+    setSkillVideo('');
+    setOpenSkillVideo(false);
+  };
+  
+  // delete recipe
+  const [openDeleteSkill, setOpenDeleteSkill] = React.useState(false);
+
+  const handleClickOpenDeleteSkill = (currentSkill) => {
+    setSkillID(currentSkill);
+    setOpenDeleteSkill(true);
+    setCurrentSkill(skillsDic[currentSkill].skillName);
+  };
+
+  const handleCloseDeleteSkill = () => {
+    setOpenDeleteSkill(false);
+  };
+
+  const handleSubmitDeleteSkill = () => {
+    db.collection("skills").doc(skillID).delete();
+    setOpenDeleteSkill(false);
+    alert("successfully deleted the skill.");
+  };
+
+
+  // ---------------------- 4: ADMIN MANAGE TIPS ----------------------
+  // edit tip name
+  const [tipName, setTipName] = React.useState("");
+  const [tipID, setTipID] = React.useState("");
+  const [openTipName, setOpenTipName] = React.useState(false);
+  
+  const handleClickOpenTipName = (currentTip) => {
+    setTipName(currentTip.tipName)
+    setOpenTipName(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleCloseTipName = () => {
+    setOpenTipName(false);
+  };
+
+  const handleSubmitTipName = (currentTip) => {
+    db.collection('tips').doc(currentTip.tipID).update({tipName:tipName, dateUploaded: uploadDate})
+    alert("successfully edited tip name!");
+    setTipName('');
+    setOpenTipName(false);
+  };
+
+  // edit tip description
+  const [tipDescription, setTipDescription] = React.useState("");
+  const [openTipDescription, setOpenTipDescription] = React.useState(false);
+
+  const handleClickOpenTipDescription = (currentTip) => {
+    setTipDescription(currentTip.description)
+    setOpenTipDescription(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleCloseTipDescription = () => {
+    setOpenTipDescription(false);
+  };
+
+  const handleSubmitTipDescription = (currentTip) => {
+    db.collection('tips').doc(currentTip.tipID).update({description:tipDescription, dateUploaded: uploadDate})
+    alert("successfully edited tip description!");
+    setTipDescription('');
+    setOpenTipDescription(false);
+  };
+
+  // edit tip images
+  const [tipImages, setTipImages] = React.useState([]);
+  const [openTipImages, setOpenTipImages] = React.useState(false);
+
+  const handleClickOpenTipImages = (currentTip) => {
+    setTipImages(currentTip.images)
+    setOpenTipImages(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleClickOpenViewTipImages = (currentTip) => {
+    setViewTipImages(tipsDic[currentTip].images)
+    setOpenTipImages(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleCloseTipImages = () => {
+    setOpenTipImages(false);
+  };
+
+  const handleSubmitTipImages = (currentTip) => {
+    db.collection('tips').doc(currentTip.tipID).update({images:tipImages, dateUploaded: uploadDate})
+    alert("successfully edited tip images!");
+    setTipImages([]);
+    setOpenTipImages(false);
+  };
+
+  // edit tip video
+  const [tipVideo, setTipVideo] = React.useState("");
+  const [openViewTipVideo, setOpenViewTipVideo] = React.useState(false);
+  const [openTipVideo, setOpenTipVideo] = React.useState(false);
+
+  const handleClickOpenViewTipVideo = (currentTip) => {
+    setTipVideo(currentTip.url)
+    setOpenViewTipVideo(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleCloseViewTipVideo = () => {
+    setOpenViewTipVideo(false);
+  };
+  
+  const handleClickOpenTipVideo = (currentTip) => {
+    setTipVideo(currentTip.url)
+    setOpenTipVideo(true);
+    setCurrentTip(currentTip);
+  };
+
+  const handleCloseTipVideo = () => {
+    setOpenTipVideo(false);
+  };
+
+  const handleSubmitTipVideo = (currentTip) => {
+    db.collection('tips').doc(currentTip.id).update({url:tipVideo, dateUploaded: uploadDate})
+    alert("successfully edited tip video!");
+    setTipVideo('');
+    setOpenTipVideo(false);
+  };
+  
+  // delete tip
+  const [openDeleteTip, setOpenDeleteTip] = React.useState(false);
+
+  const handleClickOpenDeleteTip = (currentTip) => {
+    setTipID(currentTip);
+    setOpenDeleteTip(true);
+    setCurrentTip(tipsDic[currentTip].tipName);
+  };
+
+  const handleCloseDeleteTip = () => {
+    setOpenDeleteTip(false);
+  };
+
+  const handleSubmitDeleteTip = () => {
+    db.collection("tips").doc(tipID).delete();
+    setOpenDeleteTip(false);
+    alert("successfully deleted the tip.");
+  };
+
+  if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic || !skills || !skillsDic || !tips || !tipsDic) {
     if (!users) {
       return "Loading users...";
     } else if (!programs) {
@@ -838,6 +1092,14 @@ export default function Admin() {
       return "Loading recipesDic...";
     } else if (!programsDic) {
       return "Loading programsDic...";
+    } else if (!skills) {
+      return "Loading skills...";
+    } else if (!skillsDic) {
+      return "Loading skillsDic...";
+    } else if (!tips) {
+      return "Loading tips...";
+    } else if (!tipsDic) {
+      return "Loading tipsDic...";
     }
   }
 
@@ -851,6 +1113,18 @@ export default function Admin() {
   var i;
   for (i = 0; i < recipes.length; i++) {
     recipesList.push(recipes[i]["nameOfDish"]);
+  }
+
+  const skillsList = [];
+  var i;
+  for (i = 0; i < skills.length; i++) {
+    skillsList.push(skills[i]["skillName"]);
+  }
+
+  const tipsList = [];
+  var i;
+  for (i = 0; i < tips.length; i++) {
+    tipsList.push(tips[i]["tipName"]);
   }
 
   const programsList = [];
@@ -868,6 +1142,20 @@ export default function Admin() {
 
   const handleChangeRecipe = (e) => {
     setSearchRecipe(e.target.value);
+    const filteredNames = recipesList.filter((x) => {
+      x?.includes(e.target.value);
+    });
+  };
+
+  const handleChangeSkill = (e) => {
+    setSearchSkill(e.target.value);
+    const filteredNames = recipesList.filter((x) => {
+      x?.includes(e.target.value);
+    });
+  };
+
+  const handleChangeTip = (e) => {
+    setSearchTips(e.target.value);
     const filteredNames = recipesList.filter((x) => {
       x?.includes(e.target.value);
     });
@@ -1446,7 +1734,7 @@ export default function Admin() {
               <DialogContent>
                   <MultiImageInput
                     images={recipeImages} setImages={setRecipeImages}
-                    cropConfig={{ crop, ruleOfThirds: true }} inputId
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId  max={3}
                   />
                   <Button onClick={handleCloseRecipeImages} color="primary"> Cancel </Button>
                   <Button onClick={() => handleSubmitRecipeImages(currentRecipe)} color="primary"> Confirm </Button>
@@ -1560,6 +1848,234 @@ export default function Admin() {
           )}
 
         </TabPanel>
+
+        <TabPanel value={value} index={3} dir={theme.direction}>
+        <Grid container spacing={3}>
+            <Grid item sm={5}>
+              <TextField label="search skill" value={searchRecipe} onChange={handleChangeSkill}/>
+
+              {skills.map((value) => {
+                if (value["skillName"]?.includes(searchSkill) || value["skillName"].toLowerCase()?.includes(searchSkill)) {
+                  return (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                        <ListItemAvatar>
+                          <Avatar
+                          // alt={`Avatar n°${value + 1}`}
+                          // src={`/static/images/avatar/${value + 1}.jpg`}
+                          />
+                        </ListItemAvatar>
+                        <ListItemText primary={value?.skillName}/>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <ol className={classes.noNum}>
+                          {/* ----------------------- edit skill name, description ----------------------- */}
+                          <li>Name of skill: {value?.skillName} <IconButton onClick={() => handleClickOpenSkillName(value)}> <EditIcon/> </IconButton></li>
+                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
+                          <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
+                          {/* <li>Rating: {value?.avgRating}</li> */}
+                          {/* <li>Number of ratings: {value?.numRatings}</li> */}
+                          {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
+                          <li>Skill images <IconButton onClick={() => handleClickOpenSkillImages(value)}> <EditIcon/> </IconButton></li>
+                          <li>Skill video
+                            <IconButton onClick={() => handleClickOpenViewSkillVideo(value)}> <VisibilityIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenSkillVideo(value)}> <EditIcon/> </IconButton>
+                          </li>
+                          {/* ---------------------------- delete skill ---------------------------- */}
+                          <li><IconButton onClick={() => handleClickOpenDeleteSkill(value.skillID)}> <DeleteIcon /> </IconButton></li>
+                        </ol>
+                      </AccordionDetails>
+                    </Accordion>
+                  );
+                }
+              })}
+            </Grid>
+          </Grid>
+
+          {/* manage skillss Dialog */}
+          {currentSkill && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openSkillName} onClose={handleCloseSkillName}>
+              <DialogTitle>Edit Skill Name</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={skillName} label="Edit Skill Name" multiline
+                      onChange={(e) => setSkillName(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseSkillName} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitSkillName(currentSkill)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          
+          {currentSkill && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openSkillImages} onClose={handleCloseSkillImages}>
+              <DialogTitle>Edit Skill Images</DialogTitle>
+              <DialogContent>
+                  <MultiImageInput
+                    images={skillImages} setImages={setSkillImages}
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId max={1}
+                  />
+                  <Button onClick={handleCloseSkillImages} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitSkillImages(currentSkill)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentSkill && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewSkillVideo} onClose={handleCloseViewSkillVideo}>
+              <DialogTitle>View Skill Video</DialogTitle>
+              <DialogContent>
+                  {(skillVideo != "") ? 
+                    <iframe position="fixed" src={skillVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No skill video to display</h4>
+                  }
+                  <Button onClick={handleCloseViewSkillVideo} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentSkill && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openSkillVideo} onClose={handleCloseSkillVideo}>
+              <DialogTitle>Edit Skill Video</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      required value={skillVideo} label="Vimeo Skill Video ID"
+                      onChange={(e) => setSkillVideo(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseSkillVideo} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitSkillVideo(currentSkill)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentSkill && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteSkill} onClose={handleCloseDeleteSkill}>
+              <DialogTitle>Are you sure you want to delete the skill: {currentSkill}?</DialogTitle>
+              <DialogActions>
+                <Button onClick={handleCloseDeleteSkill} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteSkill()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+        </TabPanel>
+
+
+
+
+
+
+        {/* manage tipss Dialog */}
+
+        <TabPanel value={value} index={4} dir={theme.direction}>
+        <Grid container spacing={3}>
+            <Grid item sm={5}>
+              <TextField label="search tip" value={searchTip} onChange={handleChangeTip}/>
+
+              {tips.map((value) => {
+                if (value["tipName"]?.includes(searchTip) || value["tipName"].toLowerCase()?.includes(searchTip)) {
+                  return (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                        <ListItemAvatar>
+                          <Avatar
+                          // alt={`Avatar n°${value + 1}`}
+                          // src={`/static/images/avatar/${value + 1}.jpg`}
+                          />
+                        </ListItemAvatar>
+                        <ListItemText primary={value?.tipName}/>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <ol className={classes.noNum}>
+                          {/* ----------------------- edit tip name, description ----------------------- */}
+                          <li>Name of skill: {value?.tipName} <IconButton onClick={() => handleClickOpenTipName(value)}> <EditIcon/> </IconButton></li>
+                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
+                          <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
+                          {/* <li>Rating: {value?.avgRating}</li> */}
+                          {/* <li>Number of ratings: {value?.numRatings}</li> */}
+                          {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
+                          <li>Tip images <IconButton onClick={() => handleClickOpenTipImages(value)}> <EditIcon/> </IconButton></li>
+                          <li>Tip video
+                            <IconButton onClick={() => handleClickOpenViewTipVideo(value)}> <VisibilityIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenTipVideo(value)}> <EditIcon/> </IconButton>
+                          </li>
+                          {/* ---------------------------- delete skill ---------------------------- */}
+                          <li><IconButton onClick={() => handleClickOpenDeleteTip(value.tipID)}> <DeleteIcon /> </IconButton></li>
+                        </ol>
+                      </AccordionDetails>
+                    </Accordion>
+                  );
+                }
+              })}
+            </Grid>
+          </Grid>
+
+          {/* manage tips Dialog */}
+          {currentTip && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openTipName} onClose={handleCloseTipName}>
+              <DialogTitle>Edit Tip Name</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={tipName} label="Edit Tip Name" multiline
+                      onChange={(e) => setTipName(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseTipName} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitTipName(currentTip)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          
+          {currentTip && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openTipImages} onClose={handleCloseTipImages}>
+              <DialogTitle>Edit Tip Images</DialogTitle>
+              <DialogContent>
+                  <MultiImageInput
+                    images={tipImages} setImages={setTipImages}
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId max={1}
+                  />
+                  <Button onClick={handleCloseTipImages} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitTipImages(currentTip)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentTip && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewTipVideo} onClose={handleCloseViewTipVideo}>
+              <DialogTitle>View Tip Video</DialogTitle>
+              <DialogContent>
+                  {(tipVideo != "") ? 
+                    <iframe position="fixed" src={tipVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    : <h4>No tip video to display</h4>
+                  }
+                  <Button onClick={handleCloseViewTipVideo} color="primary"> Back </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentTip && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openTipVideo} onClose={handleCloseTipVideo}>
+              <DialogTitle>Edit Tip Video</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      required value={tipVideo} label="Vimeo Tip Video ID"
+                      onChange={(e) => setTipVideo(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseTipVideo} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitTipVideo(currentTip)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentTip && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteTip} onClose={handleCloseDeleteTip}>
+              <DialogTitle>Are you sure you want to delete the tip: {currentTip}?</DialogTitle>
+              <DialogActions>
+                <Button onClick={handleCloseDeleteTip} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteTip()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+        </TabPanel>
+
+
+
+
+
+
+
+
+
+
+
       </SwipeableViews>
 
       <div className={styles.nav}>
@@ -1573,6 +2089,8 @@ export default function Admin() {
             <Tab label="Manage Users" {...a11yProps(0)} />
             <Tab label="Manage Programs" {...a11yProps(1)} />
             <Tab label="Manage Recipes" {...a11yProps(2)} />
+            <Tab label="Manage Skills" {...a11yProps(3)} />
+            <Tab label="Manage Tips" {...a11yProps(4)} />
           </Tabs>
         </AppBar>
       </div>
