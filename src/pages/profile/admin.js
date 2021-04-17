@@ -1174,33 +1174,39 @@ export default function Admin() {
 
           {/* edit program */}
           <Dialog disableBackdropClick disableEscapeKeyDown open={openAddProgram} onClose={handleCloseAddProgram}>
-            <DialogActions>
-              <h4>Add New Program</h4>
-              <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
+            <DialogTitle>Add New Program</DialogTitle>
+            <DialogContent>
+              <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined" style={{marginBottom: "8px"}}/>
               <TextField value={addedProgramNumUsers || ''} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
+            </DialogContent>
+            <DialogActions>
               <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
               <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
+            <DialogTitle>Delete {selectedProgramProgram.programName}</DialogTitle>
             <DialogActions>
-              <h4>Delete Program {selectedProgramProgram.programName} </h4>
               <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
               <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodes}>
-            <DialogActions>
-              <h4>Add Codes</h4>
+            <DialogTitle>Add Codes</DialogTitle>
+            <DialogContent>
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
+            </DialogContent>
+            <DialogActions>
               <Button onClick={() => setOpenAddCodes(false)} color="primary"> Cancel </Button>
               <Button onClick={() => addCodes()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteCodes}>
-            <DialogActions>
-              <h4>Delete Codes</h4>
+            <DialogTitle>Delete Codes</DialogTitle>
+            <DialogContent>
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
+            </DialogContent>
+            <DialogActions>
               <Button onClick={() => setOpenDeleteCodes(false)} color="primary"> Cancel </Button>
               <Button onClick={() => deleteCodes()} color="primary"> Confirm </Button>
             </DialogActions>
