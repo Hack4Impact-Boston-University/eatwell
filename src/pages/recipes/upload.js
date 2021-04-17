@@ -101,7 +101,7 @@ const UploadForm = () => {
     const router = useRouter();
 
     // skills
-    const { data: skills } = useSWR(`/api/programs/getAllSkills`, fetcher);
+    const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
     const [skill, setSkill] = React.useState('');
     const [openSkill, setOpenSkill] = React.useState(false);
     const [descriptionSkill, setDescriptionSkill] = useState('')
@@ -150,7 +150,7 @@ const UploadForm = () => {
     };
 
     // tips
-    const { data: tips } = useSWR(`/api/programs/getAllTips`, fetcher);
+    const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
     const [tip, setTip] = React.useState('');
     const [openTip, setOpenTip] = React.useState(false);
     const [descriptionTip, setDescriptionTip] = useState('')
