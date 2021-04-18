@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -9,15 +9,9 @@ import Box from "@material-ui/core/Box";
 import Navbar from "../../components/Navbar";
 import styles from "../../styles/Home.module.css";
 import useSWR from "swr";
-import { useUser } from "../../utils/auth/useUser";
-import _, { map } from "underscore";
-import { Grid } from "@material-ui/core";
-import RecipeCard from "../../components/recipeCard";
-import {
-	getFavsFromCookie,
-	getNotesFromCookie,
-	getRatingsFromCookie,
-} from "../../utils/cookies";
+import _ from "underscore";
+import firebase from "firebase";
+import { useRouter } from "next/router";
 
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
@@ -61,33 +55,45 @@ const fetcher = async (...args) => {
 
 const useStyles = makeStyles((theme) => ({}));
 
-export default function TabsWrappedLabel() {
-	const { user, upload } = useUser();
-	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-	const favRecipes = getFavsFromCookie() || {};
-	const recipeNotes = getNotesFromCookie() || {};
-	const recipeRatings = getRatingsFromCookie() || {};
-	const classes = useStyles();
+export default function UserFavorites() {
+	// get all the recipes
+	// const { userRecipes } = useSWR(`/api/recipes/getUsersFavorites`, fetcher);
+	const router = useRouter();
+	// state for MUI tab panels
 	const [value, setValue] = React.useState("one");
-	const [dummy, setDummy] = React.useState(true);
-	const [favs, setFavs] = React.useState(value == 1);
+	const [userRecipes, setUserRecipes] = React.useState([]);
 
-	// handle clicking favorites icon
-	const onFavClick = () => {
-		setDummy(!dummy);
-		favRecipes = getFavsFromCookie() || {};
-		//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
-	};
+	// this useEffect will load the user's favorites
+	useEffect(() => {
+		firebase.auth().onAuthStateChanged(function (user) {
+			if (user) {
+				// User is signed in.
+				firebase
+					.firestore()
+					.collection("users")
+					.doc(user.uid)
+					.get()
+					.then((querySnapshot) => {
+						let data = querySnapshot.data();
+						// set the user's favorite recipes
+						setUserRecipes(data.favoriteRecipes);
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+			} else {
+				// No user is signed in.
+				router.push("/");
+			}
+		});
+	}, []);
 
 	// handle tab click change
 	const handleChange = (event, newValue) => {
 		setValue(newValue);
-		setFavs(newValue == 1);
 	};
 
 	// loading if certain data isnt finished loading
-	if (!user || !recipes) return "Loading...";
-
 	return (
 		<div className={styles.nav}>
 			{/* navbar */}
@@ -108,74 +114,19 @@ export default function TabsWrappedLabel() {
 					<Tab value="three" label="Tips" {...a11yProps("three")} />
 				</Tabs>
 			</AppBar>
+
+			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
-				{user.role == "admin" ? (
-					!_.isEqual(recipes, []) ? (
-						<Grid
-							container
-							spacing={1000}
-							className={classes.gridContainerMain}
-						>
-							{recipes.map((obj, idx) => {
-								if (!obj.nameOfDish || !obj.id) return;
-								if (!favs || obj.id in favRecipes) {
-									return (
-										<RecipeCard
-											key={obj.id}
-											object={obj}
-											isFav={obj.id in favRecipes}
-											onFavClick={() => onFavClick()}
-											initNotes={
-												obj.id in recipeNotes ? recipeNotes[obj.id] : []
-											}
-											initRating={
-												obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-											}
-										/>
-									);
-								} else {
-									return;
-								}
-								//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
-							})}
-						</Grid>
-					) : (
-						<Grid>
-							<h4>No recipes to display</h4>
-						</Grid>
-					)
-				) : !_.isEqual(recipesUser, []) ? (
-					<Grid container spacing={1000} className={classes.gridContainerMain}>
-						{recipesUser.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) return;
-							if (!favs || obj.id in favRecipes) {
-								return (
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-										isFav={obj.id in favRecipes}
-										onFavClick={() => onFavClick()}
-										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-										}
-									/>
-								);
-							} else {
-								return;
-							}
-							//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
-						})}
-					</Grid>
-				) : (
-					<Grid>
-						<h4>No recipes to display</h4>
-					</Grid>
-				)}
+				Recipes
+				{console.log(userRecipes)}
 			</TabPanel>
+
+			{/* Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
 				Skills
 			</TabPanel>
+
+			{/* Favorite Tips Panel */}
 			<TabPanel value={value} index="three">
 				Tips
 			</TabPanel>
