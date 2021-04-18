@@ -121,14 +121,16 @@ const UploadForm = () => {
 		setOpenConfirm(false);
 	}
 
-	const userData = getUserFromCookie();
+	useEffect(() => {
+		const userData = getUserFromCookie();
 
-	if(!userData || "code" in userData || userData["role"] != "admin") {
-		router.push("/");
-	}
-	else if(!("firstname" in userData)) {
-		router.push("/profile/makeProfile");
-	}
+		if(!userData || "code" in userData || userData["role"] != "admin") {
+			router.push("/");
+		}
+		else if(!("firstname" in userData)) {
+			router.push("/profile/makeProfile");
+		}
+	});
 
 	return (
 		<div className={styles.container}>

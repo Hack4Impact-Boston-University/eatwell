@@ -81,6 +81,7 @@ const useUser = () => {
 				}
 			}
 		} else if("favoriteRecipes" in newData){
+			newData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}

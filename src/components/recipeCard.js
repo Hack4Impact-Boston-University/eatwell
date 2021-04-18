@@ -38,6 +38,10 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
+import { useUser } from "../utils/auth/useUser";
+import { getFavsFromCookie } from "../utils/cookies";
+
+
 
 initFirebase();
 var db = firebase.firestore();
@@ -98,6 +102,7 @@ export default function RecipeCard({
 }) {
 	const classes = useStyles();
 	const [obj, setObj] = React.useState(object);
+	const { user, upload } = useUser();
 	const [expanded, setExpanded] = React.useState(false);
 	const [favorited, setFav] = React.useState(isFav);
 	const handleExpandClick = () => {
@@ -178,6 +183,10 @@ export default function RecipeCard({
 		setFav(!favorited);
 		editFavCookie(obj.id, !favorited);
 		onFavClick();
+		upload({ favoriteRecipes: Object.keys(getFavsFromCookie())})
+		.catch((err) => {
+			alert(err.message);
+		});
 	}
 
 	function handleSubmit() {

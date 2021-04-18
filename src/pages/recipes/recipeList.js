@@ -102,7 +102,7 @@ export default function RecipeReviewCard() {
 		const uploadData = () => {
 			if (!_.isEqual(getFavsFromCookie(), undefined)) {
 				upload({
-					favoriteRecipes: Object.keys(getFavsFromCookie()),
+					//favoriteRecipes: Object.keys(getFavsFromCookie()),
 					notes: getNotesFromCookie(),
 					ratings: getRatingsFromCookie(),
 				});
