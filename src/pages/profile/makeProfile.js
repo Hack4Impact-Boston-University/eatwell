@@ -7,7 +7,7 @@ import {
 	Typography,
 	CircularProgress,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import { useUser } from "../../utils/auth/useUser";
 import * as firebase from 'firebase'
@@ -16,6 +16,7 @@ import { Redirect } from 'react-router-dom'
 import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
 import {checkCode} from "../../utils/codes.js";
+import { getUserFromCookie } from "../../utils/cookies";
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -50,14 +51,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const makeProfile = () => {
-	const { user, resolveUser, upload} = useUser();
+	const { user, resolveUser, upload, logout} = useUser();
 	const classes = useStyles();
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [tel, setTel] = useState("");
-	const [code, setCode] = React.useState("");
 	const router = useRouter();
-	const [errorText, setErrorText] = useState("");
 
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
@@ -110,9 +109,27 @@ const makeProfile = () => {
 		}).catch((err) => {
 			// Check if firebase error or incorrect code, return error accordingly
 			console.log(err);
-			setErrorText(err.message);
 		});
 	}
+
+	useEffect(() => {
+		const userData = getUserFromCookie();
+		if(!userData) {
+			//router.push("/");
+		}
+	})
+
+        // window.onbeforeunload = () => {
+		// 	if (!("id" in userData)) {
+        //         console.log(userData);
+		// 		removeUserCookie();
+        //         router.push("/");
+		// 	}
+		// }
+
+		//window.addEventListener("beforeunload", checkUserData);
+
+        //return () => window.removeEventListener("beforeunload", checkUserData);
 
 	if (!user) {
 		//console.log("User not logged in.");
@@ -175,28 +192,15 @@ const makeProfile = () => {
 							required
 						/>
 					</Grid>
-					<Grid justify="center" className={classes.formItems} container>
-                      <TextField
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        error={false}
-                        label="Activation Code"
-                        placeholder="Your Organization's Code"
-                        required
-                        // helperText="Please enter your first name"
-                      />
-                    </Grid>
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
 							Submit
 						</Button>
 					</Grid>
-					<Grid justify="center" className={classes.formItems} container>
-							<Box component="div" textOverflow="clip">
-								<Typography variant="h5" color={'error'}>
-									{errorText}
-								</Typography>
-							</Box>
+					<Grid container justify="center" item>
+						<Button variant="contained" color="primary" className={classes.btn} onClick={() => logout()}>
+							Take me back!
+						</Button>
 					</Grid>
 				</Grid>
 			</Box>

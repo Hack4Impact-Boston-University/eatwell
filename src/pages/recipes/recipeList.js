@@ -75,11 +75,14 @@ function a11yProps(index) {
 
 export default function RecipeReviewCard() {
 	const classes = useStyles();
-	const [uploadDate, setUploadDate] = React.useState(Date.now())
+	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
 	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+	const { data: programsDic } = useSWR(
+		`/api/programs/getAllProgramsDic`,
+		fetcher
+	);
 	let favRecipes = getFavsFromCookie() || {};
 	const recipeNotes = getNotesFromCookie() || {};
 	const recipeRatings = getRatingsFromCookie() || {};
@@ -96,16 +99,20 @@ export default function RecipeReviewCard() {
 	};
 
 	useEffect(() => {
-		window.addEventListener("beforeunload", () => {
+		const uploadData = () => {
 			if (!_.isEqual(getFavsFromCookie(), undefined)) {
 				upload({
-					favoriteRecipes: Object.keys(getFavsFromCookie()),
+					//favoriteRecipes: Object.keys(getFavsFromCookie()),
 					notes: getNotesFromCookie(),
 					ratings: getRatingsFromCookie(),
 				});
 				//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
 			}
-		});
+		};
+
+		window.addEventListener("beforeunload", uploadData);
+
+		return () => window.removeEventListener("beforeunload", uploadData);
 	});
 
 	const onFavClick = () => {
@@ -114,35 +121,40 @@ export default function RecipeReviewCard() {
 		//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
 	};
 
+	const userData = getUserFromCookie();
+	if (!userData || "code" in userData) {
+		// router.push("/");
+	} else if (!("firstname" in userData)) {
+		router.push("/profile/makeProfile");
+	}
+
 	if (!recipes || !recipesDic || !programsDic || !user || !favRecipes) {
 		return "Loading recipes...";
 	}
 
 	const recipesUser = [];
 	if (!user.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programRecipes)
+		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
 		if (_.isEqual(user?.role, "user")) {
 			if (!_.isEqual(user.program, "")) {
-				if (programsDic[user.program]?.programRecipes != null || programsDic[user.program]?.programRecipes != []) {
+				if (
+					programsDic[user.program]?.programRecipes != null ||
+					programsDic[user.program]?.programRecipes != []
+				) {
 					var i;
 					for (i = 0; i < keysList.length; i++) {
-						console.log(programsDic[user.program].programRecipes[keysList[i]])
-						var d = Date.parse(programsDic[user.program].programRecipes[keysList[i]]+"T00:00:00.0000");
+						console.log(programsDic[user.program].programRecipes[keysList[i]]);
+						var d = Date.parse(
+							programsDic[user.program].programRecipes[keysList[i]] +
+								"T00:00:00.0000"
+						);
 						if (d < uploadDate) {
-							recipesUser.push(
-								recipesDic[keysList[i]]
-							);
+							recipesUser.push(recipesDic[keysList[i]]);
 						}
 					}
 				}
 			}
 		}
-	}	
-
-
-	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return <div></div>;
 	}
 
 	return (

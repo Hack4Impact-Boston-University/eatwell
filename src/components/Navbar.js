@@ -25,7 +25,9 @@ import {
 	AccountCircle,
 	Book,
 	ExitToApp,
+	Backup,
 	KeyboardArrowRight,
+	Favorite,
 } from "@material-ui/icons";
 import MenuIcon from "@material-ui/icons/Menu";
 import FirebaseAuth from "./FirebaseAuth";
@@ -89,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
 	paper: {
 		background: "#0A5429",
 	},
-	viewButtonLabel: { textTransform: "none" }
+	viewButtonLabel: { textTransform: "none" },
 }));
 
 const Navbar = () => {
@@ -114,67 +116,51 @@ const Navbar = () => {
 	// 	setOpen(!open);
 	// };
 
-	const UserMenuItems = (props) => {
-		return (<Box></Box>);
-	}
-
-	const AdminMenuItems = (props) => {
-		return (
-			<div>					
-				<Button href={`/recipes/upload`} className={classes.menuItems}>
-					<Book />
-					<Typography variant="subtitle2">Upload</Typography>
-				</Button>
-				<Button href={`/profile/admin`} className={classes.menuItems}>
-					<AccountCircle
-						className={`${classes.menuIcon} ${classes.menuItems}`}
-					/>
-					<Typography variant="subtitle2">Manage</Typography>
-				</Button>
-			</div>
-		);
-	}
-
 	const UserDrawerItems = (props) => {
-		return (
-			<Box>
-				
-			</Box>
-		);
-	}
+		return <Box></Box>;
+	};
 
 	const AdminDrawerItems = (props) => {
 		return (
 			<Box>
-				<MenuItem button key={2}  className={classes.menuItems}>
-					<Button href={`/recipes/upload`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+				<MenuItem button key={2} className={classes.menuItems}>
+					<Button
+						href={`/recipes/upload`}
+						className={classes.menuItems}
+						classes={{ label: classes.viewButtonLabel }}
+					>
 						<ListItemIcon>
-							<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
+							<Backup className={`${classes.menuIcon} ${classes.menuItems}`} />
 						</ListItemIcon>
 						<Typography variant="subtitle1">Upload</Typography>
 					</Button>
 				</MenuItem>
 
 				<MenuItem button key={3} className={classes.menuItems}>
-					<Button href={`/profile/admin`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+					<Button
+						href={`/profile/admin`}
+						className={classes.menuItems}
+						classes={{ label: classes.viewButtonLabel }}
+					>
 						<ListItemIcon>
-							<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
+							<AccountCircle
+								className={`${classes.menuIcon} ${classes.menuItems}`}
+							/>
 						</ListItemIcon>
 						<Typography variant="subtitle1">Manage</Typography>
 					</Button>
 				</MenuItem>
 			</Box>
 		);
-	}
-
+	};
 
 	// navbar items
 	const Items = (props) => {
 		const [anchorEl, setAnchorEl] = React.useState(null);
 		const handleClick = (event) => {
 			setAnchorEl(event.currentTarget);
-		}
-	
+		};
+
 		const handleClose = () => {
 			setAnchorEl(null);
 		};
@@ -190,7 +176,10 @@ const Navbar = () => {
 								/>
 								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
-							<Button href={`/recipes/recipeList`} className={classes.menuItems}>
+							<Button
+								href={`/recipes/recipeList`}
+								className={classes.menuItems}
+							>
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
@@ -202,11 +191,20 @@ const Navbar = () => {
 								<Book />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>
-							{user.role == "user" ? 
-								<UserMenuItems/> 
-								: 
-								<AdminMenuItems/>
-							}
+							<Button href={`/profile/favorites`} className={classes.menuItems}>
+								<Favorite />
+								<Typography variant="subtitle2">Favorites</Typography>
+							</Button>
+							{user.role == "admin" ? 
+							<Button href={`/recipes/upload`} className={classes.menuItems}>
+								<Backup />
+								<Typography variant="subtitle2">Upload</Typography>
+							</Button> : <Box></Box>}
+							{user.role == "admin" ? 
+							<Button href={`/profile/admin`} className={classes.menuItems}>
+								<AccountCircle />
+								<Typography variant="subtitle2">Manage</Typography>
+							</Button> : <Box></Box>}
 							<Button
 								onClick={() => logout()}
 								className={`${classes.menuIcon} ${classes.menuItems}`}
@@ -223,29 +221,51 @@ const Navbar = () => {
 								keepMounted
 								open={Boolean(anchorEl)}
 								onClose={handleClose}
-								classes={{paper: classes.paper}}
+								classes={{ paper: classes.paper }}
 							>
 								<MenuItem button key={0} className={classes.menuItems}>
-									<Button href={`/profile/profile`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+									<Button
+										href={`/profile/profile`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
 										<ListItemIcon>
-											<AccountCircle className={`${classes.menuIcon} ${classes.menuItems}`}/>
+											<AccountCircle
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
 										</ListItemIcon>
 										<Typography variant="subtitle1">Profile</Typography>
 									</Button>
 								</MenuItem>
 								<MenuItem button key={1}>
-									<Button href={`/recipes/recipeList`} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+									<Button
+										href={`/recipes/recipeList`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
 										<ListItemIcon>
-											<Book className={`${classes.menuIcon} ${classes.menuItems}`}/>
+											<Book
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
 										</ListItemIcon>
 										<Typography variant="subtitle1">Recipes</Typography>
 									</Button>
 								</MenuItem>
-								{user.role == "user" ? <UserDrawerItems/> : <AdminDrawerItems/>}
+								{user.role == "user" ? (
+									<UserDrawerItems />
+								) : (
+									<AdminDrawerItems />
+								)}
 								<MenuItem button key={4} className={classes.menuItems}>
-									<Button onClick={() => logout()} className={classes.menuItems} classes={{ label: classes.viewButtonLabel }}>
+									<Button
+										onClick={() => logout()}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
 										<ListItemIcon>
-											<ExitToApp className={`${classes.menuIcon} ${classes.menuItems}`}/>
+											<ExitToApp
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
 										</ListItemIcon>
 										<Typography variant="subtitle1">Logout</Typography>
 									</Button>
@@ -258,8 +278,7 @@ const Navbar = () => {
 						</Button>
 					</Toolbar>
 				) : (
-					<Toolbar disableGutters>
-					</Toolbar>
+					<Toolbar disableGutters></Toolbar>
 				)}
 			</div>
 		);

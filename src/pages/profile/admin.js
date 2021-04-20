@@ -8,7 +8,8 @@ import {
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControl,
+	Collapse,
+  FormControl, 
   GridList
 } from "@material-ui/core";
 import { DropzoneArea } from 'material-ui-dropzone'
@@ -129,7 +130,9 @@ const useStyles = makeStyles((theme) => ({
   noNum: {
     listStyle: "none"
   },
-
+  codes: {
+    columns: "1 auto"
+  }
 }));
 
 const getTimeString = timestamp => {
@@ -316,13 +319,23 @@ export default function Admin() {
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('');
   const [addedProgramNumUsers, setAddedProgramNumUsers] = useState('');
+  const [addedProgramEndDate, setAddedProgramEndDate] = useState('');
+  const [newProgramEndDate, setNewProgramEndDate] = useState('');
   const [numCodes, setNumCodes] = useState('');
   const [numProgramCodes, setNumProgramCodes] = useState('');
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
+  const [openChangeProgramEndDate, setOpenChangeProgramEndDate] = React.useState(false);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
+
+  useEffect(() => {
+    let date = new Date(Date.now());
+    date.setMonth((date.getMonth() + 1) % 12);
+    console.log(getDateString(date.getTime()));
+    setAddedProgramEndDate(getDateString(date.getTime()));
+  }, []);
 
   const StyledTableCell = withStyles((theme) => ({
     head: {
@@ -407,6 +420,28 @@ export default function Admin() {
     setOpenAddProgram(false);
   };
 
+  const getDateString = timestamp => {
+    let date = new Date(timestamp);
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+  
+    month = (month < 10 ? "0" : "") + month;
+    day = (day < 10 ? "0" : "") + day;
+  
+    let str = date.getFullYear() + "-" + month + "-" + day;
+    return str;
+  }
+  
+  const getTimeStamp = datestring => {
+    let date = new Date();
+    let args = datestring.split("-");
+    date.setFullYear(parseInt(args[0]));
+    date.setMonth(parseInt(args[1]) - 1);
+    date.setDate(parseInt(args[2]));
+    return date.getTime();
+  }
+
+
   function generate(length) {
 		var result           = '';
 		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -438,7 +473,8 @@ export default function Admin() {
       alert("No program name specified");
       return; 
     }
-    db.collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[]})
+    console.log(addedProgramEndDate);
+    db.collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
     .then(() => {
       return createCodes(addedProgram, addedProgramNumUsers, id);
     }).then(() => {
@@ -1170,14 +1206,11 @@ export default function Admin() {
 
   const userData = getUserFromCookie();
 
-  if(userData) {
-    if(!("firstname" in userData)) {
-      router.push("/fprofile/makeProfile");
-      return (<div></div>);
-    } else if(userData["role"] != "admin") {
-      router.push("/");
-      return (<div></div>);
-    }
+  if(!userData || "code" in userData || userData["role"] != "admin") {
+    router.push("/");
+  }
+  else if(!("firstname" in userData)) {
+    router.push("/profile/makeProfile");
   }
 
   return (
@@ -1286,7 +1319,7 @@ export default function Admin() {
         {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
           <Grid container spacing={3}>
-            <Grid item sm={2}>
+            <Grid item xs={3}>
               <List dense>
                 <ListItem key={"Add New Program"} button selected={true}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
@@ -1317,174 +1350,211 @@ export default function Admin() {
               </List>
             </Grid>
 
-            <Grid item sm={5}>
-              {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
-              <div> {/* ----------------------- delete program ----------------------- */}
-                <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgram(selectedProgramProgram)}>
-                  <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
-                </ListItem>
-              </div>}
-
-              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
-              <div> {/* ----------------------- edit recipes list ----------------------- */}
-                <List>
-                  <ListItemText> Recipes List
-                  <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}><EditIcon/></IconButton>
-                  </ListItemText>
-                </List>
-                <TableContainer component={Paper}>
-                  <Table aria-label="customized table">
-                    <TableHead>
-                      <TableRow>
-                        <StyledTableCell>Recipe</StyledTableCell>
-                        <StyledTableCell> Schedule Date </StyledTableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row) => (
-                        <StyledTableRow key={row.name}>
-                          <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
-                          <StyledTableCell align="left">
-                            <TextField
-                              id="date" label="Date" type="date" defaultValue={programsDic[selectedProgramProgram?.programID]?.programRecipes[row.id]}
-                              className={classes.textField} InputLabelProps={{shrink: true,}}
-                              onChange={(e) => {
-                                var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
-                                dic[row.id] = e.target.value;
-                                db.collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
-                              }
-                              }
-                            />
-                          </StyledTableCell>
-                        </StyledTableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-              </TableContainer>
-              </div>}
-
-              {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
-              <div> {/* ----------------------- edit users list ----------------------- */}
-              <List>
-                <ListItemText> Users List
-                {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
-                </ListItemText>
-              </List> </div>}
-              {selectedProgramProgram?.programUsers != undefined ?
-              Object.values(selectedProgramProgram?.programUsers).map((value) => {
-                return (
-                    <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                      <ListItemAvatar>
-                        <Avatar
-                        // alt={`Avatar n°${value + 1}`}
-                        // src={`/static/images/avatar/${value + 1}.jpg`}
-                        />
-                      </ListItemAvatar>
-                      <ListItemText primary={usersDic[value]?.firstname + " " + usersDic[value]?.lastname}/>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <ol className={classes.noNum}>
-                          {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
-                          <li>Email: {usersDic[value]?.email}</li>
-                          <li>Phone: {usersDic[value]?.phone}</li>
-                          <li>Role: {usersDic[value]?.role}</li>
-                        </ol>
-                      </AccordionDetails>
-                  </Accordion>
-                  );
-                }) : <Grid></Grid>
-              }
-              
-              
-              {Object.keys(selectedProgramProgram).length > 0 && codes != null && numProgramCodes > 0 ?
-                <div> {/* ----------------------- edit users list ----------------------- */}
-                  <List>
-                    <ListItemText> Unused Codes - {numProgramCodes}
-                    {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
-                    </ListItemText>
-                  </List>
-                  <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+            <Grid item xs={9}>
+              <Grid container direction="row" spacing={3}>
+                <Grid item xs={6}><Grid container direction="column">
+                  {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
+                    <div> {/* ----------------------- delete program ----------------------- */}
+                      <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgram(selectedProgramProgram)}>
+                        <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
+                      </ListItem>
+                    </div>}
+                  {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+                  <div> {/* ----------------------- edit recipes list ----------------------- */}
                     <List>
-                      {codes.map((code) => {
-                      if(code?.programID == selectedProgramProgram?.programID) {
-                        return (
-                          <ListItem>
-                            <ListItemAvatar>
-                              <Avatar/>
-                            </ListItemAvatar>
-                            <ListItemText primary={code?.id}/>
-                            <ListItemSecondaryAction>
-                              <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            </ListItemSecondaryAction>
-                          </ListItem>
-                        // <Accordion>
-                        //   <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                        //     <ListItemAvatar>
-                        //       <Avatar
-                        //       // alt={`Avatar n°${value + 1}`}
-                        //       // src={`/static/images/avatar/${value + 1}.jpg`}
-                        //       />
-                        //     </ListItemAvatar>
-                        //     <ListItemText primary={code?.id}/>
-                        //   </AccordionSummary>
-                        //   <AccordionDetails>
-                        //       <ol className={classes.noNum}>
-                        //         {Object.keys(code).map((key) => {
-                        //           if(key != "id") {
-                        //             return <li>{key}: {code[key]}</li>
-                        //           }
-                        //         })}
-                        //       </ol>
-                        //   </AccordionDetails>
-                        // </Accordion>
-                        )}
-                      })}
+                      <ListItemText> Recipes List
+                      <IconButton onClick={() => handleClickOpenEditProgramRecipes(selectedProgramProgram)}><EditIcon/></IconButton>
+                      </ListItemText>
                     </List>
-                  </Paper>
-                  <ListItem key={"Add Code"}>
-                    <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
-                  </ListItem>
-                  <ListItem key={"Delete Code"}>
-                    <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
-                  </ListItem>
-                </div> : <Grid></Grid>
-              }
-              
+                    <TableContainer component={Paper}>
+                      <Table aria-label="customized table">
+                        <TableHead>
+                          <TableRow>
+                            <StyledTableCell>Recipe</StyledTableCell>
+                            <StyledTableCell> Schedule Date </StyledTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rows.map((row) => (
+                            <StyledTableRow key={row.name}>
+                              <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
+                              <StyledTableCell align="left">
+                                <TextField
+                                  id="date" label="Date" type="date" defaultValue={programsDic[selectedProgramProgram?.programID]?.programRecipes[row.id]}
+                                  className={classes.textField} InputLabelProps={{shrink: true,}}
+                                  onChange={(e) => {
+                                    var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
+                                    dic[row.id] = e.target.value;
+                                    db.collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
+                                  }
+                                  }
+                                />
+                              </StyledTableCell>
+                            </StyledTableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                    {typeof(selectedProgramProgram) === "object" && "programEndDate" in selectedProgramProgram &&
+                      <div>
+                        <h4>End Date: {getDateString(selectedProgramProgram?.programEndDate)}
+                        <IconButton onClick={() => setOpenChangeProgramEndDate(true)}><EditIcon/></IconButton>
+                        </h4>
+                        
+                      </div>
+                    }
+                  </div>
+                  }
+                </Grid></Grid>
+                <Grid item xs={6}><Grid container direction="column">
+                  {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
+                    <div> {/* ----------------------- edit users list ----------------------- */}
+                      <List>
+                        <ListItemText> Users List
+                        {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
+                        </ListItemText>
+                      </List> 
+                    </div>
+                  }
+                  {selectedProgramProgram?.programUsers != undefined ?
+                  Object.values(selectedProgramProgram?.programUsers).map((value) => {
+                    return (
+                        <Accordion>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                          <ListItemAvatar>
+                            <Avatar
+                            // alt={`Avatar n°${value + 1}`}
+                            // src={`/static/images/avatar/${value + 1}.jpg`}
+                            />
+                          </ListItemAvatar>
+                          <ListItemText primary={usersDic[value]?.firstname + " " + usersDic[value]?.lastname}/>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <ol className={classes.noNum}>
+                              {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
+                              <li>Email: {usersDic[value]?.email}</li>
+                              <li>Phone: {usersDic[value]?.phone}</li>
+                              <li>Role: {usersDic[value]?.role}</li>
+                            </ol>
+                          </AccordionDetails>
+                      </Accordion>
+                      );
+                    }) : <Grid></Grid>
+                  }
+                  {Object.keys(selectedProgramProgram).length > 0 ?
+                    <div>
+                    {codes != null && numProgramCodes > 0 && (
+                      <div> {/* ----------------------- edit users list ----------------------- */}
+                      <List>
+                        <ListItemText> Unused Codes - {numProgramCodes}
+                        {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
+                        </ListItemText>
+                      </List>
+                      <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+                        <List>
+                          {codes.map((code) => {
+                          if(code?.programID == selectedProgramProgram?.programID) {
+                            return (
+                              <ListItem>
+                                <ListItemAvatar>
+                                  <Avatar/>
+                                </ListItemAvatar>
+                                <ListItemText primary={code?.id}/>
+                                <ListItemSecondaryAction>
+                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id)}>
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </ListItemSecondaryAction>
+                              </ListItem>
+                            // <Accordion>
+                            //   <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                            //     <ListItemAvatar>
+                            //       <Avatar
+                            //       // alt={`Avatar n°${value + 1}`}
+                            //       // src={`/static/images/avatar/${value + 1}.jpg`}
+                            //       />
+                            //     </ListItemAvatar>
+                            //     <ListItemText primary={code?.id}/>
+                            //   </AccordionSummary>
+                            //   <AccordionDetails>
+                            //       <ol className={classes.noNum}>
+                            //         {Object.keys(code).map((key) => {
+                            //           if(key != "id") {
+                            //             return <li>{key}: {code[key]}</li>
+                            //           }
+                            //         })}
+                            //       </ol>
+                            //   </AccordionDetails>
+                            // </Accordion>
+                            )}
+                          })}
+                        </List>
+                      </Paper>
+                      </div>)
+                      }
+                      <ListItem key={"Add Code"}>
+                        <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
+                      </ListItem>        
+                    </div> : <Grid></Grid>
+                  }
+                  {Object.keys(selectedProgramProgram).length > 0 && codes != null && numProgramCodes > 0 ?
+                    <div> {/* ----------------------- edit users list ----------------------- */}
+                      <ListItem key={"Delete Code"}>
+                        <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
+                      </ListItem>
+                    </div> : <Grid></Grid>
+                  }
+                </Grid></Grid>
+              </Grid>
             </Grid>
           </Grid>
 
           {/* edit program */}
           <Dialog disableBackdropClick disableEscapeKeyDown open={openAddProgram} onClose={handleCloseAddProgram}>
+            <DialogTitle>Add New Program</DialogTitle>
+            <DialogContent>
+              <Grid container alignItems="center" direction="column">
+                <Grid item style={{marginBottom: "8px"}}>
+                  <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
+                </Grid>
+                <Grid item style={{marginBottom: "8px"}}>
+                  <TextField value={addedProgramNumUsers || ''} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
+                </Grid>
+                <Grid item><TextField
+                  id="end-date" label="End Date" type="date" defaultValue={addedProgramEndDate}
+                  className={classes.textField} InputLabelProps={{shrink: true,}}
+                  onChange={(e) => setAddedProgramEndDate(e.target.value)}
+                /></Grid>
+              </Grid>
+            </DialogContent>
             <DialogActions>
-              <h4>Add New Program</h4>
-              <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
-              <TextField value={addedProgramNumUsers || ''} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
               <Button onClick={handleCloseAddProgram} color="primary"> Cancel </Button>
               <Button onClick={() => addProgram()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteProgram} onClose={handleCloseDeleteProgram}>
+            <DialogTitle>Delete {selectedProgramProgram.programName}?</DialogTitle>
             <DialogActions>
-              <h4>Delete Program {selectedProgramProgram.programName} </h4>
               <Button onClick={handleCloseDeleteProgram} color="primary"> Cancel </Button>
               <Button onClick={() => deleteProgram()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodes}>
-            <DialogActions>
-              <h4>Add Codes</h4>
+            <DialogTitle>Add Codes</DialogTitle>
+            <DialogContent>
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
+            </DialogContent>
+            <DialogActions>
               <Button onClick={() => setOpenAddCodes(false)} color="primary"> Cancel </Button>
               <Button onClick={() => addCodes()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
           <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteCodes}>
-            <DialogActions>
-              <h4>Delete Codes</h4>
+            <DialogTitle>Delete Codes</DialogTitle>
+            <DialogContent>
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
+            </DialogContent>
+            <DialogActions>
               <Button onClick={() => setOpenDeleteCodes(false)} color="primary"> Cancel </Button>
               <Button onClick={() => deleteCodes()} color="primary"> Confirm </Button>
             </DialogActions>
@@ -1548,6 +1618,31 @@ export default function Admin() {
               </DialogActions>
             </Dialog>
           )}
+          {selectedProgramProgram && 
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openChangeProgramEndDate}>
+              <DialogTitle>Change End Date</DialogTitle>
+              <DialogContent>
+                <TextField
+                  id="change-end-date" label="End Date" type="date" defaultValue={getDateString(selectedProgramProgram?.programEndDate)}
+                  className={classes.textField} InputLabelProps={{shrink: true,}}
+                  onChange={(e) => setNewProgramEndDate(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpenChangeProgramEndDate(false)} color="primary"> Cancel </Button>
+                <Button onClick={() => {
+                    db.collection('programs').doc(selectedProgramProgram?.programID).update({programEndDate:getTimeStamp(newProgramEndDate)})
+                    .then(() => {
+                      alert("successfully changed end date!");
+                      setNewProgramEndDate('');
+                      setOpenChangeProgramEndDate(false);
+                    }).catch((err) => {
+                      console.log(err);
+                    });
+                  }} color="primary"> Confirm </Button>
+              </DialogActions>
+            </Dialog>
+          }
           {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
               <DialogTitle>View Recipe Images </DialogTitle>

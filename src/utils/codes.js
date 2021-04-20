@@ -20,11 +20,13 @@ export const checkCode = async (code) => {
 		.then((doc) => {
 			console.log("2")
 			if(doc.exists && code == doc.id)  {
-				console.log("3");
-				return db.collection("codes").doc(code).delete().then(() => {
-					let data = parseCodeData(doc.data());
+				// return db.collection("codes").doc(code).delete().then(() => {
+					 let data = parseCodeData(doc.data());
+					 data = {...data, code: code};
+					 console.log("3");
+					 setUserCookie(data);
 					return Promise.resolve(data);
-				});
+				//});
 			} else {
 				return Promise.reject("Code is incorrect");
 			}

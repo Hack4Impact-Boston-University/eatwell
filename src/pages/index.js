@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import * as ui from '@material-ui/core'
@@ -16,8 +16,9 @@ import {makeStyles,
         TextField,
         Typography,
         } from "@material-ui/core";
-import {getUserFromCookie} from "../utils/cookies"
+import {getUserFromCookie, removeUserCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
+import {checkCode} from "../utils/codes.js";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,6 +34,7 @@ const Index = () => {
   const [login, setLogin] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [code, setCode] = React.useState("");
+  const [errorText, setErrorText] = useState("");
   const handleClose = () => {
     setOpen(false);
   };
@@ -45,11 +47,33 @@ const Index = () => {
 
   const router = useRouter();
 
-  if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return (<div></div>);
-	}
+  const submit = () => {
+    console.log("0");
+    if(code != "") {
+      console.log("1");
+      checkCode(code.trim().toUpperCase()).then((data) => {
+        console.log(data)
+        setErrorText("");
+        // Save program info for later
+        router.push("/profile/create");
+      }).catch((err) => {
+        // Check if firebase error or incorrect code, return error accordingly
+        console.log(err);
+        setErrorText(typeof(err) == "string" ? err : err.message);
+      });
+    } else {
+      setErrorText("");
+    }
+  }
 
+		const userData = getUserFromCookie();
+    if(userData) {
+      if("code" in userData) {
+        removeUserCookie();
+      } else if(!("firstname" in userData)) {
+			  router.push("/profile/makeProfile");
+		  }
+    }
 
   return (
     <div>
@@ -62,14 +86,53 @@ const Index = () => {
           <main className={styles.main}>
             <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
-            <h2 className={styles.title}>
+            <h4 className={styles.title}>
               Welcome to EatWell!
-            </h2>
+            </h4>
 
             {!user && 
-              <Button>
-                <FirebaseAuth/>
-              </Button>
+                <Grid container justify="center" alignItems="flex-start">
+                  <Grid item xs={5}>
+                    <Grid container justify="center">
+                      <Grid xs={12} className={classes.welcomeHeader} item>
+                        <Typography align="center" gutterBottom>
+                          Input your organization-provided activation code to register:
+                        </Typography>
+                      </Grid>
+                      <Grid justify="center" className={classes.formItems} container style={{marginTop: "20px"}}>
+                        <TextField
+                          value={code}
+                          onChange={(e) => setCode(e.target.value)}
+                          error={false}
+                          label="Activation Code"
+                          placeholder="Your Organization's Code"
+                          required
+                          // helperText="Please enter your first name"
+                        />
+                      </Grid>
+                      <Grid container justify="center" item style={{marginTop: "20px"}}>
+                        <Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
+                          Submit
+                        </Button>
+                      </Grid>
+                      <Grid justify="center" className={classes.formItems} container>
+                          <Box component="div" textOverflow="clip">
+                            <Typography variant="h6" color={'error'}>
+                              {errorText}
+                            </Typography>
+                          </Box>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={5} justify="center">
+                      <Typography align="center" gutterBottom>
+                        Already registered? Sign in to proceed:
+                      </Typography>
+                      <Grid container justify="center">
+                        <FirebaseAuth isLogin={true}/>
+                      </Grid>
+                  </Grid>
+                </Grid>
             }
             
           </main>

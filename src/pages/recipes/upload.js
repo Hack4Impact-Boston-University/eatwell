@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as ui from "@material-ui/core";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -31,7 +31,7 @@ initFirebase()
 
 const handlePreviewIcon = (fileObject, classes) => {
 	const iconProps = {
-		className: classes.image,
+		className: image,
 	};
 	return <PictureAsPdf {...iconProps} />;
 };

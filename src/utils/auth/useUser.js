@@ -57,9 +57,18 @@ const useUser = () => {
 				if(!("firstname" in currData)) {
 					newData["role"] = "user";
 					var userData = Object.assign({}, currData, newData);
-					setUserCookie(userData);
-					setUser(userData);
-					return db.collection("users").doc(user.id).set(userData);
+					if("code" in userData) {
+						return db.collection("codes").doc(userData["code"]).delete().then(() => {
+							delete userData["code"];
+							setUserCookie(userData);
+							setUser(userData);
+							return db.collection("users").doc(user.id).set(userData);
+					    });
+					} else {
+						setUserCookie(userData);
+						setUser(userData);
+						return db.collection("users").doc(user.id).set(userData);
+					}
 				} else {
 					var updateData = {...newData}
 					var auth = null;
@@ -86,6 +95,7 @@ const useUser = () => {
 				}
 			}
 		} else if("favoriteRecipes" in newData){
+			newData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}
@@ -120,8 +130,9 @@ const useUser = () => {
 							setResolve("not found");
 							userData = mapUserData(u);
 						}
-						setUserCookie(userData);
-						setUser(userData);
+						var fullData = {...userData, ...getUserFromCookie()};
+						setUserCookie(fullData);
+						setUser(fullData);
 						var favData = {}
 						for(var i in userData["favoriteRecipes"]) {
 							favData[userData["favoriteRecipes"][i]] = "";
@@ -148,7 +159,10 @@ const useUser = () => {
 						setRatingsTipsCookie(userData["ratingsTips"] || {})
 					});
 			} else if(!u){
-				removeUserCookie();
+				var userData = getUserFromCookie();
+				if(userData && "id" in userData) {
+					removeUserCookie();
+				}
 				setUser();
 				removeFavCookie();
 				removeNotesCookie();

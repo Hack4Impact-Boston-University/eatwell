@@ -38,6 +38,10 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
+import { useUser } from "../utils/auth/useUser";
+import { getFavsFromCookie } from "../utils/cookies";
+
+
 
 initFirebase();
 var db = firebase.firestore();
@@ -98,6 +102,7 @@ export default function RecipeCard({
 }) {
 	const classes = useStyles();
 	const [obj, setObj] = React.useState(object);
+	const { user, upload } = useUser();
 	const [expanded, setExpanded] = React.useState(false);
 	const [favorited, setFav] = React.useState(isFav);
 	const handleExpandClick = () => {
@@ -117,6 +122,7 @@ export default function RecipeCard({
 	useEffect(() => {
 		setImages(obj.images);
 	}, [obj.images]);
+
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -124,6 +130,7 @@ export default function RecipeCard({
 		slidesToShow: 1,
 		slidesToScroll: 1,
 	};
+
 	const cssstyle = `
     .container {
       margin: 0 auto;
@@ -176,6 +183,10 @@ export default function RecipeCard({
 		setFav(!favorited);
 		editFavCookie(obj.id, !favorited);
 		onFavClick();
+		upload({ favoriteRecipes: Object.keys(getFavsFromCookie())})
+		.catch((err) => {
+			alert(err.message);
+		});
 	}
 
 	function handleSubmit() {
@@ -263,16 +274,14 @@ export default function RecipeCard({
 											alignItems="center"
 											justify="center"
 										>
-											<Link href={obj.id}>
-												<Typography
-													style={{
-														fontSize: "calc(min(5vw, 35px))",
-														fontWeight: 300,
-													}}
-												>
-													{obj.nameOfDish}
-												</Typography>
-											</Link>
+											<Typography
+												style={{
+													fontSize: "calc(min(5vw, 35px))",
+													fontWeight: 300,
+												}}
+											>
+												{obj.nameOfDish}
+											</Typography>
 										</Grid>
 									</Grid>
 									<Grid container justify="center">
@@ -415,6 +424,22 @@ export default function RecipeCard({
 									</Grid>
 								</Box>
 							</CardContent>
+
+							{/* click to flip button */}
+							<CardContent style={{ padding: "0px" }}>
+								<Grid container item xs={12} justify="center" p={0}>
+									<Button
+										variant="contained"
+										color="secondary"
+										classes={{ label: classes.viewButtonLabel }}
+										onClick={flipClick}
+									>
+										Click to Flip!
+									</Button>
+								</Grid>
+							</CardContent>
+
+							{/* Submit a notes section */}
 							<CardActions disableSpacing>
 								<Grid
 									container
@@ -484,7 +509,7 @@ export default function RecipeCard({
 										</Button>
 									</Grid>
 									<Box m={"3vh"}>
-										{notes.map((str, idx) => {
+										{notes?.map((str, idx) => {
 											return (
 												<Note
 													str={str}
@@ -498,12 +523,13 @@ export default function RecipeCard({
 									</Box>
 								</Grid>
 							</Collapse>
+							{/* end of submit a note */}
 						</Card>
-						<button onClick={flipClick}>Click to flip</button>
 					</div>
 
+					{/* BACKSIDE OF THE CARD */}
 					<div>
-						<Card className={classes.card + "back"}>
+						<Card className={classes.card}>
 							<CardContent p={0}>
 								<Box m={"0.25vw"}>
 									<Grid container>
@@ -524,145 +550,18 @@ export default function RecipeCard({
 											alignItems="center"
 											justify="center"
 										>
-											<Link href={obj.id}>
-												<Typography
-													style={{
-														fontSize: "calc(min(5vw, 35px))",
-														fontWeight: 300,
-													}}
-												>
-													{obj.nameOfDish}
-												</Typography>
-											</Link>
+											<Typography
+												style={{
+													fontSize: "calc(min(5vw, 35px))",
+													fontWeight: 300,
+												}}
+											>
+												{obj.nameOfDish}
+											</Typography>
 										</Grid>
 									</Grid>
-									<Grid container justify="center">
-										{obj.images == undefined ? (
-											<Grid item xs={12}></Grid>
-										) : (
-											<Grid item xs={9}>
-												<link
-													rel="stylesheet"
-													type="text/css"
-													charset="UTF-8"
-													href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
-												/>
-												<link
-													rel="stylesheet"
-													type="text/css"
-													href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
-												/>
-												<style>{cssstyle}</style>
 
-												<Slider {...settings}>
-													{Array.isArray(imgList) &&
-														imgList.map((cell, index) => {
-															return (
-																<img
-																	className={classes.media}
-																	src={imgList[index]}
-																/>
-															);
-														})}
-												</Slider>
-											</Grid>
-										)}
-									</Grid>
-									<Grid container item xs={12} justify="center">
-										<Button
-											variant="contained"
-											color="secondary"
-											classes={{ label: classes.viewButtonLabel }}
-										>
-											<Link href={obj.id}>Backside</Link>
-										</Button>
-									</Grid>
-									<Grid
-										container
-										justify="center"
-										style={{ marginTop: "3vh", marginBottom: "1vh" }}
-										spacing="10vw"
-									>
-										<Grid
-											item
-											xs={4}
-											container
-											direction="column"
-											justify="center"
-											alignItems="center"
-										>
-											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
-													Date:
-												</Typography>
-											</Grid>
-											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
-													{getTimeString(obj.dateUploaded)}
-												</Typography>
-											</Grid>
-										</Grid>
-										<Grid
-											item
-											container
-											xs={6}
-											justify="center"
-											direction="column"
-											alignItems="center"
-										>
-											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
-													Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
-												</Typography>
-											</Grid>
-											<Grid item>
-												<Rating
-													defaultValue={0}
-													precision={0.5}
-													onChange={(e) => {
-														changeRating(e.target.value);
-													}}
-													value={rating}
-													style={{ fontSize: "calc(min(6vw, 20px))" }}
-												/>
-												{rating > 0 && (
-													<ClearIcon
-														onClick={() => {
-															changeRating(0);
-														}}
-														style={{ fontSize: "calc(min(5vw, 20px))" }}
-													/>
-												)}
-											</Grid>
-											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
-													{obj?.numRatings} Rating
-													{obj?.numRatings > 1 ? "s" : ""}
-												</Typography>
-											</Grid>
-										</Grid>
-									</Grid>
-									<Grid container spacing={3}>
+									<Grid container style={{ minHeight: "180px" }}>
 										<Grid item xs={12}>
 											<Typography
 												style={{
@@ -670,98 +569,26 @@ export default function RecipeCard({
 													fontWeight: 300,
 												}}
 											>
-												BACK SIDE1
+												Lorem ipsum dolor sit amet consectetur adipisicing elit.
+												Magnam ad nemo suscipit.
 											</Typography>
 										</Grid>
 									</Grid>
-								</Box>
-							</CardContent>
-							<CardActions disableSpacing>
-								<Grid
-									container
-									direction="row"
-									alignItems="center"
-									justify="center"
-								>
-									<Typography
-										style={{
-											fontSize: "calc(min(2.7vw, 18px))",
-											fontWeight: 300,
-										}}
-									>
-										Notes
-									</Typography>
-								</Grid>
-								<IconButton
-									className={clsx(classes.expand, {
-										[classes.expandOpen]: expanded,
-									})}
-									onClick={handleExpandClick}
-									aria-expanded={expanded}
-									aria-label="show more"
-								>
-									<ExpandMoreIcon />
-								</IconButton>
-							</CardActions>
-							<Collapse in={expanded} timeout="auto" unmountOnExit>
-								<Grid
-									container
-									direction="column"
-									alignItems="center"
-									justify="center"
-								>
-									<Grid
-										justify="center"
-										direction="row"
-										className={classes.formItems}
-										container
-									>
-										<TextField
-											value={note}
-											onChange={(e) => setNote(e.target.value)}
-											label="Note"
-											placeholder="Add a Note"
-											InputProps={{
-												classes: { input: classes.text },
-											}}
-											InputLabelProps={{
-												classes: { root: classes.label },
-											}}
-										/>
+									<Grid container item xs={12} justify="center" p={0}>
 										<Button
-											color="primary"
-											className={classes.btn}
-											style={{ marginTop: "1rem" }}
-											onClick={() => handleSubmit()}
+											variant="contained"
+											color="secondary"
+											classes={{ label: classes.viewButtonLabel }}
+											onClick={flipClick}
 										>
-											<Typography
-												style={{
-													fontSize: "calc(min(2.7vw, 17px))",
-													fontWeight: 1000,
-												}}
-											>
-												Submit
-											</Typography>
+											Click to Flip!
 										</Button>
 									</Grid>
-									<Box m={"3vh"}>
-										{notes.map((str, idx) => {
-											return (
-												<Note
-													str={str}
-													setStr={(s) => setStr(s, idx)}
-													deleteStr={() => deleteStr(idx)}
-												>
-													{" "}
-												</Note>
-											);
-										})}
-									</Box>
-								</Grid>
-							</Collapse>
+								</Box>
+							</CardContent>
 						</Card>
-						<button onClick={flipClick}>Click to flip</button>
 					</div>
+					{/* END OF BACKSIDE OF CARD */}
 				</ReactCardFlip>
 			</Box>
 		</Grid>

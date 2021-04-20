@@ -219,11 +219,18 @@ const Profile = () => {
 			});
 		}
 	}
-
-	if(getUserFromCookie() && !("firstname" in getUserFromCookie())) {
-		router.push("/profile/makeProfile");
-		return (<div></div>);
-	}
+	useEffect(() => {
+		var userData = getUserFromCookie();
+		if(userData) {
+			if(!("firstname" in userData)) {
+				router.push("/profile/makeProfile");
+				return (<div></div>);
+			}
+		}  else {
+			router.push("/");
+		}
+	});
+	
 
 	if (!user) {
 		return (
