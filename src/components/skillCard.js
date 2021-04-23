@@ -28,7 +28,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import StarIcon from "@material-ui/icons/Star";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import {
-	uploadSkillsRating,
+	// uploadSkillsRating,
 	getRecipe,
 	setRecipeListener,
 } from "../utils/skills.js";
@@ -174,7 +174,7 @@ export default function SkillCard({
 
 	function favButtonClick() {
 		setFav(!favorited);
-		editFavSkillsCookie(obj.id, !favorited);
+		editFavSkillsCookie(obj.skillID, !favorited);
 		onFavClick();
 	}
 
@@ -293,17 +293,7 @@ export default function SkillCard({
 												/>
 												<style>{cssstyle}</style>
 
-												<Slider {...settings}>
-													{Array.isArray(imgList) &&
-														imgList.map((cell, index) => {
-															return (
-																<img
-																	className={classes.media}
-																	src={imgList[index]}
-																/>
-															);
-														})}
-												</Slider>
+												<img className={classes.media} src={imgList[0]}/>
 											</Grid>
 										)}
 									</Grid>

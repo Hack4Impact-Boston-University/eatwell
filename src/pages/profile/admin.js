@@ -250,7 +250,6 @@ export default function Admin() {
   // edit user program
   const [openProgram, setOpenProgram] = React.useState(false);
   const [program, setProgram] = React.useState("");
-  // const [prevProgram, setPrevProgram] = React.useState("");
 
   const handleChangeProgram = (event) => {
     setProgram(event.target.value || "");
@@ -269,30 +268,17 @@ export default function Admin() {
   };
 
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
-    
-    // if (prevProgram != undefined && programsDic[prevProgram] != undefined) {
-    //   var index = Object.values(programsDic[prevProgram].programUsers).indexOf(currentUser);
-    //   if (index.toString != "-1" && prevProgram != currentUserProgram) {
-    //     delete programsDic[prevProgram].programUsers[index]
-    //     db.collection("programs").doc(prevProgram).update({ programUsers: programsDic[prevProgram].programUsers });
-    //     setProgramsDic(programsDic)
-    //   }
-    // }
-    
+
     if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
       programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
       db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
       setProgramsDic(programsDic)
     }
-
-    // if (prevProgram != currentUserProgram) {
-      db.collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
-    // }
+    db.collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
 
     setProgramsDic(programsDic)
     setOpenProgram(false);
     setProgram("")
-
   };
 
   // delete user
@@ -327,6 +313,7 @@ export default function Admin() {
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
   const [openChangeProgramEndDate, setOpenChangeProgramEndDate] = React.useState(false);
+  const [viewCoverImages, setViewCoverImages] = React.useState([]);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
 
@@ -696,45 +683,32 @@ export default function Admin() {
     setCurrentRecipe(currentRecipe);
   };
 
-  const handleClickOpenViewRecipeImages = (currentRecipe) => {
-    setViewRecipeImages(recipesDic[currentRecipe].images)
-    setOpenRecipeImages(true);
-    setCurrentRecipe(currentRecipe);
-  };
-
   const handleCloseRecipeImages = () => {
     setOpenRecipeImages(false);
   };
 
   const handleSubmitRecipeImages = (currentRecipe) => {
-    db.collection('recipes').doc(currentRecipe.id).update({images:recipeImages, dateUploaded: uploadDate})
-    alert("successfully edited recipe images!");
+    var i;
+		var uploadedImages = Object.values(recipeImages);
+		var document = firebase.firestore().collection("recipes").doc();
+    db.collection('recipes').doc(currentRecipe.id).update({images:uploadedImages, dateUploaded: uploadDate})
+    for (i = 0; i < uploadedImages.length ; i++) {
+      firebase.storage().ref().child(currentRecipe.id+i+".jpg").putString(uploadedImages[i], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+          complete: function() {}
+      })
+    }
+    alert("successfully edited cover images!");
     setRecipeImages([]);
     setOpenRecipeImages(false);
   };
 
   // view / edit recipe pdf
-  const [recipePdf, setRecipePdf] = React.useState("");
-  const [pdfFile, setPdfFile] = useState('')
-  const [pdf_url, setPdfURL] = useState('')
+  const [recipeInstructionImages, setRecipeInstructionImages] = React.useState("");
   const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
-  const [openViewRecipePdf, setOpenViewRecipePdf] = React.useState(false);
-
-  const handleClickOpenViewRecipePdf = (currentRecipe) => {
-    setRecipePdf(currentRecipe.pdfRecipe)
-    setOpenViewRecipePdf(true);
-    setCurrentRecipe(currentRecipe);
-    firebase.storage().ref().child(currentRecipe.pdfRecipe).getDownloadURL().then(function(url) {
-      setPdfURL(url)
-    })
-  };
-
-  const handleCloseViewRecipePdf = () => {
-    setOpenViewRecipePdf(false);
-  };
 
   const handleClickOpenRecipePdf = (currentRecipe) => {
-    setRecipePdf(currentRecipe.pdfRecipe)
+    setRecipeInstructionImages(currentRecipe.recipeImgs)
+    console.log(recipeInstructionImages)
     setOpenRecipePdf(true);
     setCurrentRecipe(currentRecipe);
   };
@@ -744,14 +718,21 @@ export default function Admin() {
   };
 
   const handleSubmitRecipePdf = (currentRecipe) => {
-    firebase.storage().ref().child(recipePdf).delete().then(function() {}).catch(function(error) {});
-    firebase.storage().ref().child(currentRecipe.id+".pdf").put(pdfFile).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-      'complete': function() {
-      }
-    })
-    db.collection('recipes').doc(currentRecipe.id).update({pdfRecipe:recipePdf, dateUploaded: uploadDate})
-    alert("successfully edited recipe pdf!");
-    setRecipePdf('');
+    var i;
+		var uploadedRecipeImgs = Object.values(recipeInstructionImages);
+		var uploadedRecipeNames = [];
+		var document = firebase.firestore().collection("recipes").doc();
+		for (i = 0; i < uploadedRecipeImgs.length; i++) {
+			uploadedRecipeNames.push(document.id + i + ".pdf");
+		}
+    db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedRecipeImgs, dateUploaded: uploadDate})
+    for (i = 0; i < uploadedRecipeImgs.length; i++) {
+			firebase.storage().ref().child(currentRecipe.id + i + ".pdf").putString(uploadedRecipeImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
+    alert("successfully edited recipe images!");
+    setRecipeInstructionImages([]);
     setOpenRecipePdf(false);
   };
 
@@ -935,7 +916,12 @@ export default function Admin() {
   };
 
   const handleSubmitSkillImages = (currentSkill) => {
-    db.collection('skills').doc(currentSkill.skillID).update({images:skillImages, dateUploaded: uploadDate})
+    var uploadedImages = Object.values(skillImages);
+    db.collection('skills').doc(currentSkill.skillID).update({images:uploadedImages, dateUploaded: uploadDate})
+    firebase.storage().ref().child(currentSkill.skillID+"_skill.jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        'complete': function() {
+        }
+    })
     alert("successfully edited skill images!");
     setSkillImages([]);
     setOpenSkillImages(false);
@@ -1058,7 +1044,12 @@ export default function Admin() {
   };
 
   const handleSubmitTipImages = (currentTip) => {
-    db.collection('tips').doc(currentTip.tipID).update({images:tipImages, dateUploaded: uploadDate})
+    var uploadedImages = Object.values(tipImages);
+    db.collection('tips').doc(currentTip.tipID).update({images:uploadedImages, dateUploaded: uploadDate})
+    firebase.storage().ref().child(currentTip.tipID+"_tip.jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        'complete': function() {
+        }
+    })
     alert("successfully edited tip images!");
     setTipImages([]);
     setOpenTipImages(false);
@@ -1570,47 +1561,6 @@ export default function Admin() {
                 <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
               </FormControl>
               <Box height="200px"></Box>
-              {/* <TableContainer component={Paper}>
-                <Table aria-label="customized table">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell>Recipe</StyledTableCell>
-                      <StyledTableCell> Date </StyledTableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                      <StyledTableRow>
-                        <StyledTableCell align="left">
-                          <FormControl className={classes.formControl}>
-                            <MultiSelect options={currentProgramRecipes} value={selectedRecipes} onChange={setSelectedRecipes} labelledBy={"Select"}/>
-                            <Select
-                               id="demo-simple-select-helper"
-                              value={selectedRecipes}
-                              onChange={setSelectedRecipes}
-                            >
-                              {recipes.map((recipe) =>
-                                <MenuItem value={recipe["id"]}> {recipe["nameOfDish"]} </MenuItem>)
-                              }
-                            </Select>
-                          </FormControl>
-                        </StyledTableCell>
-                        <StyledTableCell align="left">
-                          <TextField
-                            id="date"
-                            label="Recipe"
-                            type="date"
-                            defaultValue="2021-01-01"
-                            className={classes.textField}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                        </StyledTableCell>
-                      </StyledTableRow>
-                  </TableBody>
-                </Table>
-            </TableContainer>  labelId="demo-simple-select-helper-label" */}
-                           
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseEditProgramRecipes} color="primary"> Cancel </Button>
@@ -1618,127 +1568,6 @@ export default function Admin() {
               </DialogActions>
             </Dialog>
           )}
-          {selectedProgramProgram && 
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openChangeProgramEndDate}>
-              <DialogTitle>Change End Date</DialogTitle>
-              <DialogContent>
-                <TextField
-                  id="change-end-date" label="End Date" type="date" defaultValue={getDateString(selectedProgramProgram?.programEndDate)}
-                  className={classes.textField} InputLabelProps={{shrink: true,}}
-                  onChange={(e) => setNewProgramEndDate(e.target.value)}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setOpenChangeProgramEndDate(false)} color="primary"> Cancel </Button>
-                <Button onClick={() => {
-                    db.collection('programs').doc(selectedProgramProgram?.programID).update({programEndDate:getTimeStamp(newProgramEndDate)})
-                    .then(() => {
-                      alert("successfully changed end date!");
-                      setNewProgramEndDate('');
-                      setOpenChangeProgramEndDate(false);
-                    }).catch((err) => {
-                      console.log(err);
-                    });
-                  }} color="primary"> Confirm </Button>
-              </DialogActions>
-            </Dialog>
-          }
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
-              <DialogTitle>View Recipe Images </DialogTitle>
-              <DialogContent>
-              <Grid container justify="center">
-              {(viewRecipeImages == undefined || viewRecipeImages == []) ? 
-                <h4>No images to show</h4> :
-                <Grid item xs={9} >
-                  <link rel="stylesheet" type="text/css" charset="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
-                  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
-                  <style>{cssstyle}</style>
-                  <Slider {...settings}>
-                    {Object.values(viewRecipeImages).map((cell, index) => {
-                      return <img className={classes.media} src={viewRecipeImages[index]}/>
-                    })}
-                  </Slider>
-                </Grid>}
-              </Grid>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseRecipeImages} color="primary"> Back </Button>
-              </DialogActions>
-            </Dialog>
-          )}
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
-              <DialogTitle>View Recipe Pdf</DialogTitle>
-              <DialogContent>
-                  {(pdf_url != "") ? 
-                    <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-                    : <h4>No pdf to display</h4>
-                  }
-                  <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeVideo} onClose={handleCloseViewRecipeVideo}>
-              <DialogTitle>View Recipe Video</DialogTitle>
-              <DialogContent>
-                  {(recipeVideo != "") ? 
-                    <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                    : <h4>No recipe video to display</h4>
-                  }
-                  <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeSkills} onClose={handleCloseViewRecipeSkills}>
-              <DialogTitle>View Recipe Skills</DialogTitle>
-              <DialogContent>
-                  {(recipeSkills != "") ? 
-                    <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                    : <h4>No recipe skills to display</h4>
-                  }
-                  <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeTips} onClose={handleCloseViewRecipeTips}>
-              <DialogTitle>View Recipe Tips</DialogTitle>
-              <DialogContent>
-                  {(recipeTips != "") ? 
-                    <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-                    : <h4>No recipe tips to display</h4>
-                  }
-                  <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {/* edit users list Dialog */}
-          {/* {selectedProgramProgram && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramUsers} onClose={handleCloseEditProgramUsers}>
-              <DialogTitle>Edit Users List for {selectedProgramProgram?.programName} </DialogTitle>
-              <DialogContent>
-                <FormControl className={classes.formControl}>
-                  <div>
-                    <MultiSelect
-                      options={currentProgramUsers}
-                      value={selectedUsers}
-                      onChange={setSelectedUsers}
-                      labelledBy={"Select"}
-                    />
-                  </div>
-                </FormControl>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseEditProgramUsers} color="primary"> Cancel </Button>
-                <Button onClick={() => handleSubmitEditProgramUsers()} color="primary"> Ok </Button>
-              </DialogActions>
-            </Dialog>
-          )} */}
-
         </TabPanel>
 
         {/* ---------------------------- 2: ADMIN MANAGE RECIPES ---------------------------- */}
@@ -1770,11 +1599,8 @@ export default function Admin() {
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
-                          <li>Recipe images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
-                          <li>Recipe pdf
-                            <IconButton onClick={() => handleClickOpenViewRecipePdf(value)}> <VisibilityIcon/> </IconButton>
-                            <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton>
-                          </li>
+                          <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
+                          <li>Recipe images <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe video
                             <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenRecipeVideo(value)}> <EditIcon/> </IconButton>
@@ -1825,7 +1651,7 @@ export default function Admin() {
           )}
           {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
-              <DialogTitle>Edit Recipe Images</DialogTitle>
+              <DialogTitle>Edit Cover Images</DialogTitle>
               <DialogContent>
                   <MultiImageInput
                     images={recipeImages} setImages={setRecipeImages}
@@ -1837,24 +1663,13 @@ export default function Admin() {
             </Dialog>
           )}
           {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipePdf} onClose={handleCloseViewRecipePdf}>
-              <DialogTitle>View Recipe Pdf</DialogTitle>
-              <DialogContent>
-                  {(pdf_url != "") ? 
-                    <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
-                    : <h4>No pdf to display</h4>
-                  }
-                  <Button onClick={handleCloseViewRecipePdf} color="primary"> Back </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-          {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
-              <DialogTitle>Edit Recipe Pdf</DialogTitle>
+              <DialogTitle>Edit Recipe Images</DialogTitle>
               <DialogContent>
-                  <DropzoneArea
-                      accept="application/pdf" maxFileSize={10485760} dropzoneText="Click to select or drag and drop recipe PDF"
-                      filesLimit={1} getPreviewIcon={handlePreviewIcon} onChange={(files) => setPdfFile(files[0])}/>
+                  <MultiImageInput
+                    images={recipeInstructionImages} setImages={setRecipeInstructionImages}
+                    cropConfig={{ crop, ruleOfThirds: true }} inputId  max={3}
+                  />
                   <Button onClick={handleCloseRecipePdf} color="primary"> Cancel </Button>
                   <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
@@ -2000,7 +1815,6 @@ export default function Admin() {
               </DialogContent>
             </Dialog>
           )}
-          
           {currentSkill && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openSkillImages} onClose={handleCloseSkillImages}>
               <DialogTitle>Edit Skill Images</DialogTitle>
@@ -2049,18 +1863,11 @@ export default function Admin() {
           )}
         </TabPanel>
 
-
-
-
-
-
         {/* manage tipss Dialog */}
-
         <TabPanel value={value} index={4} dir={theme.direction}>
         <Grid container spacing={3}>
             <Grid item sm={5}>
               <TextField label="search tip" value={searchTip} onChange={handleChangeTip}/>
-
               {tips.map((value) => {
                 if (value["tipName"]?.includes(searchTip) || value["tipName"].toLowerCase()?.includes(searchTip)) {
                   return (
@@ -2080,8 +1887,6 @@ export default function Admin() {
                           <li>Name of skill: {value?.tipName} <IconButton onClick={() => handleClickOpenTipName(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
-                          {/* <li>Rating: {value?.avgRating}</li> */}
-                          {/* <li>Number of ratings: {value?.numRatings}</li> */}
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Tip images <IconButton onClick={() => handleClickOpenTipImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Tip video
@@ -2112,7 +1917,6 @@ export default function Admin() {
               </DialogContent>
             </Dialog>
           )}
-          
           {currentTip && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openTipImages} onClose={handleCloseTipImages}>
               <DialogTitle>Edit Tip Images</DialogTitle>
@@ -2160,32 +1964,19 @@ export default function Admin() {
             </Dialog>
           )}
         </TabPanel>
-
-
-
-
-
-
-
-
-
-
-
       </SwipeableViews>
 
       <div className={styles.nav}>
         <Navbar />
-
         <AppBar position="static" color="default">
           <Tabs
             value={value} onChange={handleChangeToggle}
-            indicatorColor="primary" textColor="primary" variant="fullWidth" aria-label="full width tabs example"
-          >
-            <Tab label="Manage Users" {...a11yProps(0)} />
-            <Tab label="Manage Programs" {...a11yProps(1)} />
-            <Tab label="Manage Recipes" {...a11yProps(2)} />
-            <Tab label="Manage Skills" {...a11yProps(3)} />
-            <Tab label="Manage Tips" {...a11yProps(4)} />
+            indicatorColor="primary" textColor="primary" variant="fullWidth" aria-label="full width tabs example">
+          <Tab label="Manage Users" {...a11yProps(0)} />
+          <Tab label="Manage Programs" {...a11yProps(1)} />
+          <Tab label="Manage Recipes" {...a11yProps(2)} />
+          <Tab label="Manage Skills" {...a11yProps(3)} />
+          <Tab label="Manage Tips" {...a11yProps(4)} />
           </Tabs>
         </AppBar>
       </div>

@@ -19,7 +19,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadSkillsRating } from "../../utils/skills.js";
+// import { uploadSkillsRating } from "../../utils/skills.js";
 import _, { map } from "underscore";
 
 import { useRouter } from "next/router";
@@ -103,7 +103,7 @@ export default function SkillReviewCard() {
 					notes: getNotesSkillsFromCookie(),
 					ratings: getRatingsSkillsFromCookie(),
 				});
-				uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
+				// uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 			}
 		});
 	});
@@ -111,7 +111,7 @@ export default function SkillReviewCard() {
 	const onFavClick = () => {
 		setDummy(!dummy);
 		favSkills = getFavsSkillsFromCookie() || {};
-		uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
+		// uploadSkillsRating(getRatingsSkillsFromCookie(), skillRatings, skills);
 	};
 
 	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {

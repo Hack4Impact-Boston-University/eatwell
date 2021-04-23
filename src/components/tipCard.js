@@ -174,7 +174,7 @@ export default function TipCard({
 
 	function favButtonClick() {
 		setFav(!favorited);
-		editFavTipsCookie(obj.id, !favorited);
+		editFavTipsCookie(obj.tipsID, !favorited);
 		onFavClick();
 	}
 
@@ -293,17 +293,7 @@ export default function TipCard({
 												/>
 												<style>{cssstyle}</style>
 
-												<Slider {...settings}>
-													{Array.isArray(imgList) &&
-														imgList.map((cell, index) => {
-															return (
-																<img
-																	className={classes.media}
-																	src={imgList[index]}
-																/>
-															);
-														})}
-												</Slider>
+												<img className={classes.media} src={imgList[0]}/>
 											</Grid>
 										)}
 									</Grid>
