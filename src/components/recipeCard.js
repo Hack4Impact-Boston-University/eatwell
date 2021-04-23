@@ -236,7 +236,6 @@ export default function RecipeCard({
 	const flipClick = () => {
 		setIsFlipped(!isFlipped);
 	};
-
 	return (
 		<Grid item xs={5}>
 			<Box pb={3} mr={0.5} ml={0.5}>
@@ -295,11 +294,11 @@ export default function RecipeCard({
 
 												<Slider {...settings}>
 													{Array.isArray(imgList) &&
-														imgList.map((cell, index) => {
+														obj.images.map((cell, index) => {
 															return (
 																<img
 																	className={classes.media}
-																	src={imgList[index]}
+																	src={obj.images[index]}
 																/>
 															);
 														})}

@@ -20,24 +20,24 @@ import { mapUserData } from "./auth/mapUserData";
 initFirebase();
 var db = firebase.firestore();
 
-export const uploadSkillsRating = async (skill, newRating, oldRating, setObj) => {
-	if(newRating == oldRating) {return;}
-	let newData = {numRatings: skill.numRatings, avgRating: skill.avgRating};
-	let sumRatings = skill.numRatings * skill.avgRating;
-	if(oldRating == 0) {
-		sumRatings += newRating;
-		newData.numRatings = newData.numRatings + 1;
-	} else if(newRating == 0) {
-		sumRatings -= oldRating;
-		newData.numRatings = newData.numRatings - 1;
-	} else {
-		sumRatings -= oldRating;
-		sumRatings += newRating;
-	}
-	newData.avgRating = sumRatings / newData.numRatings;
-	setObj({...skill, ...newData});
-	db.collection("skills").doc(skill.skillID).update(newData);
-}
+// export const uploadSkillsRating = async (skill, newRating, oldRating, setObj) => {
+// 	if(newRating == oldRating) {return;}
+// 	let newData = {numRatings: skill.numRatings, avgRating: skill.avgRating};
+// 	let sumRatings = skill.numRatings * skill.avgRating;
+// 	if(oldRating == 0) {
+// 		sumRatings += newRating;
+// 		newData.numRatings = newData.numRatings + 1;
+// 	} else if(newRating == 0) {
+// 		sumRatings -= oldRating;
+// 		newData.numRatings = newData.numRatings - 1;
+// 	} else {
+// 		sumRatings -= oldRating;
+// 		sumRatings += newRating;
+// 	}
+// 	newData.avgRating = sumRatings / newData.numRatings;
+// 	setObj({...skill, ...newData});
+// 	db.collection("skills").doc(skill.skillID).update(newData);
+// }
 
 export const getSkill = async (id) => {
 	db.collection("skills").doc(id).get().then((doc) => {
