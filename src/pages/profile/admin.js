@@ -1680,7 +1680,7 @@ export default function Admin() {
               <DialogTitle>View Recipe Video</DialogTitle>
               <DialogContent>
                   {(recipeVideo != "") ? 
-                    <iframe position="fixed" src={recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    <iframe position="fixed" src={"https://player.vimeo.com/video/"+recipeVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
                     : <h4>No recipe video to display</h4>
                   }
                   <Button onClick={handleCloseViewRecipeVideo} color="primary"> Back </Button>
@@ -1833,7 +1833,7 @@ export default function Admin() {
               <DialogTitle>View Skill Video</DialogTitle>
               <DialogContent>
                   {(skillVideo != "") ? 
-                    <iframe position="fixed" src={skillVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    <iframe position="fixed" src={"https://player.vimeo.com/video/"+skillVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
                     : <h4>No skill video to display</h4>
                   }
                   <Button onClick={handleCloseViewSkillVideo} color="primary"> Back </Button>
@@ -1935,7 +1935,7 @@ export default function Admin() {
               <DialogTitle>View Tip Video</DialogTitle>
               <DialogContent>
                   {(tipVideo != "") ? 
-                    <iframe position="fixed" src={tipVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    <iframe position="fixed" src={"https://player.vimeo.com/video/"+tipVideo} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
                     : <h4>No tip video to display</h4>
                   }
                   <Button onClick={handleCloseViewTipVideo} color="primary"> Back </Button>

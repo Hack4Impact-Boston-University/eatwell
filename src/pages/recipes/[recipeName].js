@@ -242,7 +242,7 @@ export default function Recipe() {
 						</ui.Grid>
 					</ui.Grid>
 				</TabPanel>
-				{data.videoSkills != "https://player.vimeo.com/video/" && (
+				{data.videoSkills != "" && (
 					<TabPanel value={value} index={1} dir={theme.direction}>
 						<iframe
 							src={data.videoSkills}
@@ -255,7 +255,7 @@ export default function Recipe() {
 						></iframe>
 					</TabPanel>
 				)}
-				{data.videoTips != "https://player.vimeo.com/video/" && (
+				{data.videoTips != "" && (
 					<TabPanel value={value} index={2} dir={theme.direction}>
 						<iframe
 							src={data.videoTips}
@@ -299,10 +299,10 @@ export default function Recipe() {
 							aria-label="full width tabs example"
 						>
 							<Tab label="Recipe" {...a11yProps(0)} />
-							{data.videoSkills != "https://player.vimeo.com/video/" && (
+							{data.videoSkills != "" && (
 								<Tab label="Skill" {...a11yProps(1)} />
 							)}
-							{data.videoTips != "https://player.vimeo.com/video/" && (
+							{data.videoTips != "" && (
 								<Tab label="Tip" {...a11yProps(2)} />
 							)}
 						</Tabs>

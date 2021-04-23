@@ -61,8 +61,6 @@ const UploadForm = () => {
 	};
 
 	function upload() {
-		const videoUrl = "https://player.vimeo.com/video/";
-
 		var recipe = recipeName.toLowerCase();
 		recipe = recipe.replace(/ /g, "_");
 
@@ -80,11 +78,11 @@ const UploadForm = () => {
 			nameOfDish: recipeName,
 			description: description,
 			images: uploadedImages,
-			videoRecipe: videoUrl + videoID,
+			videoRecipe: videoID,
 			recipeImgs: uploadedRecipeNames,
 			dateUploaded: Date.now(),
-			videoSkills: videoUrl + videoSkills,
-			videoTips: videoUrl + videoTips,
+			videoSkills: videoSkills,
+			videoTips: videoTips,
 			numRatings: 1,
 			avgRating: 5,
 		};
