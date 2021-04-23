@@ -40,9 +40,11 @@ const UploadForm = () => {
 	const [videoSkills, setVideoSkills] = useState("");
 	const [videoTips, setVideoTips] = useState("");
 	const [images, setImages] = useState({});
+	const [nutrionalImgs, setNutrionalImgs] = useState({});
 	const [openConfirm, setOpenConfirm] = React.useState(false);
 	var uploadedRecipeImgs = [];
 	var uploadedImages = [];
+	var uploadedNutrionalImgs = [];
 
 	const router = useRouter();
 
@@ -67,6 +69,7 @@ const UploadForm = () => {
 		var i;
 		var uploadedImages = Object.values(images);
 		var uploadedRecipeImgs = Object.values(recipeImg);
+		var uploadedNutrionalImgs = Object.values(nutrionalImgs);
 		var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
@@ -80,6 +83,7 @@ const UploadForm = () => {
 			images: uploadedImages,
 			videoRecipe: videoID,
 			recipeImgs: uploadedRecipeNames,
+			nutrionalImgs: uploadedNutrionalImgs,
 			dateUploaded: Date.now(),
 			videoSkills: videoSkills,
 			videoTips: videoTips,
@@ -108,6 +112,16 @@ const UploadForm = () => {
 					complete: function () {},
 				});
 		}
+		for (i = 0; i < uploadedNutrionalImgs.length; i++) {
+			firebase
+				.storage()
+				.ref()
+				.child(document.id + i + ".png")
+				.putString(uploadedNutrionalImgs[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
 
 		setRecipeName("");
 		setVideoID("");
@@ -116,16 +130,16 @@ const UploadForm = () => {
 		setVideoSkills("");
 		setVideoTips("");
 		setImages({});
+		setNutrionalImgs({});
 		setOpenConfirm(false);
 	}
 
 	useEffect(() => {
 		const userData = getUserFromCookie();
 
-		if(!userData || "code" in userData || userData["role"] != "admin") {
+		if (!userData || "code" in userData || userData["role"] != "admin") {
 			router.push("/");
-		}
-		else if(!("firstname" in userData)) {
+		} else if (!("firstname" in userData)) {
 			router.push("/profile/makeProfile");
 		}
 	});
@@ -220,6 +234,23 @@ const UploadForm = () => {
 						</ui.Grid>
 					</ui.Grid>
 
+					{/* upload recipe result image */}
+					<ui.Grid container item justify="center">
+						<ui.Grid item xs={12}>
+							<ui.Typography variant="h6" align="center" gutterBottom>
+								Upload Nutrional Facts!
+							</ui.Typography>
+						</ui.Grid>
+						<ui.Grid item sm={10} xs={12}>
+							<MultiImageInput
+								images={nutrionalImgs}
+								setImages={setNutrionalImgs}
+								cropConfig={{ crop, ruleOfThirds: true }}
+								inputId
+							/>
+						</ui.Grid>
+					</ui.Grid>
+
 					<ui.Grid container item justify="center">
 						<ui.Grid item sm={10} xs={12}>
 							<ui.Button
@@ -234,6 +265,7 @@ const UploadForm = () => {
 						{recipeName == "" ||
 						uploadedImages == [] ||
 						uploadedRecipeImgs == [] ||
+						uploadedNutrionalImgs == [] ||
 						videoID == "" ? (
 							<ui.Dialog
 								disableBackdropClick

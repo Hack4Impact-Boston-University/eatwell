@@ -41,8 +41,6 @@ import ReactCardFlip from "react-card-flip";
 import { useUser } from "../utils/auth/useUser";
 import { getFavsFromCookie } from "../utils/cookies";
 
-
-
 initFirebase();
 var db = firebase.firestore();
 const useStyles = makeStyles((theme) => ({
@@ -119,9 +117,17 @@ export default function RecipeCard({
 	const [, updateState] = React.useState();
 
 	const [imgList, setImages] = React.useState(obj.images);
+	const [nutrionalImgs, setNutrionalImgs] = React.useState(obj.nutrionalImgs);
+
+	// update recipe images
 	useEffect(() => {
 		setImages(obj.images);
 	}, [obj.images]);
+
+	// update nutrional images
+	useEffect(() => {
+		setNutrionalImgs(obj.nutrionalImgs);
+	}, [obj.nutrionalImgs]);
 
 	var settings = {
 		dots: true,
@@ -183,10 +189,11 @@ export default function RecipeCard({
 		setFav(!favorited);
 		editFavCookie(obj.id, !favorited);
 		onFavClick();
-		upload({ favoriteRecipes: Object.keys(getFavsFromCookie())})
-		.catch((err) => {
-			alert(err.message);
-		});
+		upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) }).catch(
+			(err) => {
+				alert(err.message);
+			}
+		);
 	}
 
 	function handleSubmit() {
@@ -562,15 +569,19 @@ export default function RecipeCard({
 
 									<Grid container style={{ minHeight: "180px" }}>
 										<Grid item xs={12}>
-											<Typography
-												style={{
-													fontSize: "calc(min(4vw, 20px))",
-													fontWeight: 300,
-												}}
-											>
-												Lorem ipsum dolor sit amet consectetur adipisicing elit.
-												Magnam ad nemo suscipit.
-											</Typography>
+											<style>{cssstyle}</style>
+											{/* slider for the nutritional facts */}
+											<Slider {...settings}>
+												{Array.isArray(nutrionalImgs) &&
+													obj.nutrionalImgs.map((cell, index) => {
+														return (
+															<img
+																className={classes.media}
+																src={obj?.nutrionalImgs[index]}
+															/>
+														);
+													})}
+											</Slider>
 										</Grid>
 									</Grid>
 									<Grid container item xs={12} justify="center" p={0}>
