@@ -19,14 +19,10 @@ import {
   Tab,
   Typography,
 } from '@material-ui/core';
+import Slider from "react-slick";
 import Navbar from "../../components/Navbar";
-import * as firebase from 'firebase'
-import 'firebase/firestore'
-import initFirebase from '../../utils/auth/initFirebase'
 import styles from '../../styles/Home.module.css'
-
 import {getUserFromCookie} from "../../utils/cookies";
-
 
 const fetcher = async (...args) => {
   const res = await fetch(...args);
@@ -121,7 +117,32 @@ export default function Recipe() {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
-  const [pdf_url, setPdfURL] = useState('')
+  const [imgList, setImages] = React.useState("");
+  var settings = {
+		dots: true,
+		infinite: true,
+		speed: 500,
+		slidesToShow: 1,
+		slidesToScroll: 1,
+	};
+  const cssstyle = `
+    .container {
+      margin: 0 auto;
+      padding: 0px 40px 40px 40px;
+    }
+    h3 {
+        background: #5f9ea0;
+        color: #fff;
+        font-size: 36px;
+        line-height: 100px;
+        margin: 10px;
+        padding: 2%;
+        position: relative;
+        text-align: center;
+    }
+    .slick-next:before, .slick-prev:before {
+        color: #000;
+    }`;
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -141,32 +162,6 @@ export default function Recipe() {
   }
 
   else {
-    initFirebase()
-    firebase.storage().ref().child(data.pdfRecipe).getDownloadURL().then(function(url) {
-      // update url
-      setPdfURL(url)
-    }).catch(function(error) {
-    
-      // A full list of error codes is available at
-      // https://firebase.google.com/docs/storage/web/handle-errors
-      switch (error.code) {
-        case 'storage/object-not-found':
-          // File doesn't exist
-          break;
-    
-        case 'storage/unauthorized':
-          // User doesn't have permission to access the object
-          break;
-    
-        case 'storage/canceled':
-          // User canceled the upload
-          break;
-    
-        case 'storage/unknown':
-          // Unknown error occurred, inspect the server response
-          break;
-      }
-    });
     return (
       <div className={classes.root}>
         <SwipeableViews
@@ -178,7 +173,31 @@ export default function Recipe() {
           <div position="fixed" className={classes.video}>
                 <iframe position="fixed" src={data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
           </div>
-          <iframe src={pdf_url} width="100%" height={width} frameBorder="0" align="center" position="relative"></iframe>
+
+          <link
+            rel="stylesheet"
+            type="text/css"
+            charset="UTF-8"
+            href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
+          />
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
+          />
+          <style>{cssstyle}</style>
+          <Slider {...settings}>
+            {Array.isArray(data.recipeImgs) &&
+              data.recipeImgs.map((cell, index) => {
+                return (
+                  <img
+                    className={classes.media}
+                    src={data.recipeImgs[index]}
+                  />
+                );
+              })}
+          </Slider>
+
           </TabPanel>
           {data.videoSkills != "https://player.vimeo.com/video/" &&
             <TabPanel value={value} index={1} dir={theme.direction}>
