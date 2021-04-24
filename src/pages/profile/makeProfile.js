@@ -84,10 +84,7 @@ const makeProfile = () => {
 	}
 
 	const submit = () => {
-		checkCode(code).then((data) => {
-			console.log(data);
-			setErrorText("");
-			return upload({
+		upload({
 				firstname: firstName,
 				lastname: lastName,
 				phone: tel,
@@ -101,9 +98,7 @@ const makeProfile = () => {
 				notesTips:{},
 				ratings:{},
 				ratingsSkills:{},
-				ratingsTips:{},
-				...data
-			})
+				ratingsTips:{}
 		}).then(() => {
 			router.push('/recipes/recipeList');
 		}).catch((err) => {
