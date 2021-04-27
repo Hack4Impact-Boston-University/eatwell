@@ -255,7 +255,7 @@ export default function RecipeCard({
 		setIsFlipped(!isFlipped);
 	};
 	return (
-		<Grid item xs={5}>
+		<Grid item xs={10}>
 			<Box pb={3} mr={0.5} ml={0.5}>
 				<ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
 					<div>

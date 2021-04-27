@@ -161,21 +161,25 @@ export default function RecipeReviewCard() {
 		<div className={styles.container2}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
-					<Grid container spacing={1000} className={classes.gridContainerMain}>
+					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) return;
 							if (!favs || obj.id in favRecipes) {
 								return (
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-										isFav={obj.id in favRecipes}
-										onFavClick={() => onFavClick()}
-										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-										}
-									/>
+									<Grid item container xs={12} md={6} justify="center">
+										<RecipeCard
+											key={obj.id}
+											object={obj}
+											isFav={obj.id in favRecipes}
+											onFavClick={() => onFavClick()}
+											initNotes={
+												obj.id in recipeNotes ? recipeNotes[obj.id] : []
+											}
+											initRating={
+												obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+											}
+										/>
+									</Grid>
 								);
 							} else {
 								return;
@@ -194,16 +198,18 @@ export default function RecipeReviewCard() {
 						if (!obj.nameOfDish || !obj.id) return;
 						if (!favs || obj.id in favRecipes) {
 							return (
-								<RecipeCard
-									key={obj.id}
-									object={obj}
-									isFav={obj.id in favRecipes}
-									onFavClick={() => onFavClick()}
-									initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-									initRating={
-										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-									}
-								/>
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={obj.id}
+										object={obj}
+										isFav={obj.id in favRecipes}
+										onFavClick={() => onFavClick()}
+										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+										initRating={
+											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+										}
+									/>
+								</Grid>
 							);
 						} else {
 							return;
@@ -220,7 +226,7 @@ export default function RecipeReviewCard() {
 			<div className={styles.nav}>
 				<Navbar />
 
-				<AppBar position="static" color="default">
+				{/* <AppBar position="static" color="default">
 					<Tabs
 						value={value}
 						onChange={handleChange}
@@ -240,7 +246,7 @@ export default function RecipeReviewCard() {
 							className={classes.viewTabLabel}
 						/>
 					</Tabs>
-				</AppBar>
+				</AppBar> */}
 			</div>
 		</div>
 	);

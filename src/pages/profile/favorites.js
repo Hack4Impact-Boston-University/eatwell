@@ -147,24 +147,26 @@ export default function UserFavorites() {
 
 			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
+				<Grid container className={classes.gridContainerMain}>
 					{userRecipes.map((fav, idx) => {
 						if (fav in allRecipes) {
 							// each returned element is a recipe card
 							return (
-								<RecipeCard
-									key={fav}
-									object={allRecipes[fav]}
-									isFav={true}
-									// remove the favorite if we click it
-									onFavClick={() => {
-										setUserRecipes(
-											userRecipes.splice(userRecipes.indexOf(fav), 1)
-										);
-									}}
-									initNotes={[]}
-									initRating={0}
-								/>
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={fav}
+										object={allRecipes[fav]}
+										isFav={true}
+										// remove the favorite if we click it
+										onFavClick={() => {
+											setUserRecipes(
+												userRecipes.splice(userRecipes.indexOf(fav), 1)
+											);
+										}}
+										initNotes={[]}
+										initRating={0}
+									/>
+								</Grid>
 							);
 						}
 					})}
