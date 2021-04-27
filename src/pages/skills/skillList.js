@@ -40,38 +40,38 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+// function TabPanel(props) {
+// 	const { children, value, index, ...other } = props;
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`full-width-tabpanel-${index}`}
-			aria-labelledby={`full-width-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box p={3}>
-					<Typography>{children}</Typography>
-				</Box>
-			)}
-		</div>
-	);
-}
+// 	return (
+// 		<div
+// 			role="tabpanel"
+// 			hidden={value !== index}
+// 			id={`full-width-tabpanel-${index}`}
+// 			aria-labelledby={`full-width-tab-${index}`}
+// 			{...other}
+// 		>
+// 			{value === index && (
+// 				<Box p={3}>
+// 					<Typography>{children}</Typography>
+// 				</Box>
+// 			)}
+// 		</div>
+// 	);
+// }
 
-TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
-};
+// TabPanel.propTypes = {
+// 	children: PropTypes.node,
+// 	index: PropTypes.any.isRequired,
+// 	value: PropTypes.any.isRequired,
+// };
 
-function a11yProps(index) {
-	return {
-		id: `full-width-tab-${index}`,
-		"aria-controls": `full-width-tabpanel-${index}`,
-	};
-}
+// function a11yProps(index) {
+// 	return {
+// 		id: `full-width-tab-${index}`,
+// 		"aria-controls": `full-width-tabpanel-${index}`,
+// 	};
+// }
 
 export default function SkillReviewCard() {
 	const classes = useStyles();
@@ -85,21 +85,21 @@ export default function SkillReviewCard() {
 	const skillRatings = getRatingsSkillsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteSkills/${favoriteSkill}`, fetcher);
 	const [value, setValue] = React.useState(0);
-	const [favs, setFavs] = React.useState(value == 1);
+	//const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
 
 	const router = useRouter();
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-		setFavs(newValue == 1);
-	};
+	// const handleChange = (event, newValue) => {
+	// 	setValue(newValue);
+	// 	setFavs(newValue == 1);
+	// };
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
 			if (!_.isEqual(getFavsSkillsFromCookie(), undefined)) {
 				upload({
-					favoriteSkills: Object.keys(getFavsSkillsFromCookie()),
+					// favoriteSkills: Object.keys(getFavsSkillsFromCookie()),
 					notes: getNotesSkillsFromCookie(),
 					ratings: getRatingsSkillsFromCookie(),
 				});
@@ -146,13 +146,13 @@ export default function SkillReviewCard() {
 	}
 
 	return (
-		<div className={styles.container2}>
+		<div className={styles.container}>
 			{/* {user.role == "admin" ? ( */}
 				{!_.isEqual(skills, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{skills.map((obj, idx) => {
-							if (!obj?.skillName || !obj?.skillID) return;
-							if (!favs || obj.id in favSkills) {
+							if (!obj?.skillName || !obj?.skillID) {return;}
+							//if (!favs || obj.id in favSkills) {
 								return (
 									<SkillCard
 										key={obj.skillID}
@@ -165,9 +165,9 @@ export default function SkillReviewCard() {
 										// }
 									/>
 								);
-							} else {
-								return;
-							}
+							//} else {
+								//return;
+							//}
 							//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 						})}
 					</Grid>
@@ -208,7 +208,7 @@ export default function SkillReviewCard() {
 			<div className={styles.nav}>
 				<Navbar />
 
-				<AppBar position="static" color="default">
+				{/* <AppBar position="static" color="default">
 					<Tabs
 						value={value}
 						onChange={handleChange}
@@ -228,7 +228,7 @@ export default function SkillReviewCard() {
 							className={classes.viewTabLabel}
 						/>
 					</Tabs>
-				</AppBar>
+				</AppBar> */}
 			</div>
 		</div>
 	);
