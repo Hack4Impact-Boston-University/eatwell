@@ -186,14 +186,15 @@ export default function RecipeCard({
 	};
 
 	function favButtonClick() {
-		setFav(!favorited);
 		editFavCookie(obj.id, !favorited);
-		onFavClick();
-		upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) }).catch(
-			(err) => {
-				alert(err.message);
-			}
-		);
+		upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) })
+		.then(() => {
+			setFav(!favorited);
+			onFavClick();
+		}).catch((err) => {
+			editFavCookie(obj.id, favorited);
+			//alert(err.message);
+		});
 	}
 
 	function handleSubmit() {

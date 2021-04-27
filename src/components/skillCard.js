@@ -20,6 +20,7 @@ import { Rating } from "@material-ui/lab";
 import clsx from "clsx";
 import Link from "next/link";
 import {
+	getFavsSkillsFromCookie,
 	editFavSkillsCookie,
 	editNotesSkillsCookie,
 	editRatingsSkillsCookie,
@@ -38,6 +39,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
+import { useUser } from "../utils/auth/useUser";
 
 initFirebase();
 var db = firebase.firestore();
@@ -97,6 +99,7 @@ export default function SkillCard({
 	// initRating,
 }) {
 	const classes = useStyles();
+	const { user, upload } = useUser();
 	const [obj, setObj] = React.useState(object);
 	const [expanded, setExpanded] = React.useState(false);
 	const [favorited, setFav] = React.useState(isFav);
@@ -173,9 +176,15 @@ export default function SkillCard({
 	};
 
 	function favButtonClick() {
-		setFav(!favorited);
-		editFavSkillsCookie(obj.skillID, !favorited);
-		onFavClick();
+		editFavSkillsCookie(obj.id, !favorited);
+		upload({ favoriteRecipes: Object.keys(getFavsSkillsFromCookie())})
+		.then(() => {
+			setFav(!favorited);
+			onFavClick();
+		}).catch((err) => {
+			editFavSkillsCookie(obj.id, favorited);
+			//alert(err.message);
+		});
 	}
 
 	function handleSubmit() {

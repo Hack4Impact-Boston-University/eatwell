@@ -40,38 +40,38 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+// function TabPanel(props) {
+// 	const { children, value, index, ...other } = props;
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`full-width-tabpanel-${index}`}
-			aria-labelledby={`full-width-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box p={3}>
-					<Typography>{children}</Typography>
-				</Box>
-			)}
-		</div>
-	);
-}
+// 	return (
+// 		<div
+// 			role="tabpanel"
+// 			hidden={value !== index}
+// 			id={`full-width-tabpanel-${index}`}
+// 			aria-labelledby={`full-width-tab-${index}`}
+// 			{...other}
+// 		>
+// 			{value === index && (
+// 				<Box p={3}>
+// 					<Typography>{children}</Typography>
+// 				</Box>
+// 			)}
+// 		</div>
+// 	);
+// }
 
-TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
-};
+// TabPanel.propTypes = {
+// 	children: PropTypes.node,
+// 	index: PropTypes.any.isRequired,
+// 	value: PropTypes.any.isRequired,
+// };
 
-function a11yProps(index) {
-	return {
-		id: `full-width-tab-${index}`,
-		"aria-controls": `full-width-tabpanel-${index}`,
-	};
-}
+// function a11yProps(index) {
+// 	return {
+// 		id: `full-width-tab-${index}`,
+// 		"aria-controls": `full-width-tabpanel-${index}`,
+// 	};
+// }
 
 export default function TipReviewCard() {
 	const classes = useStyles();
@@ -85,25 +85,25 @@ export default function TipReviewCard() {
 	const tipRatings = getRatingsTipsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteTips/${favoriteTip}`, fetcher);
 	const [value, setValue] = React.useState(0);
-	const [favs, setFavs] = React.useState(value == 1);
+//	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
 
 	const router = useRouter();
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-		setFavs(newValue == 1);
-	};
+	// const handleChange = (event, newValue) => {
+	// 	setValue(newValue);
+	// 	setFavs(newValue == 1);
+	// };
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
 			if (!_.isEqual(getFavsTipsFromCookie(), undefined)) {
 				upload({
-					favoriteTips: Object.keys(getFavsTipsFromCookie()),
+					// favoriteTips: Object.keys(getFavsTipsFromCookie()),
 					notes: getNotesTipsFromCookie(),
 					ratings: getRatingsTipsFromCookie(),
 				});
-				uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
+				//uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 			}
 		});
 	});
@@ -111,7 +111,7 @@ export default function TipReviewCard() {
 	const onFavClick = () => {
 		setDummy(!dummy);
 		favTips = getFavsTipsFromCookie() || {};
-		uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
+		//uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 	};
 
 	if (!tips || !tipsDic || !programsDic || !user || !favTips) {
@@ -146,13 +146,13 @@ export default function TipReviewCard() {
 	}
 
 	return (
-		<div className={styles.container2}>
+		<div className={styles.container}>
 			{/* {user.role == "admin" ? ( */}
 				{!_.isEqual(tips, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{tips.map((obj, idx) => {
-							if (!obj.tipName || !obj.tipID) return;
-							if (!favs || obj.tipID in favTips) {
+							if (!obj.tipName || !obj.tipID) {return;}
+							//if (!favs || obj.tipID in favTips) {
 								return (
 									<TipCard
 										key={obj.tipID}
@@ -165,9 +165,9 @@ export default function TipReviewCard() {
 										}
 									/>
 								);
-							} else {
-								return;
-							}
+							//} else {
+							//	return;
+							//}
 							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].tipID)} />
 						})}
 					</Grid>
@@ -208,7 +208,7 @@ export default function TipReviewCard() {
 			<div className={styles.nav}>
 				<Navbar />
 
-				<AppBar position="static" color="default">
+				{/* <AppBar position="static" color="default">
 					<Tabs
 						value={value}
 						onChange={handleChange}
@@ -228,7 +228,7 @@ export default function TipReviewCard() {
 							className={classes.viewTabLabel}
 						/>
 					</Tabs>
-				</AppBar>
+				</AppBar> */}
 			</div>
 		</div>
 	);

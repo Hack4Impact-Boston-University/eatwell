@@ -60,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 		paddingRight: "calc(max(5vw,50vw - 450px))",
 		justifyContent: "space-around",
 	},
+		viewTabLabel: { textTransform: "none" },
 }));
 
 export default function UserFavorites() {
