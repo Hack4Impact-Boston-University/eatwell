@@ -58,9 +58,8 @@ const useStyles = makeStyles((theme) => ({
 	gridContainerMain: {
 		paddingLeft: "calc(max(5vw,50vw - 450px))",
 		paddingRight: "calc(max(5vw,50vw - 450px))",
-		justifyContent: "space-around",
 	},
-		viewTabLabel: { textTransform: "none" },
+	viewTabLabel: { textTransform: "none" },
 }));
 
 export default function UserFavorites() {
@@ -126,7 +125,7 @@ export default function UserFavorites() {
 
 	// loading if certain data isnt finished loading
 	return (
-		<div className={styles.nav}>
+		<div>
 			{/* navbar */}
 			<Navbar />
 
@@ -148,7 +147,7 @@ export default function UserFavorites() {
 
 			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
-				<Grid container className={classes.gridContainerMain}>
+				<Grid item container className={classes.gridContainerMain}>
 					{userRecipes.map((fav, idx) => {
 						if (fav in allRecipes) {
 							// each returned element is a recipe card
