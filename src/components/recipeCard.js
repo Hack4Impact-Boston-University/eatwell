@@ -117,17 +117,17 @@ export default function RecipeCard({
 	const [, updateState] = React.useState();
 
 	const [imgList, setImages] = React.useState(obj.images);
-	const [nutrionalImgs, setNutrionalImgs] = React.useState(obj.nutrionalImgs);
+	const [nutritionalImgs, setNutritionalImgs] = React.useState(obj.nutritionalImgs);
 
 	// update recipe images
 	useEffect(() => {
 		setImages(obj.images);
 	}, [obj.images]);
 
-	// update nutrional images
+	// update nutritional images
 	useEffect(() => {
-		setNutrionalImgs(obj.nutrionalImgs);
-	}, [obj.nutrionalImgs]);
+		setNutritionalImgs(obj.nutritionalImgs);
+	}, [obj.nutritionalImgs]);
 
 	var settings = {
 		dots: true,
@@ -281,12 +281,7 @@ export default function RecipeCard({
 											alignItems="center"
 											justify="center"
 										>
-											<Typography
-												style={{
-													fontSize: "calc(min(5vw, 35px))",
-													fontWeight: 300,
-												}}
-											>
+											<Typography style={{fontSize: "calc(min(5vw, 35px))",fontWeight: 300,}}>
 												{obj.nameOfDish}
 											</Typography>
 										</Grid>
@@ -347,22 +342,12 @@ export default function RecipeCard({
 											alignItems="center"
 										>
 											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
+												<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
 													Date:
 												</Typography>
 											</Grid>
 											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
+												<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
 													{getTimeString(obj.dateUploaded)}
 												</Typography>
 											</Grid>
@@ -376,12 +361,7 @@ export default function RecipeCard({
 											alignItems="center"
 										>
 											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
+												<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
 													Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
 												</Typography>
 											</Grid>
@@ -396,21 +376,13 @@ export default function RecipeCard({
 													style={{ fontSize: "calc(min(6vw, 20px))" }}
 												/>
 												{rating > 0 && (
-													<ClearIcon
-														onClick={() => {
-															changeRating(0);
-														}}
+													<ClearIcon onClick={() => {changeRating(0);}}
 														style={{ fontSize: "calc(min(5vw, 20px))" }}
 													/>
 												)}
 											</Grid>
 											<Grid item>
-												<Typography
-													style={{
-														fontSize: "calc(min(4vw, 20px))",
-														fontWeight: 300,
-													}}
-												>
+												<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
 													{obj?.numRatings} Rating
 													{obj?.numRatings > 1 ? "s" : ""}
 												</Typography>
@@ -419,13 +391,8 @@ export default function RecipeCard({
 									</Grid>
 									<Grid container spacing={3}>
 										<Grid item xs={12}>
-											<Typography
-												style={{
-													fontSize: "calc(min(4vw, 20px))",
-													fontWeight: 300,
-												}}
-											>
-												{obj.description}
+											<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
+												{obj?.description}
 											</Typography>
 										</Grid>
 									</Grid>
@@ -454,12 +421,7 @@ export default function RecipeCard({
 									alignItems="center"
 									justify="center"
 								>
-									<Typography
-										style={{
-											fontSize: "calc(min(2.7vw, 18px))",
-											fontWeight: 300,
-										}}
-									>
+									<Typography style={{fontSize: "calc(min(2.7vw, 18px))", fontWeight: 300,}}>
 										Notes
 									</Typography>
 								</Grid>
@@ -518,11 +480,7 @@ export default function RecipeCard({
 									<Box m={"3vh"}>
 										{notes?.map((str, idx) => {
 											return (
-												<Note
-													str={str}
-													setStr={(s) => setStr(s, idx)}
-													deleteStr={() => deleteStr(idx)}
-												>
+												<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}>
 													{" "}
 												</Note>
 											);
@@ -541,48 +499,94 @@ export default function RecipeCard({
 								<Box m={"0.25vw"}>
 									<Grid container>
 										<Grid item xs={2} sm={1}>
-											<IconButton
-												onClick={favButtonClick}
-												aria-label="Back Side"
-												color={favorited ? "secondary" : "default"}
-												className={classes.iconContainer}
-											>
+											<IconButton onClick={favButtonClick} aria-label="Back Side" color={favorited ? "secondary" : "default"} className={classes.iconContainer}>
 												<FavoriteIcon className={classes.icon} />
 											</IconButton>
 										</Grid>
-										<Grid
-											container
-											item
-											xs={10}
-											alignItems="center"
-											justify="center"
-										>
-											<Typography
-												style={{
-													fontSize: "calc(min(5vw, 35px))",
-													fontWeight: 300,
-												}}
-											>
+										<Grid container item xs={10} alignItems="center" justify="center">
+											<Typography style={{fontSize: "calc(min(5vw, 35px))",fontWeight: 300,}}>
 												{obj.nameOfDish}
 											</Typography>
 										</Grid>
 									</Grid>
 
-									<Grid container style={{ minHeight: "180px" }}>
+
+									{/* <Grid container justify="center" style={{ minHeight: "180px", marginTop: "3vh", marginBottom: "1vh" }} spacing="10vw">
+										<Grid item xs={4} container spacing={3} direction="column" justify="center" alignItems="center">
+											<Grid item xs={12}>
+												<style>{cssstyle}</style>
+												<Slider {...settings}>
+													{Array.isArray(nutritionalImgs) &&
+														obj.nutritionalImgs.map((cell, index) => {
+															return (
+																<img
+																	className={classes.media}
+																	src={obj?.nutritionalImgs[index]}
+																/>
+															);
+														})}
+												</Slider>
+											</Grid>
+										</Grid>
+										<Grid item container xs={6} justify="center" direction="column" alignItems="center">
+											<Grid container spacing={3}>
+												<Grid item xs={12}>
+													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
+														Ingredients / Allergens:
+													</Typography>
+													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
+														{obj?.descriptionIngredients}
+													</Typography>
+												</Grid>
+											</Grid>
+											<Grid container spacing={3}>
+												<Grid item xs={12}>
+													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
+														Recipe Facts:
+													</Typography>
+													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
+														{obj?.recipeFact}
+													</Typography>
+												</Grid>
+											</Grid>
+										</Grid>
+									</Grid> */}
+
+
+
+									<Grid item xs={12} style={{ minHeight: "180px", marginTop: "3vh", marginBottom: "1vh" }}>
+										<style>{cssstyle}</style>
+										{/* slider for the nutritional facts */}
+										<Slider {...settings}>
+											{Array.isArray(nutritionalImgs) &&
+												obj.nutritionalImgs.map((cell, index) => {
+													return (
+														<img
+															className={classes.media}
+															src={obj?.nutritionalImgs[index]}
+														/>
+													);
+												})}
+										</Slider>
+									</Grid>
+									<Grid container spacing={3}>
 										<Grid item xs={12}>
-											<style>{cssstyle}</style>
-											{/* slider for the nutritional facts */}
-											<Slider {...settings}>
-												{Array.isArray(nutrionalImgs) &&
-													obj.nutrionalImgs.map((cell, index) => {
-														return (
-															<img
-																className={classes.media}
-																src={obj?.nutrionalImgs[index]}
-															/>
-														);
-													})}
-											</Slider>
+											<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
+												Ingredients / Allergens:
+											</Typography>
+											<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
+												{obj?.descriptionIngredients}
+											</Typography>
+										</Grid>
+									</Grid>
+									<Grid container spacing={3}>
+										<Grid item xs={12}>
+											<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
+												Recipe Facts:
+											</Typography>
+											<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
+												{obj?.recipeFact}
+											</Typography>
 										</Grid>
 									</Grid>
 									<Grid container item xs={12} justify="center" p={0}>
