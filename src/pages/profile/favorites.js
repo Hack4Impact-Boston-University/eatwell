@@ -8,10 +8,11 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Navbar from "../../components/Navbar";
 import styles from "../../styles/Home.module.css";
-import useSWR from "swr";
 import _ from "underscore";
 import firebase from "firebase";
 import { useRouter } from "next/router";
+import RecipeCard from "../../components/recipeCard";
+import { Grid } from "@material-ui/core";
 
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
@@ -53,21 +54,33 @@ const fetcher = async (...args) => {
 	return res.json();
 };
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+	gridContainerMain: {
+		paddingLeft: "calc(max(5vw,50vw - 450px))",
+		paddingRight: "calc(max(5vw,50vw - 450px))",
+	},
+	viewTabLabel: { textTransform: "none" },
+}));
 
 export default function UserFavorites() {
 	// get all the recipes
-	// const { userRecipes } = useSWR(`/api/recipes/getUsersFavorites`, fetcher);
 	const router = useRouter();
+
+	// css classes for mui
+	const classes = useStyles();
+
 	// state for MUI tab panels
 	const [value, setValue] = React.useState("one");
 	const [userRecipes, setUserRecipes] = React.useState([]);
+	const [allRecipes, setAllRecipes] = React.useState({});
 
 	// this useEffect will load the user's favorites
 	useEffect(() => {
 		firebase.auth().onAuthStateChanged(function (user) {
 			if (user) {
 				// User is signed in.
+
+				// get all the user's favorites
 				firebase
 					.firestore()
 					.collection("users")
@@ -77,6 +90,23 @@ export default function UserFavorites() {
 						let data = querySnapshot.data();
 						// set the user's favorite recipes
 						setUserRecipes(data.favoriteRecipes);
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+
+				// get all the favorites
+				firebase
+					.firestore()
+					.collection("recipes")
+					.orderBy("dateUploaded", "desc")
+					.get()
+					.then((querySnapshot) => {
+						let all = {};
+						querySnapshot.forEach((doc) => {
+							all[doc.id] = doc.data();
+						});
+						setAllRecipes(all);
 					})
 					.catch((error) => {
 						console.log(error);
@@ -95,7 +125,7 @@ export default function UserFavorites() {
 
 	// loading if certain data isnt finished loading
 	return (
-		<div className={styles.nav}>
+		<div>
 			{/* navbar */}
 			<Navbar />
 
@@ -117,8 +147,32 @@ export default function UserFavorites() {
 
 			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
-				Recipes
+				<Grid item container className={classes.gridContainerMain}>
+					{userRecipes.map((fav, idx) => {
+						if (fav in allRecipes) {
+							// each returned element is a recipe card
+							return (
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={fav}
+										object={allRecipes[fav]}
+										isFav={true}
+										// remove the favorite if we click it
+										onFavClick={() => {
+											setUserRecipes(
+												userRecipes.splice(userRecipes.indexOf(fav), 1)
+											);
+										}}
+										initNotes={[]}
+										initRating={0}
+									/>
+								</Grid>
+							);
+						}
+					})}
+				</Grid>
 				{console.log(userRecipes)}
+				{console.log(allRecipes)}
 			</TabPanel>
 
 			{/* Favorite Skills Panel */}

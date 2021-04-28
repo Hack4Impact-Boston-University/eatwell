@@ -120,6 +120,7 @@ const UploadForm = () => {
 		var i;
 		var uploadedImages = Object.values(images);
 		var uploadedRecipeImgs = Object.values(recipeImg);
+		var uploadedNutrionalImgs = Object.values(nutrionalImgs);
 		var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
@@ -133,6 +134,7 @@ const UploadForm = () => {
 			images: uploadedImages,
 			videoRecipe: videoID,
 			recipeImgs: uploadedRecipeNames,
+			nutrionalImgs: uploadedNutrionalImgs,
 			dateUploaded: Date.now(),
 			videoSkills: videoSkill,
 			videoTips: videoTip,
@@ -161,6 +163,16 @@ const UploadForm = () => {
 					complete: function () {},
 				});
 		}
+		for (i = 0; i < uploadedNutrionalImgs.length; i++) {
+			firebase
+				.storage()
+				.ref()
+				.child(document.id + i + ".png")
+				.putString(uploadedNutrionalImgs[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
 
 		setRecipeName("");
 		setVideoID("");
@@ -169,6 +181,7 @@ const UploadForm = () => {
 		setVideoSkill("");
 		setVideoTip("");
 		setImages({});
+		setNutrionalImgs({});
 		setOpenConfirm(false);
 	}
 
@@ -273,10 +286,9 @@ const UploadForm = () => {
 	useEffect(() => {
 		const userData = getUserFromCookie();
 
-		if(!userData || "code" in userData || userData["role"] != "admin") {
+		if (!userData || "code" in userData || userData["role"] != "admin") {
 			router.push("/");
-		}
-		else if(!("firstname" in userData)) {
+		} else if (!("firstname" in userData)) {
 			router.push("/profile/makeProfile");
 		}
 	});
@@ -443,6 +455,7 @@ const UploadForm = () => {
 						{recipeName == "" ||
 						uploadedImages == [] ||
 						uploadedRecipeImgs == [] ||
+						uploadedNutrionalImgs == [] ||
 						videoID == "" ? (
 							<ui.Dialog
 								disableBackdropClick

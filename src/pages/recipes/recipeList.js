@@ -40,38 +40,38 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+// function TabPanel(props) {
+// 	const { children, value, index, ...other } = props;
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`full-width-tabpanel-${index}`}
-			aria-labelledby={`full-width-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box p={3}>
-					<Typography>{children}</Typography>
-				</Box>
-			)}
-		</div>
-	);
-}
+// 	return (
+// 		<div
+// 			role="tabpanel"
+// 			hidden={value !== index}
+// 			id={`full-width-tabpanel-${index}`}
+// 			aria-labelledby={`full-width-tab-${index}`}
+// 			{...other}
+// 		>
+// 			{value === index && (
+// 				<Box p={3}>
+// 					<Typography>{children}</Typography>
+// 				</Box>
+// 			)}
+// 		</div>
+// 	);
+// }
 
-TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
-};
+// TabPanel.propTypes = {
+// 	children: PropTypes.node,
+// 	index: PropTypes.any.isRequired,
+// 	value: PropTypes.any.isRequired,
+// };
 
-function a11yProps(index) {
-	return {
-		id: `full-width-tab-${index}`,
-		"aria-controls": `full-width-tabpanel-${index}`,
-	};
-}
+// function a11yProps(index) {
+// 	return {
+// 		id: `full-width-tab-${index}`,
+// 		"aria-controls": `full-width-tabpanel-${index}`,
+// 	};
+// }
 
 export default function RecipeReviewCard() {
 	const classes = useStyles();
@@ -88,15 +88,15 @@ export default function RecipeReviewCard() {
 	const recipeRatings = getRatingsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
 	const [value, setValue] = React.useState(0);
-	const [favs, setFavs] = React.useState(value == 1);
+//	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
 
 	const router = useRouter();
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-		setFavs(newValue == 1);
-	};
+	// const handleChange = (event, newValue) => {
+	// 	setValue(newValue);
+	// 	setFavs(newValue == 1);
+	// };
 
 	useEffect(() => {
 		const uploadData = () => {
@@ -158,28 +158,32 @@ export default function RecipeReviewCard() {
 	}
 
 	return (
-		<div className={styles.container2}>
+		<div className={styles.container}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
-					<Grid container spacing={1000} className={classes.gridContainerMain}>
+					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) return;
-							if (!favs || obj.id in favRecipes) {
+							if (!obj.nameOfDish || !obj.id) {return;}
+							//if (!favs || obj.id in favRecipes) {
 								return (
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-										isFav={obj.id in favRecipes}
-										onFavClick={() => onFavClick()}
-										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-										}
-									/>
+									<Grid item container xs={12} md={6} justify="center">
+										<RecipeCard
+											key={obj.id}
+											object={obj}
+											isFav={obj.id in favRecipes}
+											onFavClick={() => onFavClick()}
+											initNotes={
+												obj.id in recipeNotes ? recipeNotes[obj.id] : []
+											}
+											initRating={
+												obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+											}
+										/>
+									</Grid>
 								);
-							} else {
-								return;
-							}
+							//} else {
+							//	return;
+							//}
 							//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
 						})}
 					</Grid>
@@ -191,23 +195,25 @@ export default function RecipeReviewCard() {
 			) : !_.isEqual(recipesUser, []) ? (
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
 					{recipesUser.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) return;
-						if (!favs || obj.id in favRecipes) {
+						if (!obj.nameOfDish || !obj.id) {return;}
+						//if (!favs || obj.id in favRecipes) {
 							return (
-								<RecipeCard
-									key={obj.id}
-									object={obj}
-									isFav={obj.id in favRecipes}
-									onFavClick={() => onFavClick()}
-									initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-									initRating={
-										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-									}
-								/>
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={obj.id}
+										object={obj}
+										isFav={obj.id in favRecipes}
+										onFavClick={() => onFavClick()}
+										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+										initRating={
+											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+										}
+									/>
+								</Grid>
 							);
-						} else {
-							return;
-						}
+						//} else {
+						//	return;
+						//}
 						//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
 					})}
 				</Grid>
@@ -220,7 +226,7 @@ export default function RecipeReviewCard() {
 			<div className={styles.nav}>
 				<Navbar />
 
-				<AppBar position="static" color="default">
+				{/* <AppBar position="static" color="default">
 					<Tabs
 						value={value}
 						onChange={handleChange}
@@ -240,7 +246,7 @@ export default function RecipeReviewCard() {
 							className={classes.viewTabLabel}
 						/>
 					</Tabs>
-				</AppBar>
+				</AppBar> */}
 			</div>
 		</div>
 	);
