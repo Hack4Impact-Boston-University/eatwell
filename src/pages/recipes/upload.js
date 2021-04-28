@@ -82,11 +82,13 @@ const UploadForm = () => {
     const [tipName, setTipName] = useState('')
     const [videoTip, setVideoTip] = useState('')
 	const [images, setImages] = useState({});
-	const [nutrionalImgs, setNutrionalImgs] = useState({});
+	const [nutritionalImgs, setNutritionalImgs] = useState({});
+	const [descriptionIngredients, setDescriptionIngredients] = useState("");
+	const [recipeFact, setRecipeFact] = useState("");
 	const [openConfirm, setOpenConfirm] = React.useState(false);
 	var uploadedRecipeImgs = [];
 	var uploadedImages = [];
-	var uploadedNutrionalImgs = [];
+	var uploadedNutritionalImgs = [];
 
 	const handleChangeToggle = (event, newValue) => {
         setValue(newValue);
@@ -120,7 +122,7 @@ const UploadForm = () => {
 		var i;
 		var uploadedImages = Object.values(images);
 		var uploadedRecipeImgs = Object.values(recipeImg);
-		var uploadedNutrionalImgs = Object.values(nutrionalImgs);
+		var uploadedNutritionalImgs = Object.values(nutritionalImgs);
 		var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
@@ -134,7 +136,7 @@ const UploadForm = () => {
 			images: uploadedImages,
 			videoRecipe: videoID,
 			recipeImgs: uploadedRecipeNames,
-			nutrionalImgs: uploadedNutrionalImgs,
+			nutritionalImgs: uploadedNutritionalImgs,
 			dateUploaded: Date.now(),
 			videoSkills: videoSkill,
 			videoTips: videoTip,
@@ -163,12 +165,12 @@ const UploadForm = () => {
 					complete: function () {},
 				});
 		}
-		for (i = 0; i < uploadedNutrionalImgs.length; i++) {
+		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
 			firebase
 				.storage()
 				.ref()
 				.child(document.id + i + ".png")
-				.putString(uploadedNutrionalImgs[i], "data_url")
+				.putString(uploadedNutritionalImgs[i], "data_url")
 				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
 					complete: function () {},
 				});
@@ -181,7 +183,7 @@ const UploadForm = () => {
 		setVideoSkill("");
 		setVideoTip("");
 		setImages({});
-		setNutrionalImgs({});
+		setNutritionalImgs({});
 		setOpenConfirm(false);
 	}
 
@@ -389,6 +391,26 @@ const UploadForm = () => {
 							variant="outlined"
 						/>
 					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							value={descriptionIngredients}
+							label="Ingredients / Allergens"
+							multiline
+							onChange={(e) => setDescriptionIngredients(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							value={recipeFact}
+							label="Recipe Fact"
+							multiline
+							onChange={(e) => setRecipeFact(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
 
 					{/* upload recipe result image */}
 					<ui.Grid container item justify="center">
@@ -401,7 +423,7 @@ const UploadForm = () => {
 							<MultiImageInput
 								images={images}
 								setImages={setImages}
-								cropConfig={{ crop, ruleOfThirds: true }}
+								cropConfig={{ crop }}
 								inputId
 							/>
 						</ui.Grid>
@@ -428,15 +450,19 @@ const UploadForm = () => {
 					<ui.Grid container item justify="center">
 						<ui.Grid item xs={12}>
 							<ui.Typography variant="h6" align="center" gutterBottom>
-								Upload Nutrional Facts!
+								Upload Nutritional Facts!
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
 							<MultiImageInput
-								images={nutrionalImgs}
-								setImages={setNutrionalImgs}
-								cropConfig={{ crop, ruleOfThirds: true }}
+								images={nutritionalImgs}
+								setImages={setNutritionalImgs}
+								cropConfig={{
+									crop: {unit: "%",
+									aspect: 3 / 5,
+									height: "100" }}}
 								inputId
+								max={1}
 							/>
 						</ui.Grid>
 					</ui.Grid>
@@ -455,7 +481,7 @@ const UploadForm = () => {
 						{recipeName == "" ||
 						uploadedImages == [] ||
 						uploadedRecipeImgs == [] ||
-						uploadedNutrionalImgs == [] ||
+						uploadedNutritionalImgs == [] ||
 						videoID == "" ? (
 							<ui.Dialog
 								disableBackdropClick
@@ -531,7 +557,7 @@ const UploadForm = () => {
                             <MultiImageInput
                                 images={imagesSkill}
                                 setImages={setImagesSkill}
-                                cropConfig={{ crop, ruleOfThirds: true }}
+                                cropConfig={{ crop }}
                                 inputId
                                 max = {1}
                             />
@@ -581,7 +607,7 @@ const UploadForm = () => {
                             <MultiImageInput
                                 images={imagesTip}
                                 setImages={setImagesTip}
-                                cropConfig={{ crop, ruleOfThirds: true }}
+                                cropConfig={{ crop }}
                                 inputId
                                 max = {1}
                             />
