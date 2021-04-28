@@ -163,25 +163,12 @@ export default function RecipeCard({
 		let hour = date.getHours();
 		let min = date.getMinutes();
 		let sec = date.getSeconds();
-
 		month = (month < 10 ? "0" : "") + month;
 		day = (day < 10 ? "0" : "") + day;
 		hour = (hour < 10 ? "0" : "") + hour;
 		min = (min < 10 ? "0" : "") + min;
 		sec = (sec < 10 ? "0" : "") + sec;
-
-		let str =
-			hour +
-			":" +
-			min +
-			":" +
-			sec +
-			" on " +
-			month +
-			"/" +
-			day +
-			"/" +
-			date.getFullYear();
+		let str = hour + ":" + min + ":" + sec + " on " + month + "/" + day + "/" + date.getFullYear();
 		return str;
 	};
 

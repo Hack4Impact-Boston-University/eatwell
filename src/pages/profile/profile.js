@@ -24,6 +24,7 @@ import { Alert } from "@material-ui/lab";
 import styles from '../../styles/Home.module.css'
 import {editUserCookie, getUserFromCookie} from "../../utils/cookies";
 import { useRouter } from 'next/router';
+// import * as firebase from "firebase";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -218,6 +219,7 @@ const Profile = () => {
 				} 
 			});
 		}
+		// firebase.firestore().collection("users").doc(user.id).update({firstname:user.firstname, lastname:user.lastname,phone:user.phone});
 	}
 	useEffect(() => {
 		var userData = getUserFromCookie();

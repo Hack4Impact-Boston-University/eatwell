@@ -16,21 +16,24 @@ import {makeStyles,
         TextField,
         Typography,
         } from "@material-ui/core";
+import RecipeCard from "../components/recipeCard";
 import {getUserFromCookie, removeUserCookie} from "../utils/cookies"
 import { useRouter } from 'next/router';
 import {checkCode} from "../utils/codes.js";
+import useSWR from "swr";
+import _, { map } from "underscore";
 
 const useStyles = makeStyles((theme) => ({
   container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
-		height: "100vh",
+		height: "40%",
 		overflow: "hidden",
 	},
 }));
 
 const Index = () => {
   const classes = useStyles();
-  const { user, logout } = useUser()
+  const { user, upload } = useUser()
   const [login, setLogin] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [code, setCode] = React.useState("");
@@ -66,14 +69,53 @@ const Index = () => {
     }
   }
 
-		const userData = getUserFromCookie();
-    if(userData) {
-      if("code" in userData) {
-        removeUserCookie();
-      } else if(!("firstname" in userData)) {
-			  router.push("/profile/makeProfile");
-		  }
+  const userData = getUserFromCookie();
+  if(userData) {
+    if("code" in userData) {
+      removeUserCookie();
+    } else if(!("firstname" in userData)) {
+      router.push("/profile/makeProfile");
     }
+  }
+
+  // display recipes
+  const fetcher = async (...args) => {
+    const res = await fetch(...args);
+    return res.json();
+  };
+	const [uploadDate, setUploadDate] = React.useState(Date.now());
+	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
+
+  if (!recipes || !recipesDic || !programsDic || !user ) {
+		return "Loading...";
+	}
+
+  const recipesUser = [];
+	if (!user.program == "") {
+		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
+		if (_.isEqual(user?.role, "user")) {
+			if (!_.isEqual(user.program, "")) {
+				if (
+					programsDic[user.program]?.programRecipes != null ||
+					programsDic[user.program]?.programRecipes != []
+				) {
+					var i;
+					for (i = 0; i < keysList.length; i++) {
+						console.log(programsDic[user.program].programRecipes[keysList[i]]);
+						var d = Date.parse(
+							programsDic[user.program].programRecipes[keysList[i]] +
+								"T00:00:00.0000"
+						);
+						if (d < uploadDate) {
+							recipesUser.push(recipesDic[keysList[i]]);
+						}
+					}
+				}
+			}
+		}
+	}
 
   return (
     <div>
@@ -87,7 +129,7 @@ const Index = () => {
             <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
             <h4 className={styles.title}>
-              Welcome to EatWell!
+              Welcome to EatWell, {user.firstname}!
             </h4>
 
             {!user && 
@@ -134,7 +176,6 @@ const Index = () => {
                   </Grid>
                 </Grid>
             }
-            
           </main>
         </div>
         <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
@@ -144,6 +185,41 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
+      {user.role == "admin" ? (
+				!_.isEqual(recipes, []) ? (
+					<Grid container className={classes.gridContainerMain}>
+						{recipes.map((obj, idx) => {
+							if (!obj.nameOfDish || !obj.id) {return;}
+								return (
+									<Grid item container xs={12} md={6} justify="center">
+										<RecipeCard
+											key={obj.id}
+											object={obj}
+										/>
+									</Grid>
+								);
+						})}
+					</Grid>
+				) : (
+					<Grid>
+						<h4>No recipes to display</h4>
+					</Grid>
+				)
+			) : !_.isEqual(recipesUser, []) ? (
+				<Grid container spacing={1000} className={classes.gridContainerMain}>
+					{recipesUser.map((obj, idx) => {
+						if (!obj.nameOfDish || !obj.id) {return;}
+							return (
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={obj.id}
+										object={obj}
+									/>
+								</Grid>
+							);
+					})}
+				</Grid>
+			) : (<Grid><h4>No recipes to display</h4></Grid>)}
       
       <div className={styles.nav}>
         <Navbar/>
