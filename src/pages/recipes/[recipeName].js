@@ -109,8 +109,9 @@ export default function Recipe() {
 	const router = useRouter();
 	const { recipeName } = router.query;
 	const { data } = useSWR(`/api/recipes/${recipeName}`, fetcher);
+	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+    const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
 	const { width } = useWindowSize();
-
 	const classes = useStyles();
 	const theme = useTheme();
 	const [value, setValue] = React.useState(0);
@@ -194,6 +195,10 @@ export default function Recipe() {
 	// wait for data to finish loading
 	if (!data) {
 		return "Loading...";
+	} else if (!skillsDic) {
+		return "Loading skillsDic...";
+	} else if (!tipsDic) {
+		return "Loading tipsDic...";
 	}
 
 	return (
@@ -231,17 +236,18 @@ export default function Recipe() {
 
 			{data.videoSkills != "" && (
 				<TabPanel value={value} index={1} dir={theme.direction}>
-					<iframe src={"https://player.vimeo.com/video/"+data.videoSkills} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+					<div position="fixed" className={classes.video}>
+						<iframe position="fixed" src={"https://player.vimeo.com/video/"+skillsDic[data.videoSkills].url} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+					</div>
 				</TabPanel>
 			)}
 			{data.videoTips != "" && (
 				<TabPanel value={value} index={2} dir={theme.direction}>
-					<iframe src={"https://player.vimeo.com/video/"+data.videoTips} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+					<div position="fixed" className={classes.video}>
+						<iframe position="fixed" src={"https://player.vimeo.com/video/"+tipsDic[data.videoTips].url} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+					</div>
 				</TabPanel>
 			)}
-			<TabPanel value={value} index={2} dir={theme.direction}>
-				<iframe src={"https://player.vimeo.com/video/"+data.videoTips} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-			</TabPanel>
 
 			<div className={styles.nav}>
 				<div
@@ -260,12 +266,12 @@ export default function Recipe() {
 							variant="fullWidth"
 							aria-label="full width tabs example"
 						>
-							<Tab label="Recipe" {...a11yProps(0)} />
+							<Tab label={"Recipe: " + data.nameOfDish} {...a11yProps(0)} />
 							{data.videoSkills != "" && (
-								<Tab label="Skill" {...a11yProps(1)} />
+								<Tab label={"Skill: " + skillsDic[data.videoSkills].skillName} {...a11yProps(1)} />
 							)}
 							{data.videoTips != "" && (
-								<Tab label="Tip" {...a11yProps(2)} />
+								<Tab label={"Tip: " + tipsDic[data.videoTips].tipName}  {...a11yProps(2)} />
 							)}
 						</Tabs>
 					</AppBar>

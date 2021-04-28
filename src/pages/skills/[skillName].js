@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "5vh"
   },
   video: {
-    marginTop: "12vh",
+    marginTop: "3vh",
     marginBottom: "3vh"
   }
 }));
@@ -98,6 +98,7 @@ export default function Skill() {
   }
     return (
       <div className={classes.root}>
+          <h1 align="center">{data.skillName}</h1>
           <div position="fixed" className={classes.video}>
                 <iframe position="fixed" src={"https://player.vimeo.com/video/"+data.url} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
           </div>

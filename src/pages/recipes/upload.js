@@ -74,8 +74,6 @@ const fetcher = async (...args) => {
 const UploadForm = () => {
 	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
     const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
-	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
-    const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const theme = ui.useTheme();
 
@@ -144,8 +142,8 @@ const UploadForm = () => {
 			recipeImgs: uploadedRecipeImgs,
 			nutritionalImgs: uploadedNutritionalImgs,
 			dateUploaded: Date.now(),
-			videoSkills: skillsDic[skill].url,
-			videoTips: tipsDic[tip].url,
+			videoSkills: skill,
+			videoTips: tip,
 			numRatings: 1,
 			avgRating: 5,
 		};
@@ -219,8 +217,6 @@ const UploadForm = () => {
         const ref = db.collection('skills').doc();
         const id = ref.id;
         const name = skillName;
-        // const link = videoSkill;
-        // const videoUrl = "https://player.vimeo.com/video/"
         var uploadedImages = Object.values(imagesSkill);
 
         firebase.firestore().collection('skills').doc(id).set({
@@ -269,8 +265,6 @@ const UploadForm = () => {
         const ref = db.collection('tips').doc();
         const id = ref.id;
         const name = tipName;
-        // const link = videoTip;
-        // const videoUrl = "https://player.vimeo.com/video/"
         var uploadedImages = Object.values(imagesTip);
 
         firebase.firestore().collection('tips').doc(id).set({
@@ -310,10 +304,6 @@ const UploadForm = () => {
 		return "Loading skills...";
 	} else if (!tips) {
 		return "Loading tips...";
-	} else if (!skillsDic) {
-		return "Loading skillsDic...";
-	} else if (!tipsDic) {
-		return "Loading tipsDic...";
 	}
 
 	return (

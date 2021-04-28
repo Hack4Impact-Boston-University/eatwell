@@ -219,27 +219,22 @@ export default function Admin() {
   };
 
   // ---------------------- 0: ADMIN MANAGE USERS ----------------------
-
   // edit user role
   const [openRole, setOpenRole] = React.useState(false);
   const [role, setRole] = React.useState("");
   const [prevRole, setPrevRole] = React.useState("");
-
   const handleChangeRole = (event) => {
     setRole(event.target.value || "");
   };
-
   const handleClickOpenRole = (currentUser, prevRole) => {
     setOpenRole(true);
     setCurrentUser(currentUser);
     setPrevRole(prevRole);
   };
-
   const handleCloseRole = () => {
     setOpenRole(false);
     setRole("");
   };
-
   const handleSubmitRole = (currentUser, currentUserRole) => {
     setRole(currentUserRole);
     db.collection("users").doc(currentUser).update({ role: currentUserRole });
@@ -250,28 +245,23 @@ export default function Admin() {
   // edit user program
   const [openProgram, setOpenProgram] = React.useState(false);
   const [program, setProgram] = React.useState("");
-
   const handleChangeProgram = (event) => {
     setProgram(event.target.value || "");
   };
-
   const handleClickOpenProgram = (currentUser,prev) => {
     setProgram(prev)
     setOpenProgram(true);
     setCurrentUser(currentUser);
     // setPrevProgram(prev)
   };
-
   const handleCloseProgram = () => {
     setProgram("")
     setOpenProgram(false);
   };
-
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
-
-    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
-      programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
-      db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
+  if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
+    programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
+    db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
       setProgramsDic(programsDic)
     }
     db.collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
@@ -283,16 +273,13 @@ export default function Admin() {
 
   // delete user
   const [openDeleteUser, setOpenDeleteUser] = React.useState(false);
-
   const handleClickOpenDeleteUser = (currentUser) => {
     setOpenDeleteUser(true);
     setCurrentUser(currentUser);
   };
-
   const handleCloseDeleteUser = () => {
     setOpenDeleteUser(false);
   };
-
   const handleSubmitDeleteUser = () => {
     db.collection("users").doc(currentUser).delete();
     setOpenDeleteUser(false);
@@ -316,7 +303,6 @@ export default function Admin() {
   const [viewCoverImages, setViewCoverImages] = React.useState([]);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
-
   useEffect(() => {
     let date = new Date(Date.now());
     date.setMonth((date.getMonth() + 1) % 12);
@@ -334,22 +320,6 @@ export default function Admin() {
     },
   }))(TableCell);
 
-  function createData(id, name, date) {
-    return { id, name, date };
-  }
-
-  function setRowsFunc(program) {
-    var recipeslist = program["programRecipes"];
-    var temp = [];
-    Object.keys(recipeslist).forEach(function(key) {
-      var id = recipesDic[key].id;
-      var name = recipesDic[key].nameOfDish;
-      var date = recipeslist[key];
-      temp.push(createData(id, name, date))
-    });
-    setRows(temp);
-  }
-  
   const StyledTableRow = withStyles((theme) => ({
     root: {
       '&:nth-of-type(odd)': {
@@ -383,6 +353,38 @@ export default function Admin() {
     .slick-next:before, .slick-prev:before {
         color: #000;
     }`
+  const getDateString = timestamp => {
+    let date = new Date(timestamp);
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    month = (month < 10 ? "0" : "") + month;
+    day = (day < 10 ? "0" : "") + day;
+    let str = date.getFullYear() + "-" + month + "-" + day;
+    return str;
+  }
+  const getTimeStamp = datestring => {
+    let date = new Date();
+    let args = datestring.split("-");
+    date.setFullYear(parseInt(args[0]));
+    date.setMonth(parseInt(args[1]) - 1);
+    date.setDate(parseInt(args[2]));
+    return date.getTime();
+  }
+
+  function createData(id, name, date) {
+    return { id, name, date };
+  }
+  function setRowsFunc(program) {
+    var recipeslist = program["programRecipes"];
+    var temp = [];
+    Object.keys(recipeslist).forEach(function(key) {
+      var id = recipesDic[key].id;
+      var name = recipesDic[key].nameOfDish;
+      var date = recipeslist[key];
+      temp.push(createData(id, name, date))
+    });
+    setRows(temp);
+  }
 
   const setSelectedProgram = (p) => {
     setSelectedProgramProgram(p)
@@ -396,39 +398,15 @@ export default function Admin() {
       }, 0)
     )
   }
-
-
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
   };
-
   const handleCloseAddProgram = () => {
     setAddedProgram('');
     setOpenAddProgram(false);
   };
 
-  const getDateString = timestamp => {
-    let date = new Date(timestamp);
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-  
-    month = (month < 10 ? "0" : "") + month;
-    day = (day < 10 ? "0" : "") + day;
-  
-    let str = date.getFullYear() + "-" + month + "-" + day;
-    return str;
-  }
-  
-  const getTimeStamp = datestring => {
-    let date = new Date();
-    let args = datestring.split("-");
-    date.setFullYear(parseInt(args[0]));
-    date.setMonth(parseInt(args[1]) - 1);
-    date.setDate(parseInt(args[2]));
-    return date.getTime();
-  }
-
-
+  // activation codes
   function generate(length) {
 		var result           = '';
 		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -438,7 +416,6 @@ export default function Admin() {
 		}
 		return result;
 	}
-
   function createCodes(name, num, id) {
     if(num > 500) {
       alert("Too many users, cannot write codes");
@@ -451,6 +428,48 @@ export default function Admin() {
       batch.set(db.collection('codes').doc(code), {programName: name, programID:id});
     }
     return batch.commit();
+  }
+  function addCodes() {
+    console.log(program);
+    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.programID)
+    .then(()=>{
+      setOpenAddCodes(false); 
+      setNumCodes('');
+      alert("Successfully added codes!")
+    }).catch((err) => alert(err))
+  }
+  function deleteCode(id) {
+    db.collection("codes").doc(id).delete().then(() => {
+      alert("Successfully delete code!")
+    }).catch((err) => alert(err))
+  }
+  function getRandom(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandom: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+  function deleteCodes() {
+    if(numCodes > numProgramCodes) {
+      alert("There are only " + numProgramCodes + " codes!");
+    }
+    let delCodes = getRandom(codes, numCodes);
+    var batch = db.batch();
+    delCodes.forEach((code) => {
+      batch.delete(db.collection("codes").doc(code?.id))
+    })
+    batch.commit().then(()=> {
+      setOpenDeleteCodes(false); 
+      setNumCodes('');
+      alert("Successfully deleted codes!")
+    }).catch((err) => alert(err))
   }
 
   const addProgram = () => {
@@ -475,70 +494,22 @@ export default function Admin() {
     });
   };
 
-  function addCodes() {
-    console.log(program);
-    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.programID)
-    .then(()=>{
-      setOpenAddCodes(false); 
-      setNumCodes('');
-      alert("Successfully added codes!")
-    }).catch((err) => alert(err))
-  }
-
-  function deleteCode(id) {
-    db.collection("codes").doc(id).delete().then(() => {
-      alert("Successfully delete code!")
-    }).catch((err) => alert(err))
-  }
-
-  function getRandom(arr, n) {
-    var result = new Array(n),
-        len = arr.length,
-        taken = new Array(len);
-    if (n > len)
-        throw new RangeError("getRandom: more elements taken than available");
-    while (n--) {
-        var x = Math.floor(Math.random() * len);
-        result[n] = arr[x in taken ? taken[x] : x];
-        taken[x] = --len in taken ? taken[len] : len;
-    }
-    return result;
-  }
-
-  function deleteCodes() {
-    if(numCodes > numProgramCodes) {
-      alert("There are only " + numProgramCodes + " codes!");
-    }
-    let delCodes = getRandom(codes, numCodes);
-    var batch = db.batch();
-    delCodes.forEach((code) => {
-      batch.delete(db.collection("codes").doc(code?.id))
-    })
-    batch.commit().then(()=> {
-      setOpenDeleteCodes(false); 
-      setNumCodes('');
-      alert("Successfully deleted codes!")
-    }).catch((err) => alert(err))
-  }
-
   const handleClickOpenDeleteProgram = (disabled) => {
     setOpenDeleteProgram(true);
   };
-
   const handleCloseDeleteProgram = () => {
     setOpenDeleteProgram(false);
   };
-
   const deleteProgram = () => {
     db.collection('programs').doc(selectedProgramProgram?.programID).delete()
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
 
+  // program recipes
   const [currentProgramRecipes, setCurrentProgramRecipes] = React.useState({});
   const [openEditProgramRecipes, setOpenEditProgramRecipes] = React.useState(false);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
-
   const handleClickOpenEditProgramRecipes = (programRecipesNow) => {
     setOpenEditProgramRecipes(true);
     var i;
@@ -554,16 +525,13 @@ export default function Admin() {
     setCurrentProgramRecipes(temp)
     setSelectedProgram(programRecipesNow)
   };
-
   const handleCloseEditProgramRecipes = () => {
     setCurrentProgramRecipes({})
     setOpenEditProgramRecipes(false);
   };
-
   const handleChangeEditProgramRecipes = (event) => {
     setProgramRecipes(event.target.value || "");
   };
-
   const handleSubmitEditProgramRecipes = () => {
     var i;
     var temp = {};
@@ -582,10 +550,10 @@ export default function Admin() {
     setCurrentProgramRecipes({})
   };
 
+  // program users
   const [currentProgramUsers, setCurrentProgramUsers] = React.useState([]);
   const [openEditProgramUsers, setOpenEditProgramUsers] = React.useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
-
   const handleClickOpenEditProgramUsers = (programUsersNow) => {
     setOpenEditProgramUsers(true);
     var i;
@@ -602,16 +570,13 @@ export default function Admin() {
     setSelectedUsers(originallySelected)
     setCurrentProgramUsers(temp)
   };
-
   const handleCloseEditProgramUsers = () => {
     setCurrentProgramUsers([])
     setOpenEditProgramUsers(false);
   };
-
   const handleChangeEditProgramUsers = (event) => {
     setProgramUsers(event.target.value || "");
   };
-
   const handleSubmitEditProgramUsers = () => {
     var i;
     var temp = [];
@@ -629,17 +594,14 @@ export default function Admin() {
   const [recipeID, setRecipeID] = React.useState("");
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
-  
   const handleClickOpenRecipeName = (currentRecipe) => {
     setRecipeName(currentRecipe.nameOfDish)
     setOpenRecipeName(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseRecipeName = () => {
     setOpenRecipeName(false);
   };
-
   const handleSubmitRecipeName = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({nameOfDish:recipeName, dateUploaded: uploadDate})
     alert("successfully edited recipe name!");
@@ -650,22 +612,55 @@ export default function Admin() {
   // edit recipe description
   const [recipeDescription, setRecipeDescription] = React.useState("");
   const [openRecipeDescription, setOpenRecipeDescription] = React.useState(false);
-
   const handleClickOpenRecipeDescription = (currentRecipe) => {
     setRecipeDescription(currentRecipe.description)
     setOpenRecipeDescription(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseRecipeDescription = () => {
     setOpenRecipeDescription(false);
   };
-
   const handleSubmitRecipeDescription = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({description:recipeDescription, dateUploaded: uploadDate})
     alert("successfully edited recipe description!");
     setRecipeDescription('');
     setOpenRecipeDescription(false);
+  };
+
+  // edit recipe ingredients / allergens
+  const [recipeDescriptionIngredients, setRecipeDescriptionIngredients] = React.useState("");
+  const [openRecipeDescriptionIngredients, setOpenRecipeDescriptionIngredients] = React.useState(false);
+  const handleClickOpenRecipeDescriptionIngredients = (currentRecipe) => {
+    setRecipeDescriptionIngredients(currentRecipe.descriptionIngredients)
+    setOpenRecipeDescriptionIngredients(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const handleCloseRecipeDescriptionIngredients = () => {
+    setOpenRecipeDescriptionIngredients(false);
+  };
+  const handleSubmitRecipeDescriptionIngredients = (currentRecipe) => {
+    db.collection('recipes').doc(currentRecipe.id).update({descriptionIngredients:recipeDescriptionIngredients, dateUploaded: uploadDate})
+    alert("successfully edited recipe ingredients / allergens!");
+    setRecipeDescriptionIngredients('');
+    setOpenRecipeDescriptionIngredients(false);
+  };
+
+  // edit recipe fact
+  const [recipeFact, setRecipeFact] = React.useState("");
+  const [openRecipeFact, setOpenRecipeFact] = React.useState(false);
+  const handleClickOpenRecipeFact = (currentRecipe) => {
+    setRecipeFact(currentRecipe.recipeFact)
+    setOpenRecipeFact(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const handleCloseRecipeFact = () => {
+    setOpenRecipeFact(false);
+  };
+  const handleSubmitRecipeFact = (currentRecipe) => {
+    db.collection('recipes').doc(currentRecipe.id).update({recipeFact:recipeFact, dateUploaded: uploadDate})
+    alert("successfully edited recipe fact!");
+    setRecipeFact('');
+    setOpenRecipeFact(false);
   };
 
   // edit recipe images
@@ -676,17 +671,14 @@ export default function Admin() {
     aspect: 4 / 3,
     width: '100'
   };
-
   const handleClickOpenRecipeImages = (currentRecipe) => {
     setRecipeImages(currentRecipe.images)
     setOpenRecipeImages(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseRecipeImages = () => {
     setOpenRecipeImages(false);
   };
-
   const handleSubmitRecipeImages = (currentRecipe) => {
     var i;
 		var uploadedImages = Object.values(recipeImages);
@@ -705,18 +697,15 @@ export default function Admin() {
   // view / edit recipe pdf
   const [recipeInstructionImages, setRecipeInstructionImages] = React.useState("");
   const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
-
   const handleClickOpenRecipePdf = (currentRecipe) => {
     setRecipeInstructionImages(currentRecipe.recipeImgs)
     console.log(recipeInstructionImages)
     setOpenRecipePdf(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseRecipePdf = () => {
     setOpenRecipePdf(false);
   };
-
   const handleSubmitRecipePdf = (currentRecipe) => {
     var i;
 		var uploadedRecipeImgs = Object.values(recipeInstructionImages);
@@ -734,6 +723,36 @@ export default function Admin() {
     alert("successfully edited recipe images!");
     setRecipeInstructionImages([]);
     setOpenRecipePdf(false);
+  };
+
+  // view / edit nutrition pdf
+  const [recipeNutritionImages, setRecipeNutritionImages] = React.useState("");
+  const [openRecipeNutrition, setOpenRecipeNutrition] = React.useState(false);
+  const handleClickOpenRecipeNutrition = (currentRecipe) => {
+    setRecipeNutritionImages(currentRecipe.nutritionalImgs)
+    setOpenRecipeNutrition(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const handleCloseRecipeNutrition = () => {
+    setOpenRecipeNutrition(false);
+  };
+  const handleSubmitRecipeNutrition = (currentRecipe) => {
+    var i;
+    var uploadedNutritionImgs = Object.values(recipeNutritionImages);
+    var uploadedRecipeNames = [];
+    var document = firebase.firestore().collection("recipes").doc();
+    for (i = 0; i < uploadedNutritionImgs.length; i++) {
+      uploadedRecipeNames.push(document.id + i + ".png");
+    }
+    db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionImgs, dateUploaded: uploadDate})
+    for (i = 0; i < uploadedNutritionImgs.length; i++) {
+      firebase.storage().ref().child(currentRecipe.id + i + ".png").putString(uploadedNutritionImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
+          complete: function () {},
+        });
+    }
+    alert("successfully edited nutritional image!");
+    setRecipeNutritionImages([]);
+    setOpenRecipeNutrition(false);
   };
 
   // edit recipe video
@@ -772,27 +791,32 @@ export default function Admin() {
   const [recipeSkills, setRecipeSkills] = React.useState("");
   const [openViewRecipeSkills, setOpenViewRecipeSkills] = React.useState(false);
   const [openRecipeSkills, setOpenRecipeSkills] = React.useState(false);
-
+  const [openSkill, setOpenSkill] = React.useState(false);
   const handleClickOpenViewRecipeSkills = (currentRecipe) => {
-    setRecipeSkills(currentRecipe.videoSkills)
+    setRecipeSkills(skillsDic[currentRecipe?.videoSkills]?.url)
     setOpenViewRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseViewRecipeSkills = () => {
     setOpenViewRecipeSkills(false);
   };
-  
   const handleClickOpenRecipeSkills = (currentRecipe) => {
-    setRecipeSkills(currentRecipe.videoSkills)
+    setRecipeSkills(skillsDic[currentRecipe?.videoSkills]?.url)
     setOpenRecipeSkills(true);
     setCurrentRecipe(currentRecipe);
   };
-
+  const handleCloseSkill = () => {
+    setOpenSkill(false);
+  };
+  const handleOpenSkill = () => {
+    setOpenSkill(true);
+  };
+  const handleChangeSkill = (event) => {
+    setRecipeSkills(event.target.value);
+  };
   const handleCloseRecipeSkills = () => {
     setOpenRecipeSkills(false);
   };
-
   const handleSubmitRecipeSkills = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({videoSkills:recipeSkills, dateUploaded: uploadDate})
     alert("successfully edited recipe skills!");
@@ -804,52 +828,55 @@ export default function Admin() {
   const [recipeTips, setRecipeTips] = React.useState("");
   const [openViewRecipeTips, setOpenViewRecipeTips] = React.useState(false);
   const [openRecipeTips, setOpenRecipeTips] = React.useState(false);
-
+  const [openTip, setOpenTip] = React.useState(false);
   const handleClickOpenViewRecipeTips = (currentRecipe) => {
-    setRecipeTips(currentRecipe.videoTips)
+    setRecipeTips(tipsDic[currentRecipe?.videoTips]?.url);
     setOpenViewRecipeTips(true);
     setCurrentRecipe(currentRecipe);
   };
-
   const handleCloseViewRecipeTips = () => {
     setOpenViewRecipeTips(false);
   };
-  
   const handleClickOpenRecipeTips = (currentRecipe) => {
-    setRecipeTips(currentRecipe.videoTips)
+    setRecipeTips(tipsDic[currentRecipe?.videoTips]?.url);
     setOpenRecipeTips(true);
     setCurrentRecipe(currentRecipe);
   };
-
+  const handleCloseTip = () => {
+    setOpenTip(false);
+  };
+  const handleOpenTip = () => {
+    setOpenTip(true);
+  };
+  const handleChangeTip = (event) => {
+    setRecipeTips(event.target.value);
+  };
   const handleCloseRecipeTips = () => {
     setOpenRecipeTips(false);
   };
-
   const handleSubmitRecipeTips = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({videoTips:recipeTips, dateUploaded: uploadDate})
-    alert("successfully edited recipe skills!");
+    alert("successfully edited recipe tips!");
     setRecipeTips('');
     setOpenRecipeTips(false);
   };
 
   // delete recipe
   const [openDeleteRecipe, setOpenDeleteRecipe] = React.useState(false);
-
   const handleClickOpenDeleteRecipe = (currentRecipe) => {
     setRecipeID(currentRecipe);
     setOpenDeleteRecipe(true);
     setCurrentRecipe(recipesDic[currentRecipe].nameOfDish);
   };
-
   const handleCloseDeleteRecipe = () => {
     setOpenDeleteRecipe(false);
   };
-
   const handleSubmitDeleteRecipe = () => {
     db.collection("recipes").doc(recipeID).delete();
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
+
 
   // ---------------------- 3: ADMIN MANAGE SKILLS ----------------------
   // edit skill name
@@ -857,16 +884,15 @@ export default function Admin() {
   const [skillID, setSkillID] = React.useState("");
   const [openSkillName, setOpenSkillName] = React.useState(false);
   
+  // edit skill name
   const handleClickOpenSkillName = (currentSkill) => {
     setSkillName(currentSkill.skillName)
     setOpenSkillName(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleCloseSkillName = () => {
     setOpenSkillName(false);
   };
-
   const handleSubmitSkillName = (currentSkill) => {
     db.collection('skills').doc(currentSkill.skillID).update({skillName:skillName, dateUploaded: uploadDate})
     alert("successfully edited skill name!");
@@ -877,17 +903,14 @@ export default function Admin() {
   // edit skill description
   const [skillDescription, setSkillDescription] = React.useState("");
   const [openSkillDescription, setOpenSkillDescription] = React.useState(false);
-
   const handleClickOpenSkillDescription = (currentSkill) => {
     setSkillDescription(currentSkill.description)
     setOpenSkillDescription(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleCloseSkillDescription = () => {
     setOpenSkillDescription(false);
   };
-
   const handleSubmitSkillDescription = (currentSkill) => {
     db.collection('skills').doc(currentSkill.skillID).update({description:skillDescription, dateUploaded: uploadDate})
     alert("successfully edited skill description!");
@@ -898,23 +921,19 @@ export default function Admin() {
   // edit skill images
   const [skillImages, setSkillImages] = React.useState([]);
   const [openSkillImages, setOpenSkillImages] = React.useState(false);
-
   const handleClickOpenSkillImages = (currentSkill) => {
     setSkillImages(currentSkill.images)
     setOpenSkillImages(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleClickOpenViewSkillImages = (currentSkill) => {
     setViewSkillImages(skillsDic[currentSkill].images)
     setOpenSkillImages(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleCloseSkillImages = () => {
     setOpenSkillImages(false);
   };
-
   const handleSubmitSkillImages = (currentSkill) => {
     var uploadedImages = Object.values(skillImages);
     db.collection('skills').doc(currentSkill.skillID).update({images:uploadedImages, dateUploaded: uploadDate})
@@ -931,27 +950,22 @@ export default function Admin() {
   const [skillVideo, setSkillVideo] = React.useState("");
   const [openViewSkillVideo, setOpenViewSkillVideo] = React.useState(false);
   const [openSkillVideo, setOpenSkillVideo] = React.useState(false);
-
   const handleClickOpenViewSkillVideo = (currentSkill) => {
-    setSkillVideo(currentSkill.url)
+    setSkillVideo(currentSkill)
     setOpenViewSkillVideo(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleCloseViewSkillVideo = () => {
     setOpenViewSkillVideo(false);
   };
-  
   const handleClickOpenSkillVideo = (currentSkill) => {
-    setSkillVideo(currentSkill.url)
+    setSkillVideo(currentSkill)
     setOpenSkillVideo(true);
     setCurrentSkill(currentSkill);
   };
-
   const handleCloseSkillVideo = () => {
     setOpenSkillVideo(false);
   };
-
   const handleSubmitSkillVideo = (currentSkill) => {
     db.collection('skills').doc(currentSkill.skillID).update({url:skillVideo, dateUploaded: uploadDate})
     alert("successfully edited skill video!");
@@ -961,17 +975,14 @@ export default function Admin() {
   
   // delete recipe
   const [openDeleteSkill, setOpenDeleteSkill] = React.useState(false);
-
   const handleClickOpenDeleteSkill = (currentSkill) => {
     setSkillID(currentSkill);
     setOpenDeleteSkill(true);
     setCurrentSkill(skillsDic[currentSkill].skillName);
   };
-
   const handleCloseDeleteSkill = () => {
     setOpenDeleteSkill(false);
   };
-
   const handleSubmitDeleteSkill = () => {
     db.collection("skills").doc(skillID).delete();
     setOpenDeleteSkill(false);
@@ -985,16 +996,15 @@ export default function Admin() {
   const [tipID, setTipID] = React.useState("");
   const [openTipName, setOpenTipName] = React.useState(false);
   
+  // edit tip name
   const handleClickOpenTipName = (currentTip) => {
     setTipName(currentTip.tipName)
     setOpenTipName(true);
     setCurrentTip(currentTip);
   };
-
   const handleCloseTipName = () => {
     setOpenTipName(false);
   };
-
   const handleSubmitTipName = (currentTip) => {
     db.collection('tips').doc(currentTip.tipID).update({tipName:tipName, dateUploaded: uploadDate})
     alert("successfully edited tip name!");
@@ -1005,17 +1015,14 @@ export default function Admin() {
   // edit tip description
   const [tipDescription, setTipDescription] = React.useState("");
   const [openTipDescription, setOpenTipDescription] = React.useState(false);
-
   const handleClickOpenTipDescription = (currentTip) => {
     setTipDescription(currentTip.description)
     setOpenTipDescription(true);
     setCurrentTip(currentTip);
   };
-
   const handleCloseTipDescription = () => {
     setOpenTipDescription(false);
   };
-
   const handleSubmitTipDescription = (currentTip) => {
     db.collection('tips').doc(currentTip.tipID).update({description:tipDescription, dateUploaded: uploadDate})
     alert("successfully edited tip description!");
@@ -1026,23 +1033,19 @@ export default function Admin() {
   // edit tip images
   const [tipImages, setTipImages] = React.useState([]);
   const [openTipImages, setOpenTipImages] = React.useState(false);
-
   const handleClickOpenTipImages = (currentTip) => {
     setTipImages(currentTip.images)
     setOpenTipImages(true);
     setCurrentTip(currentTip);
   };
-
   const handleClickOpenViewTipImages = (currentTip) => {
     setViewTipImages(tipsDic[currentTip].images)
     setOpenTipImages(true);
     setCurrentTip(currentTip);
   };
-
   const handleCloseTipImages = () => {
     setOpenTipImages(false);
   };
-
   const handleSubmitTipImages = (currentTip) => {
     var uploadedImages = Object.values(tipImages);
     db.collection('tips').doc(currentTip.tipID).update({images:uploadedImages, dateUploaded: uploadDate})
@@ -1059,27 +1062,22 @@ export default function Admin() {
   const [tipVideo, setTipVideo] = React.useState("");
   const [openViewTipVideo, setOpenViewTipVideo] = React.useState(false);
   const [openTipVideo, setOpenTipVideo] = React.useState(false);
-
   const handleClickOpenViewTipVideo = (currentTip) => {
-    setTipVideo(currentTip.url)
+    setTipVideo(currentTip)
     setOpenViewTipVideo(true);
     setCurrentTip(currentTip);
   };
-
   const handleCloseViewTipVideo = () => {
     setOpenViewTipVideo(false);
   };
-  
   const handleClickOpenTipVideo = (currentTip) => {
-    setTipVideo(currentTip.url)
+    setTipVideo(currentTip)
     setOpenTipVideo(true);
     setCurrentTip(currentTip);
   };
-
   const handleCloseTipVideo = () => {
     setOpenTipVideo(false);
   };
-
   const handleSubmitTipVideo = (currentTip) => {
     db.collection('tips').doc(currentTip.id).update({url:tipVideo, dateUploaded: uploadDate})
     alert("successfully edited tip video!");
@@ -1089,17 +1087,14 @@ export default function Admin() {
   
   // delete tip
   const [openDeleteTip, setOpenDeleteTip] = React.useState(false);
-
   const handleClickOpenDeleteTip = (currentTip) => {
     setTipID(currentTip);
     setOpenDeleteTip(true);
     setCurrentTip(tipsDic[currentTip].tipName);
   };
-
   const handleCloseDeleteTip = () => {
     setOpenDeleteTip(false);
   };
-
   const handleSubmitDeleteTip = () => {
     db.collection("tips").doc(tipID).delete();
     setOpenDeleteTip(false);
@@ -1174,14 +1169,14 @@ export default function Admin() {
     });
   };
 
-  const handleChangeSkill = (e) => {
+  const handleChangeSearchSkill = (e) => {
     setSearchSkill(e.target.value);
     const filteredNames = recipesList.filter((x) => {
       x?.includes(e.target.value);
     });
   };
 
-  const handleChangeTip = (e) => {
+  const handleChangeSearchTip = (e) => {
     setSearchTips(e.target.value);
     const filteredNames = recipesList.filter((x) => {
       x?.includes(e.target.value);
@@ -1594,6 +1589,8 @@ export default function Admin() {
                           {/* ----------------------- edit recipe name, description ----------------------- */}
                           <li>Name of recipe: {value?.nameOfDish} <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton></li>
                           <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
+                          <li>Ingredients / Allergens: {value?.descriptionIngredients} <IconButton onClick={() => handleClickOpenRecipeDescriptionIngredients(value)}> <EditIcon/> </IconButton></li>
+                          <li>Recipe Fact: {value?.recipeFact} <IconButton onClick={() => handleClickOpenRecipeFact(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
                           <li>Rating: {value?.avgRating}</li>
@@ -1601,6 +1598,7 @@ export default function Admin() {
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe images <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton></li>
+                          <li>Nutrition images <IconButton onClick={() => handleClickOpenRecipeNutrition(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe video
                             <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenRecipeVideo(value)}> <EditIcon/> </IconButton>
@@ -1650,6 +1648,30 @@ export default function Admin() {
             </Dialog>
           )}
           {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeDescriptionIngredients} onClose={handleCloseRecipeDescriptionIngredients}>
+              <DialogTitle>Edit Recipe Ingredients / Allergens</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={recipeDescriptionIngredients} label="Edit Recipe Ingredients / Allergens" multiline
+                      onChange={(e) => setRecipeDescriptionIngredients(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeDescriptionIngredients} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeDescriptionIngredients(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeFact} onClose={handleCloseRecipeFact}>
+              <DialogTitle>Edit Recipe Fact</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={recipeFact} label="Edit Recipe Fact" multiline
+                      onChange={(e) => setRecipeFact(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseRecipeFact} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeFact(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeImages} onClose={handleCloseRecipeImages}>
               <DialogTitle>Edit Cover Images</DialogTitle>
               <DialogContent>
@@ -1664,14 +1686,27 @@ export default function Admin() {
           )}
           {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
-              <DialogTitle>Edit Recipe Images</DialogTitle>
+              <DialogTitle>Edit Recipe Instructions</DialogTitle>
               <DialogContent>
                   <MultiImageInput
                     images={recipeInstructionImages} setImages={setRecipeInstructionImages}
-                    cropConfig={{ crop, ruleOfThirds: true }} inputId  max={3}
+                    cropConfig={{crop: {unit: "%", aspect: 3 / 5, height: "100" }}} inputId  max={3}
                   />
                   <Button onClick={handleCloseRecipePdf} color="primary"> Cancel </Button>
                   <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeNutrition} onClose={handleCloseRecipeNutrition}>
+              <DialogTitle>Edit Nutritional Facts</DialogTitle>
+              <DialogContent>
+                  <MultiImageInput
+                    images={recipeNutritionImages} setImages={setRecipeNutritionImages}
+                    cropConfig={{crop: {unit: "%", aspect: 3 / 5, height: "100" }}} inputId  max={1}
+                  />
+                  <Button onClick={handleCloseRecipeNutrition} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}
@@ -1704,7 +1739,7 @@ export default function Admin() {
               <DialogTitle>View Recipe Skills</DialogTitle>
               <DialogContent>
                   {(recipeSkills != "") ? 
-                    <iframe position="fixed" src={recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    <iframe position="fixed" src={"https://player.vimeo.com/video/"+recipeSkills} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
                     : <h4>No recipe skills to display</h4>
                   }
                   <Button onClick={handleCloseViewRecipeSkills} color="primary"> Back </Button>
@@ -1715,11 +1750,28 @@ export default function Admin() {
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeSkills} onClose={handleCloseRecipeSkills}>
               <DialogTitle>Edit Recipe Skills</DialogTitle>
               <DialogContent>
-                  <TextField
-                      required value={recipeSkills} label="Vimeo Skills Video ID"
-                      onChange={(e) => setRecipeSkills(e.target.value)} fullWidth variant="outlined"/>
-                  <Button onClick={handleCloseRecipeSkills} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitRecipeSkills(currentRecipe)} color="primary"> Confirm </Button>
+                <Grid item xs={12} sm={6}>
+                <InputLabel id="demo-simple-select-label">Skill: {skillsDic[currentRecipe["videoSkills"]]?.skillName}</InputLabel>
+                <Select
+                    autoWidth="false"
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
+                    open={openSkill}
+                    onClose={handleCloseSkill}
+                    onOpen={handleOpenSkill}
+                    value={recipeSkills}
+                    onChange={handleChangeSkill}
+                    >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {skills.map((skillss) =>
+                        <MenuItem value={skillss["skillID"]}> {skillss["skillName"]} </MenuItem>)
+                    }
+                </Select>
+                </Grid>
+                <Button onClick={handleCloseRecipeSkills} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitRecipeSkills(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}
@@ -1739,11 +1791,28 @@ export default function Admin() {
             <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeTips} onClose={handleCloseRecipeTips}>
               <DialogTitle>Edit Recipe Tips</DialogTitle>
               <DialogContent>
-                  <TextField
-                      required value={recipeTips} label="Vimeo Tips Video ID"
-                      onChange={(e) => setRecipeTips(e.target.value)} fullWidth variant="outlined"/>
-                  <Button onClick={handleCloseRecipeTips} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitRecipeTips(currentRecipe)} color="primary"> Confirm </Button>
+                <Grid item xs={12} sm={6}>
+                <InputLabel id="demo-simple-select-label">Tip: {tipsDic[currentRecipe["videoTips"]]?.tipName}</InputLabel>
+                <Select
+                    autoWidth="false"
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
+                    open={openTip}
+                    onClose={handleCloseTip}
+                    onOpen={handleOpenTip}
+                    value={recipeTips}
+                    onChange={handleChangeTip}
+                    >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {tips.map((tipss) =>
+                        <MenuItem value={tipss["tipID"]}> {tipss["tipName"]} </MenuItem>)
+                    }
+                </Select>
+                </Grid>
+                <Button onClick={handleCloseRecipeTips} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitRecipeTips(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}
@@ -1762,7 +1831,7 @@ export default function Admin() {
         <TabPanel value={value} index={3} dir={theme.direction}>
         <Grid container spacing={3}>
             <Grid item sm={5}>
-              <TextField label="search skill" value={searchRecipe} onChange={handleChangeSkill}/>
+              <TextField label="search skill" value={searchRecipe} onChange={handleChangeSearchSkill}/>
 
               {skills.map((value) => {
                 if (value["skillName"]?.includes(searchSkill) || value["skillName"].toLowerCase()?.includes(searchSkill)) {
@@ -1867,7 +1936,7 @@ export default function Admin() {
         <TabPanel value={value} index={4} dir={theme.direction}>
         <Grid container spacing={3}>
             <Grid item sm={5}>
-              <TextField label="search tip" value={searchTip} onChange={handleChangeTip}/>
+              <TextField label="search tip" value={searchTip} onChange={handleChangeSearchTip}/>
               {tips.map((value) => {
                 if (value["tipName"]?.includes(searchTip) || value["tipName"].toLowerCase()?.includes(searchTip)) {
                   return (
