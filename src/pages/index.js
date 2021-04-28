@@ -88,12 +88,12 @@ const Index = () => {
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
 
-  if (!recipes || !recipesDic || !programsDic || !user ) {
-		return "Loading...";
-	}
+  // if (!recipes || !recipesDic || !programsDic || !user ) {
+	// 	return "Loading...";
+	// }
 
   const recipesUser = [];
-	if (!user.program == "") {
+	if (!user?.program == "") {
 		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
 		if (_.isEqual(user?.role, "user")) {
 			if (!_.isEqual(user.program, "")) {
@@ -129,7 +129,7 @@ const Index = () => {
             <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
             <h4 className={styles.title}>
-              Welcome to EatWell, {user.firstname}!
+              Welcome to EatWell, {user?.firstname}!
             </h4>
 
             {!user && 
@@ -185,7 +185,7 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
-      {user.role == "admin" ? (
+      {user?.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
 					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
@@ -208,7 +208,7 @@ const Index = () => {
 				)
 			) : !_.isEqual(recipesUser, []) ? (
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{recipesUser.map((obj, idx) => {
+					{recipesUser?.map((obj, idx) => {
 						if (!obj.nameOfDish || !obj.id) {return;}
 							return (
 								<Grid item container xs={12} md={6} justify="center">
