@@ -390,7 +390,7 @@ export default function Admin() {
     setSelectedProgramProgram(p)
     setNumProgramCodes(
       codes.reduce((acc, code) => {
-        if(code?.programID == p?.programID) {
+        if(code?.program == p?.program) {
           acc++;
         }
         console.log(acc)
@@ -425,13 +425,13 @@ export default function Admin() {
     var index;
     for(index = 0; index < num; index++) {
       const code = generate(6);
-      batch.set(db.collection('codes').doc(code), {programName: name, programID:id});
+      batch.set(db.collection('codes').doc(code), {programName: name, program:id});
     }
     return batch.commit();
   }
   function addCodes() {
     console.log(program);
-    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.programID)
+    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.program)
     .then(()=>{
       setOpenAddCodes(false); 
       setNumCodes('');
@@ -480,7 +480,7 @@ export default function Admin() {
       return; 
     }
     console.log(addedProgramEndDate);
-    db.collection('programs').doc(id).set({programName:addedProgram,programID:id, programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
+    db.collection('programs').doc(id).set({programName:addedProgram,program:id, programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
     .then(() => {
       return createCodes(addedProgram, addedProgramNumUsers, id);
     }).then(() => {
@@ -501,7 +501,7 @@ export default function Admin() {
     setOpenDeleteProgram(false);
   };
   const deleteProgram = () => {
-    db.collection('programs').doc(selectedProgramProgram?.programID).delete()
+    db.collection('programs').doc(selectedProgramProgram?.program).delete()
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
@@ -537,15 +537,15 @@ export default function Admin() {
     var temp = {};
     for (i = 0; i < selectedRecipes.length; i++) {
       var key = selectedRecipes[i]?.value;
-      if (programsDic[selectedProgramProgram?.programID]?.programRecipes[key] !== undefined &&
-        programsDic[selectedProgramProgram?.programID]?.programRecipes[key] != 0) {
-        var value = programsDic[selectedProgramProgram?.programID]?.programRecipes[key];
+      if (programsDic[selectedProgramProgram?.program]?.programRecipes[key] !== undefined &&
+        programsDic[selectedProgramProgram?.program]?.programRecipes[key] != 0) {
+        var value = programsDic[selectedProgramProgram?.program]?.programRecipes[key];
         temp[key] = value;
       } else {
         temp[key] = 0
       }
     }
-    db.collection("programs").doc(selectedProgramProgram?.programID).update({ programRecipes: temp });
+    db.collection("programs").doc(selectedProgramProgram?.program).update({ programRecipes: temp });
     setOpenEditProgramRecipes(false);
     setCurrentProgramRecipes({})
   };
@@ -583,7 +583,7 @@ export default function Admin() {
     for (i = 0; i < selectedUsers.length; i++) {
       temp.push(selectedUsers[i]?.value)
     }
-    db.collection("programs").doc(selectedProgramProgram?.programID).update({ programUsers: temp });
+    db.collection("programs").doc(selectedProgramProgram?.program).update({ programUsers: temp });
     setOpenEditProgramUsers(false);
     setCurrentProgramUsers([])
   };
@@ -1257,7 +1257,7 @@ export default function Admin() {
                   <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
                   <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
                     {programs.map((programss) =>
-                      <MenuItem value={programss["programID"]}> {programss["programName"]} </MenuItem>)
+                      <MenuItem value={programss["program"]}> {programss["programName"]} </MenuItem>)
                     }
                   </Select>
                 </FormControl>
@@ -1366,12 +1366,12 @@ export default function Admin() {
                               <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
                               <StyledTableCell align="left">
                                 <TextField
-                                  id="date" label="Date" type="date" defaultValue={programsDic[selectedProgramProgram?.programID]?.programRecipes[row.id]}
+                                  id="date" label="Date" type="date" defaultValue={programsDic[selectedProgramProgram?.program]?.programRecipes[row.id]}
                                   className={classes.textField} InputLabelProps={{shrink: true,}}
                                   onChange={(e) => {
-                                    var dic = programsDic[selectedProgramProgram?.programID]?.programRecipes
+                                    var dic = programsDic[selectedProgramProgram?.program]?.programRecipes
                                     dic[row.id] = e.target.value;
-                                    db.collection('programs').doc(selectedProgramProgram?.programID).update({programRecipes: dic})
+                                    db.collection('programs').doc(selectedProgramProgram?.program).update({programRecipes: dic})
                                   }
                                   }
                                 />
@@ -1439,7 +1439,7 @@ export default function Admin() {
                       <Paper style={{maxHeight: 260, overflow: 'auto'}}>
                         <List>
                           {codes.map((code) => {
-                          if(code?.programID == selectedProgramProgram?.programID) {
+                          if(code?.program == selectedProgramProgram?.program) {
                             return (
                               <ListItem>
                                 <ListItemAvatar>
