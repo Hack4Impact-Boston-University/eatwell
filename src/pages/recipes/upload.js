@@ -73,22 +73,6 @@ const fetcher = async (...args) => {
 const UploadForm = () => {
 	const [value, setValue] = React.useState(0);
 	const theme = ui.useTheme();
-	const [recipeName, setRecipeName] = useState("");
-	const [videoID, setVideoID] = useState("");
-	const [recipeImg, setRecipeImg] = useState({});
-	const [description, setDescription] = useState("");
-	const [videoSkill, setVideoSkill] = useState('')
-    const [skillName, setSkillName] = useState('')
-    const [tipName, setTipName] = useState('')
-    const [videoTip, setVideoTip] = useState('')
-	const [images, setImages] = useState({});
-	const [nutritionalImgs, setNutritionalImgs] = useState({});
-	const [descriptionIngredients, setDescriptionIngredients] = useState("");
-	const [recipeFact, setRecipeFact] = useState("");
-	const [openConfirm, setOpenConfirm] = React.useState(false);
-	var uploadedRecipeImgs = [];
-	var uploadedImages = [];
-	var uploadedNutritionalImgs = [];
 
 	const handleChangeToggle = (event, newValue) => {
         setValue(newValue);
@@ -115,6 +99,19 @@ const UploadForm = () => {
 	};
 
 	// recipe
+	const [recipeName, setRecipeName] = useState("");
+	const [videoID, setVideoID] = useState("");
+	const [recipeImg, setRecipeImg] = useState({});
+	const [description, setDescription] = useState("");
+	const [images, setImages] = useState({});
+	const [nutritionalImgs, setNutritionalImgs] = useState({});
+	const [descriptionIngredients, setDescriptionIngredients] = useState("");
+	const [recipeFact, setRecipeFact] = useState("");
+	const [openConfirm, setOpenConfirm] = React.useState(false);
+	var uploadedRecipeImgs = [];
+	var uploadedImages = [];
+	var uploadedNutritionalImgs = [];
+
 	function upload() {
 		var recipe = recipeName.toLowerCase();
 		recipe = recipe.replace(/ /g, "_");
@@ -190,6 +187,8 @@ const UploadForm = () => {
 	// skill
     const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
     const [skill, setSkill] = React.useState('');
+    const [skillName, setSkillName] = useState('')
+	const [videoSkill, setVideoSkill] = useState('')
     const [openSkill, setOpenSkill] = React.useState(false);
     const [descriptionSkill, setDescriptionSkill] = useState('')
     const [imagesSkill, setImagesSkill] = useState({});
@@ -239,6 +238,8 @@ const UploadForm = () => {
     // tip
     const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
     const [tip, setTip] = React.useState('');
+	const [tipName, setTipName] = useState('')
+    const [videoTip, setVideoTip] = useState('')
     const [openTip, setOpenTip] = React.useState(false);
     const [descriptionTip, setDescriptionTip] = useState('')
     const [imagesTip, setImagesTip] = useState({});
@@ -394,7 +395,7 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={descriptionIngredients}
-							label="Ingredients / Allergens"
+							label="Ingredients / Allergens *"
 							multiline
 							onChange={(e) => setDescriptionIngredients(e.target.value)}
 							fullWidth
@@ -404,7 +405,7 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={recipeFact}
-							label="Recipe Fact"
+							label="Recipe Fact *"
 							multiline
 							onChange={(e) => setRecipeFact(e.target.value)}
 							fullWidth
@@ -469,12 +470,8 @@ const UploadForm = () => {
 
 					<ui.Grid container item justify="center">
 						<ui.Grid item sm={10} xs={12}>
-							<ui.Button
-								variant="outlined"
-								fullWidth
-								onClick={() => handleClickOpenConfirm()}
-							>
-								Upload
+							<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+								UPLOAD
 							</ui.Button>
 						</ui.Grid>
 						{recipeName == "" ||
@@ -563,9 +560,47 @@ const UploadForm = () => {
                                 max = {1}
                             />
                         </ui.Grid>
-                        <ui.Button onClick={() => handleSubmitSkill()} variant="contained" color="primary" disableElevation>
-                            Submit Skill
-                        </ui.Button>
+						<ui.Grid container item justify="center">
+							<ui.Grid item sm={10} xs={12}>
+								<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+									Submit Skill
+								</ui.Button>
+							</ui.Grid>
+							{skillName == "" ||
+							videoSkill == "" ||
+							skillImages == [] ? (
+								<ui.Dialog
+									disableBackdropClick
+									disableEscapeKeyDown
+									open={openConfirm}
+									onClose={handleCloseConfirm}
+								>
+									<ui.DialogActions>
+										<h4>Please fill in all the required information</h4>
+										<ui.Button onClick={handleCloseConfirm} color="primary">
+											Back
+										</ui.Button>
+									</ui.DialogActions>
+								</ui.Dialog>
+							) : (
+								<ui.Dialog
+									disableBackdropClick
+									disableEscapeKeyDown
+									open={openConfirm}
+									onClose={handleCloseConfirm}
+								>
+									<ui.DialogActions>
+										<h4>Data ready to be stored!</h4>
+										<ui.Button onClick={handleCloseConfirm} color="primary">
+											Cancel
+										</ui.Button>
+										<ui.Button onClick={() => handleSubmitSkill()} color="primary">
+											Confirm
+										</ui.Button>
+									</ui.DialogActions>
+								</ui.Dialog>
+							)}
+						</ui.Grid>
                     </ui.Grid>
                 </TabPanel>
 
@@ -613,9 +648,47 @@ const UploadForm = () => {
                                 max = {1}
                             />
                         </ui.Grid>
-                        <ui.Button onClick={() => handleSubmitTip()} variant="contained" color="primary" disableElevation>
-                            Submit Tip 
-                        </ui.Button>
+                        <ui.Grid container item justify="center">
+							<ui.Grid item sm={10} xs={12}>
+								<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+									Submit Tip
+								</ui.Button>
+							</ui.Grid>
+							{tipName == "" ||
+							videoTip == "" ||
+							tipImages == [] ? (
+								<ui.Dialog
+									disableBackdropClick
+									disableEscapeKeyDown
+									open={openConfirm}
+									onClose={handleCloseConfirm}
+								>
+									<ui.DialogActions>
+										<h4>Please fill in all the required information</h4>
+										<ui.Button onClick={handleCloseConfirm} color="primary">
+											Back
+										</ui.Button>
+									</ui.DialogActions>
+								</ui.Dialog>
+							) : (
+								<ui.Dialog
+									disableBackdropClick
+									disableEscapeKeyDown
+									open={openConfirm}
+									onClose={handleCloseConfirm}
+								>
+									<ui.DialogActions>
+										<h4>Data ready to be stored!</h4>
+										<ui.Button onClick={handleCloseConfirm} color="primary">
+											Cancel
+										</ui.Button>
+										<ui.Button onClick={() => handleSubmitTip()} color="primary">
+											Confirm
+										</ui.Button>
+									</ui.DialogActions>
+								</ui.Dialog>
+							)}
+						</ui.Grid>
                     </ui.Grid>
                 </TabPanel>
             </SwipeableViews>
