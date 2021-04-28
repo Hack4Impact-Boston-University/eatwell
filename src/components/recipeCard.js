@@ -97,8 +97,10 @@ export default function RecipeCard({
 	onFavClick,
 	initNotes,
 	initRating,
+	isHome
 }) {
 	const classes = useStyles();
+	const [home] = React.useState(isHome);
 	const [obj, setObj] = React.useState(object);
 	const { user, upload } = useUser();
 	const [expanded, setExpanded] = React.useState(false);
@@ -244,6 +246,7 @@ export default function RecipeCard({
 	};
 	return (
 		<Grid item xs={10}>
+			{(home != true) ?
 			<Box pb={3} mr={0.5} ml={0.5}>
 				<ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
 					<div>
@@ -339,23 +342,14 @@ export default function RecipeCard({
 												</Typography>
 											</Grid>
 										</Grid>
-										<Grid
-											item
-											container
-											xs={6}
-											justify="center"
-											direction="column"
-											alignItems="center"
-										>
+										<Grid item container xs={6} justify="center" direction="column" alignItems="center">
 											<Grid item>
 												<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
 													Average: {Math.round(obj.avgRating * 100) / 100.0} / 5
 												</Typography>
 											</Grid>
 											<Grid item>
-												<Rating
-													defaultValue={0}
-													precision={0.5}
+												<Rating defaultValue={0} precision={0.5}
 													onChange={(e) => {
 														changeRating(e.target.value);
 													}}
@@ -496,51 +490,6 @@ export default function RecipeCard({
 											</Typography>
 										</Grid>
 									</Grid>
-
-
-									{/* <Grid container justify="center" style={{ minHeight: "180px", marginTop: "3vh", marginBottom: "1vh" }} spacing="10vw">
-										<Grid item xs={4} container spacing={3} direction="column" justify="center" alignItems="center">
-											<Grid item xs={12}>
-												<style>{cssstyle}</style>
-												<Slider {...settings}>
-													{Array.isArray(nutritionalImgs) &&
-														obj.nutritionalImgs.map((cell, index) => {
-															return (
-																<img
-																	className={classes.media}
-																	src={obj?.nutritionalImgs[index]}
-																/>
-															);
-														})}
-												</Slider>
-											</Grid>
-										</Grid>
-										<Grid item container xs={6} justify="center" direction="column" alignItems="center">
-											<Grid container spacing={3}>
-												<Grid item xs={12}>
-													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
-														Ingredients / Allergens:
-													</Typography>
-													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
-														{obj?.descriptionIngredients}
-													</Typography>
-												</Grid>
-											</Grid>
-											<Grid container spacing={3}>
-												<Grid item xs={12}>
-													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 500,}}>
-														Recipe Facts:
-													</Typography>
-													<Typography style={{fontSize: "calc(min(4vw, 20px))",fontWeight: 300,}}>
-														{obj?.recipeFact}
-													</Typography>
-												</Grid>
-											</Grid>
-										</Grid>
-									</Grid> */}
-
-
-
 									<Grid item xs={12} style={{ minHeight: "180px", marginTop: "3vh", marginBottom: "1vh" }}>
 										<style>{cssstyle}</style>
 										{/* slider for the nutritional facts */}
@@ -593,140 +542,61 @@ export default function RecipeCard({
 					{/* END OF BACKSIDE OF CARD */}
 				</ReactCardFlip>
 			</Box>
+		:
+		<Box pb={3} mr={0.5} ml={0.5}>
+			<Card className={classes.card}>
+				<CardContent p={0}>
+					<Grid container item xs={10} alignItems="center" justify="center">
+						<Typography style={{fontSize: "calc(min(5vw, 35px))",fontWeight: 300,}}>
+							{obj.nameOfDish}
+						</Typography>
+					</Grid>
+					<Grid container justify="center">
+						{obj.images == undefined ? (
+							<Grid item xs={12}></Grid>
+						) : (
+							<Grid item xs={9}>
+								<link
+									rel="stylesheet"
+									type="text/css"
+									charset="UTF-8"
+									href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
+								/>
+								<link
+									rel="stylesheet"
+									type="text/css"
+									href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
+								/>
+								<style>{cssstyle}</style>
+
+								<Slider {...settings}>
+									{Array.isArray(imgList) &&
+										obj.images.map((cell, index) => {
+											return (
+												<img
+													className={classes.media}
+													src={obj.images[index]}
+												/>
+											);
+										})}
+								</Slider>
+							</Grid>
+						)}
+					</Grid>
+					<Grid container item xs={12} justify="center">
+						<Button
+							variant="contained"
+							color="secondary"
+							classes={{ label: classes.viewButtonLabel }}
+						>
+							<Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+						</Button>
+					</Grid>
+				</CardContent>
+			</Card>
+		</Box>}
 		</Grid>
 	);
-
-	// return (
-	//   <Grid item xs={12} >
-	//     <Box paddingBottom={5}>
-	//     <Card className={classes.card}>
-
-	//       <CardContent>
-	//         <Grid container>
-	//           <Grid item xs={1}>
-	//             <IconButton
-	//               onClick = {favButtonClick}
-	//               aria-label = "add to favorites"
-	//               color= {favorited? "secondary" : "default"}
-	//               className={classes.iconContainer}
-	//             >
-	//               <FavoriteIcon className={classes.icon}/>
-	//             </IconButton>
-	//           </Grid>
-	//           <Grid item xs={10} >
-	//             <Link href={obj.id}>
-	//               <Typography style={{ fontSize: "calc(min(5vw, 35px))", fontWeight: 300 }}  >
-	//                 {obj.nameOfDish}
-	//               </Typography>
-	//             </Link>
-	//           </Grid>
-	//           {
-	//             (obj.images == undefined) ?
-	//             <Grid item xs={6} >
-	//             </Grid> :
-	//             <Grid item xs={6} >
-	//             <ui.Box>
-	//               <img className={classes.media} src={obj.images[0]} />
-	//             </ui.Box>
-	//           </Grid>
-	//           }
-
-	//           <Grid item xs={2} spacing={0} style={{ paddingTop: 35 }}>
-	//             <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-	//               Date: {obj.dateUploaded}
-	//             </Typography>
-	//           </Grid>
-
-	//           <Grid item xs={2} style={{ paddingTop: 35 }}>
-	//             <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-	//               Average Rating: {obj.avgRating}
-	//             </Typography>
-	//             <Rating
-	//                 defaultValue={0}
-	//                 precision={0.5}
-	//                 onChange={(e) => {changeRating(e.target.value)}}
-	//                 value={rating}
-	//             />
-	//             {rating > 0 && <ClearIcon onClick={() => {changeRating(0)}} />}
-	//             {obj?.numRatings}
-	//           </Grid>
-
-	//           <Grid item xs={12} >
-	//             <ui.Divider light />
-	//           </Grid>
-
-	//           <Grid item xs={6} >
-	//             <Grid container spacing={3}  >
-	//               <Grid item xs={12} >
-	//                 <Typography style={{ fontSize: 20, fontWeight: 300 }}  >
-	//                   {obj.description}
-	//                 </Typography>
-	//               </Grid>
-	//               <Grid item xs={12} >
-	//                 <Button variant="contained" color="secondary">
-	//                   <Link href={obj.id}>
-	//                     Make this Recipe
-	//                   </Link>
-	//                 </Button>
-	//               </Grid>
-	//               <Grid item xs={6} >
-	//                 <Typography style={{ fontSize: 18, fontWeight: 300 }}  >
-	//                   Skills:
-	//                 </Typography>
-	//               </Grid>
-
-	//             </Grid>
-	//           </Grid>
-	//         </Grid>
-
-	//       </CardContent>
-
-	// <CardActions disableSpacing>
-	//   <Grid container spacing={0} direction="row" alignItems="center" justify="center">
-	//     <Typography style={{ fontSize: 18, fontWeight: 300 }}  >
-	//         Notes
-	//     </Typography>
-	//   </Grid>
-
-	//   <IconButton
-	//     className={clsx(classes.expand, {
-	//       [classes.expandOpen]: expanded,
-	//     })}
-	//     onClick={handleExpandClick}
-	//     aria-expanded={expanded}
-	//     aria-label="show more"
-	//   >
-	//     <ExpandMoreIcon />
-	//   </IconButton>
-	// </CardActions>
-
-	// <Collapse in={expanded} timeout="auto" unmountOnExit>
-
-	//   <Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '10vh' }}>
-	//     <Grid justify="center" direction="row" className={classes.formItems} container>
-	//       <TextField
-	//         value={note}
-	//         onChange={(e) => setNote(e.target.value)}
-	//         label="Note"
-	//         placeholder="Add a Note"
-	//       />
-	//       <Button color="primary" className={classes.btn} style={{marginTop: "1rem"}} onClick={() => handleSubmit()}>
-	//           Submit
-	//       </Button>
-	//     </Grid>
-	//     <Box m={5}>
-	//       {
-	//         notes.map((str, idx) => {
-	//           return (<Note str={str} setStr={(s) => setStr(s, idx)} deleteStr={() => deleteStr(idx)}> </Note>);
-	//         })
-	//       }
-	//     </Box>
-	//   </Grid>
-	// </Collapse>
-	//     </Card>
-	//     </Box>
-	//   </Grid>
-	//   )
 }
 
 const Note = ({ str, setStr, deleteStr }) => {

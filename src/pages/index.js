@@ -195,6 +195,7 @@ const Index = () => {
 										<RecipeCard
 											key={obj.id}
 											object={obj}
+                      isHome={true}
 										/>
 									</Grid>
 								);
