@@ -477,12 +477,13 @@ const UploadForm = () => {
 								Upload
 							</ui.Button>
 						</ui.Grid>
-						{/* {recipeName == "" || uploadedImages == [] || videoID == "" ? ( */}
 						{recipeName == "" ||
+						videoID == [] ||
+						descriptionIngredients == "" ||
+						recipeFact == "" ||
 						uploadedImages == [] ||
 						uploadedRecipeImgs == [] ||
-						uploadedNutritionalImgs == [] ||
-						videoID == "" ? (
+						uploadedNutritionalImgs == [] ? (
 							<ui.Dialog
 								disableBackdropClick
 								disableEscapeKeyDown
