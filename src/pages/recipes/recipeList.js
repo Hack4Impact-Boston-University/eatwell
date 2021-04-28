@@ -79,10 +79,7 @@ export default function RecipeReviewCard() {
 	const { user, upload } = useUser();
 	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-	const { data: programsDic } = useSWR(
-		`/api/programs/getAllProgramsDic`,
-		fetcher
-	);
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
 	let favRecipes = getFavsFromCookie() || {};
 	const recipeNotes = getNotesFromCookie() || {};
 	const recipeRatings = getRatingsFromCookie() || {};

@@ -19,6 +19,7 @@ import DraftsIcon from "@material-ui/icons/Send";
 import SwipeableViews from "react-swipeable-views";
 import PropTypes from "prop-types";
 import MultiImageInput from "react-multiple-image-input";
+import * as _ from 'underscore'
 
 import { getUserFromCookie } from "../../utils/cookies";
 import { useRouter } from "next/router";
@@ -71,6 +72,10 @@ const fetcher = async (...args) => {
 };
 
 const UploadForm = () => {
+	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
+    const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
+	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+    const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const theme = ui.useTheme();
 
@@ -101,9 +106,11 @@ const UploadForm = () => {
 	// recipe
 	const [recipeName, setRecipeName] = useState("");
 	const [videoID, setVideoID] = useState("");
-	const [recipeImg, setRecipeImg] = useState({});
 	const [description, setDescription] = useState("");
+	const [skill, setSkill] = React.useState('');
+	const [tip, setTip] = React.useState('');
 	const [images, setImages] = useState({});
+	const [recipeImgs, setRecipeImgs] = useState({});
 	const [nutritionalImgs, setNutritionalImgs] = useState({});
 	const [descriptionIngredients, setDescriptionIngredients] = useState("");
 	const [recipeFact, setRecipeFact] = useState("");
@@ -118,25 +125,27 @@ const UploadForm = () => {
 
 		var i;
 		var uploadedImages = Object.values(images);
-		var uploadedRecipeImgs = Object.values(recipeImg);
+		var uploadedRecipeImgs = Object.values(recipeImgs);
 		var uploadedNutritionalImgs = Object.values(nutritionalImgs);
-		var uploadedRecipeNames = [];
+		// var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
-		for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			uploadedRecipeNames.push(document.id + i + ".pdf");
-		}
+		// for (i = 0; i < uploadedRecipeImgs.length; i++) {
+		// 	uploadedRecipeNames.push(document.id + i + ".pdf");
+		// }
 		var data = {
 			id: document.id,
 			nameOfDish: recipeName,
 			description: description,
-			images: uploadedImages,
+			descriptionIngredients: descriptionIngredients,
+			recipeFact: recipeFact,
 			videoRecipe: videoID,
-			recipeImgs: uploadedRecipeNames,
+			images: uploadedImages,
+			recipeImgs: uploadedRecipeImgs,
 			nutritionalImgs: uploadedNutritionalImgs,
 			dateUploaded: Date.now(),
-			videoSkills: videoSkill,
-			videoTips: videoTip,
+			videoSkills: skillsDic[skill].url,
+			videoTips: tipsDic[tip].url,
 			numRatings: 1,
 			avgRating: 5,
 		};
@@ -175,18 +184,18 @@ const UploadForm = () => {
 
 		setRecipeName("");
 		setVideoID("");
-		setRecipeImg({});
+		setSkill("");
+		setTip("");
 		setDescription("");
-		setVideoSkill("");
-		setVideoTip("");
+		setDescriptionIngredients("");
+		setRecipeFact("");
 		setImages({});
+		setRecipeImgs({});
 		setNutritionalImgs({});
 		setOpenConfirm(false);
 	}
 
 	// skill
-    const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
-    const [skill, setSkill] = React.useState('');
     const [skillName, setSkillName] = useState('')
 	const [videoSkill, setVideoSkill] = useState('')
     const [openSkill, setOpenSkill] = React.useState(false);
@@ -210,14 +219,14 @@ const UploadForm = () => {
         const ref = db.collection('skills').doc();
         const id = ref.id;
         const name = skillName;
-        const link = videoSkill;
-        const videoUrl = "https://player.vimeo.com/video/"
+        // const link = videoSkill;
+        // const videoUrl = "https://player.vimeo.com/video/"
         var uploadedImages = Object.values(imagesSkill);
 
         firebase.firestore().collection('skills').doc(id).set({
             skillID:id,
             skillName:name,
-            url:videoUrl+link,
+            url:videoSkill,
             dateUploaded: Date.now(),
             images: uploadedImages,
             numRatings: 1,
@@ -233,11 +242,10 @@ const UploadForm = () => {
         setDescriptionSkill('');
         setImagesSkill({});
         setOpenSkill(false);
+		setOpenConfirm(false);
     };
 
     // tip
-    const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
-    const [tip, setTip] = React.useState('');
 	const [tipName, setTipName] = useState('')
     const [videoTip, setVideoTip] = useState('')
     const [openTip, setOpenTip] = React.useState(false);
@@ -261,14 +269,14 @@ const UploadForm = () => {
         const ref = db.collection('tips').doc();
         const id = ref.id;
         const name = tipName;
-        const link = videoTip;
-        const videoUrl = "https://player.vimeo.com/video/"
+        // const link = videoTip;
+        // const videoUrl = "https://player.vimeo.com/video/"
         var uploadedImages = Object.values(imagesTip);
 
         firebase.firestore().collection('tips').doc(id).set({
             tipID:id,
             tipName:name,
-            url:videoUrl+link,
+            url:videoTip,
             dateUploaded: Date.now(),
             images: uploadedImages,
             numRatings: 1,
@@ -284,6 +292,7 @@ const UploadForm = () => {
         setDescriptionTip('');
         setImagesTip({});
         setOpenTip(false);
+		setOpenConfirm(false);
     };
 
 	useEffect(() => {
@@ -296,13 +305,16 @@ const UploadForm = () => {
 		}
 	});
 
-	if (!skills || !tips) {
-        if (!skills) {
-          return "Loading skills...";
-        } else {
-          return "Loading tips...";
-        }
-    }
+	
+	if (!skills) {
+		return "Loading skills...";
+	} else if (!tips) {
+		return "Loading tips...";
+	} else if (!skillsDic) {
+		return "Loading skillsDic...";
+	} else if (!tipsDic) {
+		return "Loading tipsDic...";
+	}
 
 	return (
 		<div className={styles.container}>
@@ -315,8 +327,7 @@ const UploadForm = () => {
         ></div>
 		
 		<React.Fragment>
-			<SwipeableViews axis={theme.direction === "rtl" ? "x-reverse" : "x"} index={value} onChangeIndex={handleChangeIndex}>
-                <TabPanel value={value} index={0} dir={theme.direction}>
+            <TabPanel value={value} index={0} dir={theme.direction}>
 				<ui.Typography variant="h6" gutterBottom>
 					Upload New Recipe
 				</ui.Typography>
@@ -361,7 +372,6 @@ const UploadForm = () => {
                             }
                         </ui.Select>
                     </ui.Grid>        
-
                     <ui.Grid item xs={12} sm={6}>
                         <InputLabel id="demo-simple-select-label">Tip</InputLabel>
                         <ui.Select
@@ -412,12 +422,11 @@ const UploadForm = () => {
 							variant="outlined"
 						/>
 					</ui.Grid>
-
 					{/* upload recipe result image */}
 					<ui.Grid container item justify="center">
 						<ui.Grid item xs={12}>
 							<ui.Typography variant="h6" align="center" gutterBottom>
-								Upload what the food will look like!
+								Upload what the food will look like! (cover photo)
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
@@ -429,7 +438,6 @@ const UploadForm = () => {
 							/>
 						</ui.Grid>
 					</ui.Grid>
-
 					{/* upload recipe instructions image */}
 					<ui.Grid container item justify="center">
 						<ui.Grid item xs={12}>
@@ -439,14 +447,16 @@ const UploadForm = () => {
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
 							<MultiImageInput
-								images={recipeImg}
-								setImages={setRecipeImg}
-								allowCrop={false}
+								images={recipeImgs}
+								setImages={setRecipeImgs}
+								cropConfig={{
+									crop: {unit: "%",
+									aspect: 3 / 5,
+									height: "100" }}}
 								inputId
 							/>
 						</ui.Grid>
 					</ui.Grid>
-
 					{/* upload recipe result image */}
 					<ui.Grid container item justify="center">
 						<ui.Grid item xs={12}>
@@ -467,7 +477,6 @@ const UploadForm = () => {
 							/>
 						</ui.Grid>
 					</ui.Grid>
-
 					<ui.Grid container item justify="center">
 						<ui.Grid item sm={10} xs={12}>
 							<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
@@ -478,9 +487,9 @@ const UploadForm = () => {
 						videoID == [] ||
 						descriptionIngredients == "" ||
 						recipeFact == "" ||
-						uploadedImages == [] ||
-						uploadedRecipeImgs == [] ||
-						uploadedNutritionalImgs == [] ? (
+						_.isEmpty(images) ||
+						_.isEmpty(recipeImgs) ||
+						_.isEmpty(nutritionalImgs) ? (
 							<ui.Dialog
 								disableBackdropClick
 								disableEscapeKeyDown
@@ -514,184 +523,183 @@ const UploadForm = () => {
 						)}
 					</ui.Grid>
 				</ui.Grid>
-				</TabPanel>
+			</TabPanel>
 
-                <TabPanel value={value} index={1} dir={theme.direction}>
-                    <ui.Typography align="center" variant="h6" gutterBottom>
-                        Upload New Skill
-                    </ui.Typography>
-                    <ui.Grid container spacing={3}>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                required
-                                value={skillName}
-                                label="Skill name"
-                                onChange={(e) => setSkillName(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                required
-                                value={videoSkill}
-                                label="Vimeo Skill Video ID"
-                                onChange={(e) => setVideoSkill(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                value={descriptionSkill}
-                                label="Skill Description"
-                                multiline
-                                onChange={(e) => setDescriptionSkill(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <MultiImageInput
-                                images={imagesSkill}
-                                setImages={setImagesSkill}
-                                cropConfig={{ crop }}
-                                inputId
-                                max = {1}
-                            />
-                        </ui.Grid>
-						<ui.Grid container item justify="center">
-							<ui.Grid item sm={10} xs={12}>
-								<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
-									Submit Skill
-								</ui.Button>
-							</ui.Grid>
-							{skillName == "" ||
-							videoSkill == "" ||
-							skillImages == [] ? (
-								<ui.Dialog
-									disableBackdropClick
-									disableEscapeKeyDown
-									open={openConfirm}
-									onClose={handleCloseConfirm}
-								>
-									<ui.DialogActions>
-										<h4>Please fill in all the required information</h4>
-										<ui.Button onClick={handleCloseConfirm} color="primary">
-											Back
-										</ui.Button>
-									</ui.DialogActions>
-								</ui.Dialog>
-							) : (
-								<ui.Dialog
-									disableBackdropClick
-									disableEscapeKeyDown
-									open={openConfirm}
-									onClose={handleCloseConfirm}
-								>
-									<ui.DialogActions>
-										<h4>Data ready to be stored!</h4>
-										<ui.Button onClick={handleCloseConfirm} color="primary">
-											Cancel
-										</ui.Button>
-										<ui.Button onClick={() => handleSubmitSkill()} color="primary">
-											Confirm
-										</ui.Button>
-									</ui.DialogActions>
-								</ui.Dialog>
-							)}
+            <TabPanel value={value} index={1} dir={theme.direction}>
+				<ui.Typography align="center" variant="h6" gutterBottom>
+					Upload New Skill
+				</ui.Typography>
+				<ui.Grid container spacing={3}>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							required
+							value={skillName}
+							label="Skill name"
+							onChange={(e) => setSkillName(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							required
+							value={videoSkill}
+							label="Vimeo Skill Video ID"
+							onChange={(e) => setVideoSkill(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							value={descriptionSkill}
+							label="Skill Description"
+							multiline
+							onChange={(e) => setDescriptionSkill(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<MultiImageInput
+							images={imagesSkill}
+							setImages={setImagesSkill}
+							cropConfig={{ crop }}
+							inputId
+							max = {1}
+						/>
+					</ui.Grid>
+					<ui.Grid container item justify="center">
+						<ui.Grid item sm={10} xs={12}>
+							<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+								Submit Skill
+							</ui.Button>
 						</ui.Grid>
-                    </ui.Grid>
-                </TabPanel>
+						{skillName == "" ||
+						videoSkill == "" ||
+						_.isEmpty(imagesSkill) ? (
+							<ui.Dialog
+								disableBackdropClick
+								disableEscapeKeyDown
+								open={openConfirm}
+								onClose={handleCloseConfirm}
+							>
+								<ui.DialogActions>
+									<h4>Please fill in all the required information</h4>
+									<ui.Button onClick={handleCloseConfirm} color="primary">
+										Back
+									</ui.Button>
+								</ui.DialogActions>
+							</ui.Dialog>
+						) : (
+							<ui.Dialog
+								disableBackdropClick
+								disableEscapeKeyDown
+								open={openConfirm}
+								onClose={handleCloseConfirm}
+							>
+								<ui.DialogActions>
+									<h4>Data ready to be stored!</h4>
+									<ui.Button onClick={handleCloseConfirm} color="primary">
+										Cancel
+									</ui.Button>
+									<ui.Button onClick={() => handleSubmitSkill()} color="primary">
+										Confirm
+									</ui.Button>
+								</ui.DialogActions>
+							</ui.Dialog>
+						)}
+					</ui.Grid>
+				</ui.Grid>
+			</TabPanel>
 
-                <TabPanel value={value} index={2} dir={theme.direction}>
-                    <ui.Typography align="center" variant="h6" gutterBottom>
-                        Upload New Tip
-                    </ui.Typography>
-                    <ui.Grid container spacing={3}>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                required
-                                value={tipName}
-                                label="Tip name"
-                                onChange={(e) => setTipName(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                required
-                                value={videoTip}
-                                label="Vimeo Tip Video ID"
-                                onChange={(e) => setVideoTip(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <ui.TextField
-                                value={descriptionTip}
-                                label="Tip Description"
-                                multiline
-                                onChange={(e) => setDescriptionTip(e.target.value)}
-                                fullWidth
-                                variant="outlined"
-                            />
-                        </ui.Grid>
-                        <ui.Grid item xs={12} sm={6}>
-                            <MultiImageInput
-                                images={imagesTip}
-                                setImages={setImagesTip}
-                                cropConfig={{ crop }}
-                                inputId
-                                max = {1}
-                            />
-                        </ui.Grid>
-                        <ui.Grid container item justify="center">
-							<ui.Grid item sm={10} xs={12}>
-								<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
-									Submit Tip
-								</ui.Button>
-							</ui.Grid>
-							{tipName == "" ||
-							videoTip == "" ||
-							tipImages == [] ? (
-								<ui.Dialog
-									disableBackdropClick
-									disableEscapeKeyDown
-									open={openConfirm}
-									onClose={handleCloseConfirm}
-								>
-									<ui.DialogActions>
-										<h4>Please fill in all the required information</h4>
-										<ui.Button onClick={handleCloseConfirm} color="primary">
-											Back
-										</ui.Button>
-									</ui.DialogActions>
-								</ui.Dialog>
-							) : (
-								<ui.Dialog
-									disableBackdropClick
-									disableEscapeKeyDown
-									open={openConfirm}
-									onClose={handleCloseConfirm}
-								>
-									<ui.DialogActions>
-										<h4>Data ready to be stored!</h4>
-										<ui.Button onClick={handleCloseConfirm} color="primary">
-											Cancel
-										</ui.Button>
-										<ui.Button onClick={() => handleSubmitTip()} color="primary">
-											Confirm
-										</ui.Button>
-									</ui.DialogActions>
-								</ui.Dialog>
-							)}
+            <TabPanel value={value} index={2} dir={theme.direction}>
+				<ui.Typography align="center" variant="h6" gutterBottom>
+					Upload New Tip
+				</ui.Typography>
+				<ui.Grid container spacing={3}>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							required
+							value={tipName}
+							label="Tip name"
+							onChange={(e) => setTipName(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							required
+							value={videoTip}
+							label="Vimeo Tip Video ID"
+							onChange={(e) => setVideoTip(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<ui.TextField
+							value={descriptionTip}
+							label="Tip Description"
+							multiline
+							onChange={(e) => setDescriptionTip(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12} sm={6}>
+						<MultiImageInput
+							images={imagesTip}
+							setImages={setImagesTip}
+							cropConfig={{ crop }}
+							inputId
+							max = {1}
+						/>
+					</ui.Grid>
+					<ui.Grid container item justify="center">
+						<ui.Grid item sm={10} xs={12}>
+							<ui.Button variant="outlined" fullWidth onClick={() => handleClickOpenConfirm()}>
+								Submit Tip
+							</ui.Button>
 						</ui.Grid>
-                    </ui.Grid>
-                </TabPanel>
-            </SwipeableViews>
+						{tipName == "" ||
+						videoTip == "" ||
+						_.isEmpty(imagesTip) ? (
+							<ui.Dialog
+								disableBackdropClick
+								disableEscapeKeyDown
+								open={openConfirm}
+								onClose={handleCloseConfirm}
+							>
+								<ui.DialogActions>
+									<h4>Please fill in all the required information</h4>
+									<ui.Button onClick={handleCloseConfirm} color="primary">
+										Back
+									</ui.Button>
+								</ui.DialogActions>
+							</ui.Dialog>
+						) : (
+							<ui.Dialog
+								disableBackdropClick
+								disableEscapeKeyDown
+								open={openConfirm}
+								onClose={handleCloseConfirm}
+							>
+								<ui.DialogActions>
+									<h4>Data ready to be stored!</h4>
+									<ui.Button onClick={handleCloseConfirm} color="primary">
+										Cancel
+									</ui.Button>
+									<ui.Button onClick={() => handleSubmitTip()} color="primary">
+										Confirm
+									</ui.Button>
+								</ui.DialogActions>
+							</ui.Dialog>
+						)}
+					</ui.Grid>
+				</ui.Grid>
+            </TabPanel>
 
 			<div className={styles.nav}>
 				<Navbar />

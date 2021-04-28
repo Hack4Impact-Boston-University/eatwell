@@ -190,6 +190,7 @@ export default function Recipe() {
 		router.push("/profile/makeProfile");
 	}
 
+	console.log(data)
 	// wait for data to finish loading
 	if (!data) {
 		return "Loading...";
@@ -212,74 +213,35 @@ export default function Recipe() {
 			<style>{cssstyle}</style>
 			{/* end stylesheets */}
 
-			<SwipeableViews
-				axis={theme.direction === "rtl" ? "x-reverse" : "x"}
-				index={value}
-				onChangeIndex={handleChangeIndex}
-			>
-				<TabPanel value={value} index={0} dir={theme.direction}>
-					<div position="fixed" className={classes.video}>
-						<iframe
-							position="fixed"
-							src={data.videoRecipe}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</div>
-
-					{/* map out the image urls to img tags */}
-					<ui.Grid container justify="center">
-						<ui.Grid item xs={8}>
-							<Slider {...settings}>
-								{imgList.map((url) => {
-									return <img src={url} alt="Recipe image" />;
-								})}
-							</Slider>
-						</ui.Grid>
+			<TabPanel value={value} index={0} dir={theme.direction}>
+				<div position="fixed" className={classes.video}>
+					<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+				</div>
+				{/* map out the image urls to img tags */}
+				<ui.Grid container justify="center">
+					<ui.Grid item xs={8}>
+						<Slider {...settings}>
+							{imgList.map((url) => {
+								return <img src={url} alt="Recipe image" />;
+							})}
+						</Slider>
 					</ui.Grid>
+				</ui.Grid>
+			</TabPanel>
+
+			{data.videoSkills != "" && (
+				<TabPanel value={value} index={1} dir={theme.direction}>
+					<iframe src={"https://player.vimeo.com/video/"+data.videoSkills} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 				</TabPanel>
-				{data.videoSkills != "" && (
-					<TabPanel value={value} index={1} dir={theme.direction}>
-						<iframe
-							src={data.videoSkills}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</TabPanel>
-				)}
-				{data.videoTips != "" && (
-					<TabPanel value={value} index={2} dir={theme.direction}>
-						<iframe
-							src={data.videoTips}
-							width="100%"
-							height={width * 0.4}
-							frameBorder="0"
-							align="center"
-							position="sticky"
-							allow="autoplay; fullscreen"
-						></iframe>
-					</TabPanel>
-				)}
+			)}
+			{data.videoTips != "" && (
 				<TabPanel value={value} index={2} dir={theme.direction}>
-					<iframe
-						src={data.videoTips}
-						width="100%"
-						height={width * 0.4}
-						frameBorder="0"
-						align="center"
-						position="sticky"
-						allow="autoplay; fullscreen"
-					></iframe>
+					<iframe src={"https://player.vimeo.com/video/"+data.videoTips} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 				</TabPanel>
-			</SwipeableViews>
+			)}
+			<TabPanel value={value} index={2} dir={theme.direction}>
+				<iframe src={"https://player.vimeo.com/video/"+data.videoTips} width="100%" height={width * 0.4} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+			</TabPanel>
 
 			<div className={styles.nav}>
 				<div

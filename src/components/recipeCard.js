@@ -329,7 +329,7 @@ export default function RecipeCard({
 											color="secondary"
 											classes={{ label: classes.viewButtonLabel }}
 										>
-											<Link href={obj.id}>Make this Recipe</Link>
+											<Link href={obj?.id}>Make this Recipe</Link>
 										</Button>
 									</Grid>
 									<Grid

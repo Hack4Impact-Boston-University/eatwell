@@ -1728,7 +1728,7 @@ export default function Admin() {
               <DialogTitle>View Recipe Tips</DialogTitle>
               <DialogContent>
                   {(recipeTips != "") ? 
-                    <iframe position="fixed" src={recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                    <iframe position="fixed" src={"https://player.vimeo.com/video/"+recipeTips} width="100%" height={(width*0.625)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
                     : <h4>No recipe tips to display</h4>
                   }
                   <Button onClick={handleCloseViewRecipeTips} color="primary"> Back </Button>

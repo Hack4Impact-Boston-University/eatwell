@@ -99,11 +99,9 @@ export default function Tip() {
     return (
       <div className={classes.root}>
           <div position="fixed" className={classes.video}>
-                <iframe position="fixed" src={data.url} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+                <iframe position="fixed" src={"https://player.vimeo.com/video/"+data.url} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
           </div>
           
-
-
           <div className={styles.nav}>
             <div style={{
               width: "100%",

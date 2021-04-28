@@ -176,7 +176,7 @@ export default function TipCard({
 	};
 
 	function favButtonClick() {
-		editFavTipsCookie(obj.id, !favorited);
+		editFavTipsCookie(obj?.id, !favorited);
 		upload({ favoriteRecipes: Object.keys(getFavsTipsFromCookie())})
 		.then(() => {
 			setFav(!favorited);
