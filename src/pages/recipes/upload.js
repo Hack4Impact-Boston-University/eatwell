@@ -439,10 +439,7 @@ const UploadForm = () => {
 							<MultiImageInput
 								images={recipeImgs}
 								setImages={setRecipeImgs}
-								cropConfig={{
-									crop: {unit: "%",
-									aspect: 3 / 5,
-									height: "100" }}}
+								allowCrop={false}
 								inputId
 							/>
 						</ui.Grid>
@@ -458,10 +455,7 @@ const UploadForm = () => {
 							<MultiImageInput
 								images={nutritionalImgs}
 								setImages={setNutritionalImgs}
-								cropConfig={{
-									crop: {unit: "%",
-									aspect: 3 / 5,
-									height: "100" }}}
+								allowCrop={false}
 								inputId
 								max={1}
 							/>
