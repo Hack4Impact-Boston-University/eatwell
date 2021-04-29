@@ -24,6 +24,7 @@ import { Alert } from "@material-ui/lab";
 import styles from '../../styles/Home.module.css'
 import {editUserCookie, getUserFromCookie} from "../../utils/cookies";
 import { useRouter } from 'next/router';
+import useSWR from "swr";
 // import * as firebase from "firebase";
 
 const useStyles = makeStyles((theme) => ({
@@ -95,12 +96,17 @@ const theme = createMuiTheme({
     }
 });
 
+const fetcher = async (...args) => {
+	const res = await fetch(...args);
+	return res.json();
+};
 
 const Profile = () => {
 	const { user, logout, upload } = useUser();
 	const [errorAlert, setErrorAlert] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [profile, setProfile] = useState({});
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	const classes = useStyles();
 
 	const [firstName, setFirstName] = useState('')
@@ -109,7 +115,6 @@ const Profile = () => {
 	const [oldPassword, setOldPassword] = useState('')
 	const [newPassword, setNewPassword] = useState('')
 	const [load, setLoad] = useState(true)
-
 	const [passwordError, setPasswordError] = useState(false)
 	const [passwordErrorText, setPasswordErrorText] = useState("Must input new and old passwords")
 
@@ -233,16 +238,15 @@ const Profile = () => {
 		}
 	});
 	
+	if (!user) { return (
+		<div><div className={styles.nav}>
+			<Navbar/>
+			<h1 align="center">Please sign in to access this page!</h1>
+		</div></div>);
+	}
 
-	if (!user) {
-		return (
-			<div>
-				<div className={styles.nav}>
-					<Navbar/>
-					<h1 align="center">Please sign in to access this page!</h1>
-				</div>
-			</div>
-		);
+	if (!programsDic) {
+		return "loading programsDic...";
 	}
 
 	return (
@@ -439,7 +443,7 @@ const Profile = () => {
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
-								Enrolled Program: {user.program}
+								Enrolled Program: {programsDic[user.program].programName}
 							</Typography>
 						</Box>
 					</Grid>

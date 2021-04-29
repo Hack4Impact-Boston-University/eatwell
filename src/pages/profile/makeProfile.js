@@ -98,7 +98,7 @@ const makeProfile = () => {
 				ratingsSkills:{},
 				ratingsTips:{}
 		}).then(() => {
-			router.push('/recipes/recipeList');
+			router.push('/');
 		}).catch((err) => {
 			// Check if firebase error or incorrect code, return error accordingly
 			console.log(err);
@@ -200,7 +200,7 @@ const makeProfile = () => {
 		);
 } else {
 	if(resolveUser === "found") {
-		router.push('/recipes/recipeList');
+		router.push('/');
 	}
 	return (<div>
 		<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>

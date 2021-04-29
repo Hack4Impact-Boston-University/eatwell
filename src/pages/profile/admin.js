@@ -1313,7 +1313,7 @@ export default function Admin() {
 
                 <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
                 {programs.map((value) => {
-                  if (value["programName"]?.includes(searchProgram) || value["programName"].toLowerCase()?.includes(searchProgram)) {
+                  if (value["programName"]?.includes(searchProgram) || value["programName"]?.toLowerCase()?.includes(searchProgram)) {
                     if (value.programName == selectedProgramProgram?.programName) {
                       return (
                         <Grid item>                      

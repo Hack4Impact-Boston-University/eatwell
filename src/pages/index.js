@@ -88,19 +88,16 @@ const Index = () => {
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
 
-  // if (!recipes || !recipesDic || !programsDic || !user ) {
-	// 	return "Loading...";
-	// }
+  if (!recipes || !recipesDic || !programsDic ) {
+		return "Loading...";
+	}
 
   const recipesUser = [];
 	if (!user?.program == "") {
 		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
 		if (_.isEqual(user?.role, "user")) {
 			if (!_.isEqual(user.program, "")) {
-				if (
-					programsDic[user.program]?.programRecipes != null ||
-					programsDic[user.program]?.programRecipes != []
-				) {
+				if (!_.isEqual(keysList, [])) {
 					var i;
 					for (i = 0; i < keysList.length; i++) {
 						console.log(programsDic[user.program].programRecipes[keysList[i]]);
@@ -220,7 +217,8 @@ const Index = () => {
 							);
 					})}
 				</Grid>
-			) : (<Grid><h4>No recipes to display</h4></Grid>)}
+			) : user != undefined ? (<Grid><h4>No recipes to display</h4></Grid>
+      ) : (<Grid item xs={1} md={1}></Grid>)}
       
       <div className={styles.nav}>
         <Navbar/>
