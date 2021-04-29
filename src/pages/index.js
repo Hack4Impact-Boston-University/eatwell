@@ -24,6 +24,11 @@ import useSWR from "swr";
 import _, { map } from "underscore";
 
 const useStyles = makeStyles((theme) => ({
+  containerHome: {
+		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
+		height: "100vh",
+		overflow: "hidden",
+	},
   container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
 		height: "40%",
@@ -116,7 +121,7 @@ const Index = () => {
 
   return (
     <div>
-      <Box className={classes.container}>
+      <Box className={!user ? classes.containerHome : classes.container}>
         <div className={styles.container}>
           <Head>
             <title>EatWell</title>
@@ -182,7 +187,7 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
-      {user?.role == "admin" ? (
+      {user?.role == "admin" && (
 				!_.isEqual(recipes, []) ? (
 					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
@@ -203,7 +208,8 @@ const Index = () => {
 						<h4>No recipes to display</h4>
 					</Grid>
 				)
-			) : !_.isEqual(recipesUser, []) ? (
+			)}
+      {!_.isEqual(recipesUser, []) && (
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
 					{recipesUser?.map((obj, idx) => {
 						if (!obj.nameOfDish || !obj.id) {return;}
@@ -212,13 +218,14 @@ const Index = () => {
 									<RecipeCard
 										key={obj.id}
 										object={obj}
+                    isHome={true}
 									/>
 								</Grid>
 							);
 					})}
 				</Grid>
-			) : user != undefined ? (<Grid><h4>No recipes to display</h4></Grid>
-      ) : (<Grid item xs={1} md={1}></Grid>)}
+			)}
+       {/* (<Grid><h4>No recipes to display</h4></Grid>)} */}
       
       <div className={styles.nav}>
         <Navbar/>
