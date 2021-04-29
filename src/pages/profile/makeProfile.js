@@ -88,8 +88,6 @@ const makeProfile = () => {
 				firstname: firstName,
 				lastname: lastName,
 				phone: tel,
-				program: "",
-				programName: "",
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],

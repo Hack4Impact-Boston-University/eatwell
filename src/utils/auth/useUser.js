@@ -60,9 +60,22 @@ const useUser = () => {
 					if("code" in userData) {
 						return db.collection("codes").doc(userData["code"]).delete().then(() => {
 							delete userData["code"];
-							setUserCookie(userData);
-							setUser(userData);
-							return db.collection("users").doc(user.id).set(userData);
+							console.log(userData)
+							console.log(user);
+							if("program" in userData && "id" in user) {
+								setUserCookie(userData);
+								setUser(userData);
+								return db.collection("users").doc(user.id).set(userData).then(() => {
+									console.log("ello00");
+									return db.collection("programs").doc(userData["program"]).update({
+										programUsers: firebase.firestore.FieldValue.arrayUnion(user["id"])
+									})
+								});
+							} else {
+								setUserCookie(userData);
+								setUser(userData);
+								return db.collection("users").doc(user.id).set(userData);
+							}
 					    });
 					} else {
 						setUserCookie(userData);
