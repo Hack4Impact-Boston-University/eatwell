@@ -224,13 +224,11 @@ export default function Recipe() {
 				</div>
 				{/* map out the image urls to img tags */}
 				<ui.Grid container justify="center">
-					<ui.Grid item xs={8}>
-						<Slider {...settings}>
-							{imgList.map((url) => {
-								return <img src={url} alt="Recipe image" />;
-							})}
-						</Slider>
-					</ui.Grid>
+					{imgList.map((url) => {
+						return (
+								<img display="block" src={url} alt="Recipe image" />
+						)}
+					)}
 				</ui.Grid>
 			</TabPanel>
 
