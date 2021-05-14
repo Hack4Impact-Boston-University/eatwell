@@ -197,17 +197,18 @@ export default function SkillCard({
 					} else {
 						// update favorited click
 						setFav(!favorited);
-						
-						console.log(skills)
 						if (!skills.includes(object.skillID)) {
 							skills.push(object.skillID)
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
-						}
-						
-						if (favorited) {
+						} else if (favorited == true) {
+							skills.pop(object.skillID)
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ favoriteSkills: skills });
 						}
 					}
 				};
