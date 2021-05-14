@@ -152,7 +152,7 @@ export default function SkillReviewCard() {
 			{/* {user.role == "admin" ? ( */}
 			{
 				!_.isEqual(skills, []) ? (
-					<Grid container spacing={1000} className={classes.gridContainerMain}>
+					<Grid container className={classes.gridContainerMain}>
 						{skills.map((obj, idx) => {
 							if (!obj?.skillName || !obj?.skillID) {
 								return;

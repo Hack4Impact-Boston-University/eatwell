@@ -93,13 +93,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function SkillCard({
-	key,
-	object,
-	isFav,
-	// initNotes,
-	// initRating,
-}) {
+export default function SkillCard({ object, isFav }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
 	const [obj, setObj] = React.useState(object);
@@ -181,13 +175,14 @@ export default function SkillCard({
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
 				const getUserData = async () => {
+					// update click
+					setFav(!favorited);
 					// get the current user's document
 					const data = await db.collection("users").doc(user.uid).get();
 
 					const skills = data.get("favoriteSkills");
 					// if user has no favoriteSkills
-					if (!skills || _.isEqual(skills,[])) {
-						setFav(!favorited);
+					if (!skills || _.isEqual(skills, [])) {
 						// get current skill's ID from props and set it if no favoriteSKills yet
 						await db
 							.collection("users")
@@ -195,16 +190,14 @@ export default function SkillCard({
 							.update({ favoriteSkills: [object.skillID] });
 						console.log("favorited skill: ", object.skillID);
 					} else {
-						// update favorited click
-						setFav(!favorited);
 						if (!skills.includes(object.skillID)) {
-							skills.push(object.skillID)
+							skills.push(object.skillID);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
 						} else if (favorited == true) {
-							skills.pop(object.skillID)
+							skills.pop(object.skillID);
 							await db
 								.collection("users")
 								.doc(user.uid)
