@@ -19,6 +19,7 @@ import DraftsIcon from "@material-ui/icons/Send";
 import SwipeableViews from "react-swipeable-views";
 import PropTypes from "prop-types";
 import MultiImageInput from "react-multiple-image-input";
+// import Resizer from "react-image-file-resizer";
 import * as _ from 'underscore'
 
 import { getUserFromCookie } from "../../utils/cookies";
@@ -117,7 +118,23 @@ const UploadForm = () => {
 	var uploadedImages = [];
 	var uploadedNutritionalImgs = [];
 
-	function upload() {
+	// const resizeFile = (file) =>
+	// 	new Promise((resolve) => {
+	// 		Resizer.imageFileResizer(
+	// 		file,
+	// 		486,
+	// 		720,
+	// 		"JPEG",
+	// 		100,
+	// 		0,
+	// 		(uri) => {
+	// 			resolve(uri);
+	// 		},
+	// 		"base64"
+	// 	);
+  	// });
+
+	async function upload() {
 		var recipe = recipeName.toLowerCase();
 		recipe = recipe.replace(/ /g, "_");
 
@@ -125,12 +142,74 @@ const UploadForm = () => {
 		var uploadedImages = Object.values(images);
 		var uploadedRecipeImgs = Object.values(recipeImgs);
 		var uploadedNutritionalImgs = Object.values(nutritionalImgs);
-		// var uploadedRecipeNames = [];
 
 		var document = firebase.firestore().collection("recipes").doc();
-		// for (i = 0; i < uploadedRecipeImgs.length; i++) {
-		// 	uploadedRecipeNames.push(document.id + i + ".pdf");
-		// }
+		var resizebase64 = require('resize-base64');  
+
+		for (i = 0; i < uploadedImages.length; i++) {
+			if (uploadedImages[i].length > 1048576) {
+				var img = resizebase64(uploadedImages[i], 486, 720);
+				uploadedImages[i] = img
+				// try {
+				// 	const file = uploadedImages[i];
+				// 	uploadedImages[i] = await resizeFile(file);
+				// } catch (err) {
+				// 	console.log(err);
+				// }
+			}
+			firebase
+				.storage()
+				.ref()
+				.child(document.id + i + ".jpg")
+				.putString(uploadedImages[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
+		for (i = 0; i < uploadedRecipeImgs.length; i++) {
+			if (uploadedRecipeImgs[i].length > 1048576) {
+				var img = resizebase64(uploadedRecipeImgs[i], 486, 720);
+				uploadedRecipeImgs[i] = img
+				// try {
+				// 	const file = uploadedRecipeImgs[i];
+				// 	uploadedRecipeImgs[i] = await resizeFile(file);
+				// } catch (err) {
+				// 	console.log(err);
+				// }			
+			}
+			firebase
+				.storage()
+				.ref()
+				.child(document.id + i + ".pdf")
+				.putString(uploadedRecipeImgs[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
+		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
+			if (uploadedNutritionalImgs[i].length > 1048576) {
+				var img = resizebase64(uploadedNutritionalImgs[i], 486, 720);
+				uploadedNutritionalImgs[i] = img
+				// try {
+				// 	const file = uploadedNutritionalImgs[i];
+				// 	uploadedNutritionalImgs[i] = await resizeFile(file);
+				// } catch (err) {
+				// 	console.log(err);
+				// }
+			}
+			firebase
+				.storage()
+				.ref()
+				.child(document.id + i + ".png")
+				.putString(uploadedNutritionalImgs[i], "data_url")
+				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
+					complete: function () {},
+				});
+		}
+
+		console.log(uploadedImages[0].length)
+		console.log(uploadedRecipeImgs[0].length)
+		console.log(uploadedNutritionalImgs[0].length)
 		var data = {
 			id: document.id,
 			nameOfDish: recipeName,
@@ -149,36 +228,6 @@ const UploadForm = () => {
 		};
 
 		document.set(data);
-		for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			firebase
-				.storage()
-				.ref()
-				.child(document.id + i + ".pdf")
-				.putString(uploadedRecipeImgs[i], "data_url")
-				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
-		}
-		for (i = 0; i < uploadedImages.length; i++) {
-			firebase
-				.storage()
-				.ref()
-				.child(document.id + i + ".jpg")
-				.putString(uploadedImages[i], "data_url")
-				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
-		}
-		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
-			firebase
-				.storage()
-				.ref()
-				.child(document.id + i + ".png")
-				.putString(uploadedNutritionalImgs[i], "data_url")
-				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
-		}
 
 		setRecipeName("");
 		setVideoID("");

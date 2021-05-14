@@ -40,6 +40,7 @@ import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
 import { useUser } from "../utils/auth/useUser";
+import _, { map } from "underscore";
 
 initFirebase();
 var db = firebase.firestore();
@@ -185,9 +186,10 @@ export default function SkillCard({
 
 					const skills = data.get("favoriteSkills");
 					// if user has no favoriteSkills
-					if (!skills) {
+					if (!skills || _.isEqual(skills,[])) {
+						setFav(!favorited);
 						// get current skill's ID from props and set it if no favoriteSKills yet
-						const res = await db
+						await db
 							.collection("users")
 							.doc(user.uid)
 							.update({ favoriteSkills: [object.skillID] });
@@ -195,7 +197,16 @@ export default function SkillCard({
 					} else {
 						// update favorited click
 						setFav(!favorited);
-
+						
+						console.log(skills)
+						if (!skills.includes(object.skillID)) {
+							skills.push(object.skillID)
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ favoriteSkills: skills });
+						}
+						
 						if (favorited) {
 						}
 					}
