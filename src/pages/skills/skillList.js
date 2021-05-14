@@ -75,11 +75,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SkillReviewCard() {
 	const classes = useStyles();
-	const [uploadDate, setUploadDate] = React.useState(Date.now())
+	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
 	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
 	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
-	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+	const { data: programsDic } = useSWR(
+		`/api/programs/getAllProgramsDic`,
+		fetcher
+	);
 	let favSkills = getFavsSkillsFromCookie() || {};
 	const skillNotes = getNotesSkillsFromCookie() || {};
 	const skillRatings = getRatingsSkillsFromCookie() || {};
@@ -123,22 +126,21 @@ export default function SkillReviewCard() {
 	// 	const keysList = Object.keys(programsDic[user.program]?.programSkills)
 	// 	if (_.isEqual(user?.role, "user")) {
 	// 		if (!_.isEqual(user.program, "")) {
-				// if (programsDic[user.program]?.programSkills != null || programsDic[user.program]?.programSkills != []) {
-				// 	var i;
-				// 	for (i = 0; i < keysList.length; i++) {
-				// 		console.log(programsDic[user.program].programSkills[keysList[i]])
-				// 		var d = Date.parse(programsDic[user.program].programSkills[keysList[i]]+"T00:00:00.0000");
-				// 		if (d < uploadDate) {
-				// 			skillsUser.push(
-				// 				skillsDic[keysList[i]]
-				// 			);
-				// 		}
-				// 	}
-				// }
-			// }
+	// if (programsDic[user.program]?.programSkills != null || programsDic[user.program]?.programSkills != []) {
+	// 	var i;
+	// 	for (i = 0; i < keysList.length; i++) {
+	// 		console.log(programsDic[user.program].programSkills[keysList[i]])
+	// 		var d = Date.parse(programsDic[user.program].programSkills[keysList[i]]+"T00:00:00.0000");
+	// 		if (d < uploadDate) {
+	// 			skillsUser.push(
+	// 				skillsDic[keysList[i]]
+	// 			);
+	// 		}
 	// 	}
-	// }	
-
+	// }
+	// }
+	// 	}
+	// }
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");
@@ -148,25 +150,27 @@ export default function SkillReviewCard() {
 	return (
 		<div className={styles.container}>
 			{/* {user.role == "admin" ? ( */}
-				{!_.isEqual(skills, []) ? (
+			{
+				!_.isEqual(skills, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{skills.map((obj, idx) => {
-							if (!obj?.skillName || !obj?.skillID) {return;}
+							if (!obj?.skillName || !obj?.skillID) {
+								return;
+							}
 							//if (!favs || obj.id in favSkills) {
-								return (
-									<SkillCard
-										key={obj.skillID}
-										object={obj}
-										isFav={obj.skillID in favSkills}
-										onFavClick={() => onFavClick()}
-										// initNotes={obj.skillID in skillNotes ? skillNotes[obj.skillID] : []}
-										// initRating={
-										// 	obj.skillID in skillRatings ? skillRatings[obj.skillID] : 0
-										// }
-									/>
-								);
+							return (
+								<SkillCard
+									key={obj.skillID}
+									object={obj}
+									isFav={obj.skillID in favSkills}
+									// initNotes={obj.skillID in skillNotes ? skillNotes[obj.skillID] : []}
+									// initRating={
+									// 	obj.skillID in skillRatings ? skillRatings[obj.skillID] : 0
+									// }
+								/>
+							);
 							//} else {
-								//return;
+							//return;
 							//}
 							//<SkillCard obj={skillsUser[4]} isFav = {favSkills.favRec.includes(skillsUser[4].skillID)} />
 						})}
@@ -176,7 +180,7 @@ export default function SkillReviewCard() {
 						<h4>No skills to display</h4>
 					</Grid>
 				)
-			/* // ) : !_.isEqual(skillsUser, []) ? (
+				/* // ) : !_.isEqual(skillsUser, []) ? (
 			// 	<Grid container spacing={1000} className={classes.gridContainerMain}>
 			// 		{skillsUser.map((obj, idx) => {
 			// 			if (!obj.nameOfDish || !obj.id) return;
@@ -203,7 +207,8 @@ export default function SkillReviewCard() {
 			// 	<Grid>
 			// 		<h4>No skills to display</h4>
 			// 	</Grid>
-			// )} */}
+			// )} */
+			}
 
 			<div className={styles.nav}>
 				<Navbar />
