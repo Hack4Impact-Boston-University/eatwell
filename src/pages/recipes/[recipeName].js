@@ -173,6 +173,7 @@ export default function Recipe() {
 				.catch((error) => {
 					console.log(error);
 				});
+			console.log(imgList)
 		};
 
 		// make sure data exists before trying to fetch all the images
@@ -184,6 +185,32 @@ export default function Recipe() {
 		}
 	}, [data]);
 
+	// Decompress an LZW-encoded string
+	function lzw_decode(s) {
+		var dict = {};
+		var data = (s + "").split("");
+		var currChar = data[0];
+		var oldPhrase = currChar;
+		var out = [currChar];
+		var code = 256;
+		var phrase;
+		for (var i=1; i<data.length; i++) {
+			var currCode = data[i].charCodeAt(0);
+			if (currCode < 256) {
+				phrase = data[i];
+			}
+			else {
+			phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+			}
+			out.push(phrase);
+			currChar = phrase.charAt(0);
+			dict[code] = oldPhrase + currChar;
+			code++;
+			oldPhrase = phrase;
+		}
+		return out.join("");
+	}
+
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
 		// router.push("/");
@@ -191,7 +218,6 @@ export default function Recipe() {
 		router.push("/profile/makeProfile");
 	}
 
-	console.log(data)
 	// wait for data to finish loading
 	if (!data) {
 		return "Loading...";

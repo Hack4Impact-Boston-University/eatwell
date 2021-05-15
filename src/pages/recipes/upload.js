@@ -4,7 +4,7 @@ import * as firebase from "firebase";
 import "firebase/firestore";
 import initFirebase from "../../utils/auth/initFirebase";
 import { DropzoneArea } from "material-ui-dropzone";
-import { PictureAsPdf, Router } from "@material-ui/icons";
+import { PictureAsPdf, Router, ShowChart } from "@material-ui/icons";
 import Navbar from "../../components/Navbar";
 import useSWR from "swr";
 import styles from "../../styles/Home.module.css";
@@ -16,6 +16,7 @@ import InboxIcon from "@material-ui/icons/Inbox";
 import StarIcon from "@material-ui/icons/Star";
 import SendIcon from "@material-ui/icons/Send";
 import DraftsIcon from "@material-ui/icons/Send";
+import DeleteIcon from "@material-ui/icons/Delete";
 import SwipeableViews from "react-swipeable-views";
 import PropTypes from "prop-types";
 import MultiImageInput from "react-multiple-image-input";
@@ -114,25 +115,69 @@ const UploadForm = () => {
 	const [descriptionIngredients, setDescriptionIngredients] = useState("");
 	const [recipeFact, setRecipeFact] = useState("");
 	const [openConfirm, setOpenConfirm] = React.useState(false);
-	var uploadedRecipeImgs = [];
 	var uploadedImages = [];
+	var uploadedRecipeImgs = [];
 	var uploadedNutritionalImgs = [];
+	const [selectedRecipeImages, setSelectedRecipeImages] = useState([]);
+	const [uploadedRecipeImagesURL, setUploadedRecipeImagesURL] = useState([]);
+	const [selectedNutritionalImages, setSelectedNutritionalImages] = useState([]);
+	const [uploadedNutritionalURL, setUploadedNutritionalURL] = useState([]);
 
-	// const resizeFile = (file) =>
-	// 	new Promise((resolve) => {
-	// 		Resizer.imageFileResizer(
-	// 		file,
-	// 		486,
-	// 		720,
-	// 		"JPEG",
-	// 		100,
-	// 		0,
-	// 		(uri) => {
-	// 			resolve(uri);
-	// 		},
-	// 		"base64"
-	// 	);
-  	// });
+	const handleRecipeImagesChange = (e) => {
+		if (e.target.files) {
+			const filesArray = Array.from(e.target.files).map((file) =>
+				URL.createObjectURL(file)
+			)
+			setSelectedRecipeImages((prevImages) => prevImages.concat(filesArray));
+
+			for (var i = 0; i < e.target.files.length; i++) {
+				recipeImgs[Object.values(recipeImgs).length] = e.target.files[i]
+				setRecipeImgs(recipeImgs)
+			}
+		};
+	};
+
+	const renderRecipeImages = (source) => {
+		return source.map((photo) => {
+			return (
+					<div float="left">
+						<img height="200px" display="block" src={photo} alt="" key={photo} />
+						<ui.IconButton onClick={() => deleteRecipeImage(photo)}> <DeleteIcon /> </ui.IconButton>
+					</div>
+				)
+			}
+		);
+	};
+
+	const deleteRecipeImage = (photo) => {
+		if (photo) {
+			selectedRecipeImages.pop(photo)
+			setSelectedRecipeImages(selectedRecipeImages)
+			setSelectedRecipeImages((prevImages) => prevImages);
+		}
+	}
+
+	const handleNutritionalChange = (e) => {
+		if (e.target.files) {
+			const filesArray = Array.from(e.target.files).map((file) =>
+				URL.createObjectURL(file)
+			)
+			setSelectedNutritionalImages((prevImages) => prevImages.concat(filesArray));
+			for (var i = 0; i < e.target.files.length; i++) {
+				nutritionalImgs[Object.values(nutritionalImgs).length] = e.target.files[i]
+				setRecipeImgs(nutritionalImgs)
+			}
+			console.log(nutritionalImgs)
+		};
+	};
+
+	const renderNutritional = (source) => {
+		return source.map((photo) => {
+			return <img height="200px" display="block" src={photo} alt="" key={photo} />;
+		});
+	};
+	
+
 
 	async function upload() {
 		var recipe = recipeName.toLowerCase();
@@ -144,18 +189,11 @@ const UploadForm = () => {
 		var uploadedNutritionalImgs = Object.values(nutritionalImgs);
 
 		var document = firebase.firestore().collection("recipes").doc();
-		var resizebase64 = require('resize-base64');  
-
+		
 		for (i = 0; i < uploadedImages.length; i++) {
 			if (uploadedImages[i].length > 1048576) {
 				var img = resizebase64(uploadedImages[i], 486, 720);
 				uploadedImages[i] = img
-				// try {
-				// 	const file = uploadedImages[i];
-				// 	uploadedImages[i] = await resizeFile(file);
-				// } catch (err) {
-				// 	console.log(err);
-				// }
 			}
 			firebase
 				.storage()
@@ -166,50 +204,25 @@ const UploadForm = () => {
 					complete: function () {},
 				});
 		}
+
 		for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			if (uploadedRecipeImgs[i].length > 1048576) {
-				var img = resizebase64(uploadedRecipeImgs[i], 486, 720);
-				uploadedRecipeImgs[i] = img
-				// try {
-				// 	const file = uploadedRecipeImgs[i];
-				// 	uploadedRecipeImgs[i] = await resizeFile(file);
-				// } catch (err) {
-				// 	console.log(err);
-				// }			
-			}
-			firebase
-				.storage()
-				.ref()
-				.child(document.id + i + ".pdf")
-				.putString(uploadedRecipeImgs[i], "data_url")
-				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
-		}
-		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
-			if (uploadedNutritionalImgs[i].length > 1048576) {
-				var img = resizebase64(uploadedNutritionalImgs[i], 486, 720);
-				uploadedNutritionalImgs[i] = img
-				// try {
-				// 	const file = uploadedNutritionalImgs[i];
-				// 	uploadedNutritionalImgs[i] = await resizeFile(file);
-				// } catch (err) {
-				// 	console.log(err);
-				// }
-			}
-			firebase
-				.storage()
-				.ref()
-				.child(document.id + i + ".png")
-				.putString(uploadedNutritionalImgs[i], "data_url")
-				.on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
+			const ref = firebase.storage().ref().child(document.id + i + ".pdf")
+			.put(uploadedRecipeImgs[i]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+				complete: function () {},
+			});
+			uploadedRecipeImagesURL[i] = document.id + i + ".pdf"
+			setUploadedRecipeImagesURL(uploadedRecipeImagesURL)
 		}
 
-		console.log(uploadedImages[0].length)
-		console.log(uploadedRecipeImgs[0].length)
-		console.log(uploadedNutritionalImgs[0].length)
+		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
+			const ref = firebase.storage().ref().child(document.id + i + ".png")
+			.put(uploadedNutritionalImgs[i]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+				complete: function () {},
+			});
+			uploadedNutritionalURL[i] = document.id + i + ".pdf"
+			setUploadedNutritionalURL(uploadedNutritionalURL)
+		}
+
 		var data = {
 			id: document.id,
 			nameOfDish: recipeName,
@@ -218,7 +231,7 @@ const UploadForm = () => {
 			recipeFact: recipeFact,
 			videoRecipe: videoID,
 			images: uploadedImages,
-			recipeImgs: uploadedRecipeImgs,
+			recipeImgs: uploadedRecipeNameURL,
 			nutritionalImgs: uploadedNutritionalImgs,
 			dateUploaded: Date.now(),
 			videoSkills: skill,
@@ -240,6 +253,12 @@ const UploadForm = () => {
 		setRecipeImgs({});
 		setNutritionalImgs({});
 		setOpenConfirm(false);
+		setSelectedRecipeImages([]);
+		setUploadedRecipeImagesURL([]);
+		uploadedRecipeImgs = [];
+		setSelectedNutritionalImages([]);
+		setUploadedNutritionalURL([]);
+		uploadedNutritionalImgs = [];
 	}
 
 	// skill
@@ -485,12 +504,8 @@ const UploadForm = () => {
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
-							<MultiImageInput
-								images={recipeImgs}
-								setImages={setRecipeImgs}
-								allowCrop={false}
-								inputId
-							/>
+							<input type="file" id="file" multiple onChange={handleRecipeImagesChange} />
+							<div className="result">{renderRecipeImages(selectedRecipeImages)}</div>
 						</ui.Grid>
 					</ui.Grid>
 					{/* upload recipe result image */}
@@ -501,13 +516,15 @@ const UploadForm = () => {
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
-							<MultiImageInput
+							{/* <MultiImageInput
 								images={nutritionalImgs}
 								setImages={setNutritionalImgs}
 								allowCrop={false}
 								inputId
 								max={1}
-							/>
+							/> */}
+							<input type="file" id="file" multiple onChange={handleNutritionalChange} />
+							<div className="result">{renderNutritional(selectedNutritionalImages)}</div>
 						</ui.Grid>
 					</ui.Grid>
 					<ui.Grid container item justify="center">
