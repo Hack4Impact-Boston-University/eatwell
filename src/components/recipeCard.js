@@ -40,9 +40,11 @@ import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
 import { useUser } from "../utils/auth/useUser";
 import { getFavsFromCookie } from "../utils/cookies";
+import _, { map } from "underscore";
 
 initFirebase();
 var db = firebase.firestore();
+var auth = firebase.auth();
 const useStyles = makeStyles((theme) => ({
 	btn: {
 		width: "4rem",
@@ -212,18 +214,61 @@ export default function RecipeCard({
 		return str;
 	};
 
-	function favButtonClick() {
-		editFavCookie(obj.id, !favorited);
-		upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) })
-			.then(() => {
-				setFav(!favorited);
-				onFavClick();
-			})
-			.catch((err) => {
-				editFavCookie(obj.id, favorited);
-				//alert(err.message);
-			});
-	}
+	const favButtonClick = () => {
+		auth.onAuthStateChanged(function (user) {
+			if (user) {
+				const getUserData = async () => {
+					// update click
+					setFav(!favorited);
+					// get the current user's document
+					const data = await db.collection("users").doc(user.uid).get();
+
+					const recipes = data.get("favoriteRecipes");
+					// if user has no favoriteSkills
+					if (!recipes || _.isEqual(recipes, [])) {
+						// get current skill's ID from props and set it if no favoriteSKills yet
+						await db
+							.collection("users")
+							.doc(user.uid)
+							.update({ favoriteRecipes: [obj.id] });
+					} else {
+						if (!recipes.includes(obj.id)) {
+							recipes.push(obj.id);
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ favoriteRecipes: recipes });
+						} else {
+							recipes.pop(obj.id);
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ favoriteRecipes: recipes })
+								.then(() => {
+									onFavClick();
+								});
+						}
+					}
+				};
+
+				getUserData();
+			} else {
+				console.log("User isnt logged in!!!");
+			}
+		});
+	};
+	// function favButtonClick() {
+	// 	editFavCookie(obj.id, !favorited);
+	// 	upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) })
+	// 		.then(() => {
+	// 			setFav(!favorited);
+	// 			onFavClick();
+	// 		})
+	// 		.catch((err) => {
+	// 			editFavCookie(obj.id, favorited);
+	// 			//alert(err.message);
+	// 		});
+	// }
 
 	function handleSubmit() {
 		if (note != "") {

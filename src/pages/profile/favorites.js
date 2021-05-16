@@ -158,6 +158,7 @@ export default function UserFavorites() {
 		});
 	}, []);
 
+	useEffect(() => {}, [userRecipes]);
 	useEffect(() => {}, [userSkills]);
 	useEffect(() => {}, [userTips]);
 
@@ -204,7 +205,7 @@ export default function UserFavorites() {
 										// remove the favorite if we click it
 										onFavClick={() => {
 											setUserRecipes(
-												userRecipes.splice(userRecipes.indexOf(fav), 1)
+												userRecipes.splice(userRecipes.indexOf(fav))
 											);
 										}}
 										initNotes={[]}
@@ -232,7 +233,7 @@ export default function UserFavorites() {
 										// remove the favorite if we click it
 										onFavClick={() => {
 											setUserSkills(
-												userSkills.splice(userSkills.indexOf(fav), 1)
+												userSkills.splice(userSkills.indexOf(fav))
 											);
 										}}
 									/>

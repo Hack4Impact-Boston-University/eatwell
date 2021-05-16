@@ -96,9 +96,7 @@ const useStyles = makeStyles((theme) => ({
 export default function TipCard({
 	object,
 	isFav,
-	onFavClick,
-	// initNotes,
-	// initRating,
+	onFavClick
 }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();

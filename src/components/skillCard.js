@@ -29,7 +29,6 @@ import ClearIcon from "@material-ui/icons/Clear";
 import StarIcon from "@material-ui/icons/Star";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import {
-	// uploadSkillsRating,
 	getRecipe,
 	setRecipeListener,
 } from "../utils/skills.js";
@@ -233,12 +232,6 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 				.concat(notes.slice(i + 1))
 		);
 	}
-
-	// function changeRating(val) {
-	// 	uploadSkillsRating(obj, parseFloat(val), parseFloat(rating), setObj);
-	// 	setRating(val);
-	// 	editRatingsSkillsCookie(obj.id, val);
-	// }
 
 	if (Object.keys(obj) == 0) {
 		return null;
