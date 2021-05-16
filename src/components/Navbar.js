@@ -103,21 +103,6 @@ const Navbar = () => {
 	const [open, setOpen] = React.useState(false);
 	const [toggle, setToggle] = useState(false);
 
-	// const toggleDrawer = (event) => {
-	// 	if (
-	// 		event.type === "keydown" &&
-	// 		(event.key === "Tab" || event.key === "Shift")
-	// 	) {
-	// 		return;
-	// 	}
-
-	// 	setToggle(!toggle);
-	// };
-
-	// const handleToggle = () => {
-	// 	setOpen(!open);
-	// };
-
 	const UserDrawerItems = (props) => {
 		return <Box></Box>;
 	};
@@ -178,10 +163,7 @@ const Navbar = () => {
 								/>
 								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
-							<Button
-								href={`/recipes/recipeList`}
-								className={classes.menuItems}
-							>
+							<Button href={`/recipes/recipeList`} className={classes.menuItems}>
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
@@ -259,6 +241,34 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Recipes</Typography>
 									</Button>
 								</MenuItem>
+								<MenuItem button key={1}>
+									<Button
+										href={`/skills/skillList`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<ListItemIcon>
+											<LocalLibrary
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Skills</Typography>
+									</Button>
+								</MenuItem>
+								<MenuItem button key={1}>
+									<Button
+										href={`/tips/tipList`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<ListItemIcon>
+											<EmojiObjects
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Tips</Typography>
+									</Button>
+								</MenuItem>
 								{user.role == "user" ? (
 									<UserDrawerItems />
 								) : (
@@ -279,10 +289,6 @@ const Navbar = () => {
 									</Button>
 								</MenuItem>
 							</Menu>
-							{/* <Drawer anchor="top" open={toggle} onClose={toggleDrawer}>
-								<div onClick={toggleDrawer} onKeyDown={toggleDrawer}>
-								</div>
-							</Drawer> */}
 						</Button>
 					</Toolbar>
 				) : (
