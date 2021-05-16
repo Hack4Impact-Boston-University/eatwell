@@ -28,10 +28,7 @@ import {
 import ClearIcon from "@material-ui/icons/Clear";
 import StarIcon from "@material-ui/icons/Star";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
-import {
-	getRecipe,
-	setRecipeListener,
-} from "../utils/skills.js";
+import { getRecipe, setRecipeListener } from "../utils/skills.js";
 import Slider from "react-slick";
 import firebase from "firebase/app";
 import "firebase/auth";
@@ -95,7 +92,6 @@ const useStyles = makeStyles((theme) => ({
 export default function SkillCard({ object, isFav, onFavClick }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
-	const [obj, setObj] = React.useState(object);
 	const [expanded, setExpanded] = React.useState(false);
 	const [favorited, setFav] = React.useState(isFav);
 	const handleExpandClick = () => {
@@ -104,10 +100,37 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 	const maxChar = 30.0;
 	const [, updateState] = React.useState();
 
-	const [imgList, setImages] = React.useState(obj.images);
+	const [imgList, setImages] = React.useState(object.images);
 	useEffect(() => {
-		setImages(obj.images);
-	}, [obj.images]);
+		setImages(object.images);
+	}, [object.images]);
+
+	// this useEffect is to properly show status of favorited
+	// icons on page or card load
+	useEffect(() => {
+		auth.onAuthStateChanged(function (user) {
+			if (user) {
+				const getUserData = async () => {
+					// get the current user's document
+					const data = await db.collection("users").doc(user.uid).get();
+					const skills = data.get("favoriteSkills");
+
+					// if user has no favoriteSkills
+					if (!skills || _.isEqual(skills, [])) {
+						setFav(false);
+					} else {
+						if (skills.includes(object.skillID)) setFav(true);
+						else setFav(false);
+					}
+				};
+
+				getUserData();
+			} else {
+				console.log("User isnt logged in!!!");
+			}
+		});
+	}, []);
+
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -167,6 +190,7 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
 				const getUserData = async () => {
+					console.log(object.skillID);
 					// update click
 					setFav(!favorited);
 					// get the current user's document
@@ -179,23 +203,20 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 						await db
 							.collection("users")
 							.doc(user.uid)
-							.update({ favoriteSkills: [obj.skillID] });
+							.update({ favoriteSkills: [object.skillID] });
 					} else {
-						if (!skills.includes(obj.skillID)) {
-							skills.push(obj.skillID);
+						if (!skills.includes(object.skillID)) {
+							skills.push(object.skillID);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
 						} else {
-							skills.pop(obj.skillID);
+							skills.splice(skills.indexOf(object.skillID), 1);
 							await db
 								.collection("users")
 								.doc(user.uid)
-								.update({ favoriteSkills: skills })
-								.then(() => {
-									onFavClick();
-								});
+								.update({ favoriteSkills: skills });
 						}
 					}
 				};
@@ -225,7 +246,7 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 				.concat(notes.slice(i + 1))
 		);
 		editNotesSkillsCookie(
-			obj.id,
+			object.skillID,
 			notes
 				.slice(0, i)
 				.concat([s])
@@ -233,7 +254,7 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 		);
 	}
 
-	if (Object.keys(obj) == 0) {
+	if (Object.keys(object) == 0) {
 		return null;
 	}
 
@@ -255,16 +276,27 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 											<FavoriteIcon className={classes.icon} />
 										</IconButton>
 									</Grid>
-									<Grid container item xs={10} alignItems="center" justify="center">
-										<Link href={obj.skillID}>
-											<Typography style={{ fontSize: "calc(min(5vw, 35px))", fontWeight: 300,}}>
-												{obj.skillName}
+									<Grid
+										container
+										item
+										xs={10}
+										alignItems="center"
+										justify="center"
+									>
+										<Link href={object.skillID}>
+											<Typography
+												style={{
+													fontSize: "calc(min(5vw, 35px))",
+													fontWeight: 300,
+												}}
+											>
+												{object.skillName}
 											</Typography>
 										</Link>
 									</Grid>
 								</Grid>
 								<Grid container justify="center">
-									{obj.images == undefined ? (
+									{object.images == undefined ? (
 										<Grid item xs={12}></Grid>
 									) : (
 										<Grid item xs={9}>
@@ -285,8 +317,12 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 									)}
 								</Grid>
 								<Grid container item xs={12} justify="center">
-									<Button variant="contained" color="secondary" classes={{ label: classes.viewButtonLabel }}>
-										<Link href={obj?.skillID}>Watch Video</Link>
+									<Button
+										variant="contained"
+										color="secondary"
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<Link href={object?.skillID}>Watch Video</Link>
 									</Button>
 								</Grid>
 							</Box>

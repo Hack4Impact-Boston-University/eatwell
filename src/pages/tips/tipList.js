@@ -42,11 +42,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TipReviewCard() {
 	const classes = useStyles();
-	const [uploadDate, setUploadDate] = React.useState(Date.now())
+	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
 	const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
 	const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
-	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+	const { data: programsDic } = useSWR(
+		`/api/programs/getAllProgramsDic`,
+		fetcher
+	);
 	let favTips = getFavsTipsFromCookie() || {};
 	const tipNotes = getNotesTipsFromCookie() || {};
 	const tipRatings = getRatingsTipsFromCookie() || {};
@@ -81,32 +84,29 @@ export default function TipReviewCard() {
 
 	return (
 		<div className={styles.container}>
-				{!_.isEqual(tips, []) ? (
-					<Grid container spacing={1000} className={classes.gridContainerMain}>
-						{tips.map((obj, idx) => {
-							if (!obj.tipName || !obj.tipID) {return;}
-								return (
-									<Grid item container xs={12} md={6} justify="center">
-										<TipCard
-											key={obj.tipID}
-											object={obj}
-											isFav={obj.tipID in favTips}
-											onFavClick={() => onFavClick()}
-											initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
-											initRating={
-												obj.id in tipRatings ? tipRatings[obj.id] : 0
-											}
-										/>
-									</Grid>
-								);
-						})}
-					</Grid>
-				) : (
-					<Grid>
-						<h4>No tips to display</h4>
-					</Grid>
-				)
-			}
+			{!_.isEqual(tips, []) ? (
+				<Grid container className={classes.gridContainerMain}>
+					{tips.map((obj, idx) => {
+						if (!obj.tipName || !obj.tipID) {
+							return;
+						}
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<TipCard
+									key={idx}
+									object={obj}
+									initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
+									initRating={obj.id in tipRatings ? tipRatings[obj.id] : 0}
+								/>
+							</Grid>
+						);
+					})}
+				</Grid>
+			) : (
+				<Grid>
+					<h4>No tips to display</h4>
+				</Grid>
+			)}
 
 			<div className={styles.nav}>
 				<Navbar />

@@ -93,11 +93,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function TipCard({
-	object,
-	isFav,
-	onFavClick
-}) {
+export default function TipCard({ object, isFav, onFavClick }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
 	const [obj, setObj] = React.useState(object);
@@ -109,10 +105,38 @@ export default function TipCard({
 	const maxChar = 30.0;
 	const [, updateState] = React.useState();
 
-	const [imgList, setImages] = React.useState(obj.images);
+	const [imgList, setImages] = React.useState(object.images);
+
 	useEffect(() => {
-		setImages(obj.images);
-	}, [obj.images]);
+		setImages(object.images);
+	}, [object.images]);
+
+	// this useEffect is to properly show status of favorited
+	// icons on page or card load (initial load)
+	useEffect(() => {
+		auth.onAuthStateChanged(function (user) {
+			if (user) {
+				const getUserData = async () => {
+					// get the current user's document
+					const data = await db.collection("users").doc(user.uid).get();
+					const tips = data.get("favoriteTips");
+
+					// if user has no favoriteSkills
+					if (!tips || _.isEqual(tips, [])) {
+						setFav(false);
+					} else {
+						if (tips.includes(object.tipID)) setFav(true);
+						else setFav(false);
+					}
+				};
+
+				getUserData();
+			} else {
+				console.log("User isnt logged in!!!");
+			}
+		});
+	}, []);
+
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -193,14 +217,11 @@ export default function TipCard({
 								.doc(user.uid)
 								.update({ favoriteTips: tips });
 						} else {
-							tips.pop(object.tipID);
+							tips.splice(tips.indexOf(object.tipID), 1);
 							await db
 								.collection("users")
 								.doc(user.uid)
-								.update({ favoriteTips: tips })
-								.then(() => {
-									onFavClick();
-								});
+								.update({ favoriteTips: tips });
 						}
 					}
 				};
@@ -238,13 +259,7 @@ export default function TipCard({
 		);
 	}
 
-	// function changeRating(val) {
-	// 	uploadTipsRating(obj, parseFloat(val), parseFloat(rating), setObj);
-	// 	setRating(val);
-	// 	editRatingsTipsCookie(obj.id, val);
-	// }
-
-	if (Object.keys(obj) == 0) {
+	if (Object.keys(object) == 0) {
 		return null;
 	}
 
@@ -266,16 +281,27 @@ export default function TipCard({
 											<FavoriteIcon className={classes.icon} />
 										</IconButton>
 									</Grid>
-									<Grid container item xs={10} alignItems="center" justify="center">
-										<Link href={obj.tipID}>
-											<Typography style={{ fontSize: "calc(min(5vw, 35px))", fontWeight: 300,}}>
-												{obj.tipName}
+									<Grid
+										container
+										item
+										xs={10}
+										alignItems="center"
+										justify="center"
+									>
+										<Link href={object.tipID}>
+											<Typography
+												style={{
+													fontSize: "calc(min(5vw, 35px))",
+													fontWeight: 300,
+												}}
+											>
+												{object.tipName}
 											</Typography>
 										</Link>
 									</Grid>
 								</Grid>
 								<Grid container justify="center">
-									{obj.images == undefined ? (
+									{object.images == undefined ? (
 										<Grid item xs={12}></Grid>
 									) : (
 										<Grid item xs={9}>
@@ -291,13 +317,17 @@ export default function TipCard({
 												href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
 											/>
 											<style>{cssstyle}</style>
-											<img className={classes.media} src={imgList[0]}/>
+											<img className={classes.media} src={imgList[0]} />
 										</Grid>
 									)}
 								</Grid>
 								<Grid container item xs={12} justify="center">
-									<Button variant="contained" color="secondary" classes={{ label: classes.viewButtonLabel }}>
-										<Link href={obj?.tipID}>Watch Video</Link>
+									<Button
+										variant="contained"
+										color="secondary"
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<Link href={object?.tipID}>Watch Video</Link>
 									</Button>
 								</Grid>
 							</Box>

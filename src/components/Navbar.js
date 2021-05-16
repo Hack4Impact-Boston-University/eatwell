@@ -28,6 +28,8 @@ import {
 	Backup,
 	KeyboardArrowRight,
 	Favorite,
+	LocalLibrary,
+	EmojiObjects,
 } from "@material-ui/icons";
 import MenuIcon from "@material-ui/icons/Menu";
 import FirebaseAuth from "./FirebaseAuth";
@@ -184,27 +186,33 @@ const Navbar = () => {
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
 							<Button href={`/skills/skillList`} className={classes.menuItems}>
-								<Book />
+								<LocalLibrary />
 								<Typography variant="subtitle2">Skills</Typography>
 							</Button>
 							<Button href={`/tips/tipList`} className={classes.menuItems}>
-								<Book />
+								<EmojiObjects />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>
 							<Button href={`/profile/favorites`} className={classes.menuItems}>
 								<Favorite />
 								<Typography variant="subtitle2">Favorites</Typography>
 							</Button>
-							{user.role == "admin" ? 
-							<Button href={`/recipes/upload`} className={classes.menuItems}>
-								<Backup />
-								<Typography variant="subtitle2">Upload</Typography>
-							</Button> : <Box></Box>}
-							{user.role == "admin" ? 
-							<Button href={`/profile/admin`} className={classes.menuItems}>
-								<AccountCircle />
-								<Typography variant="subtitle2">Manage</Typography>
-							</Button> : <Box></Box>}
+							{user.role == "admin" ? (
+								<Button href={`/recipes/upload`} className={classes.menuItems}>
+									<Backup style={{ marginRight: "2px" }} />
+									<Typography variant="subtitle2">Upload</Typography>
+								</Button>
+							) : (
+								<Box></Box>
+							)}
+							{user.role == "admin" ? (
+								<Button href={`/profile/admin`} className={classes.menuItems}>
+									<AccountCircle />
+									<Typography variant="subtitle2">Manage</Typography>
+								</Button>
+							) : (
+								<Box></Box>
+							)}
 							<Button
 								onClick={() => logout()}
 								className={`${classes.menuIcon} ${classes.menuItems}`}
