@@ -140,22 +140,22 @@ const UploadForm = () => {
 	const renderRecipeImages = (source) => {
 		return source.map((photo) => {
 			return (
-					<div float="left">
-						<img height="200px" display="block" src={photo} alt="" key={photo} />
-						<ui.IconButton onClick={() => deleteRecipeImage(photo)}> <DeleteIcon /> </ui.IconButton>
-					</div>
-				)
-			}
-		);
+				<div float="left">
+					<img height="200px" display="block" src={photo} alt="" key={photo} />
+					<ui.IconButton onClick={() => deleteRecipeImage(photo)}> <DeleteIcon /> </ui.IconButton>
+				</div>
+			)
+		});
 	};
 
 	const deleteRecipeImage = (photo) => {
 		if (photo) {
-			selectedRecipeImages.pop(photo)
-			setSelectedRecipeImages(selectedRecipeImages)
-			setSelectedRecipeImages((prevImages) => prevImages);
+			setSelectedRecipeImages(selectedRecipeImages.filter(function(x) { 
+				return x !== photo
+			}))
 		}
 	}
+	useEffect(() => {}, [selectedRecipeImages]);
 
 	const handleNutritionalChange = (e) => {
 		if (e.target.files) {
@@ -172,9 +172,23 @@ const UploadForm = () => {
 
 	const renderNutritional = (source) => {
 		return source.map((photo) => {
-			return <img height="200px" display="block" src={photo} alt="" key={photo} />;
+			return (
+				<div float="left">
+					<img height="200px" display="block" src={photo} alt="" key={photo} />
+					<ui.IconButton onClick={() => deleteNutritional(photo)}> <DeleteIcon /> </ui.IconButton>
+				</div>
+			)
 		});
 	};
+
+	const deleteNutritional = (photo) => {
+		if (photo) {
+			setSelectedNutritionalImages(selectedNutritionalImages.filter(function(x) { 
+				return x !== photo
+			}))
+		}
+	}
+	useEffect(() => {}, [selectedNutritionalImages]);
 	
 
 
@@ -503,7 +517,7 @@ const UploadForm = () => {
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
-							<input type="file" id="file" multiple onChange={handleRecipeImagesChange} />
+							<input type="file" id="file" accept="image/*" multiple onChange={handleRecipeImagesChange} />
 							<div className="result">{renderRecipeImages(selectedRecipeImages)}</div>
 						</ui.Grid>
 					</ui.Grid>
@@ -515,14 +529,7 @@ const UploadForm = () => {
 							</ui.Typography>
 						</ui.Grid>
 						<ui.Grid item sm={10} xs={12}>
-							{/* <MultiImageInput
-								images={nutritionalImgs}
-								setImages={setNutritionalImgs}
-								allowCrop={false}
-								inputId
-								max={1}
-							/> */}
-							<input type="file" id="file" multiple onChange={handleNutritionalChange} />
+							<input type="file" id="file" accept="image/*" multiple onChange={handleNutritionalChange} />
 							<div className="result">{renderNutritional(selectedNutritionalImages)}</div>
 						</ui.Grid>
 					</ui.Grid>
