@@ -12,6 +12,8 @@ import _ from "underscore";
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import RecipeCard from "../../components/recipeCard";
+import SkillCard from "../../components/skillCard";
+import TipCard from "../../components/tipCard";
 import { Grid } from "@material-ui/core";
 
 function TabPanel(props) {
@@ -73,6 +75,10 @@ export default function UserFavorites() {
 	const [value, setValue] = React.useState("one");
 	const [userRecipes, setUserRecipes] = React.useState([]);
 	const [allRecipes, setAllRecipes] = React.useState({});
+	const [userSkills, setUserSkills] = React.useState([]);
+	const [allSkills, setAllSkills] = React.useState({});
+	const [userTips, setUserTips] = React.useState([]);
+	const [allTips, setAllTips] = React.useState({});
 
 	// this useEffect will load the user's favorites
 	useEffect(() => {
@@ -90,12 +96,14 @@ export default function UserFavorites() {
 						let data = querySnapshot.data();
 						// set the user's favorite recipes
 						setUserRecipes(data.favoriteRecipes);
+						setUserSkills(data.favoriteSkills);
+						setUserTips(data.favoriteTips);
 					})
 					.catch((error) => {
 						console.log(error);
 					});
 
-				// get all the favorites
+				// get all the favorite recipes
 				firebase
 					.firestore()
 					.collection("recipes")
@@ -111,12 +119,48 @@ export default function UserFavorites() {
 					.catch((error) => {
 						console.log(error);
 					});
+				// get all the favorite skills
+				firebase
+					.firestore()
+					.collection("skills")
+					.orderBy("dateUploaded", "desc")
+					.get()
+					.then((querySnapshot) => {
+						let all = {};
+						querySnapshot.forEach((doc) => {
+							all[doc.id] = doc.data();
+						});
+						setAllSkills(all);
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+				// get all the favorite tips
+				firebase
+					.firestore()
+					.collection("tips")
+					.orderBy("dateUploaded", "desc")
+					.get()
+					.then((querySnapshot) => {
+						let all = {};
+						querySnapshot.forEach((doc) => {
+							all[doc.id] = doc.data();
+						});
+						setAllTips(all);
+					})
+					.catch((error) => {
+						console.log(error);
+					});
 			} else {
 				// No user is signed in.
 				router.push("/");
 			}
 		});
 	}, []);
+
+	useEffect(() => {}, [userSkills]);
+	useEffect(() => {}, [userTips]);
+
 
 	// handle tab click change
 	const handleChange = (event, newValue) => {
@@ -171,18 +215,58 @@ export default function UserFavorites() {
 						}
 					})}
 				</Grid>
-				{console.log(userRecipes)}
-				{console.log(allRecipes)}
 			</TabPanel>
 
 			{/* Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
-				Skills
+				<Grid item container className={classes.gridContainerMain}>
+					{userSkills.map((fav, idx) => {
+						if (fav in allSkills) {
+							// each returned element is a skill card
+							return (
+								<Grid item container xs={12} md={6} justify="center">
+									<SkillCard
+										key={fav}
+										object={allSkills[fav]}
+										isFav={true}
+										// remove the favorite if we click it
+										onFavClick={() => {
+											setUserSkills(
+												userSkills.splice(userSkills.indexOf(fav), 1)
+											);
+										}}
+									/>
+								</Grid>
+							);
+						}
+					})}
+				</Grid>
 			</TabPanel>
 
 			{/* Favorite Tips Panel */}
 			<TabPanel value={value} index="three">
-				Tips
+				<Grid item container className={classes.gridContainerMain}>
+					{userTips.map((fav, idx) => {
+						if (fav in allTips) {
+							// each returned element is a tip card
+							return (
+								<Grid item container xs={12} md={6} justify="center">
+									<TipCard
+										key={fav}
+										object={allTips[fav]}
+										isFav={true}
+										// remove the favorite if we click it
+										onFavClick={() => {
+											setUserTips(
+												userTips.splice(userTips.indexOf(fav), 1)
+											);
+										}}
+									/>
+								</Grid>
+							);
+						}
+					})}
+				</Grid>
 			</TabPanel>
 		</div>
 	);

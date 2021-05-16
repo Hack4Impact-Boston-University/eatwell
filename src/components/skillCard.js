@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function SkillCard({ object, isFav }) {
+export default function SkillCard({ object, isFav, onFavClick }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
 	const [obj, setObj] = React.useState(object);
@@ -102,14 +102,7 @@ export default function SkillCard({ object, isFav }) {
 	const handleExpandClick = () => {
 		setExpanded(!expanded);
 	};
-
-	// const [notes, setNotes] = React.useState(initNotes);
-	// const [note, setNote] = React.useState("");
-
 	const maxChar = 30.0;
-
-	// const [rating, setRating] = React.useState(initRating);
-
 	const [, updateState] = React.useState();
 
 	const [imgList, setImages] = React.useState(obj.images);
@@ -187,21 +180,23 @@ export default function SkillCard({ object, isFav }) {
 						await db
 							.collection("users")
 							.doc(user.uid)
-							.update({ favoriteSkills: [object.skillID] });
-						console.log("favorited skill: ", object.skillID);
+							.update({ favoriteSkills: [obj.skillID] });
 					} else {
-						if (!skills.includes(object.skillID)) {
-							skills.push(object.skillID);
+						if (!skills.includes(obj.skillID)) {
+							skills.push(obj.skillID);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
-						} else if (favorited == true) {
-							skills.pop(object.skillID);
+						} else {
+							skills.pop(obj.skillID);
 							await db
 								.collection("users")
 								.doc(user.uid)
-								.update({ favoriteSkills: skills });
+								.update({ favoriteSkills: skills })
+								.then(() => {
+									onFavClick();
+								});
 						}
 					}
 				};
@@ -212,13 +207,6 @@ export default function SkillCard({ object, isFav }) {
 			}
 		});
 	};
-
-	function handleSubmit() {
-		if (note != "") {
-			setStr(note, notes.length);
-			setNote("");
-		}
-	}
 
 	function setStr(s, i) {
 		var words = s.split(" ");
@@ -246,19 +234,6 @@ export default function SkillCard({ object, isFav }) {
 		);
 	}
 
-	function deleteStr(i) {
-		if (notes.slice(0, i).length != 0) {
-			setNotes(notes.slice(0, i).concat(notes.slice(i + 1)));
-			editNotesSkillsCookie(
-				obj.id,
-				notes.slice(0, i).concat(notes.slice(i + 1))
-			);
-		} else {
-			setNotes(notes.slice(i + 1));
-			editNotesSkillsCookie(obj.id, notes.slice(i + 1));
-		}
-	}
-
 	// function changeRating(val) {
 	// 	uploadSkillsRating(obj, parseFloat(val), parseFloat(rating), setObj);
 	// 	setRating(val);
@@ -269,16 +244,9 @@ export default function SkillCard({ object, isFav }) {
 		return null;
 	}
 
-	const [isFlipped, setIsFlipped] = useState(false);
-
-	const flipClick = () => {
-		setIsFlipped(!isFlipped);
-	};
-
 	return (
-		<Grid item xs={5}>
+		<Grid item xs={10}>
 			<Box pb={3} mr={0.5} ml={0.5}>
-				{/* <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal"> */}
 				<div>
 					<Card className={classes.card}>
 						<CardContent p={0}>
@@ -294,20 +262,9 @@ export default function SkillCard({ object, isFav }) {
 											<FavoriteIcon className={classes.icon} />
 										</IconButton>
 									</Grid>
-									<Grid
-										container
-										item
-										xs={10}
-										alignItems="center"
-										justify="center"
-									>
-										<Link href={obj.id}>
-											<Typography
-												style={{
-													fontSize: "calc(min(5vw, 35px))",
-													fontWeight: 300,
-												}}
-											>
+									<Grid container item xs={10} alignItems="center" justify="center">
+										<Link href={obj.skillID}>
+											<Typography style={{ fontSize: "calc(min(5vw, 35px))", fontWeight: 300,}}>
 												{obj.skillName}
 											</Typography>
 										</Link>
@@ -330,17 +287,12 @@ export default function SkillCard({ object, isFav }) {
 												href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
 											/>
 											<style>{cssstyle}</style>
-
 											<img className={classes.media} src={imgList[0]} />
 										</Grid>
 									)}
 								</Grid>
 								<Grid container item xs={12} justify="center">
-									<Button
-										variant="contained"
-										color="secondary"
-										classes={{ label: classes.viewButtonLabel }}
-									>
+									<Button variant="contained" color="secondary" classes={{ label: classes.viewButtonLabel }}>
 										<Link href={obj?.skillID}>Watch Video</Link>
 									</Button>
 								</Grid>

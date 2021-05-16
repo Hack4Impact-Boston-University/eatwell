@@ -40,39 +40,6 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-// function TabPanel(props) {
-// 	const { children, value, index, ...other } = props;
-
-// 	return (
-// 		<div
-// 			role="tabpanel"
-// 			hidden={value !== index}
-// 			id={`full-width-tabpanel-${index}`}
-// 			aria-labelledby={`full-width-tab-${index}`}
-// 			{...other}
-// 		>
-// 			{value === index && (
-// 				<Box p={3}>
-// 					<Typography>{children}</Typography>
-// 				</Box>
-// 			)}
-// 		</div>
-// 	);
-// }
-
-// TabPanel.propTypes = {
-// 	children: PropTypes.node,
-// 	index: PropTypes.any.isRequired,
-// 	value: PropTypes.any.isRequired,
-// };
-
-// function a11yProps(index) {
-// 	return {
-// 		id: `full-width-tab-${index}`,
-// 		"aria-controls": `full-width-tabpanel-${index}`,
-// 	};
-// }
-
 export default function TipReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now())
@@ -83,27 +50,17 @@ export default function TipReviewCard() {
 	let favTips = getFavsTipsFromCookie() || {};
 	const tipNotes = getNotesTipsFromCookie() || {};
 	const tipRatings = getRatingsTipsFromCookie() || {};
-	//const { data: userData } = useSWR(`/api/favoriteTips/${favoriteTip}`, fetcher);
 	const [value, setValue] = React.useState(0);
-//	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
-
 	const router = useRouter();
-
-	// const handleChange = (event, newValue) => {
-	// 	setValue(newValue);
-	// 	setFavs(newValue == 1);
-	// };
 
 	useEffect(() => {
 		window.addEventListener("beforeunload", () => {
 			if (!_.isEqual(getFavsTipsFromCookie(), undefined)) {
 				upload({
-					// favoriteTips: Object.keys(getFavsTipsFromCookie()),
 					notes: getNotesTipsFromCookie(),
 					ratings: getRatingsTipsFromCookie(),
 				});
-				//uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 			}
 		});
 	});
@@ -111,34 +68,11 @@ export default function TipReviewCard() {
 	const onFavClick = () => {
 		setDummy(!dummy);
 		favTips = getFavsTipsFromCookie() || {};
-		//uploadTipsRating(getRatingsTipsFromCookie(), tipRatings, tips);
 	};
 
 	if (!tips || !tipsDic || !programsDic || !user || !favTips) {
 		return "Loading tips...";
 	}
-
-	const tipsUser = [];
-	// if (!user.program == "") {
-	// 	const keysList = Object.keys(programsDic[user.program]?.programTips)
-	// 	if (_.isEqual(user?.role, "user")) {
-	// 		if (!_.isEqual(user.program, "")) {
-	// 			if (programsDic[user.program]?.programTips != null || programsDic[user.program]?.programTips != []) {
-	// 				var i;
-	// 				for (i = 0; i < keysList.length; i++) {
-	// 					console.log(programsDic[user.program].programTips[keysList[i]])
-	// 					var d = Date.parse(programsDic[user.program].programTips[keysList[i]]+"T00:00:00.0000");
-	// 					if (d < uploadDate) {
-	// 						tipsUser.push(
-	// 							tipsDic[keysList[i]]
-	// 						);
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }	
-
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
 		router.push("/profile/makeProfile");
@@ -147,28 +81,24 @@ export default function TipReviewCard() {
 
 	return (
 		<div className={styles.container}>
-			{/* {user.role == "admin" ? ( */}
 				{!_.isEqual(tips, []) ? (
 					<Grid container spacing={1000} className={classes.gridContainerMain}>
 						{tips.map((obj, idx) => {
 							if (!obj.tipName || !obj.tipID) {return;}
-							//if (!favs || obj.tipID in favTips) {
 								return (
-									<TipCard
-										key={obj.tipID}
-										object={obj}
-										isFav={obj.tipID in favTips}
-										onFavClick={() => onFavClick()}
-										initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
-										initRating={
-											obj.id in tipRatings ? tipRatings[obj.id] : 0
-										}
-									/>
+									<Grid item container xs={12} md={6} justify="center">
+										<TipCard
+											key={obj.tipID}
+											object={obj}
+											isFav={obj.tipID in favTips}
+											onFavClick={() => onFavClick()}
+											initNotes={obj.tipID in tipNotes ? tipNotes[obj.tipID] : []}
+											initRating={
+												obj.id in tipRatings ? tipRatings[obj.id] : 0
+											}
+										/>
+									</Grid>
 								);
-							//} else {
-							//	return;
-							//}
-							//<TipCard obj={tipsUser[4]} isFav = {favTips.favRec.includes(tipsUser[4].tipID)} />
 						})}
 					</Grid>
 				) : (
@@ -176,59 +106,10 @@ export default function TipReviewCard() {
 						<h4>No tips to display</h4>
 					</Grid>
 				)
-			// ) : !_.isEqual(tipsUser, []) ? (
-			// 	<Grid container spacing={1000} className={classes.gridContainerMain}>
-			// 		{tipsUser.map((obj, idx) => {
-			// 			if (!obj.nameOfDish || !obj.id) return;
-			// 			if (!favs || obj.id in favTips) {
-			// 				return (
-			// 					<TipCard
-			// 						key={obj.id}
-			// 						object={obj}
-			// 						isFav={obj.id in favTips}
-			// 						onFavClick={() => onFavClick()}
-			// 						initNotes={obj.id in tipNotes ? tipNotes[obj.id] : []}
-			// 						initRating={
-			// 							obj.id in tipRatings ? tipRatings[obj.id] : 0
-			// 						}
-			// 					/>
-			// 				);
-			// 			} else {
-			// 				return;
-			// 			}
-			// 		})}
-			// 	</Grid>
-			// ) : (
-			// 	<Grid>
-			// 		<h4>No tips to display</h4>
-			// 	</Grid>
-			// )}
 			}
 
 			<div className={styles.nav}>
 				<Navbar />
-
-				{/* <AppBar position="static" color="default">
-					<Tabs
-						value={value}
-						onChange={handleChange}
-						indicatorColor="primary"
-						textColor="primary"
-						variant="fullWidth"
-						aria-label="full width tabs example"
-					>
-						<Tab
-							label="All Tips"
-							{...a11yProps(0)}
-							className={classes.viewTabLabel}
-						/>
-						<Tab
-							label="Favorites Only"
-							{...a11yProps(1)}
-							className={classes.viewTabLabel}
-						/>
-					</Tabs>
-				</AppBar> */}
 			</div>
 		</div>
 	);
