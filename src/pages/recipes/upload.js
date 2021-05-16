@@ -165,9 +165,8 @@ const UploadForm = () => {
 			setSelectedNutritionalImages((prevImages) => prevImages.concat(filesArray));
 			for (var i = 0; i < e.target.files.length; i++) {
 				nutritionalImgs[Object.values(nutritionalImgs).length] = e.target.files[i]
-				setRecipeImgs(nutritionalImgs)
+				setNutritionalImgs(nutritionalImgs)
 			}
-			console.log(nutritionalImgs)
 		};
 	};
 
@@ -206,7 +205,7 @@ const UploadForm = () => {
 		}
 
 		for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			const ref = firebase.storage().ref().child(document.id + i + ".pdf")
+			firebase.storage().ref().child(document.id + i + ".pdf")
 			.put(uploadedRecipeImgs[i]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
 				complete: function () {},
 			});
@@ -215,11 +214,11 @@ const UploadForm = () => {
 		}
 
 		for (i = 0; i < uploadedNutritionalImgs.length; i++) {
-			const ref = firebase.storage().ref().child(document.id + i + ".png")
+			firebase.storage().ref().child(document.id + i + ".png")
 			.put(uploadedNutritionalImgs[i]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
 				complete: function () {},
 			});
-			uploadedNutritionalURL[i] = document.id + i + ".pdf"
+			uploadedNutritionalURL[i] = document.id + i + ".png"
 			setUploadedNutritionalURL(uploadedNutritionalURL)
 		}
 
@@ -231,8 +230,8 @@ const UploadForm = () => {
 			recipeFact: recipeFact,
 			videoRecipe: videoID,
 			images: uploadedImages,
-			recipeImgs: uploadedRecipeNameURL,
-			nutritionalImgs: uploadedNutritionalImgs,
+			recipeImgs: uploadedRecipeImagesURL,
+			nutritionalImgs: uploadedNutritionalURL,
 			dateUploaded: Date.now(),
 			videoSkills: skill,
 			videoTips: tip,

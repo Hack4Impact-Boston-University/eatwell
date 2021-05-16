@@ -73,7 +73,7 @@ function TabPanel(props) {
 		>
 			{value === index && (
 				<Box p={3}>
-					<Typography>{children}</Typography>
+					<Typography component={'span'}>{children}</Typography>
 				</Box>
 			)}
 		</div>
@@ -103,6 +103,9 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: "12vh",
 		marginBottom: "3vh",
 	},
+	lst: {
+		listStyle: "none",
+	}
 }));
 
 export default function Recipe() {
@@ -173,7 +176,6 @@ export default function Recipe() {
 				.catch((error) => {
 					console.log(error);
 				});
-			console.log(imgList)
 		};
 
 		// make sure data exists before trying to fetch all the images
@@ -250,11 +252,11 @@ export default function Recipe() {
 				</div>
 				{/* map out the image urls to img tags */}
 				<ui.Grid container justify="center">
-					{imgList.map((url) => {
-						return (
-								<img display="block" src={url} alt="Recipe image" />
+					<ol className={classes.lst}>
+						{imgList.map((url) => {
+							return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
 						)}
-					)}
+					</ol>
 				</ui.Grid>
 			</TabPanel>
 

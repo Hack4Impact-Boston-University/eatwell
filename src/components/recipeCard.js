@@ -33,7 +33,7 @@ import {
 	setRecipeListener,
 } from "../utils/recipes.js";
 import Slider from "react-slick";
-import firebase from "firebase/app";
+import * as firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
@@ -119,9 +119,7 @@ export default function RecipeCard({
 	const [, updateState] = React.useState();
 
 	const [imgList, setImages] = React.useState(obj.images);
-	const [nutritionalImgs, setNutritionalImgs] = React.useState(
-		obj.nutritionalImgs
-	);
+	const [nutritionalImgs, setNutritionalImgs] = React.useState([]);
 
 	// update recipe images
 	useEffect(() => {
@@ -129,9 +127,36 @@ export default function RecipeCard({
 	}, [obj.images]);
 
 	// update nutritional images
+	// useEffect(() => {
+	// 	setNutritionalImgs(obj.nutritionalImgs);
+	// }, [obj.nutritionalImgs]);
+
 	useEffect(() => {
-		setNutritionalImgs(obj.nutritionalImgs);
-	}, [obj.nutritionalImgs]);
+		// function for firebase storage
+		const getImg = async (i) => {
+			var storageRef = firebase.storage().ref();
+			// Create a reference to the file we want to download
+			var imgRef = storageRef.child(obj.id + i + ".png");
+			// Get the download URLs for each image
+			await imgRef
+				.getDownloadURL()
+				.then((url) => {
+					// append new image url to state var
+					setNutritionalImgs((nutritionalImgs) => [...nutritionalImgs, url]);
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		};
+
+		// make sure data exists before trying to fetch all the images
+		// from firebase storage
+		if (obj && obj.nutritionalImgs!=undefined) {
+			for (let i = 0; i < obj?.nutritionalImgs?.length; i++) {
+				getImg(i);
+			}
+		}
+	}, [obj]);
 
 	var settings = {
 		dots: true,
@@ -584,11 +609,14 @@ export default function RecipeCard({
 											{/* slider for the nutritional facts */}
 											<Slider {...settings}>
 												{Array.isArray(nutritionalImgs) &&
-													obj.nutritionalImgs.map((cell, index) => {
+													nutritionalImgs.map((url) => {
 														return (
 															<img
 																className={classes.media}
-																src={obj?.nutritionalImgs[index]}
+																src={
+																	// obj?.nutritionalImgs[index]
+																	url
+																}
 															/>
 														);
 													})}
