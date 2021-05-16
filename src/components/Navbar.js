@@ -269,6 +269,20 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Tips</Typography>
 									</Button>
 								</MenuItem>
+								<MenuItem button key={1}>
+									<Button
+										href={`/profile/favorites`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<ListItemIcon>
+											<Favorite
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Favorites</Typography>
+									</Button>
+								</MenuItem>
 								{user.role == "user" ? (
 									<UserDrawerItems />
 								) : (
