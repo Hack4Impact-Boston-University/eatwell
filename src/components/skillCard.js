@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function SkillCard({ object, isFav, onFavClick }) {
+export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
 	const [expanded, setExpanded] = React.useState(false);
@@ -157,42 +157,20 @@ export default function SkillCard({ object, isFav, onFavClick }) {
         color: #000;
     }`;
 
-	const getTimeString = (timestamp) => {
-		let date = new Date(timestamp);
-		let month = date.getMonth() + 1;
-		let day = date.getDate();
-		let hour = date.getHours();
-		let min = date.getMinutes();
-		let sec = date.getSeconds();
-
-		month = (month < 10 ? "0" : "") + month;
-		day = (day < 10 ? "0" : "") + day;
-		hour = (hour < 10 ? "0" : "") + hour;
-		min = (min < 10 ? "0" : "") + min;
-		sec = (sec < 10 ? "0" : "") + sec;
-
-		let str =
-			hour +
-			":" +
-			min +
-			":" +
-			sec +
-			" on " +
-			month +
-			"/" +
-			day +
-			"/" +
-			date.getFullYear();
-		return str;
-	};
-
 	const favButtonClick = () => {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
 				const getUserData = async () => {
-					console.log(object.skillID);
+					// if on favorites page, we want this card to disappear
+					if (favorited && inFavoritesPage) {
+						onFavClick();
+					}
+
 					// update click
 					setFav(!favorited);
+					console.log(object.skillID, " ", favorited);
+
+
 					// get the current user's document
 					const data = await db.collection("users").doc(user.uid).get();
 
@@ -259,7 +237,7 @@ export default function SkillCard({ object, isFav, onFavClick }) {
 	}
 
 	return (
-		<Grid item xs={10}>
+		<Grid item xs={10} >
 			<Box pb={3} mr={0.5} ml={0.5}>
 				<div>
 					<Card className={classes.card}>

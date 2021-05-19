@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function TipCard({ object, isFav, onFavClick }) {
+export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
 	const [obj, setObj] = React.useState(object);
@@ -196,6 +196,10 @@ export default function TipCard({ object, isFav, onFavClick }) {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
 				const getUserData = async () => {
+					if (favorited && inFavoritesPage) {
+						onFavClick();
+					}
+
 					// update click
 					setFav(!favorited);
 					// get the current user's document

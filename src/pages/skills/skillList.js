@@ -67,11 +67,6 @@ export default function SkillReviewCard() {
 		});
 	});
 
-	const onFavClick = () => {
-		setDummy(!dummy);
-		favSkills = getFavsSkillsFromCookie() || {};
-	};
-
 	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {
 		return "Loading skills...";
 	}
@@ -96,6 +91,7 @@ export default function SkillReviewCard() {
 									<SkillCard
 										key={obj.skillID}
 										object={obj}
+										inFavoritesPage={false}
 										isFav={obj.skillID in favSkills}
 									/>
 								</Grid>
@@ -110,7 +106,7 @@ export default function SkillReviewCard() {
 			}
 
 			<div className={styles.nav}>
-				<Navbar />				
+				<Navbar />
 			</div>
 		</div>
 	);

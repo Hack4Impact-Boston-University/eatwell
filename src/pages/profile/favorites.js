@@ -119,6 +119,7 @@ export default function UserFavorites() {
 					.catch((error) => {
 						console.log(error);
 					});
+
 				// get all the favorite skills
 				firebase
 					.firestore()
@@ -135,6 +136,7 @@ export default function UserFavorites() {
 					.catch((error) => {
 						console.log(error);
 					});
+
 				// get all the favorite tips
 				firebase
 					.firestore()
@@ -158,9 +160,11 @@ export default function UserFavorites() {
 		});
 	}, []);
 
-	useEffect(() => {}, [userRecipes]);
-	useEffect(() => {}, [userSkills]);
-	useEffect(() => {}, [userTips]);
+	useEffect(() => { }, [userRecipes]);
+	useEffect(() => {
+		console.log(userSkills);
+	}, [userSkills]);
+	useEffect(() => { }, [userTips]);
 
 
 	// handle tab click change
@@ -202,11 +206,11 @@ export default function UserFavorites() {
 										key={fav}
 										object={allRecipes[fav]}
 										isFav={true}
+										inFavoritesPage={true}
 										// remove the favorite if we click it
 										onFavClick={() => {
-											setUserRecipes(
-												userRecipes.splice(userRecipes.indexOf(fav))
-											);
+											const idx = userRecipes.indexOf(fav)
+											setUserRecipes(userRecipes.slice(0, idx).concat(userRecipes.slice(idx + 1)))
 										}}
 										initNotes={[]}
 										initRating={0}
@@ -220,7 +224,7 @@ export default function UserFavorites() {
 
 			{/* Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
-				<Grid item container className={classes.gridContainerMain}>
+				<Grid container className={classes.gridContainerMain}>
 					{userSkills.map((fav, idx) => {
 						if (fav in allSkills) {
 							// each returned element is a skill card
@@ -230,11 +234,14 @@ export default function UserFavorites() {
 										key={fav}
 										object={allSkills[fav]}
 										isFav={true}
+										inFavoritesPage={true}
 										// remove the favorite if we click it
+										// onFavClick={() => {
+										// 	setUserSkills(userSkills.splice(userSkills.indexOf(fav), 1))
+										// }}
 										onFavClick={() => {
-											setUserSkills(
-												userSkills.splice(userSkills.indexOf(fav))
-											);
+											const idx = userSkills.indexOf(fav)
+											setUserSkills(userSkills.slice(0, idx).concat(userSkills.slice(idx + 1)))
 										}}
 									/>
 								</Grid>
@@ -256,11 +263,11 @@ export default function UserFavorites() {
 										key={fav}
 										object={allTips[fav]}
 										isFav={true}
+										inFavoritesPage={true}
 										// remove the favorite if we click it
 										onFavClick={() => {
-											setUserTips(
-												userTips.splice(userTips.indexOf(fav), 1)
-											);
+											const idx = userTips.indexOf(fav)
+											setUserTips(userTips.slice(0, idx).concat(userTips.slice(idx + 1)))
 										}}
 									/>
 								</Grid>

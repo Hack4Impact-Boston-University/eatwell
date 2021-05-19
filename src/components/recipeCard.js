@@ -100,6 +100,7 @@ export default function RecipeCard({
 	initNotes,
 	initRating,
 	isHome,
+	inFavoritesPage
 }) {
 	const classes = useStyles();
 	const [home] = React.useState(isHome);
@@ -153,7 +154,7 @@ export default function RecipeCard({
 
 		// make sure data exists before trying to fetch all the images
 		// from firebase storage
-		if (obj && obj.nutritionalImgs!=undefined) {
+		if (obj && obj.nutritionalImgs != undefined) {
 			for (let i = 0; i < obj?.nutritionalImgs?.length; i++) {
 				getImg(i);
 			}
@@ -218,6 +219,11 @@ export default function RecipeCard({
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
 				const getUserData = async () => {
+					// if on favorites page, we want this card to disappear
+					if (favorited && inFavoritesPage) {
+						onFavClick();
+					}
+
 					// update click
 					setFav(!favorited);
 					// get the current user's document
@@ -239,14 +245,11 @@ export default function RecipeCard({
 								.doc(user.uid)
 								.update({ favoriteRecipes: recipes });
 						} else {
-							recipes.pop(obj.id);
+							recipes.splice(recipes.indexOf(obj.id), 1);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteRecipes: recipes })
-								.then(() => {
-									onFavClick();
-								});
 						}
 					}
 				};

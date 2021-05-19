@@ -46,13 +46,13 @@ export default function RecipeReviewCard() {
 	const { user, upload } = useUser();
 	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	let favRecipes = getFavsFromCookie() || {};
 	const recipeNotes = getNotesFromCookie() || {};
 	const recipeRatings = getRatingsFromCookie() || {};
 	//const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
 	const [value, setValue] = React.useState(0);
-//	const [favs, setFavs] = React.useState(value == 1);
+	//	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
 
 	const router = useRouter();
@@ -79,12 +79,6 @@ export default function RecipeReviewCard() {
 		return () => window.removeEventListener("beforeunload", uploadData);
 	});
 
-	const onFavClick = () => {
-		setDummy(!dummy);
-		favRecipes = getFavsFromCookie() || {};
-		//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
-	};
-
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
 		// router.push("/");
@@ -110,7 +104,7 @@ export default function RecipeReviewCard() {
 						console.log(programsDic[user.program].programRecipes[keysList[i]]);
 						var d = Date.parse(
 							programsDic[user.program].programRecipes[keysList[i]] +
-								"T00:00:00.0000"
+							"T00:00:00.0000"
 						);
 						if (d < uploadDate) {
 							recipesUser.push(recipesDic[keysList[i]]);
@@ -127,24 +121,24 @@ export default function RecipeReviewCard() {
 				!_.isEqual(recipes, []) ? (
 					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) {return;}
+							if (!obj.nameOfDish || !obj.id) { return; }
 							//if (!favs || obj.id in favRecipes) {
-								return (
-									<Grid item container xs={12} md={6} justify="center">
-										<RecipeCard
-											key={obj.id}
-											object={obj}
-											isFav={obj.id in favRecipes}
-											onFavClick={() => onFavClick()}
-											initNotes={
-												obj.id in recipeNotes ? recipeNotes[obj.id] : []
-											}
-											initRating={
-												obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-											}
-										/>
-									</Grid>
-								);
+							return (
+								<Grid item container xs={12} md={6} justify="center">
+									<RecipeCard
+										key={obj.id}
+										object={obj}
+										isFav={obj.id in favRecipes}
+										inFavoritesPage={false}
+										initNotes={
+											obj.id in recipeNotes ? recipeNotes[obj.id] : []
+										}
+										initRating={
+											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+										}
+									/>
+								</Grid>
+							);
 							//} else {
 							//	return;
 							//}
@@ -159,22 +153,22 @@ export default function RecipeReviewCard() {
 			) : !_.isEqual(recipesUser, []) ? (
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
 					{recipesUser.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) {return;}
+						if (!obj.nameOfDish || !obj.id) { return; }
 						//if (!favs || obj.id in favRecipes) {
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-										isFav={obj.id in favRecipes}
-										onFavClick={() => onFavClick()}
-										initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-										}
-									/>
-								</Grid>
-							);
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<RecipeCard
+									key={obj.id}
+									object={obj}
+									isFav={obj.id in favRecipes}
+									onFavClick={() => onFavClick()}
+									initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+									initRating={
+										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+									}
+								/>
+							</Grid>
+						);
 						//} else {
 						//	return;
 						//}
