@@ -26,10 +26,10 @@ import {
 	Book,
 	ExitToApp,
 	Backup,
-	KeyboardArrowRight,
 	Favorite,
 	LocalLibrary,
 	EmojiObjects,
+	Tune,
 } from "@material-ui/icons";
 import MenuIcon from "@material-ui/icons/Menu";
 import FirebaseAuth from "./FirebaseAuth";
@@ -130,7 +130,7 @@ const Navbar = () => {
 						classes={{ label: classes.viewButtonLabel }}
 					>
 						<ListItemIcon>
-							<AccountCircle
+							<TuneRounded
 								className={`${classes.menuIcon} ${classes.menuItems}`}
 							/>
 						</ListItemIcon>
@@ -189,7 +189,7 @@ const Navbar = () => {
 							)}
 							{user.role == "admin" ? (
 								<Button href={`/profile/admin`} className={classes.menuItems}>
-									<AccountCircle />
+									<Tune />
 									<Typography variant="subtitle2">Manage</Typography>
 								</Button>
 							) : (
