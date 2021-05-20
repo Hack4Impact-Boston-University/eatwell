@@ -155,7 +155,6 @@ const UploadForm = () => {
 			}))
 		}
 	}
-	useEffect(() => {}, [selectedRecipeImages]);
 
 	const handleNutritionalChange = (e) => {
 		if (e.target.files) {
@@ -188,9 +187,6 @@ const UploadForm = () => {
 			}))
 		}
 	}
-	useEffect(() => {}, [selectedNutritionalImages]);
-	
-
 
 	async function upload() {
 		var recipe = recipeName.toLowerCase();

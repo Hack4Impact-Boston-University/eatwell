@@ -236,9 +236,6 @@ export default function UserFavorites() {
 										isFav={true}
 										inFavoritesPage={true}
 										// remove the favorite if we click it
-										// onFavClick={() => {
-										// 	setUserSkills(userSkills.splice(userSkills.indexOf(fav), 1))
-										// }}
 										onFavClick={() => {
 											const idx = userSkills.indexOf(fav)
 											setUserSkills(userSkills.slice(0, idx).concat(userSkills.slice(idx + 1)))

@@ -17,6 +17,8 @@ import DropDownMenu from "material-ui/DropDownMenu";
 import useSWR from "swr";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import AddIcon from "@material-ui/icons/Add";
+import RemoveIcon from "@material-ui/icons/Remove";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AppBar from "@material-ui/core/AppBar";
@@ -132,7 +134,10 @@ const useStyles = makeStyles((theme) => ({
   },
   codes: {
     columns: "1 auto"
-  }
+  },
+  lst: {
+		listStyle: "none",
+	}
 }));
 
 const getTimeString = timestamp => {
@@ -160,7 +165,7 @@ const fetcher = async (...args) => {
 
 var db = firebase.firestore();
 
-export default function Admin() {
+export default function Manage() {
 
   const classes = useStyles();
   const [checked, setChecked] = React.useState([0]);
@@ -306,7 +311,6 @@ export default function Admin() {
   useEffect(() => {
     let date = new Date(Date.now());
     date.setMonth((date.getMonth() + 1) % 12);
-    console.log(getDateString(date.getTime()));
     setAddedProgramEndDate(getDateString(date.getTime()));
   }, []);
 
@@ -393,7 +397,6 @@ export default function Admin() {
         if(code?.program == p?.program) {
           acc++;
         }
-        console.log(acc)
         return acc
       }, 0)
     )
@@ -430,7 +433,6 @@ export default function Admin() {
     return batch.commit();
   }
   function addCodes() {
-    console.log(program);
     createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.program)
     .then(()=>{
       setOpenAddCodes(false); 
@@ -479,7 +481,6 @@ export default function Admin() {
       alert("No program name specified");
       return; 
     }
-    console.log(addedProgramEndDate);
     db.collection('programs').doc(id).set({programName:addedProgram,program:id, programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
     .then(() => {
       return createCodes(addedProgram, addedProgramNumUsers, id);
@@ -699,7 +700,6 @@ export default function Admin() {
   const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
   const handleClickOpenRecipePdf = (currentRecipe) => {
     setRecipeInstructionImages(currentRecipe.recipeImgs)
-    console.log(recipeInstructionImages)
     setOpenRecipePdf(true);
     setCurrentRecipe(currentRecipe);
   };
@@ -726,34 +726,183 @@ export default function Admin() {
   };
 
   // view / edit nutrition pdf
-  const [recipeNutritionImages, setRecipeNutritionImages] = React.useState("");
-  const [openRecipeNutrition, setOpenRecipeNutrition] = React.useState(false);
-  const handleClickOpenRecipeNutrition = (currentRecipe) => {
-    setRecipeNutritionImages(currentRecipe.nutritionalImgs)
-    setOpenRecipeNutrition(true);
+  const [openViewRecipeNutrition, setOpenViewRecipeNutrition] = React.useState(false);
+  const [openRemoveRecipeNutrition, setOpenRemoveRecipeNutrition] = React.useState(false);
+  const [openAddRecipeNutrition, setOpenAddRecipeNutrition] = React.useState(false);
+  const [nutritionalImgs, setNutritionalImgs] = useState({});
+  var uploadedNutritionalImgs = [];
+  const [selectedNutritionalImages, setSelectedNutritionalImages] = useState([]);
+  const [uploadedNutritionalURL, setUploadedNutritionalURL] = useState([]);
+  const [deleteNutritionalURL, setDeleteNutritionalURL] = useState([]);
+  // view
+  const handleClickOpenViewRecipeNutrition = (currentRecipe) => {
+    setUploadedNutritionalURL(currentRecipe.nutritionalImgs)
+    var vals = Object.values(currentRecipe.nutritionalImgs)
+    const getImg = async (i) => {
+      var storageRef = firebase.storage().ref();
+      var imgRef = storageRef.child(currentRecipe.id + i + ".png");
+      await imgRef
+        .getDownloadURL()
+        .then((url) => {
+          if (vals.includes(currentRecipe.id + i + ".png")) {
+            setSelectedNutritionalImages((imgList) => [...imgList, url]);
+          } else {
+            setSelectedNutritionalImages((imgList) => [...imgList, ""]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+    if (currentRecipe) {
+      for (let i = 0; i < currentRecipe.nutritionalImgs.length; i++) {
+        getImg(i);
+      }
+    }
+    setOpenViewRecipeNutrition(true);
     setCurrentRecipe(currentRecipe);
   };
-  const handleCloseRecipeNutrition = () => {
-    setOpenRecipeNutrition(false);
+  const handleCloseViewRecipeNutrition = () => {
+    setOpenViewRecipeNutrition(false);
+    setNutritionalImgs({})
+    setSelectedNutritionalImages([])
+    setUploadedNutritionalURL([])
   };
-  const handleSubmitRecipeNutrition = (currentRecipe) => {
+  // add
+  const handleClickOpenAddRecipeNutrition = (currentRecipe) => {
+    setOpenAddRecipeNutrition(true);
+    setCurrentRecipe(currentRecipe);
+    setUploadedNutritionalURL(currentRecipe.nutritionalImgs)
+  };
+  const handleNutritionalChange = (e) => {
+		if (e.target.files) {
+			const filesArray = Array.from(e.target.files).map((file) =>
+				URL.createObjectURL(file)
+			)
+			setSelectedNutritionalImages((prevImages) => prevImages.concat(filesArray));
+			for (var i = 0; i < e.target.files.length; i++) {
+				nutritionalImgs[Object.values(nutritionalImgs).length] = e.target.files[i]
+				setNutritionalImgs(nutritionalImgs)
+			}
+		};
+	};
+	const renderNutritional = (source) => {
+		return source.map((photo) => {
+      return (
+        <div float="left">
+          <img height="200px" display="block" src={photo} alt="" key={photo} />
+          <IconButton onClick={() => deleteNutritional(photo)}> <DeleteIcon /> </IconButton>
+        </div>
+      )
+		});
+	};
+	const deleteNutritional = (photo) => {
+		if (photo) {
+			setSelectedNutritionalImages(selectedNutritionalImages.filter(function(x) { 
+				return x !== photo
+			}))
+		}
+	}
+  const handleCloseAddRecipeNutrition = () => {
+    setOpenAddRecipeNutrition(false);
+    setNutritionalImgs({})
+    setSelectedNutritionalImages([])
+    setNutritionalImgs({})
+  };
+  const handleSubmitAddRecipeNutrition = (currentRecipe) => {
     var i;
-    var uploadedNutritionImgs = Object.values(recipeNutritionImages);
-    var uploadedRecipeNames = [];
-    var document = firebase.firestore().collection("recipes").doc();
-    for (i = 0; i < uploadedNutritionImgs.length; i++) {
-      uploadedRecipeNames.push(document.id + i + ".png");
-    }
-    db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionImgs, dateUploaded: uploadDate})
-    for (i = 0; i < uploadedNutritionImgs.length; i++) {
-      firebase.storage().ref().child(currentRecipe.id + i + ".png").putString(uploadedNutritionImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
-          complete: function () {},
-        });
-    }
+    var uploadedNutritionalImgs = Object.values(nutritionalImgs);
+    var n = uploadedNutritionalURL.length
+    console.log(uploadedNutritionalImgs)
+    console.log(uploadedNutritionalURL)
+    for (i = n; i < uploadedNutritionalImgs.length + n; i++) {
+			firebase.storage().ref().child(currentRecipe.id + i + ".png")
+			.put(uploadedNutritionalImgs[i-n]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+				complete: function () {},
+			});
+			uploadedNutritionalURL[i] = currentRecipe.id + i + ".png"
+			setUploadedNutritionalURL(uploadedNutritionalURL)
+		}
+    db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionalURL, dateUploaded: uploadDate})
     alert("successfully edited nutritional image!");
-    setRecipeNutritionImages([]);
-    setOpenRecipeNutrition(false);
+    setNutritionalImgs({});
+    setSelectedNutritionalImages([]);
+		setUploadedNutritionalURL([]);
+		uploadedNutritionalImgs = [];
+    setOpenAddRecipeNutrition(false);
   };
+  // remove
+  const handleClickOpenRemoveRecipeNutrition = (currentRecipe) => {
+    setUploadedNutritionalURL(currentRecipe.nutritionalImgs)
+    var vals = Object.values(currentRecipe.nutritionalImgs)
+    const getImg = async (i) => {
+      var storageRef = firebase.storage().ref();
+      var imgRef = storageRef.child(currentRecipe.id + i + ".png");
+      await imgRef
+        .getDownloadURL()
+        .then((url) => {
+          if (vals.includes(currentRecipe.id + i + ".png")) {
+            setSelectedNutritionalImages((imgList) => [...imgList, url]);
+          } else {
+            setSelectedNutritionalImages((imgList) => [...imgList, ""]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+    if (currentRecipe) {
+      for (let i = 0; i < currentRecipe.nutritionalImgs.length; i++) {
+        getImg(i);
+      }
+    }
+    setOpenRemoveRecipeNutrition(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const renderRemoveNutritional = (source) => {
+    return source.map((photo,index) => {
+      if (!_.isEqual(photo, "")) {
+        return (
+          <div float="left">
+            <img display="block" src={photo} alt="Recipe image" />
+            <IconButton onClick={() => deleteRemoveNutritional(photo,index)}> <DeleteIcon /> </IconButton>
+          </div>
+        )
+      }
+		});
+  }
+  const deleteRemoveNutritional = (photo,index) => {
+    uploadedNutritionalURL[index] = ""
+		if (photo) {
+			setSelectedNutritionalImages(selectedNutritionalImages.filter(function(x) { 
+				return x !== photo
+			}))
+		}
+    deleteNutritionalURL.push(currentRecipe.id+index+".png")
+    setDeleteNutritionalURL(deleteNutritionalURL)
+    console.log(deleteNutritionalURL)
+	}
+  const handleCloseRemoveRecipeNutrition = () => {
+    setNutritionalImgs({})
+    setUploadedNutritionalURL([]);
+    setSelectedNutritionalImages([]);
+    setDeleteNutritionalURL([]);
+    setOpenRemoveRecipeNutrition(false);
+  };
+  const handleSubmitRemoveRecipeNutrition = (currentRecipe) => {
+    var storageRef = firebase.storage().ref();
+    for (var i = 0; i < deleteNutritionalURL.length; i++) {
+      var ref = storageRef.child(deleteNutritionalURL[i]);
+      ref.delete().then(() => {}).catch((error) => {});
+    }
+    db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionalURL, dateUploaded: uploadDate})
+    alert("successfully removed image!");
+    setNutritionalImgs({})
+    setUploadedNutritionalURL([]);
+    setSelectedNutritionalImages([]);
+    setDeleteNutritionalURL([]);
+    setOpenRemoveRecipeNutrition(false);
+  }
 
   // edit recipe video
   const [recipeVideo, setRecipeVideo] = React.useState("");
@@ -1233,6 +1382,7 @@ export default function Admin() {
                       </AccordionSummary>
                       <AccordionDetails>
                         <ol className={classes.noNum}>
+                          <li>Email: {value?.email}</li>
                           <li>Phone: {value?.phone}</li>
                           {value?.role == "user" ? (
                           <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
@@ -1452,26 +1602,6 @@ export default function Admin() {
                                   </IconButton>
                                 </ListItemSecondaryAction>
                               </ListItem>
-                            // <Accordion>
-                            //   <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                            //     <ListItemAvatar>
-                            //       <Avatar
-                            //       // alt={`Avatar n°${value + 1}`}
-                            //       // src={`/static/images/avatar/${value + 1}.jpg`}
-                            //       />
-                            //     </ListItemAvatar>
-                            //     <ListItemText primary={code?.id}/>
-                            //   </AccordionSummary>
-                            //   <AccordionDetails>
-                            //       <ol className={classes.noNum}>
-                            //         {Object.keys(code).map((key) => {
-                            //           if(key != "id") {
-                            //             return <li>{key}: {code[key]}</li>
-                            //           }
-                            //         })}
-                            //       </ol>
-                            //   </AccordionDetails>
-                            // </Accordion>
                             )}
                           })}
                         </List>
@@ -1598,7 +1728,11 @@ export default function Admin() {
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe images <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton></li>
-                          <li>Nutrition images <IconButton onClick={() => handleClickOpenRecipeNutrition(value)}> <EditIcon/> </IconButton></li>
+                          <li>Nutrition images
+                            <IconButton onClick={() => handleClickOpenViewRecipeNutrition(value)}> <VisibilityIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenAddRecipeNutrition(value)}> <AddIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenRemoveRecipeNutrition(value)}> <RemoveIcon/> </IconButton>
+                          </li>
                           <li>Recipe video
                             <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenRecipeVideo(value)}> <EditIcon/> </IconButton>
@@ -1698,15 +1832,38 @@ export default function Admin() {
             </Dialog>
           )}
           {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipeNutrition} onClose={handleCloseRecipeNutrition}>
-              <DialogTitle>Edit Nutritional Facts</DialogTitle>
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeNutrition} onClose={handleCloseViewRecipeNutrition}>
+              <DialogTitle>View Nutritional Facts</DialogTitle>
               <DialogContent>
-                  <MultiImageInput
-                    images={recipeNutritionImages} setImages={setRecipeNutritionImages}
-                    cropConfig={{crop: {unit: "%", aspect: 3 / 5, height: "100" }}} inputId  max={1}
-                  />
-                  <Button onClick={handleCloseRecipeNutrition} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
+                  <ol className={classes.lst}>
+                    {selectedNutritionalImages.map((url) => {
+                      if (!_.isEqual(url, "")) {
+                        return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
+                      }
+                    )}
+                  </ol>
+                  <Button onClick={handleCloseViewRecipeNutrition} color="primary"> Close </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openAddRecipeNutrition} onClose={handleCloseAddRecipeNutrition}>
+              <DialogTitle>Add Nutritional Facts</DialogTitle>
+              <DialogContent>
+                  <input type="file" id="file" accept="image/*" multiple onChange={handleNutritionalChange} />
+                  <div className="result">{renderNutritional(selectedNutritionalImages)}</div>
+                  <Button onClick={handleCloseAddRecipeNutrition} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitAddRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRemoveRecipeNutrition} onClose={handleCloseRemoveRecipeNutrition}>
+              <DialogTitle>Remove Nutritional Facts</DialogTitle>
+              <DialogContent>
+                  <div className="result">{renderRemoveNutritional(selectedNutritionalImages)}</div>
+                  <Button onClick={handleCloseRemoveRecipeNutrition} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRemoveRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}

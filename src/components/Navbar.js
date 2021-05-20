@@ -125,14 +125,12 @@ const Navbar = () => {
 
 				<MenuItem button key={3} className={classes.menuItems}>
 					<Button
-						href={`/profile/admin`}
+						href={`/profile/manage`}
 						className={classes.menuItems}
 						classes={{ label: classes.viewButtonLabel }}
 					>
 						<ListItemIcon>
-							<TuneRounded
-								className={`${classes.menuIcon} ${classes.menuItems}`}
-							/>
+							<Tune className={`${classes.menuIcon} ${classes.menuItems}`}/>
 						</ListItemIcon>
 						<Typography variant="subtitle1">Manage</Typography>
 					</Button>
@@ -175,7 +173,7 @@ const Navbar = () => {
 								<EmojiObjects />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>
-							<Button href={`/profile/favorites`} className={classes.menuItems}>
+							<Button href={`/recipes/favorites`} className={classes.menuItems}>
 								<Favorite />
 								<Typography variant="subtitle2">Favorites</Typography>
 							</Button>
@@ -188,7 +186,7 @@ const Navbar = () => {
 								<Box></Box>
 							)}
 							{user.role == "admin" ? (
-								<Button href={`/profile/admin`} className={classes.menuItems}>
+								<Button href={`/profile/manage`} className={classes.menuItems}>
 									<Tune />
 									<Typography variant="subtitle2">Manage</Typography>
 								</Button>
@@ -271,7 +269,7 @@ const Navbar = () => {
 								</MenuItem>
 								<MenuItem button key={1}>
 									<Button
-										href={`/profile/favorites`}
+										href={`/recipes/favorites`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
 									>
