@@ -161,8 +161,7 @@ export default function Recipe() {
 
 	useEffect(() => {
 		// function for firebase storage
-		var vals = Object.values(data.recipeImgs)
-		const getImg = async (i) => {
+		const getImg = async (i, vals) => {
 			var storageRef = firebase.storage().ref();
 			// Create a reference to the file we want to download
 			var imgRef = storageRef.child(data.id + i + ".pdf");
@@ -171,7 +170,7 @@ export default function Recipe() {
 				.getDownloadURL()
 				.then((url) => {
 					// append new image url to state var
-					if (vals.includes(currentRecipe.id + i + ".pdf")) {
+					if (vals.includes(data.id + i + ".pdf")) {
 						setImgList((imgList) => [...imgList, url]);
 					} else {
 						setImgList((imgList) => [...imgList, ""]);
@@ -185,8 +184,9 @@ export default function Recipe() {
 		// make sure data exists before trying to fetch all the images
 		// from firebase storage
 		if (data) {
+			var vals = Object.values(data.recipeImgs)
 			for (let i = 0; i < data.recipeImgs.length; i++) {
-				getImg(i);
+				getImg(i, vals);
 			}
 		}
 	}, [data]);

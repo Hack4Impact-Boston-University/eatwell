@@ -124,19 +124,8 @@ export default function RecipeCard({
 	const [imgList, setImages] = React.useState(obj.images);
 	const [nutritionalImgs, setNutritionalImgs] = React.useState([]);
 
-	// // update recipe images
-	// useEffect(() => {
-	// 	setImages(obj.images);
-	// }, [obj.images]);
-
-	// // update nutritional images
-	// // useEffect(() => {
-	// // 	setNutritionalImgs(obj.nutritionalImgs);
-	// // }, [obj.nutritionalImgs]);
-
 	useEffect(() => {
 		// function for firebase storage
-		var vals = Object.values(obj.nutritionalImgs)
 		const getImg = async (i) => {
 			var storageRef = firebase.storage().ref();
 			// Create a reference to the file we want to download
@@ -146,11 +135,7 @@ export default function RecipeCard({
 				.getDownloadURL()
 				.then((url) => {
 					// append new image url to state var
-					if (vals.includes(obj.id + i + ".png")) {
-						setNutritionalImgs((imgList) => [...imgList, url]);
-					} else {
-						setNutritionalImgs((imgList) => [...imgList, ""]);
-					}
+					setNutritionalImgs((nutritionalImgs) => [...nutritionalImgs, url]);
 				})
 				.catch((error) => {
 					console.log(error);
@@ -663,9 +648,9 @@ export default function RecipeCard({
 											<Slider {...settings}>
 												{Array.isArray(nutritionalImgs) &&
 													nutritionalImgs.map((url) => {
-													  if (!_.isEqual(url, "")) {
-														return (<img className={classes.media} src={url}/>);
-													  }
+														return (
+															<img className={classes.media} src={url}/>
+														);
 													})}
 											</Slider>
 										</Grid>

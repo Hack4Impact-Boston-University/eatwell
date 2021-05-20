@@ -705,7 +705,8 @@ export default function Manage() {
   const [uploadedInstructionURL, setUploadedInstructionURL] = useState([]);
   const [deleteInstructionURL, setDeleteInstructionURL] = useState([]);
   // view
-  const handleClickOpenViewRecipeInstruction = (currentRecipe) => {
+  const handleClickOpenViewRecipeInstruction = async (currentRecipe) => {
+    setSelectedInstructionImages(Array(currentRecipe.recipeImgs.length).fill(""))
     setUploadedInstructionURL(currentRecipe.recipeImgs)
     var vals = Object.values(currentRecipe.recipeImgs)
     const getImg = async (i) => {
@@ -715,9 +716,11 @@ export default function Manage() {
         .getDownloadURL()
         .then((url) => {
           if (vals.includes(currentRecipe.id + i + ".pdf")) {
-            setSelectedInstructionImages((imgList) => [...imgList, url]);
+            selectedInstructionImages[i] = url
+            setSelectedInstructionImages(selectedInstructionImages);
           } else {
-            setSelectedInstructionImages((imgList) => [...imgList, ""]);
+            selectedInstructionImages[i] = ""
+            setSelectedInstructionImages(selectedInstructionImages);
           }
         })
         .catch((error) => {
@@ -726,7 +729,7 @@ export default function Manage() {
     };
     if (currentRecipe) {
       for (let i = 0; i < currentRecipe.recipeImgs.length; i++) {
-        getImg(i);
+        await getImg(i);
       }
     }
     setOpenViewRecipeInstruction(true);
@@ -801,7 +804,8 @@ export default function Manage() {
     setOpenAddRecipeInstruction(false);
   };
   // remove
-  const handleClickOpenRemoveRecipeInstruction = (currentRecipe) => {
+  const handleClickOpenRemoveRecipeInstruction = async (currentRecipe) => {
+    setSelectedInstructionImages(Array(currentRecipe.recipeImgs.length).fill(""))
     setUploadedInstructionURL(currentRecipe.recipeImgs)
     var vals = Object.values(currentRecipe.recipeImgs)
     const getImg = async (i) => {
@@ -811,9 +815,11 @@ export default function Manage() {
         .getDownloadURL()
         .then((url) => {
           if (vals.includes(currentRecipe.id + i + ".pdf")) {
-            setSelectedInstructionImages((imgList) => [...imgList, url]);
+            selectedInstructionImages[i] = url
+            setSelectedInstructionImages(selectedInstructionImages);
           } else {
-            setSelectedInstructionImages((imgList) => [...imgList, ""]);
+            selectedInstructionImages[i] = ""
+            setSelectedInstructionImages(selectedInstructionImages);
           }
         })
         .catch((error) => {
@@ -822,15 +828,13 @@ export default function Manage() {
     };
     if (currentRecipe) {
       for (let i = 0; i < currentRecipe.recipeImgs.length; i++) {
-        getImg(i);
+        await getImg(i);
       }
     }
     setOpenRemoveRecipeInstruction(true);
     setCurrentRecipe(currentRecipe);
   };
   const renderRemoveInstruction = (source) => {
-    console.log(selectedInstructionImages)
-    Array.prototype.reverse.call(source);
     return source.map((photo,index) => {
       if (!_.isEqual(photo, "")) {
         return (
