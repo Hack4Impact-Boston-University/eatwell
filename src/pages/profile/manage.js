@@ -695,36 +695,6 @@ export default function Manage() {
     setOpenRecipeImages(false);
   };
 
-  // // view / edit instruction jpg
-  // const [recipeInstructionImages, setRecipeInstructionImages] = React.useState("");
-  // const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
-  // const handleClickOpenRecipePdf = (currentRecipe) => {
-  //   setRecipeInstructionImages(currentRecipe.recipeImgs)
-  //   setOpenRecipePdf(true);
-  //   setCurrentRecipe(currentRecipe);
-  // };
-  // const handleCloseRecipePdf = () => {
-  //   setOpenRecipePdf(false);
-  // };
-  // const handleSubmitRecipePdf = (currentRecipe) => {
-  //   var i;
-	// 	var uploadedRecipeImgs = Object.values(recipeInstructionImages);
-	// 	var uploadedRecipeNames = [];
-	// 	var document = firebase.firestore().collection("recipes").doc();
-	// 	for (i = 0; i < uploadedRecipeImgs.length; i++) {
-	// 		uploadedRecipeNames.push(document.id + i + ".pdf");
-	// 	}
-  //   db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedRecipeImgs, dateUploaded: uploadDate})
-  //   for (i = 0; i < uploadedRecipeImgs.length; i++) {
-	// 		firebase.storage().ref().child(currentRecipe.id + i + ".pdf").putString(uploadedRecipeImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
-	// 				complete: function () {},
-	// 			});
-	// 	}
-  //   alert("successfully edited recipe images!");
-  //   setRecipeInstructionImages([]);
-  //   setOpenRecipePdf(false);
-  // };
-
   // view / edit instruction pdf
   const [openViewRecipeInstruction, setOpenViewRecipeInstruction] = React.useState(false);
   const [openRemoveRecipeInstruction, setOpenRemoveRecipeInstruction] = React.useState(false);
@@ -890,11 +860,6 @@ export default function Manage() {
     setOpenRemoveRecipeInstruction(false);
   };
   const handleSubmitRemoveRecipeInstruction = (currentRecipe) => {
-    // var storageRef = firebase.storage().ref();
-    // for (var i = 0; i < deleteInstructionURL.length; i++) {
-    //   var ref = storageRef.child(deleteInstructionURL[i]);
-    //   ref.delete().then(() => {}).catch((error) => {});
-    // }
     db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedInstructionURL, dateUploaded: uploadDate})
     alert("successfully removed image!");
     setInstructionImgs({})
@@ -906,8 +871,7 @@ export default function Manage() {
 
   // view / edit nutrition png
   const [openViewRecipeNutrition, setOpenViewRecipeNutrition] = React.useState(false);
-  const [openRemoveRecipeNutrition, setOpenRemoveRecipeNutrition] = React.useState(false);
-  const [openAddRecipeNutrition, setOpenAddRecipeNutrition] = React.useState(false);
+  const [openEditRecipeNutrition, setOpenEditRecipeNutrition] = React.useState(false);
   const [nutritionalImgs, setNutritionalImgs] = useState({});
   var uploadedNutritionalImgs = [];
   const [selectedNutritionalImages, setSelectedNutritionalImages] = useState([]);
@@ -947,22 +911,17 @@ export default function Manage() {
     setSelectedNutritionalImages([])
     setUploadedNutritionalURL([])
   };
-  // add
-  const handleClickOpenAddRecipeNutrition = (currentRecipe) => {
-    setOpenAddRecipeNutrition(true);
+  // edit
+  const handleClickOpenEditRecipeNutrition = (currentRecipe) => {
+    setOpenEditRecipeNutrition(true);
     setCurrentRecipe(currentRecipe);
     setUploadedNutritionalURL(currentRecipe.nutritionalImgs)
   };
   const handleNutritionalChange = (e) => {
-		if (e.target.files) {
-			const filesArray = Array.from(e.target.files).map((file) =>
-				URL.createObjectURL(file)
-			)
-			setSelectedNutritionalImages((prevImages) => prevImages.concat(filesArray));
-			for (var i = 0; i < e.target.files.length; i++) {
-				nutritionalImgs[Object.values(nutritionalImgs).length] = e.target.files[i]
-				setNutritionalImgs(nutritionalImgs)
-			}
+		if (e.target.files[0]) {
+			setSelectedNutritionalImages([URL.createObjectURL(e.target.files[0])]);
+      nutritionalImgs[0] = e.target.files[0]
+      setNutritionalImgs(nutritionalImgs)
 		};
 	};
 	const renderNutritional = (source) => {
@@ -982,108 +941,35 @@ export default function Manage() {
 			}))
 		}
 	}
-  const handleCloseAddRecipeNutrition = () => {
-    setOpenAddRecipeNutrition(false);
+  const handleCloseEditRecipeNutrition = () => {
+    setOpenEditRecipeNutrition(false);
     setNutritionalImgs({})
     setSelectedNutritionalImages([])
     setNutritionalImgs({})
     setUploadedNutritionURL([]);
     setUploadedNutritionURL([]);
   };
-  const handleSubmitAddRecipeNutrition = (currentRecipe) => {
-    var i;
+  const handleSubmitEditRecipeNutrition = (currentRecipe) => {
     var uploadedNutritionalImgs = Object.values(nutritionalImgs);
-    var n = uploadedNutritionalURL.length
-    console.log(uploadedNutritionalImgs)
-    console.log(uploadedNutritionalURL)
-    for (i = n; i < uploadedNutritionalImgs.length + n; i++) {
-			firebase.storage().ref().child(currentRecipe.id + i + ".png")
-			.put(uploadedNutritionalImgs[i-n]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
-				complete: function () {},
-			});
-			uploadedNutritionalURL[i] = currentRecipe.id + i + ".png"
-			setUploadedNutritionalURL(uploadedNutritionalURL)
-		}
+    // delete the previous photo
+    var storageRef = firebase.storage().ref();
+    var ref = storageRef.child(currentRecipe.id + 0 + ".png");
+    ref.delete().then(() => {}).catch((error) => {});
+    // put the new photo
+    firebase.storage().ref().child(currentRecipe.id + 0 + ".png")
+      .put(uploadedNutritionalImgs[0]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+        complete: function () {},
+      });
+    uploadedNutritionalURL[0] = currentRecipe.id + 0 + ".png"
+    setUploadedNutritionalURL(uploadedNutritionalURL)
     db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionalURL, dateUploaded: uploadDate})
     alert("successfully edited nutritional image!");
     setNutritionalImgs({});
     setSelectedNutritionalImages([]);
 		setUploadedNutritionalURL([]);
 		uploadedNutritionalImgs = [];
-    setOpenAddRecipeNutrition(false);
+    setOpenEditRecipeNutrition(false);
   };
-  // remove
-  const handleClickOpenRemoveRecipeNutrition = (currentRecipe) => {
-    setUploadedNutritionalURL(currentRecipe.nutritionalImgs)
-    var vals = Object.values(currentRecipe.nutritionalImgs)
-    const getImg = async (i) => {
-      var storageRef = firebase.storage().ref();
-      var imgRef = storageRef.child(currentRecipe.id + i + ".png");
-      await imgRef
-        .getDownloadURL()
-        .then((url) => {
-          if (vals.includes(currentRecipe.id + i + ".png")) {
-            setSelectedNutritionalImages((imgList) => [...imgList, url]);
-          } else {
-            setSelectedNutritionalImages((imgList) => [...imgList, ""]);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    if (currentRecipe) {
-      for (let i = 0; i < currentRecipe.nutritionalImgs.length; i++) {
-        getImg(i);
-      }
-    }
-    setOpenRemoveRecipeNutrition(true);
-    setCurrentRecipe(currentRecipe);
-  };
-  const renderRemoveNutritional = (source) => {
-    return source.map((photo,index) => {
-      if (!_.isEqual(photo, "")) {
-        return (
-          <div float="left">
-            <img display="block" src={photo} alt="Recipe image" />
-            <IconButton onClick={() => deleteRemoveNutritional(photo,index)}> <DeleteIcon /> </IconButton>
-          </div>
-        )
-      }
-		});
-  }
-  const deleteRemoveNutritional = (photo,index) => {
-    uploadedNutritionalURL[index] = ""
-		if (photo) {
-			setSelectedNutritionalImages(selectedNutritionalImages.filter(function(x) { 
-				return x !== photo
-			}))
-		}
-    deleteNutritionalURL.push(currentRecipe.id+index+".png")
-    setDeleteNutritionalURL(deleteNutritionalURL)
-    console.log(deleteNutritionalURL)
-	}
-  const handleCloseRemoveRecipeNutrition = () => {
-    setNutritionalImgs({})
-    setUploadedNutritionalURL([]);
-    setSelectedNutritionalImages([]);
-    setDeleteNutritionalURL([]);
-    setOpenRemoveRecipeNutrition(false);
-  };
-  const handleSubmitRemoveRecipeNutrition = (currentRecipe) => {
-    var storageRef = firebase.storage().ref();
-    for (var i = 0; i < deleteNutritionalURL.length; i++) {
-      var ref = storageRef.child(deleteNutritionalURL[i]);
-      ref.delete().then(() => {}).catch((error) => {});
-    }
-    db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionalURL, dateUploaded: uploadDate})
-    alert("successfully removed image!");
-    setNutritionalImgs({})
-    setUploadedNutritionalURL([]);
-    setSelectedNutritionalImages([]);
-    setDeleteNutritionalURL([]);
-    setOpenRemoveRecipeNutrition(false);
-  }
 
   // edit recipe video
   const [recipeVideo, setRecipeVideo] = React.useState("");
@@ -1916,8 +1802,7 @@ export default function Manage() {
                           </li>
                           <li>Nutrition images
                             <IconButton onClick={() => handleClickOpenViewRecipeNutrition(value)}> <VisibilityIcon/> </IconButton>
-                            <IconButton onClick={() => handleClickOpenAddRecipeNutrition(value)}> <AddIcon/> </IconButton>
-                            <IconButton onClick={() => handleClickOpenRemoveRecipeNutrition(value)}> <RemoveIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenEditRecipeNutrition(value)}> <EditIcon/> </IconButton>
                           </li>
                           <li>Recipe video
                             <IconButton onClick={() => handleClickOpenViewRecipeVideo(value)}> <VisibilityIcon/> </IconButton>
@@ -2056,23 +1941,13 @@ export default function Manage() {
             </Dialog>
           )}
           {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openAddRecipeNutrition} onClose={handleCloseAddRecipeNutrition}>
-              <DialogTitle>Add Nutritional Facts</DialogTitle>
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditRecipeNutrition} onClose={handleCloseEditRecipeNutrition}>
+              <DialogTitle>Edit Nutritional Facts</DialogTitle>
               <DialogContent>
-                  <input type="file" id="file" accept="image/*" multiple onChange={handleNutritionalChange} />
+                  <input type="file" id="file" accept="image/*" onChange={handleNutritionalChange} />
                   <div className="result">{renderNutritional(selectedNutritionalImages)}</div>
-                  <Button onClick={handleCloseAddRecipeNutrition} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitAddRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
-              </DialogContent>
-            </Dialog>
-          )}
-          {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openRemoveRecipeNutrition} onClose={handleCloseRemoveRecipeNutrition}>
-              <DialogTitle>Remove Nutritional Facts</DialogTitle>
-              <DialogContent>
-                  <div className="result">{renderRemoveNutritional(selectedNutritionalImages)}</div>
-                  <Button onClick={handleCloseRemoveRecipeNutrition} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitRemoveRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
+                  <Button onClick={handleCloseEditRecipeNutrition} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitEditRecipeNutrition(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}
