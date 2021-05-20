@@ -179,7 +179,7 @@ export default function Manage() {
   const [searchRecipe, setSearchRecipe] = React.useState("");
   const [searchSkill, setSearchSkill] = React.useState("");
   const [searchTip, setSearchTip] = React.useState("");
-  const [currentRecipe, setCurrentRecipe] = React.useState("");
+  const [currentRecipe, setCurrentRecipe] = React.useState({});
   const [currentSkill, setCurrentSkill] = React.useState("");
   const [currentTip, setCurrentTip] = React.useState("");
 
@@ -592,7 +592,6 @@ export default function Manage() {
 
   // ---------------------- 2: ADMIN MANAGE RECIPES ----------------------
   // edit recipe name
-  const [recipeID, setRecipeID] = React.useState("");
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
   const handleClickOpenRecipeName = (currentRecipe) => {
@@ -706,7 +705,6 @@ export default function Manage() {
   const [deleteInstructionURL, setDeleteInstructionURL] = useState([]);
   // view
   const handleClickOpenViewRecipeInstruction = async (currentRecipe) => {
-    setSelectedInstructionImages(Array(currentRecipe.recipeImgs.length).fill(""))
     setUploadedInstructionURL(currentRecipe.recipeImgs)
     var vals = Object.values(currentRecipe.recipeImgs)
     const getImg = async (i) => {
@@ -716,11 +714,9 @@ export default function Manage() {
         .getDownloadURL()
         .then((url) => {
           if (vals.includes(currentRecipe.id + i + ".pdf")) {
-            selectedInstructionImages[i] = url
-            setSelectedInstructionImages(selectedInstructionImages);
+            setSelectedInstructionImages((imgList) => [...imgList, url]);
           } else {
-            selectedInstructionImages[i] = ""
-            setSelectedInstructionImages(selectedInstructionImages);
+            setSelectedInstructionImages((imgList) => [...imgList, ""]);
           }
         })
         .catch((error) => {
@@ -805,7 +801,6 @@ export default function Manage() {
   };
   // remove
   const handleClickOpenRemoveRecipeInstruction = async (currentRecipe) => {
-    setSelectedInstructionImages(Array(currentRecipe.recipeImgs.length).fill(""))
     setUploadedInstructionURL(currentRecipe.recipeImgs)
     var vals = Object.values(currentRecipe.recipeImgs)
     const getImg = async (i) => {
@@ -815,11 +810,9 @@ export default function Manage() {
         .getDownloadURL()
         .then((url) => {
           if (vals.includes(currentRecipe.id + i + ".pdf")) {
-            selectedInstructionImages[i] = url
-            setSelectedInstructionImages(selectedInstructionImages);
+            setSelectedInstructionImages((imgList) => [...imgList, url]);
           } else {
-            selectedInstructionImages[i] = ""
-            setSelectedInstructionImages(selectedInstructionImages);
+            setSelectedInstructionImages((imgList) => [...imgList, ""]);
           }
         })
         .catch((error) => {
@@ -1084,14 +1077,26 @@ export default function Manage() {
   // delete recipe
   const [openDeleteRecipe, setOpenDeleteRecipe] = React.useState(false);
   const handleClickOpenDeleteRecipe = (currentRecipe) => {
-    setRecipeID(currentRecipe);
     setOpenDeleteRecipe(true);
-    setCurrentRecipe(recipesDic[currentRecipe].nameOfDish);
+    setCurrentRecipe(currentRecipe);
   };
   const handleCloseDeleteRecipe = () => {
     setOpenDeleteRecipe(false);
   };
-  const handleSubmitDeleteRecipe = () => {
+  const handleSubmitDeleteRecipe = (currentRecipe) => {
+    var storageRef = firebase.storage().ref();
+    for (let i = 0; i < currentRecipe.images.length; i++) {
+      var ref = storageRef.child(currentRecipe.id + i + ".jpg");
+      ref.delete().then(() => {}).catch((error) => {});
+    }
+    for (let i = 0; i < currentRecipe.recipeImgs.length; i++) {
+      var ref = storageRef.child(currentRecipe.id + i + ".pdf");
+      ref.delete().then(() => {}).catch((error) => {});
+    }
+    for (let i = 0; i < currentRecipe.nutritionalImgs.length; i++) {
+      var ref = storageRef.child(currentRecipe.id + i + ".png");
+      ref.delete().then(() => {}).catch((error) => {});
+    }
     db.collection("recipes").doc(recipeID).delete();
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
@@ -1118,24 +1123,6 @@ export default function Manage() {
     alert("successfully edited skill name!");
     setSkillName('');
     setOpenSkillName(false);
-  };
-
-  // edit skill description
-  const [skillDescription, setSkillDescription] = React.useState("");
-  const [openSkillDescription, setOpenSkillDescription] = React.useState(false);
-  const handleClickOpenSkillDescription = (currentSkill) => {
-    setSkillDescription(currentSkill.description)
-    setOpenSkillDescription(true);
-    setCurrentSkill(currentSkill);
-  };
-  const handleCloseSkillDescription = () => {
-    setOpenSkillDescription(false);
-  };
-  const handleSubmitSkillDescription = (currentSkill) => {
-    db.collection('skills').doc(currentSkill.skillID).update({description:skillDescription, dateUploaded: uploadDate})
-    alert("successfully edited skill description!");
-    setSkillDescription('');
-    setOpenSkillDescription(false);
   };
 
   // edit skill images
@@ -1171,7 +1158,7 @@ export default function Manage() {
   const [openViewSkillVideo, setOpenViewSkillVideo] = React.useState(false);
   const [openSkillVideo, setOpenSkillVideo] = React.useState(false);
   const handleClickOpenViewSkillVideo = (currentSkill) => {
-    setSkillVideo(currentSkill)
+    setSkillVideo(currentSkill.url)
     setOpenViewSkillVideo(true);
     setCurrentSkill(currentSkill);
   };
@@ -1179,7 +1166,7 @@ export default function Manage() {
     setOpenViewSkillVideo(false);
   };
   const handleClickOpenSkillVideo = (currentSkill) => {
-    setSkillVideo(currentSkill)
+    setSkillVideo(currentSkill.url)
     setOpenSkillVideo(true);
     setCurrentSkill(currentSkill);
   };
@@ -1232,24 +1219,6 @@ export default function Manage() {
     setOpenTipName(false);
   };
 
-  // edit tip description
-  const [tipDescription, setTipDescription] = React.useState("");
-  const [openTipDescription, setOpenTipDescription] = React.useState(false);
-  const handleClickOpenTipDescription = (currentTip) => {
-    setTipDescription(currentTip.description)
-    setOpenTipDescription(true);
-    setCurrentTip(currentTip);
-  };
-  const handleCloseTipDescription = () => {
-    setOpenTipDescription(false);
-  };
-  const handleSubmitTipDescription = (currentTip) => {
-    db.collection('tips').doc(currentTip.tipID).update({description:tipDescription, dateUploaded: uploadDate})
-    alert("successfully edited tip description!");
-    setTipDescription('');
-    setOpenTipDescription(false);
-  };
-
   // edit tip images
   const [tipImages, setTipImages] = React.useState([]);
   const [openTipImages, setOpenTipImages] = React.useState(false);
@@ -1283,7 +1252,7 @@ export default function Manage() {
   const [openViewTipVideo, setOpenViewTipVideo] = React.useState(false);
   const [openTipVideo, setOpenTipVideo] = React.useState(false);
   const handleClickOpenViewTipVideo = (currentTip) => {
-    setTipVideo(currentTip)
+    setTipVideo(currentTip.url)
     setOpenViewTipVideo(true);
     setCurrentTip(currentTip);
   };
@@ -1291,7 +1260,7 @@ export default function Manage() {
     setOpenViewTipVideo(false);
   };
   const handleClickOpenTipVideo = (currentTip) => {
-    setTipVideo(currentTip)
+    setTipVideo(currentTip.url)
     setOpenTipVideo(true);
     setCurrentTip(currentTip);
   };
@@ -1821,7 +1790,7 @@ export default function Manage() {
                             <IconButton onClick={() => handleClickOpenRecipeTips(value)}> <EditIcon/> </IconButton>
                           </li>
                           {/* ---------------------------- delete recipe ---------------------------- */}
-                          <li><IconButton onClick={() => handleClickOpenDeleteRecipe(value.id)}> <DeleteIcon /> </IconButton></li>
+                          <li><IconButton onClick={() => handleClickOpenDeleteRecipe(value)}> <DeleteIcon /> </IconButton></li>
                         </ol>
                       </AccordionDetails>
                     </Accordion>
@@ -2063,10 +2032,10 @@ export default function Manage() {
           )}
           {currentRecipe && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteRecipe} onClose={handleCloseDeleteRecipe}>
-              <DialogTitle>Are you sure you want to delete the recipe: {currentRecipe}?</DialogTitle>
+              <DialogTitle>Are you sure you want to delete the recipe: {currentRecipe.nameOfDish}?</DialogTitle>
               <DialogActions>
                 <Button onClick={handleCloseDeleteRecipe} color="primary"> Cancel </Button>
-                <Button onClick={() => handleSubmitDeleteRecipe()} color="primary"> Ok </Button>
+                <Button onClick={() => handleSubmitDeleteRecipe(currentRecipe)} color="primary"> Ok </Button>
               </DialogActions>
             </Dialog>
           )}

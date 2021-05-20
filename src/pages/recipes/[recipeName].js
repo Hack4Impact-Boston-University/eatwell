@@ -20,6 +20,7 @@ import styles from "../../styles/Home.module.css";
 
 import { getUserFromCookie } from "../../utils/cookies";
 import Slider from "react-slick";
+import _ from "underscore";
 
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
@@ -183,39 +184,17 @@ export default function Recipe() {
 
 		// make sure data exists before trying to fetch all the images
 		// from firebase storage
-		if (data) {
-			var vals = Object.values(data.recipeImgs)
-			for (let i = 0; i < data.recipeImgs.length; i++) {
-				getImg(i, vals);
+		const start = async () => {
+			if (data) {
+				var vals = Object.values(data.recipeImgs)
+				for (let i = 0; i < data.recipeImgs.length; i++) {
+					await getImg(i, vals);
+				}
 			}
 		}
-	}, [data]);
 
-	// Decompress an LZW-encoded string
-	function lzw_decode(s) {
-		var dict = {};
-		var data = (s + "").split("");
-		var currChar = data[0];
-		var oldPhrase = currChar;
-		var out = [currChar];
-		var code = 256;
-		var phrase;
-		for (var i=1; i<data.length; i++) {
-			var currCode = data[i].charCodeAt(0);
-			if (currCode < 256) {
-				phrase = data[i];
-			}
-			else {
-			phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
-			}
-			out.push(phrase);
-			currChar = phrase.charAt(0);
-			dict[code] = oldPhrase + currChar;
-			code++;
-			oldPhrase = phrase;
-		}
-		return out.join("");
-	}
+		start()
+	}, [data]);
 
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
@@ -258,7 +237,9 @@ export default function Recipe() {
 				<ui.Grid container justify="center">
 					<ol className={classes.lst}>
 						{imgList.map((url) => {
+					      if (!_.isEqual(url, "")) {
 							return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
+						  }
 						)}
 					</ol>
 				</ui.Grid>
