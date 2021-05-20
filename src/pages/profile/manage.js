@@ -664,7 +664,7 @@ export default function Manage() {
     setOpenRecipeFact(false);
   };
 
-  // edit recipe images
+  // edit cover images
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
   const crop = {
@@ -695,37 +695,216 @@ export default function Manage() {
     setOpenRecipeImages(false);
   };
 
-  // view / edit recipe pdf
-  const [recipeInstructionImages, setRecipeInstructionImages] = React.useState("");
-  const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
-  const handleClickOpenRecipePdf = (currentRecipe) => {
-    setRecipeInstructionImages(currentRecipe.recipeImgs)
-    setOpenRecipePdf(true);
+  // // view / edit instruction jpg
+  // const [recipeInstructionImages, setRecipeInstructionImages] = React.useState("");
+  // const [openRecipePdf, setOpenRecipePdf] = React.useState(false);
+  // const handleClickOpenRecipePdf = (currentRecipe) => {
+  //   setRecipeInstructionImages(currentRecipe.recipeImgs)
+  //   setOpenRecipePdf(true);
+  //   setCurrentRecipe(currentRecipe);
+  // };
+  // const handleCloseRecipePdf = () => {
+  //   setOpenRecipePdf(false);
+  // };
+  // const handleSubmitRecipePdf = (currentRecipe) => {
+  //   var i;
+	// 	var uploadedRecipeImgs = Object.values(recipeInstructionImages);
+	// 	var uploadedRecipeNames = [];
+	// 	var document = firebase.firestore().collection("recipes").doc();
+	// 	for (i = 0; i < uploadedRecipeImgs.length; i++) {
+	// 		uploadedRecipeNames.push(document.id + i + ".pdf");
+	// 	}
+  //   db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedRecipeImgs, dateUploaded: uploadDate})
+  //   for (i = 0; i < uploadedRecipeImgs.length; i++) {
+	// 		firebase.storage().ref().child(currentRecipe.id + i + ".pdf").putString(uploadedRecipeImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
+	// 				complete: function () {},
+	// 			});
+	// 	}
+  //   alert("successfully edited recipe images!");
+  //   setRecipeInstructionImages([]);
+  //   setOpenRecipePdf(false);
+  // };
+
+  // view / edit instruction pdf
+  const [openViewRecipeInstruction, setOpenViewRecipeInstruction] = React.useState(false);
+  const [openRemoveRecipeInstruction, setOpenRemoveRecipeInstruction] = React.useState(false);
+  const [openAddRecipeInstruction, setOpenAddRecipeInstruction] = React.useState(false);
+  const [instructionImgs, setInstructionImgs] = useState({});
+  var uploadedInstructionImgs = [];
+  const [selectedInstructionImages, setSelectedInstructionImages] = useState([]);
+  const [uploadedInstructionURL, setUploadedInstructionURL] = useState([]);
+  const [deleteInstructionURL, setDeleteInstructionURL] = useState([]);
+  // view
+  const handleClickOpenViewRecipeInstruction = (currentRecipe) => {
+    setUploadedInstructionURL(currentRecipe.recipeImgs)
+    var vals = Object.values(currentRecipe.recipeImgs)
+    const getImg = async (i) => {
+      var storageRef = firebase.storage().ref();
+      var imgRef = storageRef.child(currentRecipe.id + i + ".pdf");
+      await imgRef
+        .getDownloadURL()
+        .then((url) => {
+          if (vals.includes(currentRecipe.id + i + ".pdf")) {
+            setSelectedInstructionImages((imgList) => [...imgList, url]);
+          } else {
+            setSelectedInstructionImages((imgList) => [...imgList, ""]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+    if (currentRecipe) {
+      for (let i = 0; i < currentRecipe.recipeImgs.length; i++) {
+        getImg(i);
+      }
+    }
+    setOpenViewRecipeInstruction(true);
     setCurrentRecipe(currentRecipe);
   };
-  const handleCloseRecipePdf = () => {
-    setOpenRecipePdf(false);
+  const handleCloseViewRecipeInstruction = () => {
+    setOpenViewRecipeInstruction(false);
+    setInstructionImgs({})
+    setSelectedInstructionImages([])
+    setUploadedInstructionURL([])
   };
-  const handleSubmitRecipePdf = (currentRecipe) => {
+  // add
+  const handleClickOpenAddRecipeInstruction = (currentRecipe) => {
+    setOpenAddRecipeInstruction(true);
+    setCurrentRecipe(currentRecipe);
+    setUploadedInstructionURL(currentRecipe.recipeImgs)
+  };
+  const handleInstructionChange = (e) => {
+		if (e.target.files) {
+			const filesArray = Array.from(e.target.files).map((file) =>
+				URL.createObjectURL(file)
+			)
+			setSelectedInstructionImages((prevImages) => prevImages.concat(filesArray));
+			for (var i = 0; i < e.target.files.length; i++) {
+				instructionImgs[Object.values(instructionImgs).length] = e.target.files[i]
+				setInstructionImgs(instructionImgs)
+			}
+		};
+	};
+	const renderInstruction = (source) => {
+		return source.map((photo) => {
+      return (
+        <div float="left">
+          <img height="200px" display="block" src={photo} alt="" key={photo} />
+          <IconButton onClick={() => deleteInstruction(photo)}> <DeleteIcon /> </IconButton>
+        </div>
+      )
+		});
+	};
+	const deleteInstruction = (photo) => {
+		if (photo) {
+			setSelectedInstructionImages(selectedInstructionImages.filter(function(x) { 
+				return x !== photo
+			}))
+		}
+	}
+  const handleCloseAddRecipeInstruction = () => {
+    setOpenAddRecipeInstruction(false);
+    setInstructionImgs({})
+    setSelectedInstructionImages([])
+    setUploadedInstructionURL([]);
+    setUploadedInstructionURL([]);
+  };
+  const handleSubmitAddRecipeInstruction = (currentRecipe) => {
     var i;
-		var uploadedRecipeImgs = Object.values(recipeInstructionImages);
-		var uploadedRecipeNames = [];
-		var document = firebase.firestore().collection("recipes").doc();
-		for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			uploadedRecipeNames.push(document.id + i + ".pdf");
+    var uploadedInstructionImgs = Object.values(instructionImgs);
+    var n = uploadedInstructionURL.length
+    for (i = n; i < uploadedInstructionImgs.length + n; i++) {
+			firebase.storage().ref().child(currentRecipe.id + i + ".pdf")
+			.put(uploadedInstructionImgs[i-n]).on(firebase.storage.TaskEvent.STATE_CHANGED, {
+				complete: function () {},
+			});
+			uploadedInstructionURL[i] = currentRecipe.id + i + ".pdf"
+			setUploadedInstructionURL(uploadedInstructionURL)
 		}
-    db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedRecipeImgs, dateUploaded: uploadDate})
-    for (i = 0; i < uploadedRecipeImgs.length; i++) {
-			firebase.storage().ref().child(currentRecipe.id + i + ".pdf").putString(uploadedRecipeImgs[i], "data_url").on(firebase.storage.TaskEvent.STATE_CHANGED, {
-					complete: function () {},
-				});
-		}
-    alert("successfully edited recipe images!");
-    setRecipeInstructionImages([]);
-    setOpenRecipePdf(false);
+    db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedInstructionURL, dateUploaded: uploadDate})
+    alert("successfully edited instruction image!");
+    setInstructionImgs({});
+    setSelectedInstructionImages([]);
+		setUploadedInstructionURL([]);
+		uploadedInstructionImgs = [];
+    setOpenAddRecipeInstruction(false);
   };
+  // remove
+  const handleClickOpenRemoveRecipeInstruction = (currentRecipe) => {
+    setUploadedInstructionURL(currentRecipe.recipeImgs)
+    var vals = Object.values(currentRecipe.recipeImgs)
+    const getImg = async (i) => {
+      var storageRef = firebase.storage().ref();
+      var imgRef = storageRef.child(currentRecipe.id + i + ".pdf");
+      await imgRef
+        .getDownloadURL()
+        .then((url) => {
+          if (vals.includes(currentRecipe.id + i + ".pdf")) {
+            setSelectedInstructionImages((imgList) => [...imgList, url]);
+          } else {
+            setSelectedInstructionImages((imgList) => [...imgList, ""]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+    if (currentRecipe) {
+      for (let i = 0; i < currentRecipe.recipeImgs.length; i++) {
+        getImg(i);
+      }
+    }
+    setOpenRemoveRecipeInstruction(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const renderRemoveInstruction = (source) => {
+    console.log(selectedInstructionImages)
+    Array.prototype.reverse.call(source);
+    return source.map((photo,index) => {
+      if (!_.isEqual(photo, "")) {
+        return (
+          <div float="left">
+            <img display="block" src={photo} alt="Recipe image" />
+            <IconButton onClick={() => deleteRemoveInstruction(photo,index)}> <DeleteIcon /> </IconButton>
+          </div>
+        )
+      }
+		});
+  }
+  const deleteRemoveInstruction = (photo,index) => {
+    uploadedInstructionURL[index] = ""
+		if (photo) {
+			setSelectedInstructionImages(selectedInstructionImages.filter(function(x) { 
+				return x !== photo
+			}))
+		}
+    deleteInstructionURL.push(currentRecipe.id+index+".pdf")
+    setDeleteInstructionURL(deleteInstructionURL)
+	}
+  const handleCloseRemoveRecipeInstruction = () => {
+    setInstructionImgs({})
+    setUploadedInstructionURL([]);
+    setSelectedInstructionImages([]);
+    setDeleteInstructionURL([]);
+    setOpenRemoveRecipeInstruction(false);
+  };
+  const handleSubmitRemoveRecipeInstruction = (currentRecipe) => {
+    // var storageRef = firebase.storage().ref();
+    // for (var i = 0; i < deleteInstructionURL.length; i++) {
+    //   var ref = storageRef.child(deleteInstructionURL[i]);
+    //   ref.delete().then(() => {}).catch((error) => {});
+    // }
+    db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedInstructionURL, dateUploaded: uploadDate})
+    alert("successfully removed image!");
+    setInstructionImgs({})
+    setUploadedInstructionURL([]);
+    setSelectedInstructionImages([]);
+    setDeleteInstructionURL([]);
+    setOpenRemoveRecipeInstruction(false);
+  }
 
-  // view / edit nutrition pdf
+  // view / edit nutrition png
   const [openViewRecipeNutrition, setOpenViewRecipeNutrition] = React.useState(false);
   const [openRemoveRecipeNutrition, setOpenRemoveRecipeNutrition] = React.useState(false);
   const [openAddRecipeNutrition, setOpenAddRecipeNutrition] = React.useState(false);
@@ -808,6 +987,8 @@ export default function Manage() {
     setNutritionalImgs({})
     setSelectedNutritionalImages([])
     setNutritionalImgs({})
+    setUploadedNutritionURL([]);
+    setUploadedNutritionURL([]);
   };
   const handleSubmitAddRecipeNutrition = (currentRecipe) => {
     var i;
@@ -1728,6 +1909,11 @@ export default function Manage() {
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe images <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton></li>
+                          <li>Instruction images
+                            <IconButton onClick={() => handleClickOpenViewRecipeInstruction(value)}> <VisibilityIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenAddRecipeInstruction(value)}> <AddIcon/> </IconButton>
+                            <IconButton onClick={() => handleClickOpenRemoveRecipeInstruction(value)}> <RemoveIcon/> </IconButton>
+                          </li>
                           <li>Nutrition images
                             <IconButton onClick={() => handleClickOpenViewRecipeNutrition(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenAddRecipeNutrition(value)}> <AddIcon/> </IconButton>
@@ -1819,15 +2005,38 @@ export default function Manage() {
             </Dialog>
           )}
           {currentRecipe && (
-            <Dialog disableBackdropClick disableEscapeKeyDown open={openRecipePdf} onClose={handleCloseRecipePdf}>
-              <DialogTitle>Edit Recipe Instructions</DialogTitle>
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openViewRecipeInstruction} onClose={handleCloseViewRecipeInstruction}>
+              <DialogTitle>View Instruction</DialogTitle>
               <DialogContent>
-                  <MultiImageInput
-                    images={recipeInstructionImages} setImages={setRecipeInstructionImages}
-                    cropConfig={{crop: {unit: "%", aspect: 3 / 5, height: "100" }}} inputId  max={3}
-                  />
-                  <Button onClick={handleCloseRecipePdf} color="primary"> Cancel </Button>
-                  <Button onClick={() => handleSubmitRecipePdf(currentRecipe)} color="primary"> Confirm </Button>
+                  <ol className={classes.lst}>
+                    {selectedInstructionImages.map((url) => {
+                      if (!_.isEqual(url, "")) {
+                        return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
+                      }
+                    )}
+                  </ol>
+                  <Button onClick={handleCloseViewRecipeInstruction} color="primary"> Close </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openAddRecipeInstruction} onClose={handleCloseAddRecipeInstruction}>
+              <DialogTitle>Add Instruction Facts</DialogTitle>
+              <DialogContent>
+                  <input type="file" id="file" accept="image/*" multiple onChange={handleInstructionChange} />
+                  <div className="result">{renderInstruction(selectedInstructionImages)}</div>
+                  <Button onClick={handleCloseAddRecipeInstruction} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitAddRecipeInstruction(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openRemoveRecipeInstruction} onClose={handleCloseRemoveRecipeInstruction}>
+              <DialogTitle>Remove Instruction Facts</DialogTitle>
+              <DialogContent>
+                  <div className="result">{renderRemoveInstruction(selectedInstructionImages)}</div>
+                  <Button onClick={handleCloseRemoveRecipeInstruction} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitRemoveRecipeInstruction(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}
