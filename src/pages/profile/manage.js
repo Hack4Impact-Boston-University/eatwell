@@ -29,7 +29,7 @@ import styles from "../../styles/Home.module.css";
 import * as firebase from "firebase";
 import initFirebase from "../../utils/auth/initFirebase";
 import { useRouter } from 'next/router';
-import { PictureAsPdf, Router } from '@material-ui/icons'
+import { FormatColorResetOutlined, PictureAsPdf, Router } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
 import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
@@ -186,6 +186,7 @@ export default function Manage() {
   const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
   // const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
   const {data: codes } = useSWR(`/api/codes/getAllCodes`, fetcher);
+  const [currentCodes, setCurrentCodes] = React.useState([])
   const router = useRouter();
   const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
   const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
@@ -300,7 +301,7 @@ export default function Manage() {
   const [addedProgramEndDate, setAddedProgramEndDate] = useState('');
   const [newProgramEndDate, setNewProgramEndDate] = useState('');
   const [numCodes, setNumCodes] = useState('');
-  const [numProgramCodes, setNumProgramCodes] = useState('');
+  const [numProgramCodes, setNumProgramCodes] = useState(0);
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
@@ -392,14 +393,13 @@ export default function Manage() {
 
   const setSelectedProgram = (p) => {
     setSelectedProgramProgram(p)
-    setNumProgramCodes(
-      codes.reduce((acc, code) => {
-        if(code?.program == p?.program) {
-          acc++;
-        }
-        return acc
-      }, 0)
-    )
+    setCurrentCodes([])
+    codes.forEach(code => {
+      if (code?.program == p?.program) {
+        setCurrentCodes((codeList) => [...codeList, code]);
+      }
+    })
+    setNumProgramCodes(currentCodes.length)
   }
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
@@ -439,10 +439,11 @@ export default function Manage() {
       setNumCodes('');
       alert("Successfully added codes!")
     }).catch((err) => alert(err))
+    setNumProgramCodes(parseInt(currentCodes.length)+parseInt(numCodes))
   }
-  function deleteCode(id) {
-    db.collection("codes").doc(id).delete().then(() => {
-      alert("Successfully delete code!")
+  async function deleteCode(id) {
+    setNumProgramCodes(parseInt(currentCodes.length)-1)
+    await db.collection("codes").doc(id).delete().then(() => {
     }).catch((err) => alert(err))
   }
   function getRandom(arr, n) {
@@ -462,16 +463,13 @@ export default function Manage() {
     if(numCodes > numProgramCodes) {
       alert("There are only " + numProgramCodes + " codes!");
     }
-    let delCodes = getRandom(codes, numCodes);
-    var batch = db.batch();
+    let delCodes = getRandom(currentCodes, numCodes);
     delCodes.forEach((code) => {
-      batch.delete(db.collection("codes").doc(code?.id))
+      deleteCode(code?.id)
     })
-    batch.commit().then(()=> {
-      setOpenDeleteCodes(false); 
-      setNumCodes('');
-      alert("Successfully deleted codes!")
-    }).catch((err) => alert(err))
+    alert("Successfully deleted codes!")
+    setNumCodes('');
+    setOpenDeleteCodes(false);
   }
 
   const addProgram = () => {
@@ -1502,27 +1500,18 @@ export default function Manage() {
                 </ListItem>
 
                 <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
+                <div><small>** Double tap on the program name!</small></div>
                 {programs.map((value) => {
-                  if (value["programName"]?.includes(searchProgram) || value["programName"]?.toLowerCase()?.includes(searchProgram)) {
-                    if (value.programName == selectedProgramProgram?.programName) {
-                      return (
-                        <Grid item>                      
-                          <ListItem key={value?.programName} button selected={true}
-                            onClick={() => {setSelectedProgram(value); setRowsFunc(value)}}>
-                            <ListItemText>{value?.programName}</ListItemText>
-                          </ListItem>
-                          <Divider light />
-                        </Grid>);}
-                    else {
-                      return (
-                        <Grid item>                      
-                          <ListItem
-                            key={value?.programName} button selected={false} classes={{ selected: classes.active }}
-                            onClick={() => {setSelectedProgram(value); setRowsFunc(value)}}>
-                            <ListItemText>{value?.programName}</ListItemText>
-                          </ListItem>
-                          <Divider light />
-                        </Grid>);}}})}
+                  if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
+                    return (
+                      <Grid item>                      
+                        <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
+                          onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
+                          <ListItemText>{value?.programName}</ListItemText>
+                        </ListItem>
+                        <Divider light />
+                      </Grid>);}
+                  })}
               </List>
             </Grid>
 
@@ -1530,7 +1519,9 @@ export default function Manage() {
               <Grid container direction="row" spacing={3}>
                 <Grid item xs={6}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
-                    <div> {/* ----------------------- delete program ----------------------- */}
+                    <div> 
+                      <h2>Program: {selectedProgramProgram?.programName}</h2>
+                      {/* ----------------------- delete program ----------------------- */}
                       <ListItem key={"Delete Program"} button selected={true} onClick={() => setSelectedProgram(selectedProgramProgram)}>
                         <Button variant="outlined" fullWidth onClick={() => handleClickOpenDeleteProgram()}>Delete Program </Button>
                       </ListItem>
@@ -1579,9 +1570,9 @@ export default function Manage() {
                         
                       </div>
                     }
-                  </div>
-                  }
-                </Grid></Grid>
+                  </div>}
+                </Grid>
+              </Grid>
                 <Grid item xs={6}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
                     <div> {/* ----------------------- edit users list ----------------------- */}
@@ -1617,13 +1608,11 @@ export default function Manage() {
                       );
                     }) : <Grid></Grid>
                   }
-                  {Object.keys(selectedProgramProgram).length > 0 ?
-                    <div>
-                    {codes != null && numProgramCodes > 0 && (
+                  {<div>
+                    {currentCodes != null && numProgramCodes > 0 && (
                       <div> {/* ----------------------- edit users list ----------------------- */}
                       <List>
                         <ListItemText> Unused Codes - {numProgramCodes}
-                        {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
                         </ListItemText>
                       </List>
                       <Paper style={{maxHeight: 260, overflow: 'auto'}}>
@@ -1648,13 +1637,16 @@ export default function Manage() {
                       </Paper>
                       </div>)
                       }
-                      <ListItem key={"Add Code"}>
-                        <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
-                      </ListItem>        
-                    </div> : <Grid></Grid>
+                      {!_.isEqual(selectedProgramProgram, {}) ?
+                        <ListItem key={"Add Code"}>
+                          <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
+                        </ListItem> 
+                        : <Grid></Grid>  
+                      }
+                    </div>
                   }
-                  {Object.keys(selectedProgramProgram).length > 0 && codes != null && numProgramCodes > 0 ?
-                    <div> {/* ----------------------- edit users list ----------------------- */}
+                  {Object.keys(selectedProgramProgram).length > 0 && currentCodes != null && numProgramCodes > 0 ?
+                    <div>
                       <ListItem key={"Delete Code"}>
                         <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
                       </ListItem>
@@ -1701,7 +1693,7 @@ export default function Manage() {
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenAddCodes(false)} color="primary"> Cancel </Button>
+              <Button onClick={() => {setOpenAddCodes(false);setNumCodes('')}} color="primary"> Cancel </Button>
               <Button onClick={() => addCodes()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
@@ -1711,7 +1703,7 @@ export default function Manage() {
               <TextField value={numCodes || ''} label="Number of Codes" onChange={(e) => setNumCodes(e.target.value)} fullWidth variant="outlined"/>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenDeleteCodes(false)} color="primary"> Cancel </Button>
+              <Button onClick={() => {setOpenDeleteCodes(false);setNumCodes('')}} color="primary"> Cancel </Button>
               <Button onClick={() => deleteCodes()} color="primary"> Confirm </Button>
             </DialogActions>
           </Dialog>
