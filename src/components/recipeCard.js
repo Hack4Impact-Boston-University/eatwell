@@ -324,6 +324,7 @@ export default function RecipeCard({
 	return (
 		<Grid item xs={10}>
 			{home != true ? (
+				// RECIPES TAB CARD DISPLAY
 				<Box pb={3} mr={0.5} ml={0.5}>
 					<ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
 						<div>
@@ -712,57 +713,71 @@ export default function RecipeCard({
 					</ReactCardFlip>
 				</Box>
 			) : (
+
+				// HOME PAGE CARD DISPLAY
 				<Box pb={3} mr={0.5} ml={0.5}>
 					<Card className={classes.card}>
 						<CardContent p={0}>
-							<Grid container item xs={10} alignItems="center" justify="center">
-								<Typography
-									style={{ fontSize: "calc(min(5vw, 35px))", fontWeight: 300 }}
-								>
-									{obj.nameOfDish}
-								</Typography>
-							</Grid>
-							<Grid container justify="center">
-								{obj.images == undefined ? (
-									<Grid item xs={12}></Grid>
-								) : (
-									<Grid item xs={9}>
-										<link
-											rel="stylesheet"
-											type="text/css"
-											charset="UTF-8"
-											href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
-										/>
-										<link
-											rel="stylesheet"
-											type="text/css"
-											href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
-										/>
-										<style>{cssstyle}</style>
-
-										<Slider {...settings}>
-											{Array.isArray(imgList) &&
-												obj.images.map((cell, index) => {
-													return (
-														<img
-															className={classes.media}
-															src={obj.images[index]}
-														/>
-													);
-												})}
-										</Slider>
+							<Box m={"0.25vw"}>
+								<Grid container>
+									<Grid item xs={2} sm={1}>
+										<IconButton
+											aria-label="add to favorites"
+											color={favorited ? "secondary" : "default"}
+											className={classes.iconContainer}
+										>
+										</IconButton>
 									</Grid>
-								)}
-							</Grid>
-							<Grid container item xs={12} justify="center">
-								<Button
-									variant="contained"
-									color="secondary"
-									classes={{ label: classes.viewButtonLabel }}
-								>
-									<Link href={"recipes/" + obj?.id}>Make this Recipe</Link>
-								</Button>
-							</Grid>
+									<Grid container item xs={10} alignItems="center" justify="center">
+										<Typography
+											style={{
+												fontSize: "calc(min(5vw, 35px))",
+												fontWeight: 300,
+											}}
+										>
+											{obj.nameOfDish}
+										</Typography>
+									</Grid>
+								</Grid>
+								<Grid container justify="center">
+									{obj.images == undefined ? (
+										<Grid item xs={12}></Grid>
+									) : (
+										<Grid item xs={9}>
+											<link
+												rel="stylesheet"
+												type="text/css"
+												charset="UTF-8"
+												href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css"
+											/>
+											<link
+												rel="stylesheet"
+												type="text/css"
+												href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css"
+											/>
+											<style>{cssstyle}</style>
+											<Slider {...settings}>
+												{Array.isArray(imgList) &&
+													obj.images.map((cell, index) => {
+														return (
+															<img
+																className={classes.media}
+																src={obj.images[index]}
+															/>
+														);
+													})}
+											</Slider>
+										</Grid>
+									)}
+								</Grid>
+								<Grid container item xs={12} justify="center">
+									<Button variant="contained" color="secondary"
+										classes={{ label: classes.viewButtonLabel }}
+									>
+										<Link href={"recipes/" + obj?.id}>Make this Recipe</Link>
+									</Button>
+								</Grid>
+							</Box>
 						</CardContent>
 					</Card>
 				</Box>
