@@ -677,14 +677,21 @@ export default function Manage() {
     width: '100'
   };
   const handleClickOpenRecipeImages = (currentRecipe) => {
+    setCurrentRecipe(currentRecipe);
     setRecipeImages(currentRecipe.images)
     setOpenRecipeImages(true);
-    setCurrentRecipe(currentRecipe);
   };
   const handleCloseRecipeImages = () => {
     setOpenRecipeImages(false);
   };
   const handleSubmitRecipeImages = (currentRecipe) => {
+    // delete the previous photo
+    var storageRef = firebase.storage().ref();
+    for (let i = 0; i < currentRecipe.images.length; i++) {
+      var ref = storageRef.child(currentRecipe.id + i + ".jpg");
+      ref.delete().then(() => {}).catch((error) => {});
+    }
+    // upload new photos
     var i;
 		var uploadedImages = Object.values(recipeImages);
 		var document = firebase.firestore().collection("recipes").doc();
@@ -1766,13 +1773,12 @@ export default function Manage() {
                           <li>Number of ratings: {value?.numRatings}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
-                          <li>Recipe images <IconButton onClick={() => handleClickOpenRecipePdf(value)}> <EditIcon/> </IconButton></li>
                           <li>Instruction images
                             <IconButton onClick={() => handleClickOpenViewRecipeInstruction(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenAddRecipeInstruction(value)}> <AddIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenRemoveRecipeInstruction(value)}> <RemoveIcon/> </IconButton>
                           </li>
-                          <li>Nutrition images
+                          <li>Nutrition image
                             <IconButton onClick={() => handleClickOpenViewRecipeNutrition(value)}> <VisibilityIcon/> </IconButton>
                             <IconButton onClick={() => handleClickOpenEditRecipeNutrition(value)}> <EditIcon/> </IconButton>
                           </li>
