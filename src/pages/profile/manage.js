@@ -270,7 +270,7 @@ export default function Manage() {
     db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
       setProgramsDic(programsDic)
     }
-    db.collection("users").doc(currentUser).update({ program: currentUserProgram, programName: programsDic[currentUserProgram].programName });
+    db.collection("users").doc(currentUser).update({ program: currentUserProgram });
 
     setProgramsDic(programsDic)
     setOpenProgram(false);
@@ -419,7 +419,7 @@ export default function Manage() {
 		}
 		return result;
 	}
-  function createCodes(name, num, id) {
+  function createCodes(num, id) {
     if(num > 500) {
       alert("Too many users, cannot write codes");
       throw new Error("Too many users, cannot write codes");
@@ -428,12 +428,12 @@ export default function Manage() {
     var index;
     for(index = 0; index < num; index++) {
       const code = generate(6);
-      batch.set(db.collection('codes').doc(code), {programName: name, program:id});
+      batch.set(db.collection('codes').doc(code), {id: code, program:id});
     }
     return batch.commit();
   }
   function addCodes() {
-    createCodes(selectedProgramProgram?.programName, numCodes, selectedProgramProgram?.program)
+    createCodes(numCodes, selectedProgramProgram?.program)
     .then(()=>{
       setOpenAddCodes(false); 
       setNumCodes('');
@@ -441,10 +441,13 @@ export default function Manage() {
     }).catch((err) => alert(err))
     setNumProgramCodes(parseInt(currentCodes.length)+parseInt(numCodes))
   }
-  async function deleteCode(id) {
+  async function deleteCode(id, batch) {
     setNumProgramCodes(parseInt(currentCodes.length)-1)
     await db.collection("codes").doc(id).delete().then(() => {
     }).catch((err) => alert(err))
+    if (batch == false) {
+      alert("successfully deleted code!")
+    }
   }
   function getRandom(arr, n) {
     var result = new Array(n),
@@ -465,7 +468,7 @@ export default function Manage() {
     }
     let delCodes = getRandom(currentCodes, numCodes);
     delCodes.forEach((code) => {
-      deleteCode(code?.id)
+      deleteCode(code?.id, true)
     })
     alert("Successfully deleted codes!")
     setNumCodes('');
@@ -500,7 +503,11 @@ export default function Manage() {
     setOpenDeleteProgram(false);
   };
   const deleteProgram = () => {
+    console.log(selectedProgramProgram?.program)
     db.collection('programs').doc(selectedProgramProgram?.program).delete()
+    currentCodes.forEach(code => {
+      deleteCode(code?.id, true)
+    })
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
   };
@@ -1626,7 +1633,7 @@ export default function Manage() {
                                 </ListItemAvatar>
                                 <ListItemText primary={code?.id}/>
                                 <ListItemSecondaryAction>
-                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id)}>
+                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id, false)}>
                                     <DeleteIcon />
                                   </IconButton>
                                 </ListItemSecondaryAction>
