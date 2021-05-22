@@ -170,7 +170,7 @@ export default function Manage() {
   const classes = useStyles();
   const [checked, setChecked] = React.useState([0]);
   const [search, setSearch] = React.useState("");
-  const [value, setValue] = React.useState(1);
+  const [value, setValue] = React.useState(0);
   const theme = useTheme();
   const { width } = useWindowSize();0
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
