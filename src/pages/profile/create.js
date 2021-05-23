@@ -28,29 +28,16 @@ const useStyles = makeStyles((theme) => ({
 export default function create() {
     const classes = useStyles();
     const router = useRouter();
-    //console.log("User not logged in.");
+    const userData = getUserFromCookie();
 
     useEffect(() => {
-        const userData = getUserFromCookie();
         if(!userData) {
             router.push("/");
         }
-        else if("id" in userData) {
+        else if("email" in userData) {
             router.push("/profile/makeProfile");
         }
     })
-
-        // window.onbeforeunload = () => {
-		// 	if (!("id" in userData)) {
-        //         console.log(userData);
-		// 		removeUserCookie();
-        //         router.push("/");
-		// 	}
-		// }
-
-		//window.addEventListener("beforeunload", checkUserData);
-
-        //return () => window.removeEventListener("beforeunload", checkUserData);
 
     return (
         <Box className={classes.container}>
@@ -66,7 +53,7 @@ export default function create() {
                 >
                     <Grid item>
                         <h1 align="center">Click below to create an account</h1>
-                        <Grid container justify="center"><FirebaseAuth/></Grid>
+                        <Grid container justify="center"><FirebaseAuth code={userData}/></Grid>
                     </Grid>   
                 </Grid> 
                 

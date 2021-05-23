@@ -30,7 +30,7 @@ const firebaseAuthConfig = {
 		signInSuccessWithAuthResult: async ({ user }, redirectUrl) => {
 			const userData = mapUserData(user);
 			const fullData = {...userData, ...getUserFromCookie()};
-			setUserCookie(fullData);
+			setUserCookie({...fullData, code});
 		},
 	},
 };
@@ -38,7 +38,7 @@ const firebaseAuthConfig = {
 const useStyles = makeStyles((theme) => ({
 }));
 
-const FirebaseAuth = ({isLogin}) => {
+const FirebaseAuth = ({isLogin, code}) => {
 	const classes = useStyles();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -67,10 +67,9 @@ const FirebaseAuth = ({isLogin}) => {
 				var user = userCredential.user;
 				const userData = mapUserData(user);
 				const fullData = {...userData, ...getUserFromCookie()};
-				setUserCookie(fullData);
+				setUserCookie({...fullData, code});
 				router.push("/profile/makeProfile");
 			}).catch((err) => {
-				//console.log(err.message);
 				var m = "";
 				switch(err.code) {
 					case "auth/invalid-email":
@@ -106,11 +105,9 @@ const FirebaseAuth = ({isLogin}) => {
 				var user = userCredential.user;
 				const userData = mapUserData(user);
 				const fullData = {...userData, ...getUserFromCookie()};
-				setUserCookie(fullData);
-				console.log(fullData)
+				setUserCookie({...fullData, code});
 				router.push("/profile/makeProfile");
 			}).catch((err) => {
-			//console.log(err.message);
 			var m = "";
 			switch(err.code) {
 			  case "auth/email-already-in-use":

@@ -59,7 +59,7 @@ const Index = () => {
     console.log("0");
     if(code != "") {
       console.log("1");
-      checkCode(code.trim().toUpperCase()).then((data) => {
+      checkCode(code.trim().toUpperCase(), false).then((data) => {
         console.log(data)
         setErrorText("");
         // Save program info for later
@@ -74,14 +74,14 @@ const Index = () => {
     }
   }
 
-  const userData = getUserFromCookie();
-  if(userData) {
-    if("code" in userData) {
-      removeUserCookie();
-    } else if(!("firstname" in userData)) {
-      router.push("/profile/makeProfile");
-    }
-  }
+  // const userData = getUserFromCookie();
+  // if(userData) {
+  //   if("code" in userData) {
+  //     removeUserCookie();
+  //   } else if(!("firstname" in userData)) {
+  //     router.push("/profile/makeProfile", {code: true});
+  //   }
+  // }
 
   // display recipes
   const fetcher = async (...args) => {

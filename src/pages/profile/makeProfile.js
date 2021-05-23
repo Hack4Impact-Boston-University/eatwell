@@ -83,11 +83,17 @@ const makeProfile = () => {
 		setTel(val);
 	}
 
+	const userData = getUserFromCookie();
+	if (!userData) {
+		return "Loading..."
+	}
 	const submit = () => {
+		const program = userData?.code.program
 		upload({
 				firstname: firstName,
 				lastname: lastName,
 				phone: tel,
+				program: program,
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],
@@ -112,20 +118,7 @@ const makeProfile = () => {
 		}
 	})
 
-        // window.onbeforeunload = () => {
-		// 	if (!("id" in userData)) {
-        //         console.log(userData);
-		// 		removeUserCookie();
-        //         router.push("/");
-		// 	}
-		// }
-
-		//window.addEventListener("beforeunload", checkUserData);
-
-        //return () => window.removeEventListener("beforeunload", checkUserData);
-
-	if (!user) {
-		//console.log("User not logged in.");
+	if (!userData.code && !user) {
 		return (
 			<div>
 				<div className={styles.nav}>

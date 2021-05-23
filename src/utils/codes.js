@@ -10,23 +10,18 @@ import { setUserCookie } from "./cookies";
 initFirebase();
 var db = firebase.firestore();
 
-export const checkCode = async (code) => {
+export const checkCode = async (code, toDelete) => {
 	console.log("1")
 	if(code == "test" || code == "org") {
-		console.log("2.5")
 		return parseCodeData({role: code});
 	} else {
 		return db.collection("codes").doc(code).get()
 		.then((doc) => {
-			console.log("2")
 			if(doc.exists && code == doc.id)  {
-				// return db.collection("codes").doc(code).delete().then(() => {
-					 let data = parseCodeData(doc.data());
-					 data = {...data, code: code};
-					 console.log("3");
-					 setUserCookie(data);
-					return Promise.resolve(data);
-				//});
+				let data = parseCodeData(doc.data());
+				data = {...data};
+				setUserCookie(data);
+				return Promise.resolve(data);
 			} else {
 				return Promise.reject("Code is incorrect");
 			}
