@@ -115,7 +115,6 @@ function a11yProps(index) {
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    // maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
   container: {
@@ -298,7 +297,7 @@ export default function Manage() {
   const [viewCoverImages, setViewCoverImages] = React.useState([]);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
-  
+
   useEffect(() => {
     let date = new Date(Date.now());
     date.setMonth((date.getMonth() + 1) % 12);
@@ -750,7 +749,7 @@ export default function Manage() {
 		return source.map((photo) => {
       return (
         <div float="left">
-          <img height="200px" display="block" src={photo} alt="" key={photo} />
+          <img width={width*0.2} height="auto" display="block" src={photo} alt="" key={photo} />
           <IconButton onClick={() => deleteInstruction(photo)}> <DeleteIcon /> </IconButton>
         </div>
       )
@@ -828,7 +827,7 @@ export default function Manage() {
       if (!_.isEqual(photo, "")) {
         return (
           <div float="left">
-            <img display="block" src={photo} alt="Recipe image" />
+            <img width={width*0.2} height="auto" display="block" src={photo} alt="Recipe image" />
             <IconButton onClick={() => deleteRemoveInstruction(photo,index)}> <DeleteIcon /> </IconButton>
           </div>
         )
@@ -944,8 +943,7 @@ export default function Manage() {
     setNutritionalImgs({})
     setSelectedNutritionalImages([])
     setNutritionalImgs({})
-    setUploadedNutritionURL([]);
-    setUploadedNutritionURL([]);
+    setUploadedNutritionalURL([]);
   };
   const handleSubmitEditRecipeNutrition = (currentRecipe) => {
     var uploadedNutritionalImgs = Object.values(nutritionalImgs);
@@ -1940,7 +1938,7 @@ export default function Manage() {
                   <ol className={classes.lst}>
                     {selectedInstructionImages.map((url) => {
                       if (!_.isEqual(url, "")) {
-                        return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
+                        return ( <li><img width={width*0.2} height="auto" display="block" src={url} alt="Recipe image" /></li> )}
                       }
                     )}
                   </ol>
