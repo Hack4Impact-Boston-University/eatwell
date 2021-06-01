@@ -298,6 +298,7 @@ export default function Manage() {
   const [viewCoverImages, setViewCoverImages] = React.useState([]);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
+  
   useEffect(() => {
     let date = new Date(Date.now());
     date.setMonth((date.getMonth() + 1) % 12);
