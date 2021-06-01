@@ -486,7 +486,8 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={descriptionIngredients}
-							label="Ingredients / Allergens *"
+							label="Ingredients / Allergens"
+							required={true}
 							multiline
 							onChange={(e) => setDescriptionIngredients(e.target.value)}
 							fullWidth
@@ -496,7 +497,8 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={recipeFact}
-							label="Recipe Fact *"
+							label="Recipe Fact"
+							required={true}
 							multiline
 							onChange={(e) => setRecipeFact(e.target.value)}
 							fullWidth

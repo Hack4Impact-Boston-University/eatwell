@@ -7,7 +7,6 @@ import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Navbar from "../../components/Navbar";
-import styles from "../../styles/Home.module.css";
 import _ from "underscore";
 import firebase from "firebase";
 import { useRouter } from "next/router";
@@ -161,9 +160,7 @@ export default function UserFavorites() {
 	}, []);
 
 	useEffect(() => { }, [userRecipes]);
-	useEffect(() => {
-		console.log(userSkills);
-	}, [userSkills]);
+	useEffect(() => { }, [userSkills]);
 	useEffect(() => { }, [userTips]);
 
 

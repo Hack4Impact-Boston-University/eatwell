@@ -97,9 +97,9 @@ const makeProfile = () => {
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],
-				notes:{},
-				notesSkills:{},
-				notesTips:{},
+				notes:[],
+				// notesSkills:[],
+				// notesTips:[],
 				ratings:{},
 				ratingsSkills:{},
 				ratingsTips:{}

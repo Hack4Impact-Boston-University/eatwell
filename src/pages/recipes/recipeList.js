@@ -2,14 +2,12 @@ import Head from "next/head";
 import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-
+import * as firebase from "firebase";
 import { Grid } from "@material-ui/core";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard from "../../components/recipeCard";
 import {
-	getFavsFromCookie,
-	getNotesFromCookie,
 	getRatingsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
@@ -47,38 +45,40 @@ export default function RecipeReviewCard() {
 	const [recipes, setRecipes] = React.useState([])
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	let favRecipes = getFavsFromCookie() || {};
-	const recipeNotes = getNotesFromCookie() || {};
 	const recipeRatings = getRatingsFromCookie() || {};
-	//const { data: userData } = useSWR(`/api/favoriteRecipes/${favoriteRecipe}`, fetcher);
 	const [value, setValue] = React.useState(0);
-	//	const [favs, setFavs] = React.useState(value == 1);
+	const [favs, setFavs] = React.useState([]);
+	const [notes, setNotes] = React.useState({});
+	const [doneRunning, setDoneRunning] = React.useState(false);
 	const [dummy, setDummy] = React.useState(true);
-
 	const router = useRouter();
 
-	// const handleChange = (event, newValue) => {
-	// 	setValue(newValue);
-	// 	setFavs(newValue == 1);
-	// };
-
+	// this useEffect will load the user's favorites
 	useEffect(() => {
-		const uploadData = () => {
-			if (!_.isEqual(getFavsFromCookie(), undefined)) {
-				upload({
-					//favoriteRecipes: Object.keys(getFavsFromCookie()),
-					notes: getNotesFromCookie(),
-					ratings: getRatingsFromCookie(),
-				});
-				//uploadRating(getRatingsFromCookie(), recipeRatings, recipes);
+		firebase.auth().onAuthStateChanged(async function (user) {
+			if (user) {
+				// get all the user's favorites
+				await firebase
+					.firestore()
+					.collection("users")
+					.doc(user.uid)
+					.get()
+					.then((querySnapshot) => {
+						let data = querySnapshot.data();
+						setFavs(data.favoriteRecipes); // set the user's favorite recipes
+						setNotes(data.notes); // set the user's recipe notes
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+				setDoneRunning(true)
+			} else {
+				// No user is signed in.
+				router.push("/");
 			}
-		};
-
-		window.addEventListener("beforeunload", uploadData);
-
-		return () => window.removeEventListener("beforeunload", uploadData);
-	});
-
+		});
+	}, []);
+	console.log(favs)
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
 		// router.push("/");
@@ -86,15 +86,15 @@ export default function RecipeReviewCard() {
 		router.push("/profile/makeProfile");
 	}
 
-	if (_.isEqual(recipes,[]) || !recipesDic || !programsDic || !user || !favRecipes) {
+	if (_.isEqual(recipes,[]) || !recipesDic || !programsDic || !user || doneRunning == false) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!programsDic) {
 			return "Loading programsDic...";
 		} if (!user) {
 			return "Loading user...";
-		} if (!favRecipes) {
-			return "Loading favRecipes...";
+		} if (doneRunning == false) {
+			return "Loading fav and notes...";
 		}
 		setRecipes(Object.keys(recipesDic).map(function (key) {
 			return recipesDic[key];
@@ -115,7 +115,6 @@ export default function RecipeReviewCard() {
 				) {
 					var i;
 					for (i = 0; i < keysList.length; i++) {
-						console.log(programsDic[user.program].programRecipes[keysList[i]]);
 						var d = Date.parse(
 							programsDic[user.program].programRecipes[keysList[i]] +
 							"T00:00:00.0000"
@@ -129,6 +128,16 @@ export default function RecipeReviewCard() {
 		}
 	}
 
+	const inFav = (objID) => {
+		var i;
+		for (i = 0; i < favs.length; i++) {
+			if (objID == favs[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	return (
 		<div className={styles.container}>
 			{user.role == "admin" ? (
@@ -136,27 +145,20 @@ export default function RecipeReviewCard() {
 					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
-							//if (!favs || obj.id in favRecipes) {
 							return (
 								<Grid item container xs={12} md={6} justify="center">
 									<RecipeCard
 										key={obj.id}
 										object={obj}
-										isFav={obj.id in favRecipes}
+										isFav={inFav(obj.id)}
 										inFavoritesPage={false}
-										initNotes={
-											obj.id in recipeNotes ? recipeNotes[obj.id] : []
-										}
+										initNotes={notes}
 										initRating={
 											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
 										}
 									/>
 								</Grid>
 							);
-							//} else {
-							//	return;
-							//}
-							//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
 						})}
 					</Grid>
 				) : (
@@ -168,25 +170,20 @@ export default function RecipeReviewCard() {
 				<Grid container spacing={1000} className={classes.gridContainerMain}>
 					{recipesUser.map((obj, idx) => {
 						if (!obj.nameOfDish || !obj.id) { return; }
-						//if (!favs || obj.id in favRecipes) {
 						return (
 							<Grid item container xs={12} md={6} justify="center">
 								<RecipeCard
 									key={obj.id}
 									object={obj}
-									isFav={obj.id in favRecipes}
+									isFav={obj.id in favs}
 									onFavClick={() => onFavClick()}
-									initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+									initNotes={notes}
 									initRating={
 										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
 									}
 								/>
 							</Grid>
 						);
-						//} else {
-						//	return;
-						//}
-						//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
 					})}
 				</Grid>
 			) : (
@@ -197,28 +194,6 @@ export default function RecipeReviewCard() {
 
 			<div className={styles.nav}>
 				<Navbar />
-
-				{/* <AppBar position="static" color="default">
-					<Tabs
-						value={value}
-						onChange={handleChange}
-						indicatorColor="primary"
-						textColor="primary"
-						variant="fullWidth"
-						aria-label="full width tabs example"
-					>
-						<Tab
-							label="All Recipes"
-							{...a11yProps(0)}
-							className={classes.viewTabLabel}
-						/>
-						<Tab
-							label="Favorites Only"
-							{...a11yProps(1)}
-							className={classes.viewTabLabel}
-						/>
-					</Tabs>
-				</AppBar> */}
 			</div>
 		</div>
 	);
