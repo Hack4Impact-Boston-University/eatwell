@@ -183,27 +183,19 @@ export default function Manage() {
   const [currentSkill, setCurrentSkill] = React.useState("");
   const [currentTip, setCurrentTip] = React.useState("");
 
-  const { data: users } = useSWR(`/api/users/getAllUsers`, fetcher);
-  // const { data: programs } = useSWR(`/api/programs/getAllPrograms`, fetcher);
-  const {data: codes } = useSWR(`/api/codes/getAllCodes`, fetcher);
-  const [currentCodes, setCurrentCodes] = React.useState([])
   const router = useRouter();
-  const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
-  const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-  const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
-  const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
-  const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
-  const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
-  const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
-  const { data: programsTempDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+  const [users, setUsers] = React.useState([])
+  const [recipes, setRecipes] = React.useState([])
   const [programs, setPrograms] = React.useState([])
-  const [programsDic, setProgramsDic] = React.useState({});
-  useEffect(() => { 
-    setProgramsDic(programsTempDic);
-    if(programsTempDic) {
-      setPrograms(Object.keys(programsTempDic).map((key) => programsTempDic[key]));
-    }
-  }, programsTempDic );
+  const [skills, setSkills] = React.useState([])
+  const [tips, setTips] = React.useState([])
+  const [currentCodes, setCurrentCodes] = React.useState([])
+  const { data: usersDic } = useSWR(`/api/users/getAllUsersDic`, fetcher);
+  const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+  const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+  const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+  const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
+  const {data: codes } = useSWR(`/api/codes/getAllCodes`, fetcher);
 
   const handleChangeToggle = (event, newValue) => {
     setValue(newValue);
@@ -233,6 +225,9 @@ export default function Manage() {
   const handleSubmitRole = (currentUser, currentUserRole) => {
     setRole(currentUserRole);
     db.collection("users").doc(currentUser).update({ role: currentUserRole });
+    var index = Object.keys(usersDic).indexOf(currentUser);
+    usersDic[currentUser]["role"] = currentUserRole;
+    users[index]["role"] = currentUserRole;
     setOpenRole(false);
     setRole("");
   };
@@ -254,14 +249,16 @@ export default function Manage() {
     setOpenProgram(false);
   };
   const handleSubmitProgram = (currentUser, currentUserProgram) => {
-  if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
-    programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
-    db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
-      setProgramsDic(programsDic)
+    if (!Object.values(programsDic[currentUserProgram].programUsers).includes(currentUser)) {
+      db.collection("programs").doc(currentUserProgram).update({ programUsers: programsDic[currentUserProgram].programUsers });
+      var indexProgram = Object.keys(programsDic).indexOf(currentUserProgram);
+      programsDic[currentUserProgram].programUsers[Object.keys(programsDic[currentUserProgram].programUsers).length] = currentUser
+      programs[indexProgram]["programUsers"] = programsDic[currentUserProgram].programUsers;
     }
     db.collection("users").doc(currentUser).update({ program: currentUserProgram });
-
-    setProgramsDic(programsDic)
+    var indexUser = Object.keys(usersDic).indexOf(currentUser);
+    usersDic[currentUser]["program"] = currentUserProgram;
+    users[indexUser]["program"] = currentUserProgram;
     setOpenProgram(false);
     setProgram("")
   };
@@ -275,8 +272,11 @@ export default function Manage() {
   const handleCloseDeleteUser = () => {
     setOpenDeleteUser(false);
   };
-  const handleSubmitDeleteUser = () => {
+  const handleSubmitDeleteUser = (currentUser) => {
     db.collection("users").doc(currentUser).delete();
+    var index = Object.keys(usersDic).indexOf(currentUser);
+    usersDic.delete(currentUser)
+    users.splice(index, 1);
     setOpenDeleteUser(false);
     alert("successfully deleted the user.");
   };
@@ -541,48 +541,13 @@ export default function Manage() {
       }
     }
     db.collection("programs").doc(selectedProgramProgram?.program).update({ programRecipes: temp });
+    var index = Object.keys(programsDic).indexOf(selectedProgramProgram?.program);
+    programsDic[selectedProgramProgram?.program]["programRecipes"] = temp;
+    programs[index]["programRecipes"] = temp;
     setOpenEditProgramRecipes(false);
     setCurrentProgramRecipes({})
   };
 
-  // program users
-  const [currentProgramUsers, setCurrentProgramUsers] = React.useState([]);
-  const [openEditProgramUsers, setOpenEditProgramUsers] = React.useState(false);
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const handleClickOpenEditProgramUsers = (programUsersNow) => {
-    setOpenEditProgramUsers(true);
-    var i;
-    var originallySelected = []
-    var temp = [];
-    for (i = 0; i < users.length; i++) {
-      if (users[i].role != "admin") {
-        if (selectedProgramProgram?.programUsers.includes(users[i].id)) {
-          originallySelected.push({label:(users[i]?.firstname+" "+users[i]?.lastname),value:users[i].id})
-        }
-        temp.push({label:(users[i]?.firstname+" "+users[i]?.lastname),value:users[i].id})
-      }
-    }
-    setSelectedUsers(originallySelected)
-    setCurrentProgramUsers(temp)
-  };
-  const handleCloseEditProgramUsers = () => {
-    setCurrentProgramUsers([])
-    setOpenEditProgramUsers(false);
-  };
-  const handleChangeEditProgramUsers = (event) => {
-    setProgramUsers(event.target.value || "");
-  };
-  const handleSubmitEditProgramUsers = () => {
-    var i;
-    var temp = [];
-    for (i = 0; i < selectedUsers.length; i++) {
-      temp.push(selectedUsers[i]?.value)
-    }
-    db.collection("programs").doc(selectedProgramProgram?.program).update({ programUsers: temp });
-    setOpenEditProgramUsers(false);
-    setCurrentProgramUsers([])
-  };
-  
 
   // ---------------------- 2: ADMIN MANAGE RECIPES ----------------------
   // edit recipe name
@@ -598,6 +563,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeName = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({nameOfDish:recipeName, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["nameOfDish"] = recipeName;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["nameOfDish"] = recipeName;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe name!");
     setRecipeName('');
     setOpenRecipeName(false);
@@ -616,6 +586,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeDescription = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({description:recipeDescription, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["description"] = recipeDescription;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["description"] = recipeDescription;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe description!");
     setRecipeDescription('');
     setOpenRecipeDescription(false);
@@ -634,6 +609,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeDescriptionIngredients = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({descriptionIngredients:recipeDescriptionIngredients, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["descriptionIngredients"] = recipeDescriptionIngredients;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["descriptionIngredients"] = recipeDescriptionIngredients;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe ingredients / allergens!");
     setRecipeDescriptionIngredients('');
     setOpenRecipeDescriptionIngredients(false);
@@ -652,6 +632,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeFact = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({recipeFact:recipeFact, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["recipeFact"] = recipeFact;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["recipeFact"] = recipeFact;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe fact!");
     setRecipeFact('');
     setOpenRecipeFact(false);
@@ -683,8 +668,12 @@ export default function Manage() {
     // upload new photos
     var i;
 		var uploadedImages = Object.values(recipeImages);
-		var document = firebase.firestore().collection("recipes").doc();
     db.collection('recipes').doc(currentRecipe.id).update({images:uploadedImages, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["images"] = uploadedImages;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["images"] = uploadedImages;
+    recipes[index]["dateUploaded"] = uploadDate;
     for (i = 0; i < uploadedImages.length ; i++) {
       firebase.storage().ref().child(currentRecipe.id+i+".jpg").putString(uploadedImages[i], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
           complete: function() {}
@@ -793,6 +782,11 @@ export default function Manage() {
 			setUploadedInstructionURL(uploadedInstructionURL)
 		}
     db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedInstructionURL, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["recipeImgs"] = uploadedInstructionURL;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["recipeImgs"] = uploadedInstructionURL;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited instruction image!");
     setInstructionImgs({});
     setSelectedInstructionImages([]);
@@ -859,6 +853,11 @@ export default function Manage() {
   };
   const handleSubmitRemoveRecipeInstruction = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({recipeImgs:uploadedInstructionURL, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["recipeImgs"] = uploadedInstructionURL;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["recipeImgs"] = uploadedInstructionURL;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully removed image!");
     setInstructionImgs({})
     setUploadedInstructionURL([]);
@@ -961,6 +960,11 @@ export default function Manage() {
     uploadedNutritionalURL[0] = currentRecipe.id + 0 + ".png"
     setUploadedNutritionalURL(uploadedNutritionalURL)
     db.collection('recipes').doc(currentRecipe.id).update({nutritionalImgs:uploadedNutritionalURL, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["nutritionalImgs"] = uploadedNutritionalURL;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["nutritionalImgs"] = uploadedNutritionalURL;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited nutritional image!");
     setNutritionalImgs({});
     setSelectedNutritionalImages([]);
@@ -996,6 +1000,11 @@ export default function Manage() {
 
   const handleSubmitRecipeVideo = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({videoRecipe:recipeVideo, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["videoRecipe"] = recipeVideo;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["videoRecipe"] = recipeVideo;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe video!");
     setRecipeVideo('');
     setOpenRecipeVideo(false);
@@ -1033,6 +1042,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeSkills = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({videoSkills:recipeSkills, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["videoSkills"] = recipeSkills;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["videoSkills"] = recipeSkills;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe skills!");
     setRecipeSkills('');
     setOpenRecipeSkills(false);
@@ -1070,6 +1084,11 @@ export default function Manage() {
   };
   const handleSubmitRecipeTips = (currentRecipe) => {
     db.collection('recipes').doc(currentRecipe.id).update({videoTips:recipeTips, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["videoTips"] = recipeTips;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["videoTips"] = recipeTips;
+    recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited recipe tips!");
     setRecipeTips('');
     setOpenRecipeTips(false);
@@ -1098,7 +1117,10 @@ export default function Manage() {
       var ref = storageRef.child(currentRecipe.id + i + ".png");
       ref.delete().then(() => {}).catch((error) => {});
     }
-    db.collection("recipes").doc(recipeID).delete();
+    db.collection("recipes").doc(currentRecipe.id).delete();
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic.delete(currentRecipe.id)
+    recipes.splice(index, 1);
     setOpenDeleteRecipe(false);
     alert("successfully deleted the recipe.");
   };
@@ -1107,7 +1129,6 @@ export default function Manage() {
   // ---------------------- 3: ADMIN MANAGE SKILLS ----------------------
   // edit skill name
   const [skillName, setSkillName] = React.useState("");
-  const [skillID, setSkillID] = React.useState("");
   const [openSkillName, setOpenSkillName] = React.useState(false);
   
   // edit skill name
@@ -1120,6 +1141,11 @@ export default function Manage() {
     setOpenSkillName(false);
   };
   const handleSubmitSkillName = (currentSkill) => {
+    var index = Object.keys(skillsDic).indexOf(currentSkill.skillID);
+    skillsDic[currentSkill.skillID]["skillName"] = skillName;
+    skillsDic[currentSkill.skillID]["dateUploaded"] = uploadDate;
+    skills[index]["skillName"] = skillName;
+    skills[index]["dateUploaded"] = uploadDate;
     db.collection('skills').doc(currentSkill.skillID).update({skillName:skillName, dateUploaded: uploadDate})
     alert("successfully edited skill name!");
     setSkillName('');
@@ -1149,6 +1175,11 @@ export default function Manage() {
         'complete': function() {
         }
     })
+    var index = Object.keys(skillsDic).indexOf(currentSkill.skillID);
+    skillsDic[currentSkill.skillID]["images"] = uploadedImages;
+    skillsDic[currentSkill.skillID]["dateUploaded"] = uploadDate;
+    skills[index]["images"] = uploadedImages;
+    skills[index]["dateUploaded"] = uploadDate;
     alert("successfully edited skill images!");
     setSkillImages([]);
     setOpenSkillImages(false);
@@ -1176,6 +1207,11 @@ export default function Manage() {
   };
   const handleSubmitSkillVideo = (currentSkill) => {
     db.collection('skills').doc(currentSkill.skillID).update({url:skillVideo, dateUploaded: uploadDate})
+    var index = Object.keys(skillsDic).indexOf(currentSkill.skillID);
+    skillsDic[currentSkill.skillID]["url"] = skillVideo;
+    skillsDic[currentSkill.skillID]["dateUploaded"] = uploadDate;
+    skills[index]["url"] = skillVideo;
+    skills[index]["dateUploaded"] = uploadDate;
     alert("successfully edited skill video!");
     setSkillVideo('');
     setOpenSkillVideo(false);
@@ -1184,15 +1220,17 @@ export default function Manage() {
   // delete recipe
   const [openDeleteSkill, setOpenDeleteSkill] = React.useState(false);
   const handleClickOpenDeleteSkill = (currentSkill) => {
-    setSkillID(currentSkill);
     setOpenDeleteSkill(true);
     setCurrentSkill(skillsDic[currentSkill].skillName);
   };
   const handleCloseDeleteSkill = () => {
     setOpenDeleteSkill(false);
   };
-  const handleSubmitDeleteSkill = () => {
+  const handleSubmitDeleteSkill = (currentSkill) => {
     db.collection("skills").doc(skillID).delete();
+    var index = Object.keys(skillsDic).indexOf(skillID);
+    skillsDic.delete(currentSkill.skillID)
+    skills.splice(index, 1);
     setOpenDeleteSkill(false);
     alert("successfully deleted the skill.");
   };
@@ -1215,6 +1253,11 @@ export default function Manage() {
   };
   const handleSubmitTipName = (currentTip) => {
     db.collection('tips').doc(currentTip.tipID).update({tipName:tipName, dateUploaded: uploadDate})
+    var index = Object.keys(tipsDic).indexOf(currentTip.tipID);
+    tipsDic[currentTip.tipID]["tipName"] = tipName;
+    tipsDic[currentTip.tipID]["dateUploaded"] = uploadDate;
+    tips[index]["tipName"] = tipName;
+    tips[index]["dateUploaded"] = uploadDate;
     alert("successfully edited tip name!");
     setTipName('');
     setOpenTipName(false);
@@ -1243,6 +1286,11 @@ export default function Manage() {
         'complete': function() {
         }
     })
+    var index = Object.keys(tipsDic).indexOf(currentTip.tipID);
+    tipsDic[currentTip.tipID]["images"] = uploadedImages;
+    tipsDic[currentTip.tipID]["dateUploaded"] = uploadDate;
+    tips[index]["images"] = uploadedImages;
+    tips[index]["dateUploaded"] = uploadDate;
     alert("successfully edited tip images!");
     setTipImages([]);
     setOpenTipImages(false);
@@ -1270,6 +1318,11 @@ export default function Manage() {
   };
   const handleSubmitTipVideo = (currentTip) => {
     db.collection('tips').doc(currentTip.id).update({url:tipVideo, dateUploaded: uploadDate})
+    var index = Object.keys(tipsDic).indexOf(currentTip.tipID);
+    tipsDic[currentTip.tipID]["url"] = tipVideo;
+    tipsDic[currentTip.tipID]["dateUploaded"] = uploadDate;
+    tips[index]["url"] = tipVideo;
+    tips[index]["dateUploaded"] = uploadDate;
     alert("successfully edited tip video!");
     setTipVideo('');
     setOpenTipVideo(false);
@@ -1285,33 +1338,56 @@ export default function Manage() {
   const handleCloseDeleteTip = () => {
     setOpenDeleteTip(false);
   };
-  const handleSubmitDeleteTip = () => {
+  const handleSubmitDeleteTip = (currentTip) => {
     db.collection("tips").doc(tipID).delete();
+    var index = Object.keys(currentTip).indexOf(tipID);
+    tipsDic.delete(currentTip.tipID)
+    tips.splice(index, 1);
     setOpenDeleteTip(false);
     alert("successfully deleted the tip.");
   };
 
-  if (!users || !programs || !recipes || !usersDic || !recipesDic || !programsDic || !skills || !skillsDic || !tips || !tipsDic) {
-    if (!users) {
-      return "Loading users...";
-    } else if (!programs) {
-      return "Loading programs...";
-    } else if (!recipes) {
-      return "Loading recipes...";
-    } else if (!usersDic) {
+  if (_.isEqual(users,[]) || !usersDic || _.isEqual(recipes,[]) || !recipesDic || 
+      _.isEqual(programs,[]) || !programsDic || _.isEqual(skills,[]) || !skillsDic || 
+      _.isEqual(tips,[]) || !tipsDic || !codes) {
+    if (!usersDic) {
       return "Loading usersDic...";
-    } else if (!recipesDic) {
+    } if (!recipesDic) {
       return "Loading recipesDic...";
-    } else if (!programsDic) {
+    } if (!programsDic) {
       return "Loading programsDic...";
-    } else if (!skills) {
-      return "Loading skills...";
-    } else if (!skillsDic) {
+    } if (!skillsDic) {
       return "Loading skillsDic...";
-    } else if (!tips) {
-      return "Loading tips...";
-    } else if (!tipsDic) {
+    } if (!tipsDic) {
       return "Loading tipsDic...";
+    } if (!codes) {
+      return "Loading codes...";
+    }
+    setUsers(Object.keys(usersDic).map(function (key) {
+      return usersDic[key];
+    }));
+    setRecipes(Object.keys(recipesDic).map(function (key) {
+      return recipesDic[key];
+    }));
+    setPrograms(Object.keys(programsDic).map(function (key) {
+      return programsDic[key];
+    }));
+    setSkills(Object.keys(skillsDic).map(function (key) {
+      return skillsDic[key];
+    }));
+    setTips(Object.keys(tipsDic).map(function (key) {
+      return tipsDic[key];
+    }));
+    if (_.isEqual(users,[])) {
+      return "Loading users...";
+    } if (_.isEqual(recipes,[])) {
+      return "Loading recipes...";
+    } if (_.isEqual(programs,[])) {
+      return "Loading programs...";
+    } if (_.isEqual(skills,[])) {
+      return "Loading skills...";
+    } if (_.isEqual(tips,[])) {
+      return "Loading tips...";
     }
   }
 
@@ -1486,7 +1562,7 @@ export default function Manage() {
               <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
               <DialogActions>
                 <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
-                <Button onClick={() => handleSubmitDeleteUser()} color="primary"> Ok </Button>
+                <Button onClick={() => handleSubmitDeleteUser(currentUser)} color="primary"> Ok </Button>
               </DialogActions>
             </Dialog>
           </div>
@@ -2134,7 +2210,7 @@ export default function Manage() {
               <DialogTitle>Are you sure you want to delete the skill: {currentSkill}?</DialogTitle>
               <DialogActions>
                 <Button onClick={handleCloseDeleteSkill} color="primary"> Cancel </Button>
-                <Button onClick={() => handleSubmitDeleteSkill()} color="primary"> Ok </Button>
+                <Button onClick={() => handleSubmitDeleteSkill(currentSkill)} color="primary"> Ok </Button>
               </DialogActions>
             </Dialog>
           )}
@@ -2236,7 +2312,7 @@ export default function Manage() {
               <DialogTitle>Are you sure you want to delete the tip: {currentTip}?</DialogTitle>
               <DialogActions>
                 <Button onClick={handleCloseDeleteTip} color="primary"> Cancel </Button>
-                <Button onClick={() => handleSubmitDeleteTip()} color="primary"> Ok </Button>
+                <Button onClick={() => handleSubmitDeleteTip(currentTip)} color="primary"> Ok </Button>
               </DialogActions>
             </Dialog>
           )}

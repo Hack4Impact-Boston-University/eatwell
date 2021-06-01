@@ -44,7 +44,7 @@ export default function RecipeReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
-	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+	const [recipes, setRecipes] = React.useState([])
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	let favRecipes = getFavsFromCookie() || {};
@@ -86,8 +86,22 @@ export default function RecipeReviewCard() {
 		router.push("/profile/makeProfile");
 	}
 
-	if (!recipes || !recipesDic || !programsDic || !user || !favRecipes) {
-		return "Loading recipes...";
+	if (_.isEqual(recipes,[]) || !recipesDic || !programsDic || !user || !favRecipes) {
+		if (!recipesDic) {
+			return "Loading recipesDic...";
+		} if (!programsDic) {
+			return "Loading programsDic...";
+		} if (!user) {
+			return "Loading user...";
+		} if (!favRecipes) {
+			return "Loading favRecipes...";
+		}
+		setRecipes(Object.keys(recipesDic).map(function (key) {
+			return recipesDic[key];
+		}));
+		if (_.isEqual(recipes,[])) {
+			return "Loading recipes...";
+		}
 	}
 
 	const recipesUser = [];
