@@ -42,7 +42,7 @@ export default function RecipeReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
-	const [recipes, setRecipes] = React.useState([])
+	const [recipes, setRecipes] = React.useState("")
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	const recipeRatings = getRatingsFromCookie() || {};
@@ -53,11 +53,11 @@ export default function RecipeReviewCard() {
 	const [dummy, setDummy] = React.useState(true);
 	const router = useRouter();
 
-	// this useEffect will load the user's favorites
+	// this useEffect will load the user's favorite recipes
 	useEffect(() => {
 		firebase.auth().onAuthStateChanged(async function (user) {
 			if (user) {
-				// get all the user's favorites
+				// get all the user's favorite recipes
 				await firebase
 					.firestore()
 					.collection("users")
@@ -78,7 +78,7 @@ export default function RecipeReviewCard() {
 			}
 		});
 	}, []);
-	console.log(favs)
+
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
 		// router.push("/");
@@ -86,7 +86,7 @@ export default function RecipeReviewCard() {
 		router.push("/profile/makeProfile");
 	}
 
-	if (_.isEqual(recipes,[]) || !recipesDic || !programsDic || !user || doneRunning == false) {
+	if (!recipes || !recipesDic || !programsDic || !user || doneRunning == false) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!programsDic) {
@@ -99,7 +99,7 @@ export default function RecipeReviewCard() {
 		setRecipes(Object.keys(recipesDic).map(function (key) {
 			return recipesDic[key];
 		}));
-		if (_.isEqual(recipes,[])) {
+		if (!recipes) {
 			return "Loading recipes...";
 		}
 	}
