@@ -104,6 +104,7 @@ export default function UserFavorites() {
 						setFavRecipes(data.favoriteRecipes);
 						setFavSkills(data.favoriteSkills);
 						setFavTips(data.favoriteTips);
+						setNotes(data.notes); // set the user's recipe notes
 					})
 					.catch((error) => {
 						console.log(error);
@@ -143,13 +144,8 @@ export default function UserFavorites() {
 		} if (!tips) {
 			return "Loading tips...";
 		}
-
-
 	}
-	console.log(recipes)
-	console.log(skills)
-	console.log(tips)
-	
+
 	return (
 		<div>
 			{/* navbar */}
@@ -187,7 +183,7 @@ export default function UserFavorites() {
 										setRecipes(recipes.slice(0, idx).concat(recipes.slice(idx + 1)))
 									}}
 									inFavoritesPage={true}
-									initNotes={{"notes":"hi"}}
+									initNotes={notes}
 									initRating={
 										fav.id in recipeRatings ? recipeRatings[fav.id] : 0
 									}
