@@ -19,13 +19,11 @@ import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
 import { uploadRating } from "../../utils/recipes.js";
 import _, { map } from "underscore";
-
 import { useRouter } from "next/router";
 import { ColorLensOutlined } from "@material-ui/icons";
 
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
-
 	return res.json();
 };
 
@@ -175,8 +173,8 @@ export default function RecipeReviewCard() {
 								<RecipeCard
 									key={obj.id}
 									object={obj}
-									isFav={obj.id in favs}
-									onFavClick={() => onFavClick()}
+									isFav={inFav(obj.id)}
+									inFavoritesPage={false}
 									initNotes={notes}
 									initRating={
 										obj.id in recipeRatings ? recipeRatings[obj.id] : 0

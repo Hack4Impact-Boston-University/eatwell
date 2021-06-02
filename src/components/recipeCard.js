@@ -20,7 +20,6 @@ import { Rating } from "@material-ui/lab";
 import clsx from "clsx";
 import Link from "next/link";
 import {
-	editNotesCookie,
 	editRatingsCookie,
 } from "../utils/cookies";
 import ClearIcon from "@material-ui/icons/Clear";

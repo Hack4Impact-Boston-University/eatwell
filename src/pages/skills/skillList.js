@@ -8,7 +8,6 @@ import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import SkillCard from "../../components/skillCard";
 import {
-	getRatingsSkillsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -47,7 +46,6 @@ export default function SkillReviewCard() {
 	);
 	const [skills, setSkills] = React.useState('')
 	const [favSkills, setFavSkills] = React.useState([]);
-	const skillRatings = getRatingsSkillsFromCookie() || {};
 	const [doneRunning, setDoneRunning] = React.useState(false);
 	const [value, setValue] = React.useState(0);
 	const [dummy, setDummy] = React.useState(true);

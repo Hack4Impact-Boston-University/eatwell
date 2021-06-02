@@ -14,10 +14,15 @@ import RecipeCard from "../../components/recipeCard";
 import SkillCard from "../../components/skillCard";
 import TipCard from "../../components/tipCard";
 import { Grid } from "@material-ui/core";
+import useSWR from "swr";
+import { useUser } from "../../utils/auth/useUser";
+import {
+	getRatingsFromCookie,
+	getUserFromCookie,
+} from "../../utils/cookies";
 
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
-
 	return (
 		<div
 			role="tabpanel"
@@ -51,7 +56,6 @@ function a11yProps(index) {
 // fetcher for useSWR
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
-
 	return res.json();
 };
 
@@ -66,27 +70,30 @@ const useStyles = makeStyles((theme) => ({
 export default function UserFavorites() {
 	// get all the recipes
 	const router = useRouter();
-
 	// css classes for mui
 	const classes = useStyles();
-
 	// state for MUI tab panels
+	const { user } = useUser();
 	const [value, setValue] = React.useState("one");
-	const [userRecipes, setUserRecipes] = React.useState([]);
-	const [allRecipes, setAllRecipes] = React.useState({});
-	const [userSkills, setUserSkills] = React.useState([]);
-	const [allSkills, setAllSkills] = React.useState({});
-	const [userTips, setUserTips] = React.useState([]);
-	const [allTips, setAllTips] = React.useState({});
+	const [recipes, setRecipes] = React.useState(null)
+	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
+	const [favRecipes, setFavRecipes] = React.useState([]);
+	const [notes, setNotes] = React.useState({});
+	const recipeRatings = getRatingsFromCookie() || {};
+	const [skills, setSkills] = React.useState(null)
+	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+	const [favSkills, setFavSkills] = React.useState([]);
+	const [tips, setTips] = React.useState(null)
+	const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
+	const [favTips, setFavTips] = React.useState([]);
+	const [doneRunning, setDoneRunning] = React.useState(false);
 
 	// this useEffect will load the user's favorites
 	useEffect(() => {
-		firebase.auth().onAuthStateChanged(function (user) {
-			if (user) {
-				// User is signed in.
-
+		firebase.auth().onAuthStateChanged(async function (user) {
+			if (user) { // user signed in
 				// get all the user's favorites
-				firebase
+				await firebase
 					.firestore()
 					.collection("users")
 					.doc(user.uid)
@@ -94,82 +101,55 @@ export default function UserFavorites() {
 					.then((querySnapshot) => {
 						let data = querySnapshot.data();
 						// set the user's favorite recipes
-						setUserRecipes(data.favoriteRecipes);
-						setUserSkills(data.favoriteSkills);
-						setUserTips(data.favoriteTips);
+						setFavRecipes(data.favoriteRecipes);
+						setFavSkills(data.favoriteSkills);
+						setFavTips(data.favoriteTips);
 					})
 					.catch((error) => {
 						console.log(error);
 					});
-
-				// get all the favorite recipes
-				firebase
-					.firestore()
-					.collection("recipes")
-					.orderBy("dateUploaded", "desc")
-					.get()
-					.then((querySnapshot) => {
-						let all = {};
-						querySnapshot.forEach((doc) => {
-							all[doc.id] = doc.data();
-						});
-						setAllRecipes(all);
-					})
-					.catch((error) => {
-						console.log(error);
-					});
-
-				// get all the favorite skills
-				firebase
-					.firestore()
-					.collection("skills")
-					.orderBy("dateUploaded", "desc")
-					.get()
-					.then((querySnapshot) => {
-						let all = {};
-						querySnapshot.forEach((doc) => {
-							all[doc.id] = doc.data();
-						});
-						setAllSkills(all);
-					})
-					.catch((error) => {
-						console.log(error);
-					});
-
-				// get all the favorite tips
-				firebase
-					.firestore()
-					.collection("tips")
-					.orderBy("dateUploaded", "desc")
-					.get()
-					.then((querySnapshot) => {
-						let all = {};
-						querySnapshot.forEach((doc) => {
-							all[doc.id] = doc.data();
-						});
-						setAllTips(all);
-					})
-					.catch((error) => {
-						console.log(error);
-					});
-			} else {
-				// No user is signed in.
+				setDoneRunning(true)
+			} else { // No user is signed in.
 				router.push("/");
 			}
 		});
 	}, []);
-
-	useEffect(() => { }, [userRecipes]);
-	useEffect(() => { }, [userSkills]);
-	useEffect(() => { }, [userTips]);
-
 
 	// handle tab click change
 	const handleChange = (event, newValue) => {
 		setValue(newValue);
 	};
 
-	// loading if certain data isnt finished loading
+	if (!recipesDic || !recipes || !skillsDic || !skills || !tipsDic || !tips || !user || doneRunning == false) {
+		if (!recipesDic) {
+			return "Loading recipesDic...";
+		} if (!skillsDic) {
+			return "Loading recipesDic...";
+		} if (!tipsDic) {
+			return "Loading recipesDic...";
+		} if (!user) {
+			return "Loading user...";
+		} if (doneRunning == false) {
+			return "Loading fav and notes...";
+		}
+
+		setRecipes(Object.values(recipesDic).filter(recipes => favRecipes.indexOf(recipes["id"]) !== -1));
+		setSkills(Object.values(skillsDic).filter(skills => favSkills.indexOf(skills["skillID"]) !== -1));
+		setTips(Object.values(tipsDic).filter(tips => favTips.indexOf(tips["tipID"]) !== -1));
+		if (!recipes) {
+			return "Loading recipes...";
+		} if (!skills) {
+			return "Loading skills...";
+		} if (!tips) {
+			return "Loading tips...";
+		}
+
+
+	}
+	console.log(recipes)
+	console.log(skills)
+	console.log(tips)
+	
 	return (
 		<div>
 			{/* navbar */}
@@ -194,27 +174,26 @@ export default function UserFavorites() {
 			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
 				<Grid item container className={classes.gridContainerMain}>
-					{userRecipes.map((fav, idx) => {
-						if (fav in allRecipes) {
-							// each returned element is a recipe card
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<RecipeCard
-										key={fav}
-										object={allRecipes[fav]}
-										isFav={true}
-										inFavoritesPage={true}
-										// remove the favorite if we click it
-										onFavClick={() => {
-											const idx = userRecipes.indexOf(fav)
-											setUserRecipes(userRecipes.slice(0, idx).concat(userRecipes.slice(idx + 1)))
-										}}
-										initNotes={[]}
-										initRating={0}
-									/>
-								</Grid>
-							);
-						}
+					{recipes.map((fav, idx) => {
+						// each returned element is a recipe card
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<RecipeCard
+									key={fav.id}
+									object={fav}
+									isFav={true}
+									onFavClick={() => {
+										const idx = recipes.indexOf(fav)
+										setRecipes(recipes.slice(0, idx).concat(recipes.slice(idx + 1)))
+									}}
+									inFavoritesPage={true}
+									initNotes={{"notes":"hi"}}
+									initRating={
+										fav.id in recipeRatings ? recipeRatings[fav.id] : 0
+									}
+								/>
+							</Grid>
+						);
 					})}
 				</Grid>
 			</TabPanel>
@@ -222,25 +201,22 @@ export default function UserFavorites() {
 			{/* Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
 				<Grid container className={classes.gridContainerMain}>
-					{userSkills.map((fav, idx) => {
-						if (fav in allSkills) {
-							// each returned element is a skill card
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<SkillCard
-										key={fav}
-										object={allSkills[fav]}
-										isFav={true}
-										inFavoritesPage={true}
-										// remove the favorite if we click it
-										onFavClick={() => {
-											const idx = userSkills.indexOf(fav)
-											setUserSkills(userSkills.slice(0, idx).concat(userSkills.slice(idx + 1)))
-										}}
-									/>
-								</Grid>
-							);
-						}
+					{skills.map((fav, idx) => {
+						// each returned element is a skill card
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<SkillCard
+									key={fav.skillID}
+									object={fav}
+									isFav={true}
+									onFavClick={() => {
+										const idx = skills.indexOf(fav)
+										setSkills(skills.slice(0, idx).concat(skills.slice(idx + 1)))
+									}}
+									inFavoritesPage={true}
+								/>
+							</Grid>
+						);
 					})}
 				</Grid>
 			</TabPanel>
@@ -248,25 +224,22 @@ export default function UserFavorites() {
 			{/* Favorite Tips Panel */}
 			<TabPanel value={value} index="three">
 				<Grid item container className={classes.gridContainerMain}>
-					{userTips.map((fav, idx) => {
-						if (fav in allTips) {
-							// each returned element is a tip card
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<TipCard
-										key={fav}
-										object={allTips[fav]}
-										isFav={true}
-										inFavoritesPage={true}
-										// remove the favorite if we click it
-										onFavClick={() => {
-											const idx = userTips.indexOf(fav)
-											setUserTips(userTips.slice(0, idx).concat(userTips.slice(idx + 1)))
-										}}
-									/>
-								</Grid>
-							);
-						}
+					{tips.map((fav, idx) => {
+						// each returned element is a tip card
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<TipCard
+									key={fav.tipID}
+									object={fav}
+									isFav={true}
+									onFavClick={() => {
+										const idx = tips.indexOf(fav)
+										setTips(tips.slice(0, idx).concat(tips.slice(idx + 1)))
+									}}
+									inFavoritesPage={true}
+								/>
+							</Grid>
+						);
 					})}
 				</Grid>
 			</TabPanel>

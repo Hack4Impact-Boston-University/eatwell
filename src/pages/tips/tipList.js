@@ -8,7 +8,6 @@ import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import TipCard from "../../components/tipCard";
 import {
-	getRatingsTipsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -47,7 +46,6 @@ export default function TipReviewCard() {
 	);
 	const [tips, setTips] = React.useState('')
 	const [favTips, setFavTips] = React.useState([]);
-	const tipRatings = getRatingsTipsFromCookie() || {};
 	const [doneRunning, setDoneRunning] = React.useState(false);
 	const [value, setValue] = React.useState(0);
 	const [dummy, setDummy] = React.useState(true);
