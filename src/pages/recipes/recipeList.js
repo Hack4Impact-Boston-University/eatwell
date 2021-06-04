@@ -3,7 +3,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Typography } from "@material-ui/core";
-import * as firebase from "firebase";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard from "../../components/recipeCard";

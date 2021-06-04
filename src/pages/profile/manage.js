@@ -382,13 +382,26 @@ export default function Manage() {
 
   const setSelectedProgram = (p) => {
     setSelectedProgramProgram(p)
-    setCurrentCodes([])
-    codes.forEach(code => {
-      if (code?.program == p?.program) {
-        setCurrentCodes((codeList) => [...codeList, code]);
-      }
-    })
-    setNumProgramCodes(currentCodes.length)
+    console.log(p?.program)
+    console.log(codes)
+    setCurrentCodes(
+      codes.filter(code => code?.program == p?.program)
+    );
+    setNumProgramCodes(
+      codes.filter(code => code?.program == p?.program).length
+    );
+    console.log(currentCodes, numProgramCodes)
+
+    // setCurrentCodes([])
+    // console.log(p?.program)
+    // codes.forEach(code => {
+    //   console.log(code)
+    //   if (code?.program == p?.program) {
+    //     console.log(currentCodes)
+    //     setCurrentCodes((codeList) => [...codeList, code]);
+    //   }
+    // })
+    // setNumProgramCodes(currentCodes.length)
   }
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
