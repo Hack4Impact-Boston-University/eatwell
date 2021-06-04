@@ -1,8 +1,6 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import * as ui from '@material-ui/core'
-import Link from 'next/link'
 import { useUser } from '../utils/auth/useUser'
 import FirebaseAuth from '../components/FirebaseAuth'
 import Navbar from "../components/Navbar";
@@ -16,12 +14,9 @@ import {makeStyles,
         TextField,
         Typography,
         } from "@material-ui/core";
-import RecipeCard from "../components/recipeCard";
-import {getUserFromCookie, removeUserCookie} from "../utils/cookies"
+import RecipeReviewCard from "../pages/recipes/recipeList";
 import { useRouter } from 'next/router';
 import {checkCode} from "../utils/codes.js";
-import useSWR from "swr";
-import _, { map } from "underscore";
 
 const useStyles = makeStyles((theme) => ({
   containerHome: {
@@ -38,20 +33,13 @@ const useStyles = makeStyles((theme) => ({
 
 const Index = () => {
   const classes = useStyles();
-  const { user, upload } = useUser()
-  const [login, setLogin] = useState(false);
+  const { user } = useUser()
   const [open, setOpen] = React.useState(false);
   const [code, setCode] = React.useState("");
   const [errorText, setErrorText] = useState("");
   const handleClose = () => {
     setOpen(false);
   };
-  const handleToggle = () => {
-    setOpen(!open);
-  };
-  function signInClick(event) {
-    setLogin(true);
-  }
 
   const router = useRouter();
 
@@ -73,60 +61,6 @@ const Index = () => {
       setErrorText("");
     }
   }
-
-  // const userData = getUserFromCookie();
-  // if(userData) {
-  //   if("code" in userData) {
-  //     removeUserCookie();
-  //   } else if(!("firstname" in userData)) {
-  //     router.push("/profile/makeProfile", {code: true});
-  //   }
-  // }
-
-  // display recipes
-  const fetcher = async (...args) => {
-    const res = await fetch(...args);
-    return res.json();
-  };
-	const [uploadDate, setUploadDate] = React.useState(Date.now());
-	const [recipes, setRecipes] = React.useState([])
-	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
-	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
-
-  if (_.isEqual(recipes,[]) || !recipesDic || !programsDic ) {
-    if (!recipesDic) {
-      return "Loading recipesDic...";
-    } if (!programsDic) {
-      return "Loading programsDic...";
-    }
-    setRecipes(Object.keys(recipesDic).map(function (key) {
-      return recipesDic[key];
-    }));
-    if (_.isEqual(recipes,[])) {
-			return "Loading recipes...";
-		}
-	}
-
-  const recipesUser = [];
-	if (!user?.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
-		if (_.isEqual(user?.role, "user")) {
-			if (!_.isEqual(user.program, "")) {
-				if (!_.isEqual(keysList, [])) {
-					var i;
-					for (i = 0; i < keysList.length; i++) {
-						var d = Date.parse(
-							programsDic[user.program].programRecipes[keysList[i]] +
-								"T00:00:00.0000"
-						);
-						if (d < uploadDate) {
-							recipesUser.push(recipesDic[keysList[i]]);
-						}
-					}
-				}
-			}
-		}
-	}
 
   return (
     <div>
@@ -160,7 +94,6 @@ const Index = () => {
                           label="Activation Code"
                           placeholder="Your Organization's Code"
                           required
-                          // helperText="Please enter your first name"
                         />
                       </Grid>
                       <Grid container justify="center" item style={{marginTop: "20px"}}>
@@ -196,45 +129,10 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
-      {user?.role == "admin" && (
-				!_.isEqual(recipes, []) ? (
-					<Grid container className={classes.gridContainerMain}>
-						{recipes.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) {return;}
-								return (
-									<Grid item container xs={12} md={6} justify="center">
-										<RecipeCard
-											key={obj.id}
-											object={obj}
-                      isHome={true}
-										/>
-									</Grid>
-								);
-						})}
-					</Grid>
-				) : (
-					<Grid>
-						<h4>No recipes to display</h4>
-					</Grid>
-				)
-			)}
-      {!_.isEqual(recipesUser, []) && (
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{recipesUser?.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) {return;}
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-                    isHome={true}
-									/>
-								</Grid>
-							);
-					})}
-				</Grid>
-			)}
-       {/* (<Grid><h4>No recipes to display</h4></Grid>)} */}
+
+      <RecipeReviewCard
+        home={true}
+      />
       
       <div className={styles.nav}>
         <Navbar/>

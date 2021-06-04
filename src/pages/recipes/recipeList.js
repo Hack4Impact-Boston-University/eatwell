@@ -20,7 +20,7 @@ import styles from "../../styles/Home.module.css";
 import { uploadRating } from "../../utils/recipes.js";
 import _, { map } from "underscore";
 import { useRouter } from "next/router";
-import { ColorLensOutlined } from "@material-ui/icons";
+import { ColorLensOutlined, Home } from "@material-ui/icons";
 
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
@@ -36,7 +36,9 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-export default function RecipeReviewCard() {
+export default function RecipeReviewCard({
+	home
+}) {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
@@ -84,7 +86,7 @@ export default function RecipeReviewCard() {
 		router.push("/profile/makeProfile");
 	}
 
-	if (!recipes || !recipesDic || !programsDic || !user || doneRunning == false) {
+	if (!recipes || !recipesDic || !programsDic || !user || (doneRunning == false && home == false)) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!programsDic) {
@@ -154,6 +156,7 @@ export default function RecipeReviewCard() {
 										initRating={
 											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
 										}
+										isHome={home}
 									/>
 								</Grid>
 							);
@@ -179,6 +182,7 @@ export default function RecipeReviewCard() {
 									initRating={
 										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
 									}
+									isHome={home}
 								/>
 							</Grid>
 						);
