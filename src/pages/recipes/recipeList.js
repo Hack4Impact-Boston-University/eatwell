@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { Grid } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard from "../../components/recipeCard";
@@ -12,6 +12,7 @@ import {
 	getNotesFromCookie,
 	getRatingsFromCookie,
 	getUserFromCookie,
+	editUserCookie
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
 import AppBar from "@material-ui/core/AppBar";
@@ -25,6 +26,12 @@ import _, { map } from "underscore";
 import { useRouter } from "next/router";
 import { ColorLensOutlined } from "@material-ui/icons";
 
+import * as firebase from "firebase";
+import "firebase/firestore";
+import initFirebase from "../../utils/auth/initFirebase";
+initFirebase();
+var db = firebase.firestore();
+
 const fetcher = async (...args) => {
 	const res = await fetch(...args);
 
@@ -33,8 +40,8 @@ const fetcher = async (...args) => {
 
 const useStyles = makeStyles((theme) => ({
 	gridContainerMain: {
-		paddingLeft: "calc(max(5vw,50vw - 450px))",
-		paddingRight: "calc(max(5vw,50vw - 450px))",
+		// paddingLeft: "calc(max(5vw,50vw - 450px))",
+		// paddingRight: "calc(max(5vw,50vw - 450px))",
 		justifyContent: "space-around",
 	},
 	viewTabLabel: { textTransform: "none" },
@@ -54,6 +61,7 @@ export default function RecipeReviewCard() {
 	const [value, setValue] = React.useState(0);
 	//	const [favs, setFavs] = React.useState(value == 1);
 	const [dummy, setDummy] = React.useState(true);
+//	const [prevPrograms, setPrevPrograms] = React.useState([]);
 
 	const router = useRouter();
 
@@ -91,8 +99,35 @@ export default function RecipeReviewCard() {
 	}
 
 	const recipesUser = [];
-	if (!user.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
+	const displayedRecipes = {};
+
+	// useEffect(() => {
+	// 	const getPrevPrograms = async () => await db.collection("users").doc(user.id).get().get("prevPrograms");
+	// 	setPrevPrograms(getPrevPrograms())
+	// }, [prevPrograms])
+
+
+	if (user.program != "") {
+		const endDate = programsDic[user.program]?.programEndDate
+		if(endDate && endDate <= Date.now()) {
+			const getUserData = async () => {
+				const data = await db.collection("users").doc(user.id).get();
+				let prevPrograms = data.get("prevPrograms")
+				if (!prevPrograms || _.isEqual(prevPrograms, [])) {
+					prevPrograms = [user.program]
+				} else if(!prevPrograms.includes(user.program)) {
+					prevPrograms.push(user.program)
+				}
+				await db
+					.collection("users")
+					.doc(user.id)
+					.update({ prevPrograms: prevPrograms, program: "" })
+				editUserCookie({ prevPrograms: prevPrograms, program: "" })
+			}
+			getUserData();
+		}
+		
+		const keysList = programsDic[user.program]?.programRecipes ? Object.keys(programsDic[user.program]?.programRecipes) : [];
 		if (_.isEqual(user?.role, "user")) {
 			if (!_.isEqual(user.program, "")) {
 				if (
@@ -119,7 +154,7 @@ export default function RecipeReviewCard() {
 		<div className={styles.container}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
-					<Grid container className={classes.gridContainerMain}>
+					<Grid container xs={12} className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
 							//if (!favs || obj.id in favRecipes) {
@@ -150,11 +185,12 @@ export default function RecipeReviewCard() {
 						<h4>No recipes to display</h4>
 					</Grid>
 				)
-			) : !_.isEqual(recipesUser, []) ? (
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
+			) : !_.isEqual(recipesUser, []) || !_.isEqual(user?.prevPrograms, []) ? (
+				<Grid container className={classes.gridContainerMain}>
 					{recipesUser.map((obj, idx) => {
 						if (!obj.nameOfDish || !obj.id) { return; }
 						//if (!favs || obj.id in favRecipes) {
+						displayedRecipes[obj.id] = "";
 						return (
 							<Grid item container xs={12} md={6} justify="center">
 								<RecipeCard
@@ -174,6 +210,44 @@ export default function RecipeReviewCard() {
 						//}
 						//<RecipeCard obj={recipesUser[4]} isFav = {favRecipes.favRec.includes(recipesUser[4].dishID)} />
 					})}
+					{ user?.prevPrograms && (
+						<div>
+							{/* <Typography>Ended Programs</Typography> */}
+							{user.prevPrograms.map((program, _) => {
+								let recipeIDs = Object.keys(programsDic[program]?.programRecipes)
+								return (
+									<div>
+										{recipeIDs.map((id, _) => {
+											let obj = recipesDic[id];
+											if (!obj.nameOfDish || !obj.id) { return; }
+											//if (!favs || obj.id in favRecipes) {
+											if (obj.id in displayedRecipes) {
+												console.log("null")
+												return;
+											} else {
+												displayedRecipes[obj.id] = "";
+												console.log(obj)
+												return (
+													<Grid item container xs={12} md={12} justify="center">
+														<RecipeCard
+															key={obj.id}
+															object={obj}
+															isFav={obj.id in favRecipes}
+															onFavClick={() => onFavClick()}
+															initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
+															initRating={
+																obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+															}
+														/>
+													</Grid>
+												);
+											}
+										})}
+									</div>
+								)
+							})}
+						</div>	
+					)}
 				</Grid>
 			) : (
 				<Grid>

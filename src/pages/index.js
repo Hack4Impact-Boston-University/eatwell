@@ -99,7 +99,7 @@ const Index = () => {
 
   const recipesUser = [];
 	if (!user?.program == "") {
-		const keysList = Object.keys(programsDic[user.program]?.programRecipes);
+		const keysList = programsDic[user.program]?.programRecipes ? Object.keys(programsDic[user.program]?.programRecipes) : [];
 		if (_.isEqual(user?.role, "user")) {
 			if (!_.isEqual(user.program, "")) {
 				if (!_.isEqual(keysList, [])) {

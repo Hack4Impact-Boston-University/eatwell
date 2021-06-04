@@ -93,6 +93,18 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+function Test({
+	object,
+	isFav,
+	onFavClick,
+	initNotes,
+	initRating,
+	isHome,
+	inFavoritesPage
+}) {
+return <Typography>{JSON.stringify(_.omit(object, ['images', 'nutritionalImgs', 'recipeImgs']))}</Typography>
+}
+
 export default function RecipeCard({
 	object,
 	isFav,
@@ -377,7 +389,13 @@ export default function RecipeCard({
 													/>
 													<style>{cssstyle}</style>
 
-													<Slider {...settings}>
+													{Array.isArray(imgList) && imgList.length > 0 &&
+														<img
+															className={classes.media}
+															src={obj.images[0]}
+														/>
+													}
+													{/* <Slider {...settings}>
 														{Array.isArray(imgList) &&
 															obj.images.map((cell, index) => {
 																return (
@@ -387,10 +405,10 @@ export default function RecipeCard({
 																	/>
 																);
 															})}
-													</Slider>
+													</Slider> */}
 												</Grid>
 											)}
-										</Grid>
+										</Grid> 
 										<Grid container item xs={12} justify="center">
 											<Button
 												variant="contained"

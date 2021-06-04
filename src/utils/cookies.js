@@ -30,7 +30,7 @@ export const editUserCookie = (updateData) => {
   setUserCookie(data);
 }
 
-export const removeUserCookie = () => cookies.remove('auth')
+export const removeUserCookie = () => {cookies.remove('auth'); console.trace()}
 
 
 export const getFavsFromCookie = () => {

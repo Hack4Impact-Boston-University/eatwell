@@ -11,7 +11,6 @@ initFirebase();
 var db = firebase.firestore();
 
 export const checkCode = async (code, toDelete) => {
-	console.log("1")
 	if(code == "test" || code == "org") {
 		return parseCodeData({role: code});
 	} else {
@@ -20,6 +19,7 @@ export const checkCode = async (code, toDelete) => {
 			if(doc.exists && code == doc.id)  {
 				let data = parseCodeData(doc.data());
 				data = {...data};
+				console.log(data)
 				setUserCookie(data);
 				return Promise.resolve(data);
 			} else {

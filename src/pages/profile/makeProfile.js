@@ -83,11 +83,14 @@ const makeProfile = () => {
 		setTel(val);
 	}
 
-	const userData = getUserFromCookie();
-	if (!userData) {
-		return "Loading..."
-	}
+	let userData = {};
+
+	useEffect(() => {
+		userData = getUserFromCookie()
+	}, [userData])
+
 	const submit = () => {
+		console.log(userData)
 		const program = userData?.code.program
 		upload({
 				firstname: firstName,
@@ -111,14 +114,9 @@ const makeProfile = () => {
 		});
 	}
 
-	useEffect(() => {
-		const userData = getUserFromCookie();
-		if(!userData) {
-			//router.push("/");
-		}
-	})
-
-	if (!userData.code && !user) {
+	if (!userData) {
+		return "Loading..."
+	} else if (!userData.code && !user) {
 		return (
 			<div>
 				<div className={styles.nav}>
@@ -127,8 +125,7 @@ const makeProfile = () => {
 				</div>
 			</div>
 		);
-	}
-	if(resolveUser === "not found") {
+	} else if(resolveUser === "not found") {
 		return (
 			<Box className={classes.container}>
 				<Grid container className={classes.items}>
@@ -184,22 +181,34 @@ const makeProfile = () => {
 						</Button>
 					</Grid>
 					<Grid container justify="center" item>
-						<Button variant="contained" color="primary" className={classes.btn} onClick={() => logout()}>
+						<Button variant="contained" color="primary" className={classes.btn} 
+							onClick={() => {
+								let currUser = firebase.auth().currentUser
+								firebase.auth().signOut()
+								.then(() => {
+									return currUser.delete().then(() => {
+										console.log("success")
+										router.push("/")
+									})
+								}).catch((err) => {
+									console.log(err)
+								});
+							}}>
 							Take me back!
 						</Button>
 					</Grid>
 				</Grid>
 			</Box>
 		);
-} else {
-	if(resolveUser === "found") {
-		router.push('/');
+	} else {
+		if(resolveUser === "found") {
+			router.push('/');
+		}
+		return (<div>
+			<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>
+				<CircularProgress />
+			</Grid>
+		</div>);
 	}
-	return (<div>
-		<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: '100vh' }}>
-			<CircularProgress />
-		</Grid>
-	</div>);
-}
 };
 export default makeProfile;

@@ -443,7 +443,7 @@ const Profile = () => {
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
-								Enrolled Program: {programsDic[user.program].programName}
+								Enrolled Program: {programsDic[user.program]?.programName}
 							</Typography>
 						</Box>
 					</Grid>

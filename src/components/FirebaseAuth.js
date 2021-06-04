@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
-import initFirebase from "../utils/auth/initFirebase";
 import { setUserCookie, getUserFromCookie } from "../utils/cookies";
 import { mapUserData } from "../utils/auth/mapUserData";
 import { useUser } from "../utils/auth/useUser";
@@ -11,7 +10,10 @@ import { Grid, TextField, Button, Typography, makeStyles } from "@material-ui/co
 import {useRouter} from "next/router";
 
 // Init the Firebase app.
+import "firebase/firestore";
+import initFirebase from "../utils/auth/initFirebase";
 initFirebase();
+var db = firebase.firestore();
 
 const firebaseAuthConfig = {
 	signInFlow: "popup",
@@ -38,12 +40,19 @@ const firebaseAuthConfig = {
 const useStyles = makeStyles((theme) => ({
 }));
 
-const FirebaseAuth = ({isLogin, code}) => {
+const FirebaseAuth = ({isLogin, code, checkProgram}) => {
 	const classes = useStyles();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [checkPassword, setCheckPassword] = useState('');
 	const [error, setError] = useState('');
+	const { upload, logout } = useState('');
+	// Error types: 
+	// 0 - No Error
+	// 1 - Email error
+	// 2 - Password error
+	// 3 - Password confirm error
+	// 4 - Sensitive error, do not give error info
 	const [errorType, setErrorType] = useState(0);
 	const router = useRouter();
 	
@@ -52,7 +61,7 @@ const FirebaseAuth = ({isLogin, code}) => {
 	// 	j[type] =  event.target.value;
 	// 	this.setState(j);
 	//   }
-	  const handleSubmit = (event) => {
+	const handleSubmit = (event) => {
 		if(email == '') {
 		  setError("Please enter an email address");
 		  setErrorType(1);
@@ -62,13 +71,39 @@ const FirebaseAuth = ({isLogin, code}) => {
 		} else if(isLogin) {
 			setErrorType(0);
 			setError("");
+
+
 			firebase.auth().signInWithEmailAndPassword(email, password)
 			.then((userCredential) => {
 				var user = userCredential.user;
+				console.log(checkProgram, user)
 				const userData = mapUserData(user);
 				const fullData = {...userData, ...getUserFromCookie()};
+				const codeID = code.codeID
+				delete code.codeID
+
+				if(checkProgram) {
+					return db.collection("users").doc(user.uid).get().then((doc) => {
+						const program = doc.data()["program"];
+						console.log("program: ", program)
+						if(program != "") {
+							setError("This account has an active program. Joining multiple active programs is not allowed.")
+							logout();
+						} else {
+							setUserCookie({...fullData, code});
+							return db.collection("users").doc(user.uid).update(code).then(() => {
+								return db.collection("codes").doc(codeID).delete().then(() => {
+									router.push("/profile/makeProfile");
+								})
+							})
+						}
+					}).catch((err) => {
+						console.log(err);
+					});
+				}
 				setUserCookie({...fullData, code});
 				router.push("/profile/makeProfile");
+
 			}).catch((err) => {
 				var m = "";
 				switch(err.code) {
@@ -86,6 +121,7 @@ const FirebaseAuth = ({isLogin, code}) => {
 						setErrorType(4);
 						break;
 					default:
+						console.log(err)
 				}
 				if(m) {
 					setError(m);
@@ -94,7 +130,7 @@ const FirebaseAuth = ({isLogin, code}) => {
 		} else if(checkPassword == '') {
 			setError("Please confirm your password");
 			setErrorType(3);
-		} else if(password != checkPassword){ 
+		} else if(password != checkPassword) { 
 			setError("Passwords do not match");
 			setErrorType(3);
 		} else {
@@ -139,14 +175,14 @@ const FirebaseAuth = ({isLogin, code}) => {
 	}, []);
 	return (
 		<Grid container direction="row" justify="center" alignItems="center">
-			<Grid item>
+			{/* <Grid item>
 				{renderAuth ? (
 					<StyledFirebaseAuth
 						uiConfig={firebaseAuthConfig}
 						firebaseAuth={firebase.auth()}
 					/>
 				) : null}
-			</Grid>
+			</Grid> */}
 			<Grid item style={{marginTop: "10px"}}>
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<Grid container direction="column" justify="center" alignItems="center">
