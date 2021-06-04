@@ -10,21 +10,17 @@ import {
 	getUserFromCookie,
 	removeFavCookie,
 	setFavCookie,
-	setNotesCookie,
-	removeNotesCookie,
 	setRatingsCookie,
 	removeRatingsCookie,
 
 	removeFavSkillsCookie,
 	setFavSkillsCookie,
-	setNotesSkillsCookie,
 	removeNotesSkillsCookie,
 	setRatingsSkillsCookie,
 	removeRatingsSkillsCookie,
 
 	removeFavTipsCookie,
 	setFavTipsCookie,
-	setNotesTipsCookie,
 	removeNotesTipsCookie,
 	setRatingsTipsCookie,
 	removeRatingsTipsCookie,
@@ -149,7 +145,6 @@ const useUser = () => {
 							favData[userData["favoriteRecipes"][i]] = "";
 						}
 						setFavCookie(favData);
-						setNotesCookie(userData["notes"] || {})
 						setRatingsCookie(userData["ratings"] || {})
 
 						var favSkillsData = {}
@@ -157,7 +152,6 @@ const useUser = () => {
 							favSkillsData[userData["favoriteSkills"][i]] = "";
 						}
 						setFavSkillsCookie(favSkillsData);
-						setNotesSkillsCookie(userData["notesSkills"] || {})
 						setRatingsSkillsCookie(userData["ratingsSkills"] || {})
 
 
@@ -166,7 +160,6 @@ const useUser = () => {
 							favTipsData[userData["favoriteTips"][i]] = "";
 						}
 						setFavTipsCookie(favTipsData);
-						setNotesTipsCookie(userData["notesTips"] || {})
 						setRatingsTipsCookie(userData["ratingsTips"] || {})
 					});
 			} else if(!u){
@@ -176,15 +169,12 @@ const useUser = () => {
 				}
 				setUser();
 				removeFavCookie();
-				removeNotesCookie();
 				removeRatingsCookie();
 
 				removeFavSkillsCookie();
-				removeNotesSkillsCookie();
 				removeRatingsSkillsCookie();
 
 				removeFavTipsCookie();
-				removeNotesTipsCookie();
 				removeRatingsTipsCookie();
 			}
 		});

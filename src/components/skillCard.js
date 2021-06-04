@@ -206,32 +206,6 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 		});
 	};
 
-	function setStr(s, i) {
-		var words = s.split(" ");
-		var st = "";
-		for (let i = 0; i < words.length; i++) {
-			var word = "";
-			for (let j = 0; j < Math.ceil(words[i].length / maxChar); j++) {
-				word += words[i].substring(maxChar * j, maxChar * (j + 1)) + " ";
-			}
-			st += word;
-		}
-		st = st.substring(0, st.length - 1);
-		setNotes(
-			notes
-				.slice(0, i)
-				.concat([st])
-				.concat(notes.slice(i + 1))
-		);
-		editNotesSkillsCookie(
-			object.skillID,
-			notes
-				.slice(0, i)
-				.concat([s])
-				.concat(notes.slice(i + 1))
-		);
-	}
-
 	if (Object.keys(object) == 0) {
 		return null;
 	}

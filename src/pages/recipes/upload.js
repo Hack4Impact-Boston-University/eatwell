@@ -74,8 +74,10 @@ const fetcher = async (...args) => {
 };
 
 const UploadForm = () => {
-	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
-    const { data: tips } = useSWR(`/api/tips/getAllTips`, fetcher);
+	const [skills, setSkills] = React.useState([])
+  	const [tips, setTips] = React.useState([])
+	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
+  	const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
 	const [value, setValue] = React.useState(0);
 	const theme = ui.useTheme();
 
@@ -376,11 +378,23 @@ const UploadForm = () => {
 		}
 	});
 
-	
-	if (!skills) {
-		return "Loading skills...";
-	} else if (!tips) {
-		return "Loading tips...";
+	if (_.isEqual(skills,[]) || !skillsDic || _.isEqual(tips,[]) || !tipsDic) {
+		if (!skillsDic) {
+			return "Loading skillsDic...";
+		} if (!tipsDic) {
+			return "Loading tipsDic...";
+		}
+		setSkills(Object.keys(skillsDic).map(function (key) {
+			return skillsDic[key];
+		}));
+		setTips(Object.keys(tipsDic).map(function (key) {
+			return tipsDic[key];
+		}));
+		if (_.isEqual(skills,[])) {
+			return "Loading skills...";
+		} if (_.isEqual(tips,[])) {
+			return "Loading tips...";
+		}
 	}
 
 	return (
@@ -472,7 +486,8 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={descriptionIngredients}
-							label="Ingredients / Allergens *"
+							label="Ingredients / Allergens"
+							required={true}
 							multiline
 							onChange={(e) => setDescriptionIngredients(e.target.value)}
 							fullWidth
@@ -482,7 +497,8 @@ const UploadForm = () => {
 					<ui.Grid item xs={12} sm={6}>
 						<ui.TextField
 							value={recipeFact}
-							label="Recipe Fact *"
+							label="Recipe Fact"
+							required={true}
 							multiline
 							onChange={(e) => setRecipeFact(e.target.value)}
 							fullWidth

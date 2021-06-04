@@ -89,12 +89,22 @@ const Index = () => {
     return res.json();
   };
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
-	const { data: recipes } = useSWR(`/api/recipes/getAllRecipes`, fetcher);
+	const [recipes, setRecipes] = React.useState([])
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`,fetcher);
 
-  if (!recipes || !recipesDic || !programsDic ) {
-		return "Loading...";
+  if (_.isEqual(recipes,[]) || !recipesDic || !programsDic ) {
+    if (!recipesDic) {
+      return "Loading recipesDic...";
+    } if (!programsDic) {
+      return "Loading programsDic...";
+    }
+    setRecipes(Object.keys(recipesDic).map(function (key) {
+      return recipesDic[key];
+    }));
+    if (_.isEqual(recipes,[])) {
+			return "Loading recipes...";
+		}
 	}
 
   const recipesUser = [];
@@ -105,7 +115,6 @@ const Index = () => {
 				if (!_.isEqual(keysList, [])) {
 					var i;
 					for (i = 0; i < keysList.length; i++) {
-						console.log(programsDic[user.program].programRecipes[keysList[i]]);
 						var d = Date.parse(
 							programsDic[user.program].programRecipes[keysList[i]] +
 								"T00:00:00.0000"

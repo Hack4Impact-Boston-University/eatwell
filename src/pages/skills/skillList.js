@@ -2,15 +2,12 @@ import Head from "next/head";
 import React from "react";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-
+import * as firebase from "firebase";
 import { Grid } from "@material-ui/core";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import SkillCard from "../../components/skillCard";
 import {
-	getFavsSkillsFromCookie,
-	getNotesSkillsFromCookie,
-	getRatingsSkillsFromCookie,
 	getUserFromCookie,
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
@@ -42,33 +39,69 @@ export default function SkillReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
-	const { data: skills } = useSWR(`/api/skills/getAllSkills`, fetcher);
 	const { data: skillsDic } = useSWR(`/api/skills/getAllSkillsDic`, fetcher);
 	const { data: programsDic } = useSWR(
 		`/api/programs/getAllProgramsDic`,
 		fetcher
 	);
-	let favSkills = getFavsSkillsFromCookie() || {};
-	const skillNotes = getNotesSkillsFromCookie() || {};
-	const skillRatings = getRatingsSkillsFromCookie() || {};
+	const [skills, setSkills] = React.useState('')
+	const [favSkills, setFavSkills] = React.useState([]);
+	const [doneRunning, setDoneRunning] = React.useState(false);
 	const [value, setValue] = React.useState(0);
 	const [dummy, setDummy] = React.useState(true);
 	const router = useRouter();
 
-
+	// this useEffect will load the user's favorite skills
 	useEffect(() => {
-		window.addEventListener("beforeunload", () => {
-			if (!_.isEqual(getFavsSkillsFromCookie(), undefined)) {
-				upload({
-					notes: getNotesSkillsFromCookie(),
-					ratings: getRatingsSkillsFromCookie(),
-				});
+		firebase.auth().onAuthStateChanged(async function (user) {
+			if (user) {
+				// get all the user's favorite skills
+				await firebase
+					.firestore()
+					.collection("users")
+					.doc(user.uid)
+					.get()
+					.then((querySnapshot) => {
+						let data = querySnapshot.data();
+						setFavSkills(data.favoriteSkills); // set the user's favorite recipes
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+				setDoneRunning(true)
+			} else {
+				// No user is signed in.
+				router.push("/");
 			}
 		});
-	});
+	}, []);
 
-	if (!skills || !skillsDic || !programsDic || !user || !favSkills) {
-		return "Loading skills...";
+	const inFav = (objID) => {
+		var i;
+		for (i = 0; i < favSkills.length; i++) {
+			if (objID == favSkills[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (!skills || !skillsDic || !programsDic || !user || doneRunning == false) {
+		if (!skillsDic) {
+			return "Loading skillsDic...";
+		} if (!programsDic) {
+			return "Loading programsDic...";
+		} if (!user) {
+			return "Loading user...";
+		} if (doneRunning == false) {
+			return "Loading fav skills...";
+		}
+		setSkills(Object.keys(skillsDic).map(function (key, i) {
+			return skillsDic[key];
+		}));
+		if (!skills) {
+			return "Loading skills...";
+		}
 	}
 
 	if (getUserFromCookie() && !("firstname" in getUserFromCookie())) {
@@ -79,31 +112,29 @@ export default function SkillReviewCard() {
 	return (
 		<div className={styles.container}>
 			{/* {user.role == "admin" ? ( */}
-			{
-				!_.isEqual(skills, []) ? (
-					<Grid container className={classes.gridContainerMain}>
-						{skills.map((obj, idx) => {
-							if (!obj?.skillName || !obj?.skillID) {
-								return;
-							}
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<SkillCard
-										key={obj.skillID}
-										object={obj}
-										inFavoritesPage={false}
-										isFav={obj.skillID in favSkills}
-									/>
-								</Grid>
-							);
-						})}
-					</Grid>
-				) : (
-					<Grid>
-						<h4>No skills to display</h4>
-					</Grid>
-				)
-			}
+			{!_.isEqual(skills, []) ? (
+				<Grid container className={classes.gridContainerMain}>
+					{skills.map((obj, idx) => {
+						if (!obj?.skillName || !obj?.skillID) {
+							return;
+						}
+						return (
+							<Grid item container xs={12} md={6} justify="center">
+								<SkillCard
+									key={obj.skillID}
+									object={obj}
+									inFavoritesPage={false}
+									isFav={inFav(obj.skillID)}
+								/>
+							</Grid>
+						);
+					})}
+				</Grid>
+			) : (
+				<Grid>
+					<h4>No skills to display</h4>
+				</Grid>
+			)}
 
 			<div className={styles.nav}>
 				<Navbar />

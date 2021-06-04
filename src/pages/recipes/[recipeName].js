@@ -62,29 +62,29 @@ function useWindowSize() {
 }
 
 function TabPanel(props) {
-	const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props;
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`full-width-tabpanel-${index}`}
-			aria-labelledby={`full-width-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box p={3}>
-					<Typography component={'span'}>{children}</Typography>
-				</Box>
-			)}
-		</div>
-	);
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography component={'span'}>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
 }
 
 TabPanel.propTypes = {
-	children: PropTypes.node,
-	index: PropTypes.any.isRequired,
-	value: PropTypes.any.isRequired,
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
 };
 
 function a11yProps(index) {
@@ -211,7 +211,7 @@ export default function Recipe() {
 	} else if (!tipsDic) {
 		return "Loading tipsDic...";
 	}
-
+console.log(tipsDic[data.videoTips].url)
 	return (
 		<div className={classes.root}>
 			{/* these are the stylesheets for React Slider */}
@@ -278,12 +278,8 @@ export default function Recipe() {
 							aria-label="full width tabs example"
 						>
 							<Tab label={"Recipe: " + data.nameOfDish} {...a11yProps(0)} />
-							{data.videoSkills != "" && (
-								<Tab label={"Skill: " + skillsDic[data.videoSkills].skillName} {...a11yProps(1)} />
-							)}
-							{data.videoTips != "" && (
-								<Tab label={"Tip: " + tipsDic[data.videoTips].tipName}  {...a11yProps(2)} />
-							)}
+							<Tab label={"Skill: " + (skillsDic[data.videoSkills]?.skillName == undefined ? "NONE" : skillsDic[data.videoSkills]?.skillName)} {...a11yProps(1)} />
+							<Tab label={"Tip: " + (tipsDic[data.videoTips]?.tipName == undefined ? "NONE" : tipsDic[data.videoTips]?.tipName)}  {...a11yProps(2)} />
 						</Tabs>
 					</AppBar>
 				</div>

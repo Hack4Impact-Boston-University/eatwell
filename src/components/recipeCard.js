@@ -20,8 +20,6 @@ import { Rating } from "@material-ui/lab";
 import clsx from "clsx";
 import Link from "next/link";
 import {
-	editFavCookie,
-	editNotesCookie,
 	editRatingsCookie,
 } from "../utils/cookies";
 import ClearIcon from "@material-ui/icons/Clear";
@@ -39,7 +37,6 @@ import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
 import { useUser } from "../utils/auth/useUser";
-import { getFavsFromCookie } from "../utils/cookies";
 import _, { map } from "underscore";
 
 initFirebase();
@@ -117,25 +114,22 @@ export default function RecipeCard({
 	const classes = useStyles();
 	const [home] = React.useState(isHome);
 	const [obj, setObj] = React.useState(object);
-	const { user, upload } = useUser();
 	const [expanded, setExpanded] = React.useState(false);
 	const [favorited, setFav] = React.useState(isFav);
 	const handleExpandClick = () => {
 		setExpanded(!expanded);
 	};
-
 	const [notes, setNotes] = React.useState(initNotes);
 	const [note, setNote] = React.useState("");
-
-	const maxChar = 30.0; // Should be dynamic with width of the card
-
+	const [val, setVal] = React.useState("");
+	const [valTemp, setValTemp] = React.useState("");
+	const [editing, setEditing] = React.useState(false);
 	const [rating, setRating] = React.useState(initRating);
-
-	const [, updateState] = React.useState();
-
 	const [imgList, setImages] = React.useState(obj.images);
 	const [nutritionalImgs, setNutritionalImgs] = React.useState([]);
-
+	const maxChar = 30.0; // Should be dynamic with width of the card
+	const [, updateState] = React.useState();
+	
 	useEffect(() => {
 		// function for firebase storage
 		const getImg = async (i) => {
@@ -232,21 +226,23 @@ export default function RecipeCard({
 					const data = await db.collection("users").doc(user.uid).get();
 
 					const recipes = data.get("favoriteRecipes");
-					// if user has no favoriteSkills
+					// if user has no favoriteRecipes
 					if (!recipes || _.isEqual(recipes, [])) {
-						// get current skill's ID from props and set it if no favoriteSKills yet
+						// get current recipe's ID from props and set it if no favoriteSKills yet
 						await db
 							.collection("users")
 							.doc(user.uid)
 							.update({ favoriteRecipes: [obj.id] });
 					} else {
 						if (!recipes.includes(obj.id)) {
+							// if recipe not already favorited, add recipe to list
 							recipes.push(obj.id);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteRecipes: recipes });
 						} else {
+							// if recipe already favorited, remove recipe from list
 							recipes.splice(recipes.indexOf(obj.id), 1);
 							await db
 								.collection("users")
@@ -262,66 +258,98 @@ export default function RecipeCard({
 			}
 		});
 	};
-	// function favButtonClick() {
-	// 	editFavCookie(obj.id, !favorited);
-	// 	upload({ favoriteRecipes: Object.keys(getFavsFromCookie()) })
-	// 		.then(() => {
-	// 			setFav(!favorited);
-	// 			onFavClick();
-	// 		})
-	// 		.catch((err) => {
-	// 			editFavCookie(obj.id, favorited);
-	// 			//alert(err.message);
-	// 		});
-	// }
 
 	function handleSubmit() {
-		if (note != "") {
-			setStr(note, notes.length);
-			setNote("");
-		}
-	}
+		auth.onAuthStateChanged(function (user) {
+			if (note != "") {
+				const getUserData = async () => {
 
-	function setStr(s, i) {
-		var words = s.split(" ");
-		var st = "";
-		for (let i = 0; i < words.length; i++) {
-			var word = "";
-			for (let j = 0; j < Math.ceil(words[i].length / maxChar); j++) {
-				word += words[i].substring(maxChar * j, maxChar * (j + 1)) + " ";
+					// get the current user's document
+					const data = await db.collection("users").doc(user.uid).get();
+
+					// if user has no notes
+					if (_.isEqual(notes, {})) {
+						// get current recipe's ID from props and set it if no favoriteSKills yet
+						notes[obj.id] = [note]
+						await db
+							.collection("users")
+							.doc(user.uid)
+							.update({ notes: notes });
+					} else {
+						if (notes[obj.id] != undefined) {
+							// if recipe already has note, add to recipe
+							notes[obj.id].push(note);
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ notes: notes });
+						} else {
+							// if recipe doesn't already have note, add recipe
+							notes[obj.id] = [note]
+							await db
+								.collection("users")
+								.doc(user.uid)
+								.update({ notes: notes });
+						}
+					}
+
+					// setStr(note, notes.length);
+					setNote("");
+				};
+
+				getUserData();
+			} else {
+				console.log("User isnt logged in!!!");
 			}
-			st += word;
-		}
-		st = st.substring(0, st.length - 1);
-		setNotes(
-			notes
-				.slice(0, i)
-				.concat([st])
-				.concat(notes.slice(i + 1))
-		);
-		editNotesCookie(
-			obj.id,
-			notes
-				.slice(0, i)
-				.concat([s])
-				.concat(notes.slice(i + 1))
-		);
+		});
 	}
 
-	function deleteStr(i) {
-		if (notes.slice(0, i).length != 0) {
-			setNotes(notes.slice(0, i).concat(notes.slice(i + 1)));
-			editNotesCookie(obj.id, notes.slice(0, i).concat(notes.slice(i + 1)));
-		} else {
-			setNotes(notes.slice(i + 1));
-			editNotesCookie(obj.id, notes.slice(i + 1));
-		}
+	function submitEdit(note, index) {
+		auth.onAuthStateChanged(function (user) {
+			if (note != "") {
+				const getUserData = async () => {
+					notes[obj.id][index] = note
+					await db
+						.collection("users")
+						.doc(user.uid)
+						.update({ notes: notes });
+					
+					// setStr(note, notes.length);
+					setNotes(notes);
+					setNote("");
+				};
+
+				getUserData();
+			} else {
+				console.log("note cannot be empty string");
+			}
+		});
+		setNotes(Object.assign({}, notes));
+		setVal("")
+		setValTemp("")
+		alert("edited notes!")
+	}
+
+	function deleteNote(index) {
+		auth.onAuthStateChanged(function (user) {
+			const getUserData = async () => {
+				notes[obj.id].splice(index,1)
+				await db
+					.collection("users")
+					.doc(user.uid)
+					.update({ notes: notes });
+				setNotes(notes);
+			};
+
+			getUserData();
+		});
+		setNotes(Object.assign({}, notes));
+		alert("deleted notes!")
 	}
 
 	function changeRating(val) {
 		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
 		setRating(val);
-		editRatingsCookie(obj.id, val);
 	}
 
 	if (Object.keys(obj) == 0) {
@@ -602,15 +630,68 @@ export default function RecipeCard({
 											</Button>
 										</Grid>
 										<Box m={"3vh"}>
-											{notes?.map((str, idx) => {
+											{notes[obj.id] != undefined ? notes[obj.id].map((str, index) => {
 												return (
-													<Note
-														str={str}
-														setStr={(s) => setStr(s, idx)}
-														deleteStr={() => deleteStr(idx)}
-													>
-														{" "}
-													</Note>
+													<Grid container spacing={0} direction="column" alignItems="center" justify="center" style={{ minHeight: "1vh" }}>
+														{editing && valTemp == str ? (
+															<Grid justify="center" direction="row" className={classes.formItems} container>
+																<TextField defaultValue={str} onChange={(e) => setVal(e.target.value)}
+																	label="Note" placeholder="Add a Note"
+																	InputProps={{
+																		classes: { input: classes.text, label: classes.label },
+																	}}
+																	InputLabelProps={{
+																		classes: { root: classes.label },
+																	}}
+																/>
+																<Button color="primary" className={classes.btn}
+																	onClick={() => {
+																		setEditing(false);
+																		submitEdit(val, index);
+																	}}
+																>
+																	<Typography style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}>
+																		Submit
+																	</Typography>
+																</Button>
+																<Button color="primary" className={classes.btn}
+																	onClick={() => {setEditing(false); setNote(""); setVal(""); setValTemp("")}}
+																>
+																	<Typography style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}>
+																		Cancel
+																	</Typography>
+																</Button>
+															</Grid>
+														) : (
+															<Grid justify="center" direction="row" className={classes.formItems} container>
+																<Grid justify="center"
+																	style={{
+																		marginRight: "1rem",
+																		marginTop: "0.3rem",
+																		maxWidth: "60vw",
+																	}}
+																>
+																	<Typography style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 300 }}>
+																		{str}
+																	</Typography>
+																</Grid>
+																<Button color="primary" className={classes.btn} onClick={() => {setVal(str); setValTemp(str); setEditing(true)}}>
+																	<Typography style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}>
+																		Edit
+																	</Typography>
+																</Button>
+																<Button color="primary" className={classes.btn} onClick={() => deleteNote(index)}>
+																	<Typography style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}>
+																		Delete
+																	</Typography>
+																</Button>
+															</Grid>
+														)}
+													</Grid>
+												);
+											}) : [].map((str, idx) => {
+												return (
+													<Grid></Grid>
 												);
 											})}
 										</Box>
@@ -803,111 +884,3 @@ export default function RecipeCard({
 		</Grid>
 	);
 }
-
-const Note = ({ str, setStr, deleteStr }) => {
-	const classes = useStyles();
-	const [val, setVal] = React.useState(str);
-
-	const [editing, setEditing] = React.useState(false);
-	return (
-		<Grid
-			container
-			spacing={0}
-			direction="column"
-			alignItems="center"
-			justify="center"
-			style={{ minHeight: "1vh" }}
-		>
-			{editing ? (
-				<Grid
-					justify="center"
-					direction="row"
-					className={classes.formItems}
-					container
-				>
-					<TextField
-						value={val}
-						onChange={(e) => setVal(e.target.value)}
-						label="Note"
-						placeholder="Add a Note"
-						InputProps={{
-							classes: { input: classes.text, label: classes.label },
-						}}
-						InputLabelProps={{
-							classes: { root: classes.label },
-						}}
-					/>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => {
-							setEditing(false);
-							setStr(val);
-						}}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Submit
-						</Typography>
-					</Button>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => setEditing(false)}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Cancel
-						</Typography>
-					</Button>
-				</Grid>
-			) : (
-				<Grid
-					justify="center"
-					direction="row"
-					className={classes.formItems}
-					container
-				>
-					<Grid
-						justify="center"
-						style={{
-							marginRight: "1rem",
-							marginTop: "0.3rem",
-							maxWidth: "60vw",
-						}}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 300 }}
-						>
-							{str}
-						</Typography>
-					</Grid>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => setEditing(true)}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Edit
-						</Typography>
-					</Button>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => deleteStr()}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Delete
-						</Typography>
-					</Button>
-				</Grid>
-			)}
-		</Grid>
-	);
-};
