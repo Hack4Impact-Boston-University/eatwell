@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Typography } from "@material-ui/core";
-import * as firebase from "firebase";
 import useSWR from "swr";
 import { useUser } from "../../utils/auth/useUser";
 import RecipeCard from "../../components/recipeCard";
@@ -218,44 +217,50 @@ export default function RecipeReviewCard({
 							</Grid>
 						);
 					})}
-					{ user?.prevPrograms && (
-						<div>
-							{/* <Typography>Ended Programs</Typography> */}
-							{user.prevPrograms.map((program, _) => {
-								let recipeIDs = Object.keys(programsDic[program]?.programRecipes)
-								return (
-									<div>
-										{recipeIDs.map((id, _) => {
-											let obj = recipesDic[id];
-											if (!obj.nameOfDish || !obj.id) { return; }
-											//if (!favs || obj.id in favRecipes) {
-											if (obj.id in displayedRecipes) {
-												console.log("null")
-												return;
-											} else {
-												displayedRecipes[obj.id] = "";
-												console.log(obj)
-												return (
-													<Grid item container xs={12} md={12} justify="center">
-														<RecipeCard
-															key={obj.id}
-															object={obj}
-															isFav={obj.id in favRecipes}
-															onFavClick={() => onFavClick()}
-															initNotes={obj.id in recipeNotes ? recipeNotes[obj.id] : []}
-															initRating={
-																obj.id in recipeRatings ? recipeRatings[obj.id] : 0
-															}
-														/>
-													</Grid>
-												);
-											}
-										})}
-									</div>
-								)
-							})}
-						</div>	
-					)}
+					{user?.prevPrograms && 
+						<Grid item container direction="column" alignItems="center">
+							<Grid item ><Typography>Ended Programs</Typography></Grid>
+							<Grid item container justify="center" >
+								{user.prevPrograms.map((program, _) => {
+										let recipeIDs = Object.keys(programsDic[program]?.programRecipes)
+										return (
+											<Grid item container xs={8} direction="column">
+												<Grid item><Typography>{programsDic[program]?.programName}</Typography></Grid>
+												<Grid item container direction="row">
+													{recipeIDs.map((id, _) => {
+														let obj = recipesDic[id];
+														if (!obj.nameOfDish || !obj.id) { return; }
+														//if (!favs || obj.id in favRecipes) {
+														if (obj.id in displayedRecipes) {
+															console.log("null")
+															return;
+														} else {
+															displayedRecipes[obj.id] = "";
+															console.log(obj)
+															return (
+																<Grid item container xs={6} justify="center">
+																	<RecipeCard
+																		key={obj.id}
+																		object={obj}
+																		isFav={inFav(obj.id)}
+																		inFavoritesPage={false}
+																		initNotes={notes}
+																		initRating={
+																			obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+																		}
+																	/>
+																</Grid>
+															);
+														}
+													})}`
+												</Grid>
+											</Grid>
+										)
+									}
+								)}
+							</Grid>
+						</Grid>
+					}
 				</Grid>
 			) : (
 				<Grid>

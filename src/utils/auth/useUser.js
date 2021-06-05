@@ -46,21 +46,39 @@ const useUser = () => {
 				console.error(e);
 			});
 	};
+
+	const checkProgram = async () => {
+		const waitForAuthState = () => {
+			return new Promise(resolve => {
+				if(user) {
+					resolve();
+				}
+			})
+		}
+		await waitForAuthState();
+		return db.collection("users").doc(user.id).get().then((doc) => {
+			const program = doc.data()["program"];
+			console.log("program: ", program)
+			return program == "";
+		}).catch((err) => {
+			console.log(err);
+		});
+	}
+
 	const upload = async (newData) => {
-		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData) {
+		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData) { // If we are adding makeProfile data or changing password?
 			var currData = getUserFromCookie();
-			if(currData) {
+			if(currData) { // There should be 
 				if(!("firstname" in currData)) {
 					newData["role"] = "user";
 					var userData = Object.assign({}, currData, newData);
-					if("code" in userData) {
-						return db.collection("codes").doc(userData["code"]["id"]).delete().then(() => {
-							delete userData["code"];
+					if("codeID" in userData) {
+						return db.collection("codes").doc(userData["codeID"]).delete().then(() => {
+							delete userData["codeID"];
 							if("program" in userData && "id" in user) {
 								setUserCookie(userData);
 								setUser(userData);
 								return db.collection("users").doc(user.id).set(userData).then(() => {
-									console.log("ello00");
 									return db.collection("programs").doc(userData["program"]).update({
 										programUsers: firebase.firestore.FieldValue.arrayUnion(user["id"])
 									})
@@ -101,16 +119,35 @@ const useUser = () => {
 					return auth;
 				}
 			}
-		} else if("favoriteRecipes" in newData){
+		// 
+		} else if("program" in newData) { // If we are adding program to existing account
+				checkProgram().then((res) => {
+					if(res) {
+						var currData = getUserFromCookie();
+						var updateData = _.omit(newData, "codeID")
+						var userData = Object.assign({}, currData, updateData);
+						setUserCookie(userData);
+						setUser(userData);
+						return db.collection("users").doc(user.uid).update(updateData).then(() => {
+							return db.collection("codes").doc(newData.codeID).delete().then(() => {
+								router.push("/profile/makeProfile");
+							})
+						})
+					} else {
+						return Promise.reject('Existing program')
+					}
+				})
+		}
+		else if("favoriteRecipes" in newData) {
 			newData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}
-		} else if("favoriteSkills" in newData){
+		} else if("favoriteSkills" in newData) {
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}
-		} else if("favoriteTips" in newData){
+		} else if("favoriteTips" in newData) {
 			if(user) {
 				return db.collection("users").doc(user.id).update(newData);
 			}

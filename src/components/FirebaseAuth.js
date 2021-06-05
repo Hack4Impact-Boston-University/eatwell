@@ -40,13 +40,13 @@ const firebaseAuthConfig = {
 const useStyles = makeStyles((theme) => ({
 }));
 
-const FirebaseAuth = ({isLogin, code, checkProgram}) => {
+const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	const classes = useStyles();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [checkPassword, setCheckPassword] = useState('');
 	const [error, setError] = useState('');
-	const { upload, logout } = useState('');
+	const { upload, logout } = useUser();
 	// Error types: 
 	// 0 - No Error
 	// 1 - Email error
@@ -75,35 +75,26 @@ const FirebaseAuth = ({isLogin, code, checkProgram}) => {
 
 			firebase.auth().signInWithEmailAndPassword(email, password)
 			.then((userCredential) => {
-				var user = userCredential.user;
-				console.log(checkProgram, user)
-				const userData = mapUserData(user);
-				const fullData = {...userData, ...getUserFromCookie()};
-				const codeID = code.codeID
-				delete code.codeID
+				//var user = userCredential.user;
+				//console.log(checkProgram, user)
+				//const userData = mapUserData(user);
+				// const fullData = {...userData, ...getUserFromCookie()};
+//				const codeID = code.codeID
+//				delete code.codeID
 
-				if(checkProgram) {
-					return db.collection("users").doc(user.uid).get().then((doc) => {
-						const program = doc.data()["program"];
-						console.log("program: ", program)
-						if(program != "") {
+				if(addProgram) {
+					upload(code).then(() => {
+						router.push("/profile/makeProfile");
+					}).catch((err) => {
+						console.log(err)
+						if(err.message == 'Existing program') {
 							setError("This account has an active program. Joining multiple active programs is not allowed.")
 							logout();
-						} else {
-							setUserCookie({...fullData, code});
-							return db.collection("users").doc(user.uid).update(code).then(() => {
-								return db.collection("codes").doc(codeID).delete().then(() => {
-									router.push("/profile/makeProfile");
-								})
-							})
 						}
-					}).catch((err) => {
-						console.log(err);
-					});
+					})
+				} else {
+					router.push("/profile/makeProfile");
 				}
-				setUserCookie({...fullData, code});
-				router.push("/profile/makeProfile");
-
 			}).catch((err) => {
 				var m = "";
 				switch(err.code) {
@@ -140,8 +131,9 @@ const FirebaseAuth = ({isLogin, code, checkProgram}) => {
 			.then((userCredential) => {
 				var user = userCredential.user;
 				const userData = mapUserData(user);
-				const fullData = {...userData, ...getUserFromCookie()};
-				setUserCookie({...fullData, code});
+				// const fullData = {...userData, ...getUserFromCookie()};
+				// setUserCookie({...fullData, code});
+				setUserCookie({...fullData, ...code});
 				router.push("/profile/makeProfile");
 			}).catch((err) => {
 			var m = "";
@@ -175,14 +167,14 @@ const FirebaseAuth = ({isLogin, code, checkProgram}) => {
 	}, []);
 	return (
 		<Grid container direction="row" justify="center" alignItems="center">
-			{/* <Grid item>
+			<Grid item>
 				{renderAuth ? (
 					<StyledFirebaseAuth
 						uiConfig={firebaseAuthConfig}
 						firebaseAuth={firebase.auth()}
 					/>
 				) : null}
-			</Grid> */}
+			</Grid>
 			<Grid item style={{marginTop: "10px"}}>
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<Grid container direction="column" justify="center" alignItems="center">
