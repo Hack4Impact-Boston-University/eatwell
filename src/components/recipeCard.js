@@ -417,13 +417,13 @@ export default function RecipeCard({
 													/>
 													<style>{cssstyle}</style>
 
-													{Array.isArray(imgList) && imgList.length > 0 &&
+													{/* {Array.isArray(imgList) && imgList.length > 0 &&
 														<img
 															className={classes.media}
 															src={obj.images[0]}
 														/>
-													}
-													{/* <Slider {...settings}>
+													} */}
+													<Slider {...settings}>
 														{Array.isArray(imgList) &&
 															obj.images.map((cell, index) => {
 																return (
@@ -433,7 +433,7 @@ export default function RecipeCard({
 																	/>
 																);
 															})}
-													</Slider> */}
+													</Slider>
 												</Grid>
 											)}
 										</Grid> 

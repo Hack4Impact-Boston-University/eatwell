@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import {checkCode} from "../utils/codes.js";
 import useSWR from "swr";
 import _, { map } from "underscore";
+import RecipeList from "./recipes/recipeList"
 
 const useStyles = makeStyles((theme) => ({
   containerHome: {
@@ -56,9 +57,7 @@ const Index = () => {
   const router = useRouter();
 
   const submit = () => {
-    console.log("0");
     if(code != "") {
-      console.log("1");
       checkCode(code.trim().toUpperCase(), false).then((data) => {
         console.log(data)
         setErrorText("");
@@ -196,7 +195,7 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
-      {user?.role == "admin" && (
+      {/* {user?.role == "admin" && (
 				!_.isEqual(recipes, []) ? (
 					<Grid container className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
@@ -234,8 +233,8 @@ const Index = () => {
 					})}
 				</Grid>
 			)}
-       {/* (<Grid><h4>No recipes to display</h4></Grid>)} */}
-      
+       (<Grid><h4>No recipes to display</h4></Grid>)} */}
+      <RecipeList/>
       <div className={styles.nav}>
         <Navbar/>
       </div>

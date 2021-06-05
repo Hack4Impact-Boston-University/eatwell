@@ -91,12 +91,12 @@ const makeProfile = () => {
 
 	const submit = () => {
 		console.log(userData)
-		const program = userData?.code.program
+//		const program = userData?.code.program
 		upload({
 				firstname: firstName,
 				lastname: lastName,
 				phone: tel,
-				program: program,
+//				program: program,
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],

@@ -58,7 +58,7 @@ export default function create() {
                             <h1 align="center">Click below to sign in</h1> 
                             : <h1 align="center">Click below to create an account</h1>
                         }
-                        <Grid container justify="center"><FirebaseAuth code={userData} isLogin={isExisting} checkProgram={isExisting}/></Grid>
+                        <Grid container justify="center"><FirebaseAuth code={userData} isLogin={isExisting} addProgram={isExisting}/></Grid>
                     </Grid>
                     <Grid item justify="center" item>
 						<Button variant="contained" color="primary" style={{marginTop: "15px"}}
