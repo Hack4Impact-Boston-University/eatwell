@@ -15,7 +15,6 @@ import {
 } from "@material-ui/core";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import * as ui from "@material-ui/core";
 import { Rating } from "@material-ui/lab";
 import clsx from "clsx";
 import Link from "next/link";
@@ -23,12 +22,8 @@ import {
 	editRatingsCookie,
 } from "../utils/cookies";
 import ClearIcon from "@material-ui/icons/Clear";
-import StarIcon from "@material-ui/icons/Star";
-import StarBorderIcon from "@material-ui/icons/StarBorder";
 import {
 	uploadRating,
-	getRecipe,
-	setRecipeListener,
 } from "../utils/recipes.js";
 import Slider from "react-slick";
 import * as firebase from "firebase";
@@ -36,7 +31,6 @@ import "firebase/auth";
 import "firebase/firestore";
 import initFirebase from "../utils/auth/initFirebase";
 import ReactCardFlip from "react-card-flip";
-import { useUser } from "../utils/auth/useUser";
 import _, { map } from "underscore";
 
 initFirebase();
@@ -54,7 +48,6 @@ const useStyles = makeStyles((theme) => ({
 			boxShadow: "0 16px 70px -12.125px rgba(0,0,0,0.3)",
 		},
 	},
-
 	media: {
 		maxWidth: "100%",
 	},
@@ -107,9 +100,10 @@ export default function RecipeCard({
 	isFav,
 	onFavClick,
 	initNotes,
+	initRatings,
 	initRating,
 	isHome,
-	inFavoritesPage
+	inFavoritesPage,
 }) {
 	const classes = useStyles();
 	const [home] = React.useState(isHome);
@@ -124,11 +118,10 @@ export default function RecipeCard({
 	const [val, setVal] = React.useState("");
 	const [valTemp, setValTemp] = React.useState("");
 	const [editing, setEditing] = React.useState(false);
+	const [ratings, setRatings] = React.useState(initRatings);
 	const [rating, setRating] = React.useState(initRating);
 	const [imgList, setImages] = React.useState(obj.images);
 	const [nutritionalImgs, setNutritionalImgs] = React.useState([]);
-	const maxChar = 30.0; // Should be dynamic with width of the card
-	const [, updateState] = React.useState();
 	
 	useEffect(() => {
 		// function for firebase storage
@@ -147,7 +140,6 @@ export default function RecipeCard({
 					console.log(error);
 				});
 		};
-
 		// make sure data exists before trying to fetch all the images
 		// from firebase storage
 		if (obj && obj.nutritionalImgs != undefined) {
@@ -219,12 +211,10 @@ export default function RecipeCard({
 					if (favorited && inFavoritesPage) {
 						onFavClick();
 					}
-
 					// update click
 					setFav(!favorited);
 					// get the current user's document
 					const data = await db.collection("users").doc(user.uid).get();
-
 					const recipes = data.get("favoriteRecipes");
 					// if user has no favoriteRecipes
 					if (!recipes || _.isEqual(recipes, [])) {
@@ -251,7 +241,6 @@ export default function RecipeCard({
 						}
 					}
 				};
-
 				getUserData();
 			} else {
 				console.log("User isnt logged in!!!");
@@ -259,45 +248,43 @@ export default function RecipeCard({
 		});
 	};
 
-	function handleSubmit() {
+	function handleSubmitNote() {
 		auth.onAuthStateChanged(function (user) {
-			if (note != "") {
-				const getUserData = async () => {
-
-					// get the current user's document
-					const data = await db.collection("users").doc(user.uid).get();
-
-					// if user has no notes
-					if (_.isEqual(notes, {})) {
-						// get current recipe's ID from props and set it if no favoriteSKills yet
-						notes[obj.id] = [note]
-						await db
-							.collection("users")
-							.doc(user.uid)
-							.update({ notes: notes });
-					} else {
-						if (notes[obj.id] != undefined) {
-							// if recipe already has note, add to recipe
-							notes[obj.id].push(note);
-							await db
-								.collection("users")
-								.doc(user.uid)
-								.update({ notes: notes });
-						} else {
-							// if recipe doesn't already have note, add recipe
+			if (user) {
+				if (note != "") {
+					const getUserData = async () => {
+						// get the current user's document
+						const data = await db.collection("users").doc(user.uid).get();
+						// if user has no notes
+						if (_.isEqual(notes, {})) {
+							// get current recipe's ID from props and set it if no favoriteSKills yet
 							notes[obj.id] = [note]
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ notes: notes });
+						} else {
+							if (notes[obj.id] != undefined) {
+								// if recipe already has note, add to recipe
+								notes[obj.id].push(note);
+								await db
+									.collection("users")
+									.doc(user.uid)
+									.update({ notes: notes });
+							} else {
+								// if recipe doesn't already have note, add recipe
+								notes[obj.id] = [note]
+								await db
+									.collection("users")
+									.doc(user.uid)
+									.update({ notes: notes });
+							}
 						}
-					}
-
-					// setStr(note, notes.length);
-					setNote("");
-				};
-
-				getUserData();
+						// setStr(note, notes.length);
+						setNote("");
+					};
+					getUserData();
+				}
 			} else {
 				console.log("User isnt logged in!!!");
 			}
@@ -348,6 +335,22 @@ export default function RecipeCard({
 	}
 
 	function changeRating(val) {
+		auth.onAuthStateChanged(function (user) {
+			if (user) {
+				const getUserData = async () => {
+					// get the current user's document
+					const data = await db.collection("users").doc(user.uid).get();
+					ratings[obj.id] = parseFloat(val)
+					await db
+						.collection("users")
+						.doc(user.uid)
+						.update({ ratings: ratings });
+				};
+				getUserData();
+			} else {
+				console.log("User isnt logged in!!!");
+			}
+		});
 		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
 		setRating(val);
 	}
@@ -501,7 +504,7 @@ export default function RecipeCard({
 												</Grid>
 												<Grid item>
 													<Rating
-														defaultValue={0}
+														// defaultValue={0}
 														precision={0.5}
 														onChange={(e) => {
 															changeRating(e.target.value);
@@ -617,7 +620,7 @@ export default function RecipeCard({
 												color="primary"
 												className={classes.btn}
 												style={{ marginTop: "1rem" }}
-												onClick={() => handleSubmit()}
+												onClick={() => handleSubmitNote()}
 											>
 												<Typography
 													style={{

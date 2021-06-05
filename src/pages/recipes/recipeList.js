@@ -1,6 +1,5 @@
-import Head from "next/head";
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid, Typography } from "@material-ui/core";
 import * as firebase from "firebase";
@@ -13,15 +12,9 @@ import {
 	editUserCookie
 } from "../../utils/cookies";
 import Navbar from "../../components/Navbar";
-import AppBar from "@material-ui/core/AppBar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import PropTypes from "prop-types";
 import styles from "../../styles/Home.module.css";
-import { uploadRating } from "../../utils/recipes.js";
 import _, { map } from "underscore";
 import { useRouter } from "next/router";
-import { ColorLensOutlined } from "@material-ui/icons";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -43,21 +36,20 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-export default function RecipeReviewCard() {
+export default function RecipeReviewCard({
+	home
+}) {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
 	const [recipes, setRecipes] = React.useState("")
 	const { data: recipesDic } = useSWR(`/api/recipes/getAllRecipesDic`, fetcher);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
-	const recipeRatings = getRatingsFromCookie() || {};
-	const [value, setValue] = React.useState(0);
+	// const recipeRatings = getRatingsFromCookie() || {};
 	const [favs, setFavs] = React.useState([]);
 	const [notes, setNotes] = React.useState({});
+	const [ratings, setRatings] = React.useState({});
 	const [doneRunning, setDoneRunning] = React.useState(false);
-	const [dummy, setDummy] = React.useState(true);
-//	const [prevPrograms, setPrevPrograms] = React.useState([]);
-
 	const router = useRouter();
 
 	// this useEffect will load the user's favorite recipes
@@ -74,6 +66,7 @@ export default function RecipeReviewCard() {
 						let data = querySnapshot.data();
 						setFavs(data.favoriteRecipes); // set the user's favorite recipes
 						setNotes(data.notes); // set the user's recipe notes
+						setRatings(data.ratings); // set the user's recipe ratings
 					})
 					.catch((error) => {
 						console.log(error);
@@ -93,7 +86,7 @@ export default function RecipeReviewCard() {
 		router.push("/profile/makeProfile");
 	}
 
-	if (!recipes || !recipesDic || !programsDic || !user || doneRunning == false) {
+	if (!recipes || !recipesDic || !programsDic || !user || (doneRunning == false && home == false)) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!programsDic) {
@@ -101,7 +94,7 @@ export default function RecipeReviewCard() {
 		} if (!user) {
 			return "Loading user...";
 		} if (doneRunning == false) {
-			return "Loading fav and notes...";
+			return "Loading fav, notes, ratings...";
 		}
 		setRecipes(Object.keys(recipesDic).map(function (key) {
 			return recipesDic[key];
@@ -187,9 +180,11 @@ export default function RecipeReviewCard() {
 										isFav={inFav(obj.id)}
 										inFavoritesPage={false}
 										initNotes={notes}
+										initRatings={ratings}
 										initRating={
-											obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+											obj.id in ratings ? ratings[obj.id] : 0
 										}
+										isHome={home}
 									/>
 								</Grid>
 							);
@@ -214,9 +209,11 @@ export default function RecipeReviewCard() {
 									isFav={inFav(obj.id)}
 									inFavoritesPage={false}
 									initNotes={notes}
+									initRatings={ratings}
 									initRating={
-										obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+										obj.id in ratings ? ratings[obj.id] : 0
 									}
+									isHome={home}
 								/>
 							</Grid>
 						);
