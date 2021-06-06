@@ -83,6 +83,18 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+function Test({
+	object,
+	isFav,
+	onFavClick,
+	initNotes,
+	initRating,
+	isHome,
+	inFavoritesPage
+}) {
+return <Typography>{JSON.stringify(_.omit(object, ['images', 'nutritionalImgs', 'recipeImgs']))}</Typography>
+}
+
 export default function RecipeCard({
 	object,
 	isFav,
@@ -327,19 +339,22 @@ export default function RecipeCard({
 			if (user) {
 				const getUserData = async () => {
 					// get the current user's document
-					const data = await db.collection("users").doc(user.uid).get();
+					// const data = await db.collection("users").doc(user.uid).get();
 					ratings[obj.id] = parseFloat(val)
 					await db
 						.collection("users")
 						.doc(user.uid)
-						.update({ ratings: ratings });
+						.update({ ratings: ratings })
 				};
 				getUserData();
 			} else {
 				console.log("User isnt logged in!!!");
 			}
 		});
-		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
+		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj)
+		.catch((err) => {
+			console.log(err)
+		});
 		setRating(val);
 	}
 
@@ -408,6 +423,12 @@ export default function RecipeCard({
 													/>
 													<style>{cssstyle}</style>
 
+													{/* {Array.isArray(imgList) && imgList.length > 0 &&
+														<img
+															className={classes.media}
+															src={obj.images[0]}
+														/>
+													} */}
 													<Slider {...settings}>
 														{Array.isArray(imgList) &&
 															obj.images.map((cell, index) => {
@@ -421,7 +442,7 @@ export default function RecipeCard({
 													</Slider>
 												</Grid>
 											)}
-										</Grid>
+										</Grid> 
 										<Grid container item xs={12} justify="center">
 											<Button
 												variant="contained"

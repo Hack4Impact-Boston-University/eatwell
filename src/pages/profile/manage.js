@@ -382,13 +382,26 @@ export default function Manage() {
 
   const setSelectedProgram = (p) => {
     setSelectedProgramProgram(p)
-    setCurrentCodes([])
-    codes.forEach(code => {
-      if (code?.program == p?.program) {
-        setCurrentCodes((codeList) => [...codeList, code]);
-      }
-    })
-    setNumProgramCodes(currentCodes.length)
+    console.log(p?.program)
+    console.log(codes)
+    setCurrentCodes(
+      codes.filter(code => code?.program == p?.program)
+    );
+    setNumProgramCodes(
+      codes.filter(code => code?.program == p?.program).length
+    );
+    console.log(currentCodes, numProgramCodes)
+
+    // setCurrentCodes([])
+    // console.log(p?.program)
+    // codes.forEach(code => {
+    //   console.log(code)
+    //   if (code?.program == p?.program) {
+    //     console.log(currentCodes)
+    //     setCurrentCodes((codeList) => [...codeList, code]);
+    //   }
+    // })
+    // setNumProgramCodes(currentCodes.length)
   }
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
@@ -417,7 +430,7 @@ export default function Manage() {
     var index;
     for(index = 0; index < num; index++) {
       const code = generate(6);
-      batch.set(db.collection('codes').doc(code), {id: code, program:id});
+      batch.set(db.collection('codes').doc(code), {codeID: code, program:id});
     }
     return batch.commit();
   }
@@ -457,7 +470,7 @@ export default function Manage() {
     }
     let delCodes = getRandom(currentCodes, numCodes);
     delCodes.forEach((code) => {
-      deleteCode(code?.id, true)
+      deleteCode(code?.codeID, true)
     })
     alert("Successfully deleted codes!")
     setNumCodes('');
@@ -495,7 +508,7 @@ export default function Manage() {
     console.log(selectedProgramProgram?.program)
     db.collection('programs').doc(selectedProgramProgram?.program).delete()
     currentCodes.forEach(code => {
-      deleteCode(code?.id, true)
+      deleteCode(code?.codeID, true)
     })
     alert("successfully deleted the program.");
     setOpenDeleteProgram(false);
@@ -1702,9 +1715,9 @@ export default function Manage() {
                                 <ListItemAvatar>
                                   <Avatar/>
                                 </ListItemAvatar>
-                                <ListItemText primary={code?.id}/>
+                                <ListItemText primary={code?.codeID}/>
                                 <ListItemSecondaryAction>
-                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.id, false)}>
+                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.codeID, false)}>
                                     <DeleteIcon />
                                   </IconButton>
                                 </ListItemSecondaryAction>

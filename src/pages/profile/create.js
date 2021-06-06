@@ -4,7 +4,8 @@ import {
 	makeStyles,
 	TextField,
 	Typography,
-	CircularProgress,
+    CircularProgress,
+    Button,
 } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
@@ -29,6 +30,7 @@ export default function create() {
     const classes = useStyles();
     const router = useRouter();
     const userData = getUserFromCookie();
+    const [isExisting, setIsExisting] = useState(false);
 
     useEffect(() => {
         if(!userData) {
@@ -52,9 +54,18 @@ export default function create() {
                     style={{ minHeight: '100vh' }}
                 >
                     <Grid item>
-                        <h1 align="center">Click below to create an account</h1>
-                        <Grid container justify="center"><FirebaseAuth code={userData}/></Grid>
-                    </Grid>   
+                        {isExisting ? 
+                            <h1 align="center">Click below to sign in</h1> 
+                            : <h1 align="center">Click below to create an account</h1>
+                        }
+                        <Grid container justify="center"><FirebaseAuth code={userData} isLogin={isExisting} addProgram={isExisting}/></Grid>
+                    </Grid>
+                    <Grid item justify="center" item>
+						<Button variant="contained" color="primary" style={{marginTop: "15px"}}
+							onClick={() => setIsExisting(!isExisting)}>
+							{isExisting ? "Create New Account" : "Use Existing Account"}
+						</Button>
+					</Grid> 
                 </Grid> 
                 
             </div>

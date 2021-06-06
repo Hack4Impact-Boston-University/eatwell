@@ -34,7 +34,7 @@ export const uploadRating = async (recipe, newRating, oldRating, setObj) => {
 	}
 	newData.avgRating = sumRatings / newData.numRatings;
 	setObj({...recipe, ...newData});
-	db.collection("recipes").doc(recipe.id).update(newData);
+	return db.collection("recipes").doc(recipe.id).update(newData);
 }
 
 export const getRecipe = async (id) => {
