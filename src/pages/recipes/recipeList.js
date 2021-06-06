@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 	gridContainerMain: {
 		// paddingLeft: "calc(max(5vw,50vw - 450px))",
 		// paddingRight: "calc(max(5vw,50vw - 450px))",
-		justifyContent: "space-around",
+		justifyContent: "center",
 	},
 	viewTabLabel: { textTransform: "none" },
 }));
@@ -146,6 +146,7 @@ export default function RecipeReviewCard({
 							"T00:00:00.0000"
 						);
 						if (d < uploadDate) {
+							console.log(recipesUser)
 							recipesUser.push(recipesDic[keysList[i]]);
 						}
 					}
@@ -164,15 +165,18 @@ export default function RecipeReviewCard({
 		return false;
 	}
 	
+	console.log(recipesDic)
+
+
 	return (
 		<div className={styles.container}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
-					<Grid container xs={12} className={classes.gridContainerMain}>
+					<Grid container xs={12} sm={11} lg={8} className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
 							return (
-								<Grid item container xs={12} md={6} justify="center">
+								<Grid item container xs={12} sm={6} justify="center">
 									<RecipeCard
 										key={obj.id}
 										object={obj}
@@ -196,35 +200,37 @@ export default function RecipeReviewCard({
 				)
 			) : !_.isEqual(recipesUser, []) || !_.isEqual(user?.prevPrograms, []) ? (
 				<Grid container className={classes.gridContainerMain}>
-					{recipesUser.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) { return; }
-						//if (!favs || obj.id in favRecipes) {
-						displayedRecipes[obj.id] = "";
-						return (
-							<Grid item container xs={12} md={6} justify="center">
-								<RecipeCard
-									key={obj.id}
-									object={obj}
-									isFav={inFav(obj.id)}
-									inFavoritesPage={false}
-									initNotes={notes}
-									initRatings={ratings}
-									initRating={
-										obj.id in ratings ? ratings[obj.id] : 0
-									}
-									isHome={home}
-								/>
-							</Grid>
-						);
-					})}
+					<Grid item container xs={12} sm={11} lg={8}>
+						{recipesUser.map((obj, idx) => {
+							if (!obj.nameOfDish || !obj.id) { return; }
+							//if (!favs || obj.id in favRecipes) {
+							displayedRecipes[obj.id] = "";
+							return (
+								<Grid item container xs={12} sm={6} justify="center">
+									<RecipeCard
+										key={obj.id}
+										object={obj}
+										isFav={inFav(obj.id)}
+										inFavoritesPage={false}
+										initNotes={notes}
+										initRatings={ratings}
+										initRating={
+											obj.id in ratings ? ratings[obj.id] : 0
+										}
+										isHome={home}
+									/>
+								</Grid>
+							);
+						})}
+					</Grid>
 					{user?.prevPrograms && 
 						<Grid item container direction="column" alignItems="center">
 							<Grid item ><Typography>Ended Programs</Typography></Grid>
-							<Grid item container justify="center" >
+							<Grid item container justify="center">
 								{user.prevPrograms.map((program, _) => {
 										let recipeIDs = Object.keys(programsDic[program]?.programRecipes)
 										return (
-											<Grid item container xs={8} direction="column">
+											<Grid item container xs={12} sm={11} lg={8} direction="column">
 												<Grid item><Typography>{programsDic[program]?.programName}</Typography></Grid>
 												<Grid item container direction="row">
 													{recipeIDs.map((id, _) => {
@@ -238,16 +244,18 @@ export default function RecipeReviewCard({
 															displayedRecipes[obj.id] = "";
 															console.log(obj)
 															return (
-																<Grid item container xs={6} justify="center">
+																<Grid item container xs={12} sm={6} justify="center">
 																	<RecipeCard
 																		key={obj.id}
 																		object={obj}
 																		isFav={inFav(obj.id)}
 																		inFavoritesPage={false}
 																		initNotes={notes}
+																		initRatings={ratings}
 																		initRating={
-																			obj.id in recipeRatings ? recipeRatings[obj.id] : 0
+																			obj.id in ratings ? ratings[obj.id] : 0
 																		}
+																		isHome={home}
 																	/>
 																</Grid>
 															);

@@ -339,19 +339,22 @@ export default function RecipeCard({
 			if (user) {
 				const getUserData = async () => {
 					// get the current user's document
-					const data = await db.collection("users").doc(user.uid).get();
+					// const data = await db.collection("users").doc(user.uid).get();
 					ratings[obj.id] = parseFloat(val)
 					await db
 						.collection("users")
 						.doc(user.uid)
-						.update({ ratings: ratings });
+						.update({ ratings: ratings })
 				};
 				getUserData();
 			} else {
 				console.log("User isnt logged in!!!");
 			}
 		});
-		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj);
+		uploadRating(obj, parseFloat(val), parseFloat(rating), setObj)
+		.catch((err) => {
+			console.log(err)
+		});
 		setRating(val);
 	}
 

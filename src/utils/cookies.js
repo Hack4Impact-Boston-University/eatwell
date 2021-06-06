@@ -10,6 +10,7 @@ export const getUserFromCookie = () => {
 }
 
 export const setUserCookie = (user) => {
+  console.trace()
   cookies.set('auth', user, {
     // firebase id tokens expire in one hour
     // set cookie expiry to match

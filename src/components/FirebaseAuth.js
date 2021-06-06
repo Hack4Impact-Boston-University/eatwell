@@ -129,11 +129,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 			setError("");
 			firebase.auth().createUserWithEmailAndPassword(email, password)
 			.then((userCredential) => {
-				var user = userCredential.user;
-				const userData = mapUserData(user);
-				// const fullData = {...userData, ...getUserFromCookie()};
-				// setUserCookie({...fullData, code});
-				setUserCookie({...fullData, ...code});
 				router.push("/profile/makeProfile");
 			}).catch((err) => {
 			var m = "";
