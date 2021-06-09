@@ -20,7 +20,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import SwipeableViews from "react-swipeable-views";
 import PropTypes from "prop-types";
 import MultiImageInput from "react-multiple-image-input";
-// import Resizer from "react-image-file-resizer";
 import * as _ from 'underscore'
 
 import { getUserFromCookie } from "../../utils/cookies";
