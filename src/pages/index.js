@@ -168,7 +168,9 @@ const Index = () => {
 				</Grid>
 			)}
        (<Grid><h4>No recipes to display</h4></Grid>)} */}
-      <RecipeList/>
+      <RecipeList
+        home={true}
+      />
       <div className={styles.nav}>
         <Navbar/>
       </div>
