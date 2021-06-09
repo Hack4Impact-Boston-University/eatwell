@@ -28,6 +28,7 @@
     "next": "^10.2.2",
     "react": "^17.0.2",
     "react-card-flip": "^1.1.1",
+    "react-dom": "^17.0.2",
     "react-firebaseui": "^4.2.0",
     "react-multi-select-component": "^3.1.7",
     "react-multiple-image-input": "^1.0.0",
