@@ -172,7 +172,7 @@ export default function RecipeReviewCard({
 		<div className={styles.container}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
-					<Grid container xs={12} sm={11} lg={8} className={classes.gridContainerMain}>
+					<Grid container xs={12} sm={12} lg={8} className={classes.gridContainerMain}>
 						{recipes.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
 							return (

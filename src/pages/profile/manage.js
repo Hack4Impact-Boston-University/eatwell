@@ -8,12 +8,8 @@ import {
   InputLabel, Input, MenuItem,
   Select, Button, Divider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-	Collapse,
   FormControl, 
-  GridList
 } from "@material-ui/core";
-import { DropzoneArea } from 'material-ui-dropzone'
-import DropDownMenu from "material-ui/DropDownMenu";
 import useSWR from "swr";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -23,17 +19,14 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AppBar from "@material-ui/core/AppBar";
 import PropTypes from "prop-types";
-import SwipeableViews from "react-swipeable-views";
 import Navbar from "../../components/Navbar";
 import styles from "../../styles/Home.module.css";
 import * as firebase from "firebase";
-import initFirebase from "../../utils/auth/initFirebase";
 import { useRouter } from 'next/router';
-import { FormatColorResetOutlined, PictureAsPdf, Router } from '@material-ui/icons'
+import { PictureAsPdf } from '@material-ui/icons'
 import MultiImageInput from 'react-multiple-image-input';
-import Slider from "react-slick";
 import MultiSelect from "react-multi-select-component";
-import _, { create, map } from 'underscore';
+import _ from 'underscore';
 import {getUserFromCookie} from "../../utils/cookies";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -1403,69 +1396,20 @@ export default function Manage() {
     }
   }
 
-  const emails = [];
-  var i;
-  for (i = 0; i < users.length; i++) {
-    emails.push(users[i]["email"]);
-  }
-
-  const recipesList = [];
-  var i;
-  for (i = 0; i < recipes.length; i++) {
-    recipesList.push(recipes[i]["nameOfDish"]);
-  }
-
-  const skillsList = [];
-  var i;
-  for (i = 0; i < skills.length; i++) {
-    skillsList.push(skills[i]["skillName"]);
-  }
-
-  const tipsList = [];
-  var i;
-  for (i = 0; i < tips.length; i++) {
-    tipsList.push(tips[i]["tipName"]);
-  }
-
-  const programsList = [];
-  var i;
-  for (i = 0; i < programs.length; i++) {
-    programsList.push(programs[i]["programName"]);
-  }
-
   const handleChange = (e) => {
     setSearch(e.target.value);
-    const filteredNames = emails.filter((x) => {
-      x?.includes(e.target.value);
-    });
   };
-
   const handleChangeRecipe = (e) => {
     setSearchRecipe(e.target.value);
-    const filteredNames = recipesList.filter((x) => {
-      x?.includes(e.target.value);
-    });
   };
-
   const handleChangeSearchSkill = (e) => {
     setSearchSkill(e.target.value);
-    const filteredNames = recipesList.filter((x) => {
-      x?.includes(e.target.value);
-    });
   };
-
   const handleChangeSearchTip = (e) => {
-    setSearchTips(e.target.value);
-    const filteredNames = recipesList.filter((x) => {
-      x?.includes(e.target.value);
-    });
+    setSearchTip(e.target.value);
   };
-
   const handleChangeSearchProgram = (e) => {
     setSearchProgram(e.target.value);
-    const filteredNames = programsList.filter((x) => {
-      x?.includes(e.target.value);
-    });
   };
 
   const userData = getUserFromCookie();
@@ -1478,25 +1422,17 @@ export default function Manage() {
   }
 
   return (
-    <div className={classes.root}>
-      <div
-        style={{
-          paddingTop: "10vh",
-          width: "100%",
-          minWidth: "29%",
-        }}
-      ></div>
-
-      <SwipeableViews axis={theme.direction === "rtl" ? "x-reverse" : "x"} index={value} onChangeIndex={handleChangeIndex}>
+    <div>
+        <div style={{paddingTop: "7rem",width: "100%",minWidth: "29%"}}></div>
 
         {/* ---------------------------- 0: ADMIN MANAGE USERS ---------------------------- */}
         <TabPanel value={value} index={0} dir={theme.direction}>
           <Grid container spacing={3}>
-            <Grid item sm={5}>
+            <Grid item sm={12}>
               <TextField label="search email" value={search} onChange={handleChange}/>
-
               {users.map((value) => {
-                if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search)) {
+                if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
+                (value["firstname"]+' '+value["lastname"])?.includes(search) || (value["firstname"]+' '+value["lastname"]).toLowerCase()?.includes(search)) {
                   return (
                     <Accordion>
                       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
@@ -1526,6 +1462,7 @@ export default function Manage() {
               })}
             </Grid>
           </Grid>
+
           {currentUser && (
           <div>
             {/* --------------- edit user program --------------- */}
@@ -1584,7 +1521,7 @@ export default function Manage() {
         {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
           <Grid container spacing={3}>
-            <Grid item xs={3}>
+            <Grid item sm={12}>
               <List dense>
                 <ListItem key={"Add New Program"} button selected={true}>
                   <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
@@ -1820,10 +1757,9 @@ export default function Manage() {
 
         {/* ---------------------------- 2: ADMIN MANAGE RECIPES ---------------------------- */}
         <TabPanel value={value} index={2} dir={theme.direction}>
-        <Grid container spacing={3}>
-            <Grid item sm={5}>
+          <Grid container spacing={3}>
+            <Grid item sm={12}>
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
-
               {recipes.map((value) => {
                 if (value["nameOfDish"]?.includes(searchRecipe) || value["nameOfDish"].toLowerCase()?.includes(searchRecipe)) {
                   return (
@@ -2124,11 +2060,11 @@ export default function Manage() {
 
         </TabPanel>
 
+        {/* ---------------------- 3: ADMIN MANAGE SKILLS ---------------------- */}
         <TabPanel value={value} index={3} dir={theme.direction}>
-        <Grid container spacing={3}>
-            <Grid item sm={5}>
-              <TextField label="search skill" value={searchRecipe} onChange={handleChangeSearchSkill}/>
-
+          <Grid container spacing={3}>
+            <Grid item sm={12}>
+              <TextField label="search skill" value={searchSkill} onChange={handleChangeSearchSkill}/>
               {skills.map((value) => {
                 if (value["skillName"]?.includes(searchSkill) || value["skillName"].toLowerCase()?.includes(searchSkill)) {
                   return (
@@ -2228,10 +2164,11 @@ export default function Manage() {
           )}
         </TabPanel>
 
+        {/* ---------------------- 4: ADMIN MANAGE TIPS ---------------------- */}
         {/* manage tipss Dialog */}
         <TabPanel value={value} index={4} dir={theme.direction}>
-        <Grid container spacing={3}>
-            <Grid item sm={5}>
+          <Grid container spacing={3}>
+            <Grid item sm={12}>
               <TextField label="search tip" value={searchTip} onChange={handleChangeSearchTip}/>
               {tips.map((value) => {
                 if (value["tipName"]?.includes(searchTip) || value["tipName"].toLowerCase()?.includes(searchTip)) {
@@ -2329,7 +2266,7 @@ export default function Manage() {
             </Dialog>
           )}
         </TabPanel>
-      </SwipeableViews>
+
 
       <div className={styles.nav}>
         <Navbar />

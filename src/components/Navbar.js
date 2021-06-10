@@ -70,13 +70,13 @@ const useStyles = makeStyles((theme) => ({
 		height: barWidth,
 	},
 	responsiveMenu: {
-		[theme.breakpoints.down("xs")]: {
+		[theme.breakpoints.down("sm")]: {
 			display: "none",
 		},
 	},
 	responsiveIcon: {
 		display: "none",
-		[theme.breakpoints.down("xs")]: {
+		[theme.breakpoints.down("sm")]: {
 			display: "block",
 		},
 	},

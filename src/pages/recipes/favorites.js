@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
+import styles from "../../styles/Home.module.css";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -32,9 +33,9 @@ function TabPanel(props) {
 			{...other}
 		>
 			{value === index && (
-				<Box p={3}>
+				<div p={3}>
 					<Typography>{children}</Typography>
-				</Box>
+				</div>
 			)}
 		</div>
 	);
@@ -61,8 +62,8 @@ const fetcher = async (...args) => {
 
 const useStyles = makeStyles((theme) => ({
 	gridContainerMain: {
-		paddingLeft: "calc(max(5vw,50vw - 450px))",
-		paddingRight: "calc(max(5vw,50vw - 450px))",
+		// paddingLeft: "calc(max(5vw,50vw - 450px))",
+		// paddingRight: "calc(max(5vw,50vw - 450px))",
 	},
 	viewTabLabel: { textTransform: "none" },
 }));
@@ -148,27 +149,9 @@ export default function UserFavorites() {
 
 	return (
 		<div>
-			{/* navbar */}
-			<Navbar />
-
-			{/* MUI Tab panel */}
-			<AppBar position="static" color="default">
-				<Tabs
-					value={value}
-					onChange={handleChange}
-					indicatorColor="primary"
-					textColor="primary"
-					variant="fullWidth"
-					aria-label="wrapped label tabs example"
-				>
-					<Tab value="one" label="Recipes" wrapped {...a11yProps("one")} />
-					<Tab value="two" label="Skills" {...a11yProps("two")} />
-					<Tab value="three" label="Tips" {...a11yProps("three")} />
-				</Tabs>
-			</AppBar>
-
 			{/* Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
+				<div className={styles.container3}>
 				<Grid item container className={classes.gridContainerMain}>
 					{recipes.map((fav, idx) => {
 						// each returned element is a recipe card
@@ -192,10 +175,12 @@ export default function UserFavorites() {
 						);
 					})}
 				</Grid>
+				</div>
 			</TabPanel>
 
 			{/* Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
+				<div className={styles.container3}>
 				<Grid container className={classes.gridContainerMain}>
 					{skills.map((fav, idx) => {
 						// each returned element is a skill card
@@ -215,10 +200,12 @@ export default function UserFavorites() {
 						);
 					})}
 				</Grid>
+				</div>
 			</TabPanel>
 
 			{/* Favorite Tips Panel */}
 			<TabPanel value={value} index="three">
+				<div className={styles.container3}>
 				<Grid item container className={classes.gridContainerMain}>
 					{tips.map((fav, idx) => {
 						// each returned element is a tip card
@@ -238,7 +225,26 @@ export default function UserFavorites() {
 						);
 					})}
 				</Grid>
+				</div>
 			</TabPanel>
+
+			<div className={styles.nav}>
+				<Navbar />
+				<AppBar position="static" color="default">
+					<Tabs
+						value={value}
+						onChange={handleChange}
+						indicatorColor="primary"
+						textColor="primary"
+						variant="fullWidth"
+						aria-label="wrapped label tabs example"
+					>
+						<Tab value="one" label="Recipes" wrapped {...a11yProps("one")} />
+						<Tab value="two" label="Skills" {...a11yProps("two")} />
+						<Tab value="three" label="Tips" {...a11yProps("three")} />
+					</Tabs>
+				</AppBar>
+			</div>
 		</div>
 	);
 }

@@ -68,11 +68,11 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(0),
 	},
 	icon: {
-		fontSize: "calc(max(2vw,17px))",
+		fontSize: "calc(max(2vw,30px))",
 	},
 	iconContainer: {
-		// width: "3vw",
-		// height: "3vw",
+		// width: 60,
+    	// height: 60,
 	},
 	viewButtonLabel: { textTransform: "none" },
 	text: {
@@ -368,7 +368,7 @@ export default function RecipeCard({
 		setIsFlipped(!isFlipped);
 	};
 	return (
-		<Grid item xs={10}>
+		<Grid item xs={11}>
 			{home != true ? (
 				// RECIPES TAB CARD DISPLAY
 				<Box pb={3} mr={0.5} ml={0.5}>
@@ -395,14 +395,14 @@ export default function RecipeCard({
 												alignItems="center"
 												justify="center"
 											>
-												<Typography
-													style={{
-														fontSize: "calc(min(5vw, 35px))",
-														fontWeight: 300,
-													}}
-												>
-													{obj.nameOfDish}
-												</Typography>
+												{obj.nameOfDish.length > 16 ?
+													<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{obj.nameOfDish}
+													</Typography> :
+													<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{obj.nameOfDish}
+													</Typography>
+												}
 											</Grid>
 										</Grid>
 										<Grid container justify="center">
@@ -733,14 +733,14 @@ export default function RecipeCard({
 												alignItems="center"
 												justify="center"
 											>
-												<Typography
-													style={{
-														fontSize: "calc(min(5vw, 35px))",
-														fontWeight: 300,
-													}}
-												>
-													{obj.nameOfDish}
-												</Typography>
+												{obj.nameOfDish.length > 16 ?
+													<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{obj.nameOfDish}
+													</Typography> :
+													<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{obj.nameOfDish}
+													</Typography>
+												}
 											</Grid>
 										</Grid>
 										<Grid

@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(0),
 	},
 	icon: {
-		fontSize: "calc(max(2vw,17px))",
+		fontSize: "calc(max(2vw,30px))",
 	},
 	iconContainer: {
 		// width: "3vw",
@@ -211,7 +211,7 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 	}
 
 	return (
-		<Grid item xs={10} >
+		<Grid item xs={11} >
 			<Box pb={3} mr={0.5} ml={0.5}>
 				<div>
 					<Card className={classes.card}>
@@ -236,14 +236,14 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 										justify="center"
 									>
 										<Link href={object.skillID}>
-											<Typography
-												style={{
-													fontSize: "calc(min(5vw, 35px))",
-													fontWeight: 300,
-												}}
-											>
-												{object.skillName}
-											</Typography>
+											{object.skillName.length > 16 ?
+												<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													{object.skillName}
+												</Typography> :
+												<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													{object.skillName}
+												</Typography>
+											}
 										</Link>
 									</Grid>
 								</Grid>

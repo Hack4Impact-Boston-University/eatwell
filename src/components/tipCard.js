@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(0),
 	},
 	icon: {
-		fontSize: "calc(max(2vw,17px))",
+		fontSize: "calc(max(2vw,30px))",
 	},
 	iconContainer: {
 		// width: "3vw",
@@ -268,7 +268,7 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 	}
 
 	return (
-		<Grid item xs={10}>
+		<Grid item xs={11}>
 			<Box pb={3} mr={0.5} ml={0.5}>
 				<div>
 					<Card className={classes.card}>
@@ -293,14 +293,14 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 										justify="center"
 									>
 										<Link href={object.tipID}>
-											<Typography
-												style={{
-													fontSize: "calc(min(5vw, 35px))",
-													fontWeight: 300,
-												}}
-											>
-												{object.tipName}
-											</Typography>
+											{object.tipName.length > 16 ?
+												<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													{object.tipName}
+												</Typography> :
+												<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													{object.tipName}
+												</Typography>
+											}
 										</Link>
 									</Grid>
 								</Grid>

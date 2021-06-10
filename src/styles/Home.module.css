@@ -25,6 +25,26 @@
 	align-items: center;
 }
 
+.container3 {
+	min-height: 100%;
+	padding: 0 0.5rem;
+	padding-top: 8rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.container4 {
+	min-height: 100%;
+	padding: 0 0.5rem;
+	padding-top: 7rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
 .main {
 	padding: 3vh 0;
 	flex: 1;

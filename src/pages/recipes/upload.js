@@ -397,16 +397,7 @@ const UploadForm = () => {
 	}
 
 	return (
-		<div className={styles.container}>
-		<div
-            style={{
-            paddingTop: "5vh",
-            width: "100%",
-            minWidth: "29%",
-            }}
-        ></div>
-		
-		<React.Fragment>
+		<div className={styles.container4}>
             <TabPanel value={value} index={0} dir={theme.direction}>
 				<ui.Typography variant="h6" gutterBottom>
 					Upload New Recipe
@@ -770,11 +761,14 @@ const UploadForm = () => {
 
 			<div className={styles.nav}>
 				<Navbar />
-
 				<AppBar position="static" color="default">
 					<Tabs
-						value={value} onChange={handleChangeToggle}
-						indicatorColor="primary" textColor="primary" variant="fullWidth" aria-label="full width tabs example"
+						value={value}
+						onChange={handleChange}
+						indicatorColor="primary"
+						textColor="primary"
+						variant="fullWidth"
+						aria-label="wrapped label tabs example"
 					>
 						<Tab label="Upload Recipes" {...a11yProps(0)} />
 						<Tab label="Upload Skills" {...a11yProps(1)} />
@@ -782,7 +776,6 @@ const UploadForm = () => {
 					</Tabs>
 				</AppBar>
 			</div>
-		</React.Fragment>
 		</div>
 	);
 };
