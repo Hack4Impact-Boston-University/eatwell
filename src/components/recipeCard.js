@@ -449,7 +449,10 @@ export default function RecipeCard({
 												color="secondary"
 												classes={{ label: classes.viewButtonLabel }}
 											>
-												<Link href={obj?.id}>Make this Recipe</Link>
+												{
+													isHome == false ? <Link href={obj?.id}>Make this Recipe</Link>
+													: <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+												}
 											</Button>
 										</Grid>
 										<Grid
@@ -879,7 +882,10 @@ export default function RecipeCard({
 									<Button variant="contained" color="secondary"
 										classes={{ label: classes.viewButtonLabel }}
 									>
-										<Link href={"recipes/" + obj?.id}>Make this Recipe</Link>
+										{
+											isHome == false ? <Link href={obj?.id}>Make this Recipe</Link>
+											: <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+										}
 									</Button>
 								</Grid>
 							</Box>
