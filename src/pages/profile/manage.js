@@ -2269,7 +2269,7 @@ export default function Manage() {
 
 
       <div className={styles.nav}>
-        <Navbar />
+        <Navbar currentPage={7}/>
         <AppBar position="static" color="default">
           <Tabs
             value={value} onChange={handleChangeToggle}

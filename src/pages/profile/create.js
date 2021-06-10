@@ -44,7 +44,7 @@ export default function create() {
     return (
         <Box className={classes.container}>
             <div className={styles.nav}>
-                <Navbar/>
+                <Navbar currentPage={0}/>
                 <Grid
                     container
                     spacing={0}

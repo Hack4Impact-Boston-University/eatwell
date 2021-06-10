@@ -240,7 +240,7 @@ const Profile = () => {
 	
 	if (!user) { return (
 		<div><div className={styles.nav}>
-			<Navbar/>
+			<Navbar currentPage={1}/>
 			<h1 align="center">Please sign in to access this page!</h1>
 		</div></div>);
 	}
@@ -477,7 +477,7 @@ const Profile = () => {
 				</ThemeProvider>
 
 				<div className={styles.nav}>
-					<Navbar/>
+					<Navbar currentPage={1}/>
 				</div>
 			</Box>
 		</div>

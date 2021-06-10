@@ -87,6 +87,10 @@ const useStyles = makeStyles((theme) => ({
 	menuItems: {
 		color: "#EEF8F9",
 	},
+	menuItems1: {
+		color: "#EEF8F9",
+		backgroundColor: "#126500",
+	},
 	menuIcon: {
 		marginRight: theme.spacing(0.2),
 	},
@@ -96,48 +100,13 @@ const useStyles = makeStyles((theme) => ({
 	viewButtonLabel: { textTransform: "none" },
 }));
 
-const Navbar = () => {
+const Navbar = ({currentPage}) => {
 	const classes = useStyles();
 	const { user, logout } = useUser();
-
 	const [open, setOpen] = React.useState(false);
-	const [toggle, setToggle] = useState(false);
 
-	const UserDrawerItems = (props) => {
-		return <Box></Box>;
-	};
-
-	const AdminDrawerItems = (props) => {
-		return (
-			<Box>
-				<MenuItem button key={2} className={classes.menuItems}>
-					<Button
-						href={`/recipes/upload`}
-						className={classes.menuItems}
-						classes={{ label: classes.viewButtonLabel }}
-					>
-						<ListItemIcon>
-							<Backup className={`${classes.menuIcon} ${classes.menuItems}`} />
-						</ListItemIcon>
-						<Typography variant="subtitle1">Upload</Typography>
-					</Button>
-				</MenuItem>
-
-				<MenuItem button key={3} className={classes.menuItems}>
-					<Button
-						href={`/profile/manage`}
-						className={classes.menuItems}
-						classes={{ label: classes.viewButtonLabel }}
-					>
-						<ListItemIcon>
-							<Tune className={`${classes.menuIcon} ${classes.menuItems}`}/>
-						</ListItemIcon>
-						<Typography variant="subtitle1">Manage</Typography>
-					</Button>
-				</MenuItem>
-			</Box>
-		);
-	};
+	console.log("currentPage")
+	console.log(currentPage)
 
 	// navbar items
 	const Items = (props) => {
@@ -149,36 +118,55 @@ const Navbar = () => {
 		const handleClose = () => {
 			setAnchorEl(null);
 		};
+
 		// navbar items are shown iff user is logged in
 		return (
 			<div>
 				{user ? ( // user logged in show menu items
 					<Toolbar disableGutters>
 						<Grid container className={classes.responsiveMenu}>
-							<Button href={`/profile/profile`} className={classes.menuItems}>
+							<Button href={`/profile/profile`}
+								className={currentPage == 1 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:1}}
+							>
 								<AccountCircle
 									className={`${classes.menuIcon} ${classes.menuItems}`}
 								/>
 								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
-							<Button href={`/recipes/recipeList`} className={classes.menuItems}>
+							<Button href={`/recipes/recipeList`}
+								className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:2}}
+							>
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
-							<Button href={`/skills/skillList`} className={classes.menuItems}>
+							<Button href={`/skills/skillList`}
+								className={currentPage == 3 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:3}}
+							>
 								<LocalLibrary />
 								<Typography variant="subtitle2">Skills</Typography>
 							</Button>
-							<Button href={`/tips/tipList`} className={classes.menuItems}>
+							<Button href={`/tips/tipList`}
+								className={currentPage == 4 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:4}}
+							>
 								<EmojiObjects />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>
-							<Button href={`/recipes/favorites`} className={classes.menuItems}>
+							<Button href={`/recipes/favorites`}
+								className={currentPage == 5 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:5}}
+							>
 								<Favorite />
 								<Typography variant="subtitle2">Favorites</Typography>
 							</Button>
 							{user.role == "admin" ? (
-								<Button href={`/recipes/upload`} className={classes.menuItems}>
+								<Button href={`/recipes/upload`}
+									className={currentPage == 6 ? classes.menuItems1 : classes.menuItems}
+									useState={{currentPage:6}}
+								>
 									<Backup style={{ marginRight: "2px" }} />
 									<Typography variant="subtitle2">Upload</Typography>
 								</Button>
@@ -186,7 +174,10 @@ const Navbar = () => {
 								<Box></Box>
 							)}
 							{user.role == "admin" ? (
-								<Button href={`/profile/manage`} className={classes.menuItems}>
+								<Button href={`/profile/manage`}
+									className={currentPage == 7 ? classes.menuItems1 : classes.menuItems}
+									useState={{currentPage:7}}
+								>
 									<Tune />
 									<Typography variant="subtitle2">Manage</Typography>
 								</Button>
@@ -211,11 +202,14 @@ const Navbar = () => {
 								onClose={handleClose}
 								classes={{ paper: classes.paper }}
 							>
-								<MenuItem button key={0} className={classes.menuItems}>
+								<MenuItem button key={0}
+									className={currentPage == 1 ? classes.menuItems1 : classes.menuItems}
+								>
 									<Button
 										href={`/profile/profile`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:1}}
 									>
 										<ListItemIcon>
 											<AccountCircle
@@ -225,11 +219,14 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Profile</Typography>
 									</Button>
 								</MenuItem>
-								<MenuItem button key={1}>
+								<MenuItem button key={1}
+									className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
+								>
 									<Button
 										href={`/recipes/recipeList`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:2}}
 									>
 										<ListItemIcon>
 											<Book
@@ -239,11 +236,14 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Recipes</Typography>
 									</Button>
 								</MenuItem>
-								<MenuItem button key={1}>
+								<MenuItem button key={1}
+									className={currentPage == 3 ? classes.menuItems1 : classes.menuItems}
+								>
 									<Button
 										href={`/skills/skillList`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:3}}
 									>
 										<ListItemIcon>
 											<LocalLibrary
@@ -253,11 +253,14 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Skills</Typography>
 									</Button>
 								</MenuItem>
-								<MenuItem button key={1}>
+								<MenuItem button key={1}
+									className={currentPage == 4 ? classes.menuItems1 : classes.menuItems}
+								>
 									<Button
 										href={`/tips/tipList`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:4}}
 									>
 										<ListItemIcon>
 											<EmojiObjects
@@ -267,11 +270,14 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Tips</Typography>
 									</Button>
 								</MenuItem>
-								<MenuItem button key={1}>
+								<MenuItem button key={1}
+									className={currentPage == 5 ? classes.menuItems1 : classes.menuItems}
+								>
 									<Button
 										href={`/recipes/favorites`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:5}}
 									>
 										<ListItemIcon>
 											<Favorite
@@ -281,11 +287,42 @@ const Navbar = () => {
 										<Typography variant="subtitle1">Favorites</Typography>
 									</Button>
 								</MenuItem>
-								{user.role == "user" ? (
-									<UserDrawerItems />
-								) : (
-									<AdminDrawerItems />
-								)}
+								{user.role == "admin" ? 
+									<MenuItem button key={2}
+										className={currentPage == 6 ? classes.menuItems1 : classes.menuItems}
+									>
+										<Button
+											href={`/recipes/upload`}
+											className={classes.menuItems}
+											classes={{ label: classes.viewButtonLabel }}
+											useState={{currentPage:6}}
+										>
+											<ListItemIcon>
+												<Backup className={`${classes.menuIcon} ${classes.menuItems}`} />
+											</ListItemIcon>
+											<Typography variant="subtitle1">Upload</Typography>
+										</Button>
+									</MenuItem>
+									: <Box></Box>
+								}
+								{user.role == "admin" ?
+									<MenuItem button key={3}
+										className={currentPage == 7 ? classes.menuItems1 : classes.menuItems}
+									>
+										<Button
+											href={`/profile/manage`}
+											className={classes.menuItems}
+											classes={{ label: classes.viewButtonLabel }}
+											useState={{currentPage:7}}
+										>
+											<ListItemIcon>
+												<Tune className={`${classes.menuIcon} ${classes.menuItems}`}/>
+											</ListItemIcon>
+											<Typography variant="subtitle1">Manage</Typography>
+										</Button>
+									</MenuItem>
+									: <Box></Box>
+								}
 								<MenuItem button key={4} className={classes.menuItems}>
 									<Button
 										onClick={() => logout()}
@@ -335,7 +372,6 @@ const Navbar = () => {
 					</Toolbar>
 				</AppBar>
 				<Dialog
-					//onClose={handleClose}
 					aria-labelledby="simple-dialog-title"
 					open={open}
 				>

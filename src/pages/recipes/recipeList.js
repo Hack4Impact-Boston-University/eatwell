@@ -35,9 +35,7 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
-export default function RecipeReviewCard({
-	home
-}) {
+export default function RecipeReviewCard({home}) {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
 	const { user, upload } = useUser();
@@ -277,7 +275,7 @@ export default function RecipeReviewCard({
 			)}
 
 			<div className={styles.nav}>
-				<Navbar />
+				<Navbar currentPage={2}/>
 			</div>
 		</div>
 	);

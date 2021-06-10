@@ -267,7 +267,7 @@ console.log(tipsDic[data.videoTips].url)
 						minWidth: "29%",
 					}}
 				>
-					<Navbar />
+					<Navbar currentPage={2}/>
 					<AppBar position="static" color="default">
 						<Tabs
 							value={value}

@@ -760,11 +760,11 @@ const UploadForm = () => {
             </TabPanel>
 
 			<div className={styles.nav}>
-				<Navbar />
+				<Navbar currentPage={6}/>
 				<AppBar position="static" color="default">
 					<Tabs
 						value={value}
-						onChange={handleChange}
+						onChange={handleChangeToggle}
 						indicatorColor="primary"
 						textColor="primary"
 						variant="fullWidth"

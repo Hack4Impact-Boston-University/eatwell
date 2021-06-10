@@ -229,7 +229,7 @@ export default function UserFavorites() {
 			</TabPanel>
 
 			<div className={styles.nav}>
-				<Navbar />
+				<Navbar currentPage={5}/>
 				<AppBar position="static" color="default">
 					<Tabs
 						value={value}

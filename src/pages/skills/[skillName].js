@@ -108,7 +108,7 @@ export default function Skill() {
               width: "100%",
               minWidth: "29%",
             }}>
-            <Navbar/>
+            <Navbar currentPage={3}/>
           </div>
         </div>     
       </div>

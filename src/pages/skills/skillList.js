@@ -137,7 +137,7 @@ export default function SkillReviewCard() {
 			)}
 
 			<div className={styles.nav}>
-				<Navbar />
+				<Navbar currentPage={3}/>
 			</div>
 		</div>
 	);

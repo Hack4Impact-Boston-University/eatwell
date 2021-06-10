@@ -108,7 +108,7 @@ export default function Tip() {
               width: "100%",
               minWidth: "29%",
             }}>
-            <Navbar/>
+            <Navbar currentPage={4}/>
           </div>
         </div>     
       </div>

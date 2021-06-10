@@ -137,7 +137,7 @@ export default function TipReviewCard() {
 			)}
 
 			<div className={styles.nav}>
-				<Navbar />
+				<Navbar currentPage={4}/>
 			</div>
 		</div>
 	);

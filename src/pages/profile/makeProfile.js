@@ -120,7 +120,7 @@ const makeProfile = () => {
 		return (
 			<div>
 				<div className={styles.nav}>
-					<Navbar/>
+					<Navbar currentPage={0}/>
 					<h1 align="center">Please sign in to access this page!</h1>
 				</div>
 			</div>

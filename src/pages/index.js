@@ -172,7 +172,7 @@ const Index = () => {
         home={true}
       />
       <div className={styles.nav}>
-        <Navbar/>
+        <Navbar currentPage={0}/>
       </div>
     </div>
   )
