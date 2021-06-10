@@ -396,10 +396,10 @@ export default function RecipeCard({
 												justify="center"
 											>
 												{obj.nameOfDish.length > 16 ?
-													<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300}}>
 														{obj.nameOfDish}
 													</Typography> :
-													<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 														{obj.nameOfDish}
 													</Typography>
 												}
@@ -734,10 +734,10 @@ export default function RecipeCard({
 												justify="center"
 											>
 												{obj.nameOfDish.length > 16 ?
-													<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 														{obj.nameOfDish}
 													</Typography> :
-													<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+													<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 														{obj.nameOfDish}
 													</Typography>
 												}
@@ -837,14 +837,14 @@ export default function RecipeCard({
 										</IconButton>
 									</Grid>
 									<Grid container item xs={10} alignItems="center" justify="center">
-										<Typography
-											style={{
-												fontSize: "calc(min(5vw, 35px))",
-												fontWeight: 300,
-											}}
-										>
-											{obj.nameOfDish}
-										</Typography>
+										{obj.nameOfDish.length > 16 ?
+											<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300}}>
+												{obj.nameOfDish}
+											</Typography> :
+											<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+												{obj.nameOfDish}
+											</Typography>
+										}
 									</Grid>
 								</Grid>
 								<Grid container justify="center">

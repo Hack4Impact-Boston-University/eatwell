@@ -294,10 +294,10 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 									>
 										<Link href={object.tipID}>
 											{object.tipName.length > 16 ?
-												<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+												<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.tipName}
 												</Typography> :
-												<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+												<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.tipName}
 												</Typography>
 											}

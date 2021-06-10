@@ -237,10 +237,10 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 									>
 										<Link href={object.skillID}>
 											{object.skillName.length > 16 ?
-												<Typography style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+												<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.skillName}
 												</Typography> :
-												<Typography style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+												<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.skillName}
 												</Typography>
 											}
