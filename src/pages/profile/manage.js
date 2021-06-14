@@ -77,7 +77,7 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && (
-        <Box p={3}>
+        <Box p={1}>
           <Typography component={'span'}>{children}</Typography>
         </Box>
       )}
@@ -107,8 +107,10 @@ function a11yProps(index) {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper,
+    minWidth: 0,
+    '@media (min-width: 0px)': {
+      minWidth: 0
+    }
   },
   container: {
     display: "flex",
@@ -129,7 +131,10 @@ const useStyles = makeStyles((theme) => ({
   },
   lst: {
 		listStyle: "none",
-	}
+  },
+  tabLabel: {
+    fontSize: "min(0.9rem, 2.8vw)"
+  }
 }));
 
 const getTimeString = timestamp => {
@@ -1427,8 +1432,8 @@ export default function Manage() {
 
         {/* ---------------------------- 0: ADMIN MANAGE USERS ---------------------------- */}
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <Grid container spacing={3}>
-            <Grid item sm={12}>
+          <Grid container spacing={3} justify="center">
+            <Grid item xs={12} sm={11} md={10} lg={9}>
               <TextField label="search email" value={search} onChange={handleChange}/>
               {users.map((value) => {
                 if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
@@ -1520,32 +1525,34 @@ export default function Manage() {
 
         {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
-          <Grid container spacing={3}>
-            <Grid item sm={12}>
-              <List dense>
-                <ListItem key={"Add New Program"} button selected={true}>
-                  <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
-                </ListItem>
+          <Grid container>
+            <Grid item container xs={12} justify="center">
+              <Grid item xs={11}>
+                <List dense>
+                  <ListItem key={"Add New Program"} button selected={true}>
+                    <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
+                  </ListItem>
 
-                <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
-                <div><small>** Double tap on the program name!</small></div>
-                {programs.map((value) => {
-                  if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
-                    return (
-                      <Grid item>                      
-                        <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
-                          onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
-                          <ListItemText>{value?.programName}</ListItemText>
-                        </ListItem>
-                        <Divider light />
-                      </Grid>);}
-                  })}
-              </List>
+                  <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
+                  <div><small>** Double tap on the program name!</small></div>
+                  {programs.map((value) => {
+                    if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
+                      return (
+                        <Grid item>                      
+                          <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
+                            onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
+                            <ListItemText>{value?.programName}</ListItemText>
+                          </ListItem>
+                          <Divider light />
+                        </Grid>);}
+                    })}
+                </List>
+              </Grid>
             </Grid>
 
-            <Grid item xs={9}>
-              <Grid container direction="row" spacing={3}>
-                <Grid item xs={6}><Grid container direction="column">
+            <Grid item xs={12}>
+              <Grid container direction="row" spacing={3} justify="space-evenly">
+                <Grid item xs={11} sm={10} md={5}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
                     <div> 
                       <h2>Program: {selectedProgramProgram?.programName}</h2>
@@ -1601,7 +1608,7 @@ export default function Manage() {
                   </div>}
                 </Grid>
               </Grid>
-                <Grid item xs={6}><Grid container direction="column">
+                <Grid item xs={12} sm={10} md={5}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
                     <div> {/* ----------------------- edit users list ----------------------- */}
                       <List>
@@ -1757,8 +1764,8 @@ export default function Manage() {
 
         {/* ---------------------------- 2: ADMIN MANAGE RECIPES ---------------------------- */}
         <TabPanel value={value} index={2} dir={theme.direction}>
-          <Grid container spacing={3}>
-            <Grid item sm={12}>
+          <Grid container spacing={3} justify="center">
+            <Grid item xs={11} md={10} lg={9}>
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
               {recipes.map((value) => {
                 if (value["nameOfDish"]?.includes(searchRecipe) || value["nameOfDish"].toLowerCase()?.includes(searchRecipe)) {
@@ -2062,8 +2069,8 @@ export default function Manage() {
 
         {/* ---------------------- 3: ADMIN MANAGE SKILLS ---------------------- */}
         <TabPanel value={value} index={3} dir={theme.direction}>
-          <Grid container spacing={3}>
-            <Grid item sm={12}>
+          <Grid container spacing={3} justify="center">
+            <Grid item xs={11} md={10} lg={9}>
               <TextField label="search skill" value={searchSkill} onChange={handleChangeSearchSkill}/>
               {skills.map((value) => {
                 if (value["skillName"]?.includes(searchSkill) || value["skillName"].toLowerCase()?.includes(searchSkill)) {
@@ -2167,8 +2174,8 @@ export default function Manage() {
         {/* ---------------------- 4: ADMIN MANAGE TIPS ---------------------- */}
         {/* manage tipss Dialog */}
         <TabPanel value={value} index={4} dir={theme.direction}>
-          <Grid container spacing={3}>
-            <Grid item sm={12}>
+          <Grid container spacing={3} justify="center">
+            <Grid item xs={11} md={10} lg={9}>
               <TextField label="search tip" value={searchTip} onChange={handleChangeSearchTip}/>
               {tips.map((value) => {
                 if (value["tipName"]?.includes(searchTip) || value["tipName"].toLowerCase()?.includes(searchTip)) {
@@ -2274,11 +2281,11 @@ export default function Manage() {
           <Tabs
             value={value} onChange={handleChangeToggle}
             indicatorColor="primary" textColor="primary" variant="fullWidth" aria-label="full width tabs example">
-          <Tab label="Manage Users" {...a11yProps(0)} />
-          <Tab label="Manage Programs" {...a11yProps(1)} />
-          <Tab label="Manage Recipes" {...a11yProps(2)} />
-          <Tab label="Manage Skills" {...a11yProps(3)} />
-          <Tab label="Manage Tips" {...a11yProps(4)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Users</span>} {...a11yProps(0)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Programs</span>} {...a11yProps(1)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Recipes</span>} {...a11yProps(2)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Skills</span>} {...a11yProps(3)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Tips</span>} {...a11yProps(4)} />
           </Tabs>
         </AppBar>
       </div>

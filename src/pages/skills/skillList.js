@@ -78,7 +78,7 @@ export default function SkillReviewCard() {
 
 	const inFav = (objID) => {
 		var i;
-		for (i = 0; i < favSkills.length; i++) {
+		for (i = 0; i < favSkills?.length; i++) {
 			if (objID == favSkills[i]) {
 				return true;
 			}

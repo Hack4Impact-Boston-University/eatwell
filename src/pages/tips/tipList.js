@@ -78,7 +78,7 @@ export default function TipReviewCard() {
 
 	const inFav = (objID) => {
 		var i;
-		for (i = 0; i < favTips.length; i++) {
+		for (i = 0; i < favTips?.length; i++) {
 			if (objID == favTips[i]) {
 				return true;
 			}
