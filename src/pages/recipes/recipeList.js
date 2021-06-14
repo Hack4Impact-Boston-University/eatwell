@@ -83,7 +83,7 @@ export default function RecipeReviewCard({home}) {
 		router.push("/profile/makeProfile");
 	}
 
-	if (!recipes || !recipesDic || !programsDic || !user || (doneRunning == false && home == false)) {
+	if (!recipes || !recipesDic || !programsDic || !user || (doneRunning == false && home == undefined)) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!programsDic) {

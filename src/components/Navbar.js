@@ -105,9 +105,6 @@ const Navbar = ({currentPage}) => {
 	const { user, logout } = useUser();
 	const [open, setOpen] = React.useState(false);
 
-	console.log("currentPage")
-	console.log(currentPage)
-
 	// navbar items
 	const Items = (props) => {
 		const [anchorEl, setAnchorEl] = React.useState(null);

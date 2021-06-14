@@ -73,9 +73,14 @@ const Index = () => {
           <main className={styles.main}>
             <img className={styles.logo} src="/assets/eatwell_logo 2.png"/>
 
-            <h4 className={styles.title}>
-              Welcome to EatWell, {user?.firstname}!
-            </h4>
+            {!user ?
+              <h4 className={styles.title}>
+                Welcome to EatWell!
+              </h4> :
+              <h4 className={styles.title}>
+                Welcome to EatWell, {user?.firstname}!
+              </h4>
+            }
 
             {!user && 
                 <Grid container justify="center" alignItems="flex-start">

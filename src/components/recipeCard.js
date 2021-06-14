@@ -450,8 +450,8 @@ export default function RecipeCard({
 												classes={{ label: classes.viewButtonLabel }}
 											>
 												{
-													isHome == false ? <Link href={obj?.id}>Make this Recipe</Link>
-													: <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+													home == true ? <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+													: <Link href={obj?.id}>Make this Recipe</Link>
 												}
 											</Button>
 										</Grid>
@@ -883,8 +883,8 @@ export default function RecipeCard({
 										classes={{ label: classes.viewButtonLabel }}
 									>
 										{
-											isHome == false ? <Link href={obj?.id}>Make this Recipe</Link>
-											: <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+											home == true ? <Link href={"recipes/"+obj?.id}>Make this Recipe</Link>
+											: <Link href={obj?.id}>Make this Recipe</Link>
 										}
 									</Button>
 								</Grid>
