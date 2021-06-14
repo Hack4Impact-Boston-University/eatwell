@@ -135,9 +135,9 @@ export default function UserFavorites() {
 			return "Loading fav and notes...";
 		}
 
-		setRecipes(Object.values(recipesDic).filter(recipes => favRecipes.indexOf(recipes["id"]) !== -1));
-		setSkills(Object.values(skillsDic).filter(skills => favSkills.indexOf(skills["skillID"]) !== -1));
-		setTips(Object.values(tipsDic).filter(tips => favTips.indexOf(tips["tipID"]) !== -1));
+		setRecipes(Object.values(recipesDic).filter(recipes => favRecipes?.indexOf(recipes["id"]) !== -1));
+		setSkills(Object.values(skillsDic).filter(skills => favSkills?.indexOf(skills["skillID"]) !== -1));
+		setTips(Object.values(tipsDic).filter(tips => favTips?.indexOf(tips["tipID"]) !== -1));
 		if (!recipes) {
 			return "Loading recipes...";
 		} if (!skills) {
