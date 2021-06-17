@@ -1526,33 +1526,30 @@ export default function Manage() {
         {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
           <Grid container>
-            <Grid item container xs={12} justify="center">
-              <Grid item xs={11}>
-                <List dense>
-                  <ListItem key={"Add New Program"} button selected={true}>
-                    <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
-                  </ListItem>
-
-                  <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
-                  <div><small>** Double tap on the program name!</small></div>
-                  {programs.map((value) => {
-                    if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
-                      return (
-                        <Grid item>                      
-                          <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
-                            onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
-                            <ListItemText>{value?.programName}</ListItemText>
-                          </ListItem>
-                          <Divider light />
-                        </Grid>);}
-                    })}
-                </List>
-              </Grid>
-            </Grid>
-
             <Grid item xs={12}>
-              <Grid container direction="row" spacing={3} justify="space-evenly">
-                <Grid item xs={11} sm={10} md={5}><Grid container direction="column">
+              <Grid container direction="row" spacing={3}>
+                <Grid item container xs={12} sm={2} md={2} justify="left">
+                  <List dense>
+                    <ListItem key={"Add New Program"} button selected={true}>
+                      <Button variant="outlined" fullWidth onClick={() => handleClickOpenAddProgram()}> Add New Program </Button>
+                    </ListItem>
+
+                    <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
+                    <div><small>** Double tap on the program name!</small></div>
+                    {programs.map((value) => {
+                      if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
+                        return (
+                          <Grid item>                      
+                            <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
+                              onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
+                              <ListItemText>{value?.programName}</ListItemText>
+                            </ListItem>
+                            <Divider light />
+                          </Grid>);}
+                      })}
+                  </List>
+                </Grid>
+                <Grid item xs={12} sm={5} md={5}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4>Please select a program</h4> :
                     <div> 
                       <h2>Program: {selectedProgramProgram?.programName}</h2>
@@ -1608,7 +1605,7 @@ export default function Manage() {
                   </div>}
                 </Grid>
               </Grid>
-                <Grid item xs={12} sm={10} md={5}><Grid container direction="column">
+                <Grid item xs={12} sm={5} md={5}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
                     <div> {/* ----------------------- edit users list ----------------------- */}
                       <List>

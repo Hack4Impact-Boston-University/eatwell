@@ -374,7 +374,7 @@ const Navbar = ({currentPage}) => {
 				>
 					<DialogTitle id="form-dialog-title">Login</DialogTitle>
 					<DialogContent>
-						<FirebaseAuth />
+						<FirebaseAuth code={{}}/>
 					</DialogContent>
 				</Dialog>
 			</div>

@@ -120,7 +120,7 @@ const Index = () => {
                         Already registered? Sign in to proceed:
                       </Typography>
                       <Grid container justify="center">
-                        <FirebaseAuth isLogin={true}/>
+                        <FirebaseAuth isLogin={true} code={{}}/>
                       </Grid>
                   </Grid>
                 </Grid>

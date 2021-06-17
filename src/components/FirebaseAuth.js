@@ -32,7 +32,7 @@ const firebaseAuthConfig = {
 		signInSuccessWithAuthResult: async ({ user }, redirectUrl) => {
 			const userData = mapUserData(user);
 			const fullData = {...userData, ...getUserFromCookie()};
-			setUserCookie({...fullData, code});
+			setUserCookie({...fullData});
 		},
 	},
 };
@@ -75,13 +75,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 
 			firebase.auth().signInWithEmailAndPassword(email, password)
 			.then((userCredential) => {
-				//var user = userCredential.user;
-				//console.log(checkProgram, user)
-				//const userData = mapUserData(user);
-				// const fullData = {...userData, ...getUserFromCookie()};
-//				const codeID = code.codeID
-//				delete code.codeID
-
 				if(addProgram) {
 					upload(code).then(() => {
 						router.push("/profile/makeProfile");
