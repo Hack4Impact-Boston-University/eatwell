@@ -106,6 +106,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	lst: {
 		listStyle: "none",
+		paddingLeft: 0,
 	}
 }));
 
@@ -229,20 +230,18 @@ console.log(tipsDic[data.videoTips].url)
 			<style>{cssstyle}</style>
 			{/* end stylesheets */}
 
-			<TabPanel value={value} index={0} dir={theme.direction}>
+			<TabPanel value={value} index={0} align="center">
 				<div position="fixed" className={classes.video}>
 					<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 				</div>
 				{/* map out the image urls to img tags */}
-				<ui.Grid container justify="center">
-					<ol className={classes.lst}>
-						{imgList.map((url) => {
-					      if (!_.isEqual(url, "")) {
-							return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
-						  }
-						)}
-					</ol>
-				</ui.Grid>
+				<ol className={classes.lst}>
+					{imgList.map((url) => {
+						if (!_.isEqual(url, "")) {
+						return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
+						}
+					)}
+				</ol>
 			</TabPanel>
 
 			{data.videoSkills != "" && (

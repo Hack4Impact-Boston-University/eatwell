@@ -131,7 +131,8 @@ const useStyles = makeStyles((theme) => ({
   },
   lst: {
 		listStyle: "none",
-  },
+		paddingLeft: 0,
+	},
   tabLabel: {
     fontSize: "min(0.9rem, 2.8vw)"
   }
@@ -1891,7 +1892,7 @@ export default function Manage() {
                   <ol className={classes.lst}>
                     {selectedInstructionImages.map((url) => {
                       if (!_.isEqual(url, "")) {
-                        return ( <li><img width={width*0.2} height="auto" display="block" src={url} alt="Recipe image" /></li> )}
+                        return ( <li><img display="block" style={{width:'100%',height:'100%'}} height="auto" display="block" src={url} alt="Recipe image" /></li> )}
                       }
                     )}
                   </ol>
@@ -1927,7 +1928,7 @@ export default function Manage() {
                   <ol className={classes.lst}>
                     {selectedNutritionalImages.map((url) => {
                       if (!_.isEqual(url, "")) {
-                        return ( <li><img display="block" src={url} alt="Recipe image" /></li> )}
+                        return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
                       }
                     )}
                   </ol>

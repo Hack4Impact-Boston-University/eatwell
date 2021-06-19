@@ -134,48 +134,12 @@ const Index = () => {
             </DialogContent>
         </Dialog>
       </Box>
-      {/* {user?.role == "admin" && (
-				!_.isEqual(recipes, []) ? (
-					<Grid container className={classes.gridContainerMain}>
-						{recipes.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) {return;}
-								return (
-									<Grid item container xs={12} md={6} justify="center">
-										<RecipeCard
-											key={obj.id}
-											object={obj}
-                      isHome={true}
-										/>
-									</Grid>
-								);
-						})}
-					</Grid>
-				) : (
-					<Grid>
-						<h4>No recipes to display</h4>
-					</Grid>
-				)
-			)}
-      {!_.isEqual(recipesUser, []) && (
-				<Grid container spacing={1000} className={classes.gridContainerMain}>
-					{recipesUser?.map((obj, idx) => {
-						if (!obj.nameOfDish || !obj.id) {return;}
-							return (
-								<Grid item container xs={12} md={6} justify="center">
-									<RecipeCard
-										key={obj.id}
-										object={obj}
-                    isHome={true}
-									/>
-								</Grid>
-							);
-					})}
-				</Grid>
-			)}
-       (<Grid><h4>No recipes to display</h4></Grid>)} */}
-      <RecipeList
-        home={true}
-      />
+
+      {user ?
+        <RecipeList home={true}/> :
+        <Grid></Grid>
+      }
+      
       <div className={styles.nav}>
         <Navbar currentPage={0}/>
       </div>
