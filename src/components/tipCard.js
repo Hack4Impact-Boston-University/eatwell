@@ -22,8 +22,6 @@ import Link from "next/link";
 import {
 	getFavsTipsFromCookie,
 	editFavTipsCookie,
-	editNotesTipsCookie,
-	editRatingsTipsCookie,
 } from "../utils/cookies";
 import ClearIcon from "@material-ui/icons/Clear";
 import StarIcon from "@material-ui/icons/Star";
@@ -70,9 +68,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 	expandOpen: {
 		transform: "rotate(180deg)",
-	},
-	notes: {
-		width: 100,
 	},
 	formItems: {
 		marginTop: theme.spacing(0),
@@ -237,32 +232,6 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 		});
 	};
 
-	function setStr(s, i) {
-		var words = s.split(" ");
-		var st = "";
-		for (let i = 0; i < words.length; i++) {
-			var word = "";
-			for (let j = 0; j < Math.ceil(words[i].length / maxChar); j++) {
-				word += words[i].substring(maxChar * j, maxChar * (j + 1)) + " ";
-			}
-			st += word;
-		}
-		st = st.substring(0, st.length - 1);
-		setNotes(
-			notes
-				.slice(0, i)
-				.concat([st])
-				.concat(notes.slice(i + 1))
-		);
-		editNotesTipsCookie(
-			obj.id,
-			notes
-				.slice(0, i)
-				.concat([s])
-				.concat(notes.slice(i + 1))
-		);
-	}
-
 	if (Object.keys(object) == 0) {
 		return null;
 	}
@@ -292,16 +261,28 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 										alignItems="center"
 										justify="center"
 									>
-										<Link href={"tips/"+object.tipID}>
-											{object.tipName.length > 16 ?
-												<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
-													{object.tipName}
-												</Typography> :
-												<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
-													{object.tipName}
-												</Typography>
-											}
-										</Link>
+										{inFavoritesPage == true ?
+											<Link href={"tips/"+object.tipID}>
+												{object.tipName.length > 16 ?
+													<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{object.tipName}
+													</Typography> :
+													<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{object.tipName}
+													</Typography>
+												}
+											</Link> : 
+											<Link href={object.tipID}>
+												{object.tipName.length > 16 ?
+													<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{object.tipName}
+													</Typography> :
+													<Typography align="center" style={{fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
+														{object.tipName}
+													</Typography>
+												}
+											</Link>
+										}
 									</Grid>
 								</Grid>
 								<Grid container justify="center">
@@ -331,7 +312,11 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 										color="secondary"
 										classes={{ label: classes.viewButtonLabel }}
 									>
-										<Link href={"tips/"+object?.tipID}>Watch Video</Link>
+										{inFavoritesPage == true ?
+											<Link href={"tips/"+object?.tipID}>Watch Video</Link> :
+											<Link href={object?.tipID}>Watch Video</Link>
+										}
+										
 									</Button>
 								</Grid>
 							</Box>
@@ -342,111 +327,3 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 		</Grid>
 	);
 }
-
-const Note = ({ str, setStr, deleteStr }) => {
-	const classes = useStyles();
-	const [val, setVal] = React.useState(str);
-
-	const [editing, setEditing] = React.useState(false);
-	return (
-		<Grid
-			container
-			spacing={0}
-			direction="column"
-			alignItems="center"
-			justify="center"
-			style={{ minHeight: "1vh" }}
-		>
-			{editing ? (
-				<Grid
-					justify="center"
-					direction="row"
-					className={classes.formItems}
-					container
-				>
-					<TextField
-						value={val}
-						onChange={(e) => setVal(e.target.value)}
-						label="Note"
-						placeholder="Add a Note"
-						InputProps={{
-							classes: { input: classes.text, label: classes.label },
-						}}
-						InputLabelProps={{
-							classes: { root: classes.label },
-						}}
-					/>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => {
-							setEditing(false);
-							setStr(val);
-						}}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Submit
-						</Typography>
-					</Button>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => setEditing(false)}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Cancel
-						</Typography>
-					</Button>
-				</Grid>
-			) : (
-				<Grid
-					justify="center"
-					direction="row"
-					className={classes.formItems}
-					container
-				>
-					<Grid
-						justify="center"
-						style={{
-							marginRight: "1rem",
-							marginTop: "0.3rem",
-							maxWidth: "60vw",
-						}}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 300 }}
-						>
-							{str}
-						</Typography>
-					</Grid>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => setEditing(true)}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Edit
-						</Typography>
-					</Button>
-					<Button
-						color="primary"
-						className={classes.btn}
-						onClick={() => deleteStr()}
-					>
-						<Typography
-							style={{ fontSize: "calc(min(2.7vw, 17px))", fontWeight: 1000 }}
-						>
-							Delete
-						</Typography>
-					</Button>
-				</Grid>
-			)}
-		</Grid>
-	);
-};
