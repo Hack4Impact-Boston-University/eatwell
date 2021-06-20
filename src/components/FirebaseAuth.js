@@ -155,14 +155,14 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	}, []);
 	return (
 		<Grid container direction="row" justify="center" alignItems="center">
-			<Grid item>
+			{/* <Grid item>
 				{renderAuth ? (
 					<StyledFirebaseAuth
 						uiConfig={firebaseAuthConfig}
 						firebaseAuth={firebase.auth()}
 					/>
 				) : null}
-			</Grid>
+			</Grid> */}
 			<Grid item style={{marginTop: "10px"}}>
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<Grid container direction="column" justify="center" alignItems="center">
