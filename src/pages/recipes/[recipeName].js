@@ -212,7 +212,7 @@ export default function Recipe() {
 	} else if (!tipsDic) {
 		return "Loading tipsDic...";
 	}
-console.log(tipsDic[data.videoTips].url)
+
 	return (
 		<div className={classes.root}>
 			{/* these are the stylesheets for React Slider */}

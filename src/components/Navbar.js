@@ -152,7 +152,7 @@ const Navbar = ({currentPage}) => {
 								<EmojiObjects />
 								<Typography variant="subtitle2">Tips</Typography>
 							</Button>
-							<Button href={`/recipes/favorites`}
+							<Button href={`/favorites`}
 								className={currentPage == 5 ? classes.menuItems1 : classes.menuItems}
 								useState={{currentPage:5}}
 							>
@@ -271,7 +271,7 @@ const Navbar = ({currentPage}) => {
 									className={currentPage == 5 ? classes.menuItems1 : classes.menuItems}
 								>
 									<Button
-										href={`/recipes/favorites`}
+										href={`/favorites`}
 										className={classes.menuItems}
 										classes={{ label: classes.viewButtonLabel }}
 										useState={{currentPage:5}}

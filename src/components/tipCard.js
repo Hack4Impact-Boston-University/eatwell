@@ -292,7 +292,7 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 										alignItems="center"
 										justify="center"
 									>
-										<Link href={object.tipID}>
+										<Link href={"tips/"+object.tipID}>
 											{object.tipName.length > 16 ?
 												<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.tipName}
@@ -331,7 +331,7 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 										color="secondary"
 										classes={{ label: classes.viewButtonLabel }}
 									>
-										<Link href={object?.tipID}>Watch Video</Link>
+										<Link href={"tips/"+object?.tipID}>Watch Video</Link>
 									</Button>
 								</Grid>
 							</Box>

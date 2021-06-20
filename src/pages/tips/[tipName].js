@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
     width: "100%",
-    paddingTop: "5vh"
+    paddingTop: "9vh"
   },
   video: {
     marginTop: "3vh",

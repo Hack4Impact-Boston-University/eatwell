@@ -235,7 +235,7 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 										alignItems="center"
 										justify="center"
 									>
-										<Link href={object.skillID}>
+										<Link href={"skills/"+object.skillID}>
 											{object.skillName.length > 16 ?
 												<Typography align="center" style={{paddingLeft: "calc(max(2vw,10px))", fontSize: "calc(max(2vw,25px))", fontWeight: 300,}}>
 													{object.skillName}
@@ -274,7 +274,7 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 										color="secondary"
 										classes={{ label: classes.viewButtonLabel }}
 									>
-										<Link href={object?.skillID}>Watch Video</Link>
+										<Link href={"skills/"+object?.skillID}>Watch Video</Link>
 									</Button>
 								</Grid>
 							</Box>
