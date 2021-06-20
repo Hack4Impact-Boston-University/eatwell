@@ -88,6 +88,7 @@ export default function UserFavorites() {
 	const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
 	const [favTips, setFavTips] = React.useState([]);
 	const [doneRunning, setDoneRunning] = React.useState(false);
+	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 
 	// this useEffect will load the user's favorites
 	useEffect(() => {
@@ -122,19 +123,47 @@ export default function UserFavorites() {
 		setValue(newValue);
 	};
 
-	if (!recipesDic || !recipes || !skillsDic || !skills || !tipsDic || !tips || !user || doneRunning == false) {
+	const getTimeString = (timestamp) => {
+		let date = new Date(timestamp);
+		let month = date.getMonth() + 1;
+		let day = date.getDate();
+		let hour = date.getHours();
+		let min = date.getMinutes();
+		let sec = date.getSeconds();
+		month = (month < 10 ? "0" : "") + month;
+		day = (day < 10 ? "0" : "") + day;
+		hour = (hour < 10 ? "0" : "") + hour;
+		min = (min < 10 ? "0" : "") + min;
+		sec = (sec < 10 ? "0" : "") + sec;
+		let str =
+			hour +
+			":" +
+			min +
+			":" +
+			sec +
+			" on " +
+			month +
+			"/" +
+			day +
+			"/" +
+			date.getFullYear();
+		return str;
+	}
+
+	if (!recipesDic || !recipes || !skillsDic || !skills || !tipsDic || !tips || !user || doneRunning == false || !programsDic) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
 		} if (!skillsDic) {
-			return "Loading recipesDic...";
+			return "Loading skillsDic...";
 		} if (!tipsDic) {
-			return "Loading recipesDic...";
+			return "Loading tipsDic...";
 		} if (!user) {
 			return "Loading user...";
 		} if (doneRunning == false) {
 			return "Loading fav and notes...";
+		} if (!programsDic) {
+			return "Loading programsDic...";
 		}
-
 		setRecipes(Object.values(recipesDic).filter(recipes => favRecipes?.indexOf(recipes["id"]) !== -1));
 		setSkills(Object.values(skillsDic).filter(skills => favSkills?.indexOf(skills["skillID"]) !== -1));
 		setTips(Object.values(tipsDic).filter(tips => favTips?.indexOf(tips["tipID"]) !== -1));
@@ -157,6 +186,7 @@ export default function UserFavorites() {
 						// each returned element is a recipe card
 						return (
 							<Grid item container xs={12} md={6} justify="center">
+								{user.role == "admin" ? 
 								<RecipeCard
 									key={fav.id}
 									object={fav}
@@ -170,7 +200,24 @@ export default function UserFavorites() {
 									initRating={
 										fav.id in recipeRatings ? recipeRatings[fav.id] : 0
 									}
+									dateRecipes={getTimeString(fav.dateUploaded)}
+								/> :
+								<RecipeCard
+									key={fav.id}
+									object={fav}
+									isFav={true}
+									onFavClick={() => {
+										const idx = recipes.indexOf(fav)
+										setRecipes(recipes.slice(0, idx).concat(recipes.slice(idx + 1)))
+									}}
+									inFavoritesPage={true}
+									initNotes={notes}
+									initRating={
+										fav.id in recipeRatings ? recipeRatings[fav.id] : 0
+									}
+									dateRecipes={programsDic[user.program]?.programRecipes[fav.id]}
 								/>
+							}
 							</Grid>
 						);
 					})}

@@ -162,9 +162,33 @@ export default function RecipeReviewCard({home}) {
 		}
 		return false;
 	}
-	
-	console.log(recipesDic)
 
+	const getTimeString = (timestamp) => {
+		let date = new Date(timestamp);
+		let month = date.getMonth() + 1;
+		let day = date.getDate();
+		let hour = date.getHours();
+		let min = date.getMinutes();
+		let sec = date.getSeconds();
+		month = (month < 10 ? "0" : "") + month;
+		day = (day < 10 ? "0" : "") + day;
+		hour = (hour < 10 ? "0" : "") + hour;
+		min = (min < 10 ? "0" : "") + min;
+		sec = (sec < 10 ? "0" : "") + sec;
+		let str =
+			hour +
+			":" +
+			min +
+			":" +
+			sec +
+			" on " +
+			month +
+			"/" +
+			day +
+			"/" +
+			date.getFullYear();
+		return str;
+	}
 
 	return (
 		<div className={styles.container}>
@@ -186,6 +210,7 @@ export default function RecipeReviewCard({home}) {
 											obj.id in ratings ? ratings[obj.id] : 0
 										}
 										isHome={home}
+										dateRecipes={getTimeString(obj.dateUploaded)}
 									/>
 								</Grid>
 							);
@@ -216,6 +241,7 @@ export default function RecipeReviewCard({home}) {
 											obj.id in ratings ? ratings[obj.id] : 0
 										}
 										isHome={home}
+										dateRecipes={programsDic[user.program]?.programRecipes[obj.id]}
 									/>
 								</Grid>
 							);
@@ -254,6 +280,7 @@ export default function RecipeReviewCard({home}) {
 																			obj.id in ratings ? ratings[obj.id] : 0
 																		}
 																		isHome={home}
+																		dateRecipes={programsDic[user.program]?.programRecipes[obj.id]}
 																	/>
 																</Grid>
 															);

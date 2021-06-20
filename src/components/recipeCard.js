@@ -104,6 +104,7 @@ export default function RecipeCard({
 	initRating,
 	isHome,
 	inFavoritesPage,
+	dateRecipes
 }) {
 	const classes = useStyles();
 	const [home] = React.useState(isHome);
@@ -175,33 +176,6 @@ export default function RecipeCard({
     .slick-next:before, .slick-prev:before {
         color: #000;
     }`;
-
-	const getTimeString = (timestamp) => {
-		let date = new Date(timestamp);
-		let month = date.getMonth() + 1;
-		let day = date.getDate();
-		let hour = date.getHours();
-		let min = date.getMinutes();
-		let sec = date.getSeconds();
-		month = (month < 10 ? "0" : "") + month;
-		day = (day < 10 ? "0" : "") + day;
-		hour = (hour < 10 ? "0" : "") + hour;
-		min = (min < 10 ? "0" : "") + min;
-		sec = (sec < 10 ? "0" : "") + sec;
-		let str =
-			hour +
-			":" +
-			min +
-			":" +
-			sec +
-			" on " +
-			month +
-			"/" +
-			day +
-			"/" +
-			date.getFullYear();
-		return str;
-	};
 
 	const favButtonClick = () => {
 		auth.onAuthStateChanged(function (user) {
@@ -485,7 +459,7 @@ export default function RecipeCard({
 															fontWeight: 300,
 														}}
 													>
-														{getTimeString(obj.dateUploaded)}
+														{dateRecipes}
 													</Typography>
 												</Grid>
 											</Grid>
