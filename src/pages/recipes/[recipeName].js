@@ -235,13 +235,15 @@ export default function Recipe() {
 					<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 				</div>
 				{/* map out the image urls to img tags */}
-				<ol className={classes.lst}>
-					{imgList.map((url) => {
-						if (!_.isEqual(url, "")) {
-						return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
-						}
-					)}
-				</ol>
+				<Grid sm={6}>
+					<ol className={classes.lst}>
+						{imgList.map((url) => {
+							if (!_.isEqual(url, "")) {
+							return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
+							}
+						)}
+					</ol>
+				</Grid>
 			</TabPanel>
 
 			{data.videoSkills != "" && (
