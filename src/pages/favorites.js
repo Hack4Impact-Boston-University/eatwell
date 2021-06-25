@@ -89,12 +89,16 @@ export default function UserFavorites() {
 	const [favTips, setFavTips] = React.useState([]);
 	const [doneRunning, setDoneRunning] = React.useState(false);
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
+	const [userID, setUserID] = React.useState(null);
+	const [userRole, setUserRole] = React.useState(null);
 
 	// this useEffect will load the user's favorites
 	useEffect(() => {
 		firebase.auth().onAuthStateChanged(async function (user) {
 			if (user) { // user signed in
 				// get all the user's favorites
+				setUserID(user.uid)
+				setUserRole(user.role)
 				await firebase
 					.firestore()
 					.collection("users")
@@ -182,7 +186,10 @@ export default function UserFavorites() {
 			<TabPanel value={value} index="one">
 				<div className={styles.container3}>
 				<Grid item container className={classes.gridContainerMain}>
-					{recipes.map((fav, idx) => {
+					{userRole == "admin" ?
+					recipes.sort((a, b) => a.dateUploaded < b.dateUploaded ? 1:-1) : 
+					recipes.sort((a, b) => programsDic[userID]?.programRecipes[a.id] < programsDic[userID]?.programRecipes[b.id] ? 1:-1)
+					.map((fav, idx) => {
 						// each returned element is a recipe card
 						return (
 							<Grid item container xs={12} md={6} justify="center">

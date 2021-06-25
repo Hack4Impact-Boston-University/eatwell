@@ -90,8 +90,6 @@ const makeProfile = () => {
 	}, [userData])
 
 	const submit = () => {
-		console.log(userData)
-//		const program = userData?.code.program
 		upload({
 				firstname: firstName,
 				lastname: lastName,

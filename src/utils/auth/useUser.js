@@ -58,7 +58,6 @@ const useUser = () => {
 		await waitForAuthState();
 		return db.collection("users").doc(user.id).get().then((doc) => {
 			const program = doc.data()["program"];
-			console.log("program: ", program)
 			return program == "";
 		}).catch((err) => {
 			console.log(err);

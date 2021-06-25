@@ -381,26 +381,12 @@ export default function Manage() {
 
   const setSelectedProgram = (p) => {
     setSelectedProgramProgram(p)
-    console.log(p?.program)
-    console.log(codes)
     setCurrentCodes(
       codes.filter(code => code?.program == p?.program)
     );
     setNumProgramCodes(
       codes.filter(code => code?.program == p?.program).length
     );
-    console.log(currentCodes, numProgramCodes)
-
-    // setCurrentCodes([])
-    // console.log(p?.program)
-    // codes.forEach(code => {
-    //   console.log(code)
-    //   if (code?.program == p?.program) {
-    //     console.log(currentCodes)
-    //     setCurrentCodes((codeList) => [...codeList, code]);
-    //   }
-    // })
-    // setNumProgramCodes(currentCodes.length)
   }
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
@@ -504,7 +490,6 @@ export default function Manage() {
     setOpenDeleteProgram(false);
   };
   const deleteProgram = () => {
-    console.log(selectedProgramProgram?.program)
     db.collection('programs').doc(selectedProgramProgram?.program).delete()
     currentCodes.forEach(code => {
       deleteCode(code?.codeID, true)
@@ -1765,7 +1750,8 @@ export default function Manage() {
           <Grid container spacing={3} justify="center">
             <Grid item xs={11} md={10} lg={9}>
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
-              {recipes.map((value) => {
+              {recipes.sort((a, b) => a.dateUploaded < b.dateUploaded ? 1:-1)
+              .map((value) => {
                 if (value["nameOfDish"]?.includes(searchRecipe) || value["nameOfDish"].toLowerCase()?.includes(searchRecipe)) {
                   return (
                     <Accordion>

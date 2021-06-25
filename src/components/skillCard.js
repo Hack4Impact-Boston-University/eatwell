@@ -168,8 +168,6 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 
 					// update click
 					setFav(!favorited);
-					console.log(object.skillID, " ", favorited);
-
 
 					// get the current user's document
 					const data = await db.collection("users").doc(user.uid).get();

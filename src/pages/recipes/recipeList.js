@@ -28,8 +28,6 @@ const fetcher = async (...args) => {
 
 const useStyles = makeStyles((theme) => ({
 	gridContainerMain: {
-		// paddingLeft: "calc(max(5vw,50vw - 450px))",
-		// paddingRight: "calc(max(5vw,50vw - 450px))",
 		justifyContent: "center",
 	},
 	viewTabLabel: { textTransform: "none" },
@@ -48,6 +46,33 @@ export default function RecipeReviewCard({home}) {
 	const [ratings, setRatings] = React.useState({});
 	const [doneRunning, setDoneRunning] = React.useState(false);
 	const router = useRouter();
+
+	const getTimeString = (timestamp) => {
+		let date = new Date(timestamp);
+		let month = date.getMonth() + 1;
+		let day = date.getDate();
+		let hour = date.getHours();
+		let min = date.getMinutes();
+		let sec = date.getSeconds();
+		month = (month < 10 ? "0" : "") + month;
+		day = (day < 10 ? "0" : "") + day;
+		hour = (hour < 10 ? "0" : "") + hour;
+		min = (min < 10 ? "0" : "") + min;
+		sec = (sec < 10 ? "0" : "") + sec;
+		let str =
+			hour +
+			":" +
+			min +
+			":" +
+			sec +
+			" on " +
+			month +
+			"/" +
+			day +
+			"/" +
+			date.getFullYear();
+		return str;
+	}
 
 	// this useEffect will load the user's favorite recipes
 	useEffect(() => {
@@ -144,7 +169,6 @@ export default function RecipeReviewCard({home}) {
 							"T00:00:00.0000"
 						);
 						if (d < uploadDate) {
-							console.log(recipesUser)
 							recipesUser.push(recipesDic[keysList[i]]);
 						}
 					}
@@ -163,39 +187,13 @@ export default function RecipeReviewCard({home}) {
 		return false;
 	}
 
-	const getTimeString = (timestamp) => {
-		let date = new Date(timestamp);
-		let month = date.getMonth() + 1;
-		let day = date.getDate();
-		let hour = date.getHours();
-		let min = date.getMinutes();
-		let sec = date.getSeconds();
-		month = (month < 10 ? "0" : "") + month;
-		day = (day < 10 ? "0" : "") + day;
-		hour = (hour < 10 ? "0" : "") + hour;
-		min = (min < 10 ? "0" : "") + min;
-		sec = (sec < 10 ? "0" : "") + sec;
-		let str =
-			hour +
-			":" +
-			min +
-			":" +
-			sec +
-			" on " +
-			month +
-			"/" +
-			day +
-			"/" +
-			date.getFullYear();
-		return str;
-	}
-
 	return (
 		<div className={styles.container}>
 			{user.role == "admin" ? (
 				!_.isEqual(recipes, []) ? (
 					<Grid container xs={12} sm={12} lg={8} className={classes.gridContainerMain}>
-						{recipes.map((obj, idx) => {
+						{recipes.sort((a, b) => a.dateUploaded < b.dateUploaded ? 1:-1)
+						.map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
 							return (
 								<Grid item container xs={12} sm={6} justify="center">
@@ -224,9 +222,8 @@ export default function RecipeReviewCard({home}) {
 			) : !_.isEqual(recipesUser, []) || !_.isEqual(user?.prevPrograms, []) ? (
 				<Grid container className={classes.gridContainerMain}>
 					<Grid item container xs={12} sm={11} lg={8}>
-						{recipesUser.map((obj, idx) => {
+						{recipesUser.sort((a, b) => programsDic[user.program]?.programRecipes[a.id] < programsDic[user.program]?.programRecipes[b.id] ? 1:-1).map((obj, idx) => {
 							if (!obj.nameOfDish || !obj.id) { return; }
-							//if (!favs || obj.id in favRecipes) {
 							displayedRecipes[obj.id] = "";
 							return (
 								<Grid item container xs={12} sm={6} justify="center">
@@ -262,11 +259,9 @@ export default function RecipeReviewCard({home}) {
 														if (!obj.nameOfDish || !obj.id) { return; }
 														//if (!favs || obj.id in favRecipes) {
 														if (obj.id in displayedRecipes) {
-															console.log("null")
 															return;
 														} else {
 															displayedRecipes[obj.id] = "";
-															console.log(obj)
 															return (
 																<Grid item container xs={12} sm={6} justify="center">
 																	<RecipeCard
