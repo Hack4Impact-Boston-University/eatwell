@@ -17,6 +17,7 @@ import { useRouter } from 'next/router'
 import styles from '../../styles/Home.module.css'
 import {checkCode} from "../../utils/codes.js";
 import { getUserFromCookie } from "../../utils/cookies";
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
 	profileHeader: {
@@ -56,6 +57,8 @@ const makeProfile = () => {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [tel, setTel] = useState("");
+	const [deliveryAddress, setDeliveryAddress] = useState("");
+	const [submitText, setSubmitText] = useState("")
 	const router = useRouter();
 
 	const name = (e) => {
@@ -90,26 +93,30 @@ const makeProfile = () => {
 	}, [userData])
 
 	const submit = () => {
-		upload({
+		setSubmitText("")
+		if (!firstName || !lastName || !tel || !deliveryAddress) {
+			setSubmitText("Please fill out all the information!")
+		} else {
+			upload({
 				firstname: firstName,
 				lastname: lastName,
 				phone: tel,
+				deliveryAddress: deliveryAddress,
 //				program: program,
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],
 				notes:[],
-				// notesSkills:[],
-				// notesTips:[],
 				ratings:{},
 				ratingsSkills:{},
 				ratingsTips:{}
-		}).then(() => {
-			router.push('/');
-		}).catch((err) => {
-			// Check if firebase error or incorrect code, return error accordingly
-			console.log(err);
-		});
+			}).then(() => {
+				router.push('/profile/survey');
+			}).catch((err) => {
+				// Check if firebase error or incorrect code, return error accordingly
+				console.log(err);
+			});
+		}
 	}
 
 	if (!userData) {
@@ -173,11 +180,33 @@ const makeProfile = () => {
 							required
 						/>
 					</Grid>
+					<Grid justify="center" className={classes.formItems} container>
+						<TextField
+							value={deliveryAddress}
+							onChange={(e) => setDeliveryAddress(e.target.value)}
+							error={false}
+							id="profileDeliveryAddress"
+							label="Delivery Address"
+							placeholder="Your Delivery Address"
+							required
+						/>
+					</Grid>
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} onClick={() => submit()}>
 							Submit
 						</Button>
 					</Grid>
+					<ThemeProvider>
+						{submitText &&
+							<Grid justify="center" className={classes.formItems} container>
+								<Box component="div" textOverflow="clip">
+									<Typography className={classes.text}>
+										{submitText}
+									</Typography>
+								</Box>
+							</Grid>
+						}
+					</ThemeProvider>
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} 
 							onClick={() => {

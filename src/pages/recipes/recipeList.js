@@ -194,7 +194,7 @@ export default function RecipeReviewCard({home}) {
 					<Grid container xs={12} sm={12} lg={8} className={classes.gridContainerMain}>
 						{recipes.sort((a, b) => a.dateUploaded < b.dateUploaded ? 1:-1)
 						.map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) { return; }
+							if (!obj?.nameOfDish || !obj?.id) { return; }
 							return (
 								<Grid item container xs={12} sm={6} justify="center">
 									<RecipeCard
@@ -221,9 +221,12 @@ export default function RecipeReviewCard({home}) {
 				)
 			) : !_.isEqual(recipesUser, []) || !_.isEqual(user?.prevPrograms, []) ? (
 				<Grid container className={classes.gridContainerMain}>
+					<div style={{display: 'flex', alignItems:'center'}}>
+						<h1> Below are the recipes in the {programsDic[user?.program]?.programName} program </h1>
+					</div>
 					<Grid item container xs={12} sm={11} lg={8}>
 						{recipesUser.sort((a, b) => programsDic[user.program]?.programRecipes[a.id] < programsDic[user.program]?.programRecipes[b.id] ? 1:-1).map((obj, idx) => {
-							if (!obj.nameOfDish || !obj.id) { return; }
+							if (!obj?.nameOfDish || !obj?.id) { return; }
 							displayedRecipes[obj.id] = "";
 							return (
 								<Grid item container xs={12} sm={6} justify="center">
@@ -256,7 +259,7 @@ export default function RecipeReviewCard({home}) {
 												<Grid item container direction="row">
 													{recipeIDs.map((id, _) => {
 														let obj = recipesDic[id];
-														if (!obj.nameOfDish || !obj.id) { return; }
+														if (!obj?.nameOfDish || !obj?.id) { return; }
 														//if (!favs || obj.id in favRecipes) {
 														if (obj.id in displayedRecipes) {
 															return;
@@ -292,6 +295,9 @@ export default function RecipeReviewCard({home}) {
 				</Grid>
 			) : (
 				<Grid>
+					<div style={{display: 'flex', alignItems:'center'}}>
+						<h1> Below are the recipes in the {programsDic[user?.program]?.programName} program </h1>
+					</div>
 					<h4>No recipes to display</h4>
 				</Grid>
 			)}

@@ -25,7 +25,7 @@ import styles from '../../styles/Home.module.css'
 import {editUserCookie, getUserFromCookie} from "../../utils/cookies";
 import { useRouter } from 'next/router';
 import useSWR from "swr";
-// import * as firebase from "firebase";
+import * as firebase from "firebase";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	container: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
-		height: "100vh",
+		paddingBottom: "15vh",
 		overflow: "hidden",
 		paddingTop: "10vh"
 	},
@@ -112,6 +112,7 @@ const Profile = () => {
 	const [firstName, setFirstName] = useState('')
     const [lastName, setLastName]  = useState('')
     const [phone, setPhone] = useState('')
+	const [deliveryAddress, setDeliveryAddress] = useState('')
 	const [oldPassword, setOldPassword] = useState('')
 	const [newPassword, setNewPassword] = useState('')
 	const [load, setLoad] = useState(true)
@@ -158,6 +159,7 @@ const Profile = () => {
 			setFirstName(user.firstname)
 			setLastName(user.lastname)
 			setPhone(user.phone)
+			setDeliveryAddress(user.deliveryAddress)
 			setLoad(false)
 		}
 	})
@@ -186,12 +188,16 @@ const Profile = () => {
 		if(firstName.trim() == '' || firstName == user.firstname) {
 			setFirstName(user.firstname)
 		} else {
+			user.firstname = firstName
 			profileData.firstname = firstName
+			firebase.firestore().collection("users").doc(user.id).update({firstname:firstName});
 		}
 		if(lastName.trim() == '' || lastName == user.lastname) {
 			setLastName(user.lastname)
 		} else {
+			user.lastname = lastName
 			profileData.lastname = lastName
+			firebase.firestore().collection("users").doc(user.id).update({lastname:lastName});
 		}
 		if(phone.trim() == "" || phone == user.phone || !phone.match(/[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)) {
 			if(!phone.match(/[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/)) {
@@ -199,7 +205,16 @@ const Profile = () => {
 			}
 			setPhone(user.phone)
 		} else  {
+			user.phone = phone
 			profileData.phone = phone
+			firebase.firestore().collection("users").doc(user.id).update({phone:phone});
+		}
+		if(deliveryAddress.trim() == '' || deliveryAddress == user.deliveryAddress) {
+			setDeliveryAddress(user.deliveryAddress)
+		} else {
+			user.deliveryAddress = deliveryAddress
+			profileData.deliveryAddress = deliveryAddress
+			firebase.firestore().collection("users").doc(user.id).update({deliveryAddress:deliveryAddress});
 		}
 		if(oldPassword == "" && newPassword != "" || oldPassword != "" && newPassword == "") {
 			setPasswordError(true)
@@ -224,7 +239,7 @@ const Profile = () => {
 				} 
 			});
 		}
-		// firebase.firestore().collection("users").doc(user.id).update({firstname:user.firstname, lastname:user.lastname,phone:user.phone});
+		setSubmitText("")
 	}
 	useEffect(() => {
 		var userData = getUserFromCookie();
@@ -307,85 +322,17 @@ const Profile = () => {
 						</Typography>
 					</Box>
 				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-					<TextField
-						id="profileFirst"
-						label="First Name"
-						value={firstName}
-						onChange={(e) => setFirstName(e.target.value)}
-						onKeyPress={(e) => name(e)}
-						InputProps={{
-							className: classes.root,
-							classes: {input: classes.text},
-						}}
-						InputLabelProps={{
-							shrink: true,
-						}}	
-						size="small"
-					/>
-				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-					<TextField
-						id="profileLast"
-						label="Last Name"
-						value={lastName}
-						onChange={(e) => setLastName(e.target.value)}
-						onKeyPress={(e) => name(e)}
-						InputProps={{
-							className: classes.root,
-							classes: {input: classes.text},
-						}}
-						InputLabelProps={{
-							shrink: true,
-						}}	
-						size="small"
-					/>
-				</Grid>
-				<Grid justify="center" className={classes.formItems} container>
-					<TextField
-						id="profilePhone"
-						label="Phone Number"
-						value={phone}
-						onChange={(e) => telnum(e)}
-						onKeyPress={(e) => phonenum(e)}
-						type="tel"
-						InputProps={{
-							className: classes.root,
-							classes: {input: classes.text},
-						}}
-						InputLabelProps={{
-							shrink: true,
-						}}	
-						size="small"
-					/>
-				</Grid>
-				{user.provider == "password" &&
-					<div>
+				
+				<Grid container spacing={3}>
+					<Grid item xs={12} sm={3}></Grid>
+					<Grid item xs={12} sm={3}>
 						<Grid justify="center" className={classes.formItems} container>
 							<TextField
-								id="profileOldPass"
-								label="Old Password"
-								value={oldPassword}
-								onChange={(e) => setOldPassword(e.target.value)}
-								type="password"
-								InputProps={{
-									className: classes.root,
-									classes: {input: classes.text},
-								}}
-								InputLabelProps={{
-									shrink: true,
-								}}				
-								size="small"
-								error={passwordError}
-							/>
-						</Grid>
-						<Grid justify="center" className={classes.formItems} container>
-							<TextField
-								id="profileNewPass"
-								label="New Password"
-								value={newPassword}
-								onChange={(e) => setNewPassword(e.target.value)}
-								type="password"
+								id="profileFirst"
+								label="First Name"
+								value={firstName}
+								onChange={(e) => setFirstName(e.target.value)}
+								onKeyPress={(e) => name(e)}
 								InputProps={{
 									className: classes.root,
 									classes: {input: classes.text},
@@ -394,44 +341,136 @@ const Profile = () => {
 									shrink: true,
 								}}	
 								size="small"
-								error={passwordError}
-								helperText={passwordError ? passwordErrorText : ""}
 							/>
 						</Grid>
-					</div>
-				}
-				{/* <Grid justify="center" className={classes.formItems} container>
-					<FormControl variant="outlined" margin="dense">
-						<InputLabel htmlFor="profilePassword">Password</InputLabel>
-						<OutlinedInput
-							id="profilePassword"
-							type={profile?.showPassword ? "text" : "password"}
-							// value={profile?.password}
-							value={password}
-							inputProps={{
-								readOnly: true,
-								classes: {label: classes.text},
-							}}
-							className={classes.text}
-							endAdornment={
-								<InputAdornment position="end">
-									<IconButton
-										aria-label="toggle password visibility"
-										onClick={handleClickShowPassword}
-										edge="end"
-									>
-										{profile?.showPassword ? (
-											<Visibility />
-										) : (
-											<VisibilityOff />
-										)}
-									</IconButton>
-								</InputAdornment>
-							}
-							labelWidth={70}
-						/>
-					</FormControl>
-				</Grid> */}
+						<Grid justify="center" className={classes.formItems} container>
+							<TextField
+								id="profileLast"
+								label="Last Name"
+								value={lastName}
+								onChange={(e) => setLastName(e.target.value)}
+								onKeyPress={(e) => name(e)}
+								InputProps={{
+									className: classes.root,
+									classes: {input: classes.text},
+								}}
+								InputLabelProps={{
+									shrink: true,
+								}}	
+								size="small"
+							/>
+						</Grid>
+						<Grid justify="center" className={classes.formItems} container>
+							<TextField
+								id="profilePhone"
+								label="Phone Number"
+								value={phone}
+								onChange={(e) => telnum(e)}
+								onKeyPress={(e) => phonenum(e)}
+								type="tel"
+								InputProps={{
+									className: classes.root,
+									classes: {input: classes.text},
+								}}
+								InputLabelProps={{
+									shrink: true,
+								}}	
+								size="small"
+							/>
+						</Grid>
+						<Grid justify="center" className={classes.formItems} container>
+							<TextField
+								id="profileDeliveryAddress"
+								label="Delivery Address"
+								value={deliveryAddress}
+								onChange={(e) => setDeliveryAddress(e.target.value)}
+								InputProps={{
+									className: classes.root,
+									classes: {input: classes.text},
+								}}
+								InputLabelProps={{
+									shrink: true,
+								}}	
+								size="small"
+							/>
+						</Grid>
+					</Grid>
+					<Grid item xs={12} sm={3}>
+						{user.provider == "password" &&
+							<div>
+								<Grid justify="center" className={classes.formItems} container>
+									<TextField
+										id="profileOldPass"
+										label="Old Password"
+										value={oldPassword}
+										onChange={(e) => setOldPassword(e.target.value)}
+										type="password"
+										InputProps={{
+											className: classes.root,
+											classes: {input: classes.text},
+										}}
+										InputLabelProps={{
+											shrink: true,
+										}}				
+										size="small"
+										error={passwordError}
+									/>
+								</Grid>
+								<Grid justify="center" className={classes.formItems} container>
+									<TextField
+										id="profileNewPass"
+										label="New Password"
+										value={newPassword}
+										onChange={(e) => setNewPassword(e.target.value)}
+										type="password"
+										InputProps={{
+											className: classes.root,
+											classes: {input: classes.text},
+										}}
+										InputLabelProps={{
+											shrink: true,
+										}}	
+										size="small"
+										error={passwordError}
+										helperText={passwordError ? passwordErrorText : ""}
+									/>
+								</Grid>
+							</div>
+						}
+					</Grid>
+					<Grid item xs={12} sm={3}></Grid>
+				</Grid>
+				<Box m={3} />
+				<Grid justify="center" className={classes.formItems} container>
+					<Grid xs={8} md={4} item>
+						<Button
+							variant="contained"
+							component="label"
+							className={classes.btn2}
+							classes={{ label: classes.viewButtonLabel }}
+							onClick={() => submitChanges()}
+						>
+							<Typography className={classes.text}>
+								Save Changes
+							</Typography>
+						</Button>
+					</Grid>
+				</Grid>
+
+				<ThemeProvider theme={theme}>
+					{submitText &&
+						<Grid justify="center" className={classes.formItems} container>
+							<Box component="div" textOverflow="clip">
+								<Typography className={classes.text} color={success ? 'textPrimary' : 'error'}>
+									{submitText}
+								</Typography>
+							</Box>
+						</Grid>
+					}
+				</ThemeProvider>
+
+				<Box m={4} />
+
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
 						<Typography className={classes.text}>
@@ -448,33 +487,6 @@ const Profile = () => {
 						</Box>
 					</Grid>
 				}
-				
-				<Grid justify="center" className={classes.formItems} container>
-					<Grid xs={8} md={4} item>
-						<Button
-							variant="contained"
-							component="label"
-							className={classes.btn2}
-							classes={{ label: classes.viewButtonLabel }}
-							onClick={() => submitChanges()}
-						>
-							<Typography className={classes.text}>
-								Save Changes
-							</Typography>
-						</Button>
-					</Grid>
-				</Grid>
-				<ThemeProvider theme={theme}>
-					{submitText &&
-						<Grid justify="center" className={classes.formItems} container>
-							<Box component="div" textOverflow="clip">
-								<Typography className={classes.text} color={success ? 'textPrimary' : 'error'}>
-									{submitText}
-								</Typography>
-							</Box>
-						</Grid>
-					}
-				</ThemeProvider>
 
 				<div className={styles.nav}>
 					<Navbar currentPage={1}/>
