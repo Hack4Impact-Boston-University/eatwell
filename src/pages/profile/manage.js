@@ -1440,6 +1440,7 @@ export default function Manage() {
                         <ol className={classes.noNum}>
                           <li>Email: {value?.email}</li>
                           <li>Phone: {value?.phone}</li>
+                          <li>Delivery Address: {value?.deliveryAddress}</li>
                           {value?.role == "user" ? (
                           <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
                           : (<Grid></Grid>)}
