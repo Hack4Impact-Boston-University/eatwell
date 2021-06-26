@@ -478,7 +478,7 @@ const Profile = () => {
 						</Typography>
 					</Box>
 				</Grid>
-				{user.role == "user" &&
+				{(user.role == "user" || user.role == "client") &&
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
