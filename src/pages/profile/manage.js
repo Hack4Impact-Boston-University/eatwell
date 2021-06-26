@@ -1772,10 +1772,11 @@ export default function Manage() {
                           <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
                           <li>Ingredients / Allergens: {value?.descriptionIngredients} <IconButton onClick={() => handleClickOpenRecipeDescriptionIngredients(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe Fact: {value?.recipeFact} <IconButton onClick={() => handleClickOpenRecipeFact(value)}> <EditIcon/> </IconButton></li>
-                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
+                          {/* ----------------------- display date modified, rating, num ratings, num favorites ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
                           <li>Rating: {value?.avgRating}</li>
                           <li>Number of ratings: {value?.numRatings}</li>
+                          <li>Number of favorites: {value?.numFavorites}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Cover images <IconButton onClick={() => handleClickOpenRecipeImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Instruction images
@@ -2074,10 +2075,9 @@ export default function Manage() {
                         <ol className={classes.noNum}>
                           {/* ----------------------- edit skill name, description ----------------------- */}
                           <li>Name of skill: {value?.skillName} <IconButton onClick={() => handleClickOpenSkillName(value)}> <EditIcon/> </IconButton></li>
-                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
+                          {/* ----------------------- display date modified, num favorites ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
-                          {/* <li>Rating: {value?.avgRating}</li> */}
-                          {/* <li>Number of ratings: {value?.numRatings}</li> */}
+                          <li>Number of favorites: {value?.numFavorites}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Skill images <IconButton onClick={() => handleClickOpenSkillImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Skill video
@@ -2179,8 +2179,9 @@ export default function Manage() {
                         <ol className={classes.noNum}>
                           {/* ----------------------- edit tip name, description ----------------------- */}
                           <li>Name of skill: {value?.tipName} <IconButton onClick={() => handleClickOpenTipName(value)}> <EditIcon/> </IconButton></li>
-                          {/* ----------------------- display date modified, rating, num ratings ----------------------- */}
+                          {/* ----------------------- display date modified, num favorites ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
+                          <li>Number of favorites: {value?.numFavorites}</li>
                           {/* ----------------------- display / edit images, pdf, videos ----------------------- */}
                           <li>Tip images <IconButton onClick={() => handleClickOpenTipImages(value)}> <EditIcon/> </IconButton></li>
                           <li>Tip video

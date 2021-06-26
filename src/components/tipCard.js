@@ -208,6 +208,11 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 							.collection("users")
 							.doc(user.uid)
 							.update({ favoriteTips: [object.tipID] });
+						const rec = await db.collection('tips').doc(object.tipID).get()
+						await db
+							.collection("tips")
+							.doc(object.tipID)
+							.update({ numFavorites: rec.data().numFavorites + 1 });
 					} else {
 						if (!tips.includes(object.tipID)) {
 							tips.push(object.tipID);
@@ -215,12 +220,22 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteTips: tips });
+							const rec = await db.collection('tips').doc(object.tipID).get()
+							await db
+								.collection("tips")
+								.doc(object.tipID)
+								.update({ numFavorites: rec.data().numFavorites + 1 });
 						} else {
 							tips.splice(tips.indexOf(object.tipID), 1);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteTips: tips });
+							const rec = await db.collection('tips').doc(object.tipID).get()
+							await db
+								.collection("tips")
+								.doc(object.tipID)
+								.update({ numFavorites: rec.data().numFavorites - 1 });
 						}
 					}
 				};

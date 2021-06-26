@@ -197,6 +197,11 @@ export default function RecipeCard({
 							.collection("users")
 							.doc(user.uid)
 							.update({ favoriteRecipes: [obj.id] });
+						const rec = await db.collection('recipes').doc(obj.id).get()
+						await db
+							.collection("recipes")
+							.doc(obj.id)
+							.update({ numFavorites: rec.data().numFavorites+ 1 });
 					} else {
 						if (!recipes.includes(obj.id)) {
 							// if recipe not already favorited, add recipe to list
@@ -205,6 +210,11 @@ export default function RecipeCard({
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteRecipes: recipes });
+							const rec = await db.collection('recipes').doc(obj.id).get()
+							await db
+								.collection("recipes")
+								.doc(obj.id)
+								.update({ numFavorites:rec.data().numFavorites + 1 });
 						} else {
 							// if recipe already favorited, remove recipe from list
 							recipes.splice(recipes.indexOf(obj.id), 1);
@@ -212,6 +222,11 @@ export default function RecipeCard({
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteRecipes: recipes })
+							const rec = await db.collection('recipes').doc(obj.id).get()
+							await db
+								.collection("recipes")
+								.doc(obj.id)
+								.update({ numFavorites: rec.data().numFavorites - 1 });
 						}
 					}
 				};

@@ -180,6 +180,11 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 							.collection("users")
 							.doc(user.uid)
 							.update({ favoriteSkills: [object.skillID] });
+						const rec = await db.collection('skills').doc(object.skillID).get()
+						await db
+							.collection("skills")
+							.doc(object.skillID)
+							.update({ numFavorites: rec.data().numFavorites + 1 });
 					} else {
 						if (!skills.includes(object.skillID)) {
 							skills.push(object.skillID);
@@ -187,12 +192,22 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
+							const rec = await db.collection('skills').doc(object.skillID).get()
+							await db
+								.collection("skills")
+								.doc(object.skillID)
+								.update({ numFavorites: rec.data().numFavorites + 1 });
 						} else {
 							skills.splice(skills.indexOf(object.skillID), 1);
 							await db
 								.collection("users")
 								.doc(user.uid)
 								.update({ favoriteSkills: skills });
+							const rec = await db.collection('skills').doc(object.skillID).get()
+							await db
+								.collection("skills")
+								.doc(object.skillID)
+								.update({ numFavorites: rec.data().numFavorites - 1 });
 						}
 					}
 				};

@@ -248,6 +248,7 @@ const UploadForm = () => {
 			videoTips: tip,
 			numRatings: 1,
 			avgRating: 5,
+			numFavorites: 0,
 		};
 
 		document.set(data);
@@ -304,7 +305,8 @@ const UploadForm = () => {
             dateUploaded: Date.now(),
             images: uploadedImages,
             numRatings: 1,
-            avgRating: 5
+            avgRating: 5,
+			numFavorites: 0,
         })
         firebase.storage().ref().child(id+".jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
@@ -352,7 +354,8 @@ const UploadForm = () => {
             dateUploaded: Date.now(),
             images: uploadedImages,
             numRatings: 1,
-            avgRating: 5
+            avgRating: 5,
+			numFavorites: 0
         })
         firebase.storage().ref().child(id+".jpg").putString(uploadedImages[0], 'data_url').on(firebase.storage.TaskEvent.STATE_CHANGED, {
             'complete': function() {
