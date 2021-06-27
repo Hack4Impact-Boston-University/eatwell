@@ -370,12 +370,16 @@ export default function Manage() {
   function setRowsFunc(program) {
     var recipeslist = program["programRecipes"];
     var temp = [];
+    
     Object.keys(recipeslist).forEach(function(key) {
-      var id = recipesDic[key].id;
-      var name = recipesDic[key].nameOfDish;
-      var date = recipeslist[key];
-      temp.push(createData(id, name, date))
+      if (recipesDic[key]?.id != undefined) {
+        var id = recipesDic[key]?.id;
+        var name = recipesDic[key]?.nameOfDish;
+        var date = recipeslist[key];
+        temp.push(createData(id, name, date))
+      }
     });
+    
     setRows(temp);
   }
 
@@ -1522,7 +1526,6 @@ export default function Manage() {
                     </ListItem>
 
                     <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
-                    <div><small>** Double tap on the program name!</small></div>
                     {programs.map((value) => {
                       if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
                         return (
@@ -1604,7 +1607,8 @@ export default function Manage() {
                   }
                   {selectedProgramProgram?.programUsers != undefined ?
                   Object.values(selectedProgramProgram?.programUsers).map((value) => {
-                    return (
+                    if (usersDic[value]?.firstname != undefined) {
+                      return (
                         <Accordion>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
                           <ListItemAvatar>
@@ -1625,6 +1629,7 @@ export default function Manage() {
                           </AccordionDetails>
                       </Accordion>
                       );
+                    }
                     }) : <Grid></Grid>
                   }
                   {<div>
