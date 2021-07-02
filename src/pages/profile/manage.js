@@ -1707,6 +1707,33 @@ export default function Manage() {
                           : (<Grid></Grid>)}
                           <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
                           {value?.role != "client" ? <li>Client: {usersDic[value?.client]?.firstname + " " + usersDic[value?.client]?.lastname}<IconButton onClick={() => handleClickOpenClient(value.id, value?.client)}> <EditIcon /> </IconButton></li> : <Grid></Grid>}
+                          {value?.role == "client" ? 
+                            <TableContainer component={Paper}>
+                              <Table aria-label="customized table">
+                                <TableHead>
+                                  <TableRow>
+                                    <StyledTableCell>Program</StyledTableCell>
+                                    <StyledTableCell>Users</StyledTableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {value?.program.map((item) => (
+                                    <StyledTableRow key={item}>
+                                      <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                      <StyledTableCell align="left">
+                                        {
+                                          programsDic[item].programClients.map((user) => {
+                                            return <li>{usersDic[user].firstname + " " + usersDic[user].lastname}</li>
+                                          })
+                                        }
+                                      </StyledTableCell>
+                                    </StyledTableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                            : <Grid></Grid>
+                          }
                           <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
                         </ol>
                       </AccordionDetails>
@@ -1793,47 +1820,186 @@ export default function Manage() {
 
         {/* ---------------------------- 1: ADMIN MANAGE CLIENTS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
-        <div>
-          {currentCodesClients != null && numClientCodes > 0 && (
-            <div> {/* ----------------------- edit users list ----------------------- */}
-            <List>
-              <ListItemText> Unused Codes - {numClientCodes}
-              </ListItemText>
-            </List>
-            <Paper style={{maxHeight: 260, overflow: 'auto'}}>
-              <List>
-                {currentCodesClients.map((code) => {
-                if(code?.role == "client") {
-                  return (
-                    <ListItem>
+        <Grid item container xs={12} sm={12}>
+          <Grid item xs={12} sm={6} justify="center">
+            <TextField label="search email" value={search} onChange={handleChange}/>
+            {users.map((value) => {
+              if (value["role"] == "client" &&
+              (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
+              (value["firstname"]+' '+value["lastname"])?.includes(search) || (value["firstname"]+' '+value["lastname"]).toLowerCase()?.includes(search))) {
+                return (
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
                       <ListItemAvatar>
-                        <Avatar/>
+                        <Avatar
+                        // alt={`Avatar n°${value + 1}`}
+                        // src={`/static/images/avatar/${value + 1}.jpg`}
+                        />
                       </ListItemAvatar>
-                      <ListItemText primary={code?.codeID}/>
-                      <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete" onClick={() => deleteCodeClients(code?.codeID, false)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  )}
-                })}
-              </List>
-            </Paper>
-            </div>)
-          }
+                      <ListItemText
+                        primary={value?.firstname + " " + value?.lastname} secondary={value?.email}/>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <ol className={classes.noNum}>
+                        <li>Email: {value?.email}</li>
+                        <li>Phone: {value?.phone}</li>
+                        <li>Delivery Address: {value?.deliveryAddress}</li>
+                        {value?.role == "user" ? (
+                        <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
+                        : (<Grid></Grid>)}
+                        <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
+                        {value?.role == "client" ? 
+                          <TableContainer component={Paper}>
+                            <Table aria-label="customized table">
+                              <TableHead>
+                                <TableRow>
+                                  <StyledTableCell>Program</StyledTableCell>
+                                  <StyledTableCell>Users</StyledTableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {value?.program.map((item) => (
+                                  <StyledTableRow key={item}>
+                                    <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                    <StyledTableCell align="left">
+                                      {
+                                        programsDic[item].programClients.map((user) => {
+                                          return <li>{usersDic[user].firstname + " " + usersDic[user].lastname}</li>
+                                        })
+                                      }
+                                    </StyledTableCell>
+                                  </StyledTableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                          : <Grid></Grid>
+                        }
+                        <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
+                      </ol>
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              }
+            })}
+          </Grid>
+
+          {currentUser && (
+          <div>
+            {/* --------------- edit user program --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
+              <DialogTitle>Edit User Program</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
+                    {programs.map((programss) =>
+                      <MenuItem value={programss["program"]}> {programss["programName"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseProgram} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitProgram(currentUser, program)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- edit user role --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
+              <DialogTitle>Edit User Role</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Role </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={role} onChange={handleChangeRole} input={<Input />}>
+                    <MenuItem value={prevRole}>
+                      <em></em>
+                    </MenuItem>
+                    <MenuItem value={"user"}>User</MenuItem>
+                    <MenuItem value={"admin"}>Admin</MenuItem>
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseRole} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitRole(currentUser, role)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- edit user client --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openClient} onClose={handleCloseClient}>
+              <DialogTitle>Edit User Client</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Client </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={client} onChange={handleChangeClient} input={<Input />}>
+                    {users.filter(function(obj) {return obj.role === "client"}).map((userss) => 
+                      <MenuItem value={userss["id"]}> {userss["firstname"] + " " + userss["lastname"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseClient} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitClient(currentUser, client)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- delete user --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
+              <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
+              <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
+              <DialogActions>
+                <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteUser(currentUser)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
           </div>
-          <ListItem key={"Add Code"}>
-            <Button variant="outlined" fullWidth onClick={() => setOpenAddCodesClients(true)}>Add Codes </Button>
-          </ListItem>
-          {numClientCodes > 0 ?
-            <div>
-              <ListItem key={"Delete Code"}>
-                <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodesClients(true)}>Delete Codes </Button>
-              </ListItem>
+        )}
+        <Grid item xs={12} sm={6} justify="center">
+          <div>
+            {currentCodesClients != null && numClientCodes > 0 && (
+              <div> {/* ----------------------- edit users list ----------------------- */}
+              <List>
+                <ListItemText> Unused Codes - {numClientCodes}
+                </ListItemText>
+              </List>
+              <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+                <List>
+                  {currentCodesClients.map((code) => {
+                  if(code?.role == "client") {
+                    return (
+                      <ListItem>
+                        <ListItemAvatar>
+                          <Avatar/>
+                        </ListItemAvatar>
+                        <ListItemText primary={code?.codeID}/>
+                        <ListItemSecondaryAction>
+                          <IconButton edge="end" aria-label="delete" onClick={() => deleteCodeClients(code?.codeID, false)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    )}
+                  })}
+                </List>
+              </Paper>
+              </div>)
+            }
             </div>
-            : <Grid></Grid>
-          }
+            <ListItem key={"Add Code"}>
+              <Button variant="outlined" fullWidth onClick={() => setOpenAddCodesClients(true)}>Add Codes </Button>
+            </ListItem>
+            {numClientCodes > 0 ?
+              <div>
+                <ListItem key={"Delete Code"}>
+                  <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodesClients(true)}>Delete Codes </Button>
+                </ListItem>
+              </div>
+              : <Grid></Grid>
+            }
+          </Grid>
+          </Grid>
         </TabPanel>
         <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodesClients}>
           <DialogTitle>Add Codes</DialogTitle>
