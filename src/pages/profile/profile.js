@@ -108,7 +108,6 @@ const Profile = () => {
 	const [profile, setProfile] = useState({});
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	const classes = useStyles();
-
 	const [firstName, setFirstName] = useState('')
     const [lastName, setLastName]  = useState('')
     const [phone, setPhone] = useState('')

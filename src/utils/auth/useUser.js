@@ -71,8 +71,11 @@ const useUser = () => {
 				if(!("firstname" in currData)) {
 					if (user?.role != undefined) {
 						newData["role"] = "client";
+						newData["client"] = ""
+						newData["program"] = []
 					} else {
 						newData["role"] = "user";
+						newData["client"] = currData.client
 					}
 					var userData = Object.assign({}, currData, newData);
 					if("codeID" in userData) {
@@ -122,7 +125,6 @@ const useUser = () => {
 					return auth;
 				}
 			}
-		// 
 		} else if("program" in newData) { // If we are adding program to existing account
 				checkProgram().then((res) => {
 					if(res) {
