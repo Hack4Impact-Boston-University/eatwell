@@ -15,6 +15,6 @@ var firebaseConfig = {
 export default function initFirebase() {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig)
-    firebase.analytics();
+    // firebase.analytics();
   }
 }

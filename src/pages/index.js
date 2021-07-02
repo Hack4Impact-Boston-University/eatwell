@@ -48,7 +48,6 @@ const Index = () => {
   const submit = () => {
     if(code != "") {
       checkCode(code.trim().toUpperCase(), false).then((data) => {
-        console.log(data)
         setErrorText("");
         // Save program info for later
         router.push("/profile/create");

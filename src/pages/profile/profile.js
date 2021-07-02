@@ -478,7 +478,7 @@ const Profile = () => {
 						</Typography>
 					</Box>
 				</Grid>
-				{(user.role == "user" || user.role == "client") &&
+				{(user.role == "user") &&
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
@@ -487,6 +487,15 @@ const Profile = () => {
 						</Box>
 					</Grid>
 				}
+				{/* {(user.role == "client") &&
+					<Grid justify="center" className={classes.formItems} container>
+						<Box component="div" textOverflow="clip">
+							<Typography className={classes.text}>
+								Programs: {programsDic[user.program]?.programName}
+							</Typography>
+						</Box>
+					</Grid>
+				} */}
 
 				<div className={styles.nav}>
 					<Navbar currentPage={1}/>

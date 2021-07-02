@@ -65,11 +65,15 @@ const useUser = () => {
 	}
 
 	const upload = async (newData) => {
-		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData) { // If we are adding makeProfile data or changing password?
+		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData || "role" in newData) { // If we are adding makeProfile data or changing password?
 			var currData = getUserFromCookie();
 			if(currData) { // There should be 
 				if(!("firstname" in currData)) {
-					newData["role"] = "user";
+					if (user?.role != undefined) {
+						newData["role"] = "client";
+					} else {
+						newData["role"] = "user";
+					}
 					var userData = Object.assign({}, currData, newData);
 					if("codeID" in userData) {
 						return db.collection("codes").doc(userData["codeID"]).delete().then(() => {
