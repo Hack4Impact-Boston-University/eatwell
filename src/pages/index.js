@@ -19,6 +19,7 @@ import {checkCode} from "../utils/codes.js";
 import useSWR from "swr";
 import _, { map } from "underscore";
 import RecipeList from "./recipes/recipeList"
+import RecipeListClient from "./recipes/recipeListClient"
 
 const useStyles = makeStyles((theme) => ({
   containerHome: {
@@ -135,6 +136,8 @@ const Index = () => {
       </Box>
 
       {user ?
+        user.role == "client" ?
+        <RecipeListClient home={true}/> :
         <RecipeList home={true}/> :
         <Grid></Grid>
       }

@@ -740,11 +740,6 @@ export default function Manage() {
       temp.push({label:(usersClient[i]?.firstname+" "+usersClient[i]?.lastname),value:usersClient[i].id})
     }
     setSelectedClients(originallySelected)
-
-    console.log("selectedClients")
-    console.log(originallySelected)
-    console.log(selectedProgramProgram)
-    console.log(selectedClients)
     setCurrentProgramClients(temp)
     setSelectedProgram(programClientsNow)
   };
@@ -759,7 +754,6 @@ export default function Manage() {
     }
     setSelectedProgram(temp)
     var tempSelectedClients = selectedClients.map(({ value }) => value);
-    // console.log(usersClient)
     for (i = 0; i < usersClient.length; i++) {
       if (tempSelectedClients.includes(usersClient[i].id) && !usersClient[i].program.includes(selectedProgramProgram?.program)) {
         var newList = usersClient[i].program
