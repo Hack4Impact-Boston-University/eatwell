@@ -1711,18 +1711,22 @@ export default function Manage() {
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {value?.program.map((item) => (
-                                    <StyledTableRow key={item}>
-                                      <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
-                                      <StyledTableCell align="left">
-                                        {
-                                          programsDic[item].programClients.map((user) => {
-                                            return <li>{usersDic[user].firstname + " " + usersDic[user].lastname}</li>
-                                          })
-                                        }
-                                      </StyledTableCell>
-                                    </StyledTableRow>
-                                  ))}
+                                {value?.program.map(function (item) {
+                                  if (programsDic[item]?.programName) {
+                                    return (
+                                      <StyledTableRow key={item}>
+                                        <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                        <StyledTableCell align="left">
+                                          {
+                                            programsDic[item].programClients.map((user) => {
+                                              if (usersDic[user]?.firstname || usersDic[user]?.lastname) {
+                                                return <li>{usersDic[user]?.firstname + " " + usersDic[user]?.lastname}</li>
+                                              }
+                                            })
+                                          }
+                                        </StyledTableCell>
+                                      </StyledTableRow>
+                                    )}})}
                                 </TableBody>
                               </Table>
                             </TableContainer>
@@ -1852,18 +1856,22 @@ export default function Manage() {
                                 </TableRow>
                               </TableHead>
                               <TableBody>
-                                {value?.program.map((item) => (
-                                  <StyledTableRow key={item}>
-                                    <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
-                                    <StyledTableCell align="left">
-                                      {
-                                        programsDic[item].programClients.map((user) => {
-                                          return <li>{usersDic[user].firstname + " " + usersDic[user].lastname}</li>
-                                        })
-                                      }
-                                    </StyledTableCell>
-                                  </StyledTableRow>
-                                ))}
+                                {value?.program.map(function (item) {
+                                  if (programsDic[item]?.programName) {
+                                    return (
+                                      <StyledTableRow key={item}>
+                                        <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                        <StyledTableCell align="left">
+                                          {
+                                            programsDic[item].programClients.map((user) => {
+                                              if (usersDic[user]?.firstname || usersDic[user]?.lastname) {
+                                                return <li>{usersDic[user]?.firstname + " " + usersDic[user]?.lastname}</li>
+                                              }
+                                            })
+                                          }
+                                        </StyledTableCell>
+                                      </StyledTableRow>
+                                    )}})}
                               </TableBody>
                             </Table>
                           </TableContainer>
