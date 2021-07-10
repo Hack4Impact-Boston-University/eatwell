@@ -107,9 +107,7 @@ const makeProfile = () => {
 				favoriteSkills:[],
 				favoriteTips:[],
 				notes:[],
-				ratings:{},
-				ratingsSkills:{},
-				ratingsTips:{}
+				ratings:{}
 			}).then(() => {
 				router.push('/profile/survey');
 			}).catch((err) => {

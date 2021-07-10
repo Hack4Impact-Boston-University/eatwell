@@ -17,7 +17,7 @@ export default function initFirebase() {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig)
     if(!isNode) {
-      firebase.analytics();
+      // firebase.analytics();
     }
   }
 }

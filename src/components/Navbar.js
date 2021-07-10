@@ -131,6 +131,14 @@ const Navbar = ({currentPage}) => {
 								/>
 								<Typography variant="subtitle2">Profile</Typography>
 							</Button>
+							{user.role == "client" ?
+							<Button href={`/recipes/recipeListClient`}
+								className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
+								useState={{currentPage:2}}
+							>
+								<Book />
+								<Typography variant="subtitle2">Recipes</Typography>
+							</Button> : 
 							<Button href={`/recipes/recipeList`}
 								className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
 								useState={{currentPage:2}}
@@ -138,6 +146,7 @@ const Navbar = ({currentPage}) => {
 								<Book />
 								<Typography variant="subtitle2">Recipes</Typography>
 							</Button>
+							}
 							<Button href={`/skills/skillList`}
 								className={currentPage == 3 ? classes.menuItems1 : classes.menuItems}
 								useState={{currentPage:3}}
@@ -216,8 +225,26 @@ const Navbar = ({currentPage}) => {
 										<Typography variant="subtitle1">Profile</Typography>
 									</Button>
 								</MenuItem>
+								{user.role == "client" ?
 								<MenuItem button key={1}
 									className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
+								>
+									<Button
+										href={`/recipes/recipeListClient`}
+										className={classes.menuItems}
+										classes={{ label: classes.viewButtonLabel }}
+										useState={{currentPage:2}}
+									>
+										<ListItemIcon>
+											<Book
+												className={`${classes.menuIcon} ${classes.menuItems}`}
+											/>
+										</ListItemIcon>
+										<Typography variant="subtitle1">Recipes</Typography>
+									</Button>
+								</MenuItem> :
+								<MenuItem button key={1}
+								className={currentPage == 2 ? classes.menuItems1 : classes.menuItems}
 								>
 									<Button
 										href={`/recipes/recipeList`}
@@ -233,6 +260,7 @@ const Navbar = ({currentPage}) => {
 										<Typography variant="subtitle1">Recipes</Typography>
 									</Button>
 								</MenuItem>
+								}
 								<MenuItem button key={1}
 									className={currentPage == 3 ? classes.menuItems1 : classes.menuItems}
 								>

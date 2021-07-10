@@ -108,11 +108,12 @@ const Profile = () => {
 	const [profile, setProfile] = useState({});
 	const { data: programsDic } = useSWR(`/api/programs/getAllProgramsDic`, fetcher);
 	const classes = useStyles();
-
 	const [firstName, setFirstName] = useState('')
     const [lastName, setLastName]  = useState('')
     const [phone, setPhone] = useState('')
 	const [deliveryAddress, setDeliveryAddress] = useState('')
+	const [client, setClient] = useState('')
+	const [doneRunning, setDoneRunning] = useState('')
 	const [oldPassword, setOldPassword] = useState('')
 	const [newPassword, setNewPassword] = useState('')
 	const [load, setLoad] = useState(true)
@@ -241,6 +242,7 @@ const Profile = () => {
 		}
 		setSubmitText("")
 	}
+
 	useEffect(() => {
 		var userData = getUserFromCookie();
 		if(userData) {
@@ -251,17 +253,39 @@ const Profile = () => {
 		}  else {
 			router.push("/");
 		}
-	});
-	
-	if (!user) { return (
-		<div><div className={styles.nav}>
-			<Navbar currentPage={1}/>
-			<h1 align="center">Please sign in to access this page!</h1>
-		</div></div>);
-	}
 
-	if (!programsDic) {
-		return "loading programsDic...";
+		async function getClient() {
+			if (userData) {
+				if (userData.role == "user" && userData?.client && userData.client != "") {
+					const usersRef = firebase.firestore().collection("users").doc(userData.client)
+					const doc = await usersRef.get();
+					if (!doc.exists) {
+						setClient("No client assigned")
+					} else {
+						setClient(doc.data().firstname + " " + doc.data().lastname)
+					}
+					setDoneRunning(true)
+				} else if (userData.role == "user" && (!userData?.client || userData.client == "")) {
+					setClient("No client assigned")
+					setDoneRunning(true)
+				}
+			}
+		}
+		getClient()
+	});
+
+	if (!user || !programsDic || (user.role == "user" && doneRunning == false)) {
+		if (!user) {
+			return (
+				<div><div className={styles.nav}>
+					<Navbar currentPage={1}/>
+					<h1 align="center">Please sign in to access this page!</h1>
+				</div></div>);
+		} if (!programsDic) {
+			return "loading programsDic...";
+		} if (user.role == "user" && doneRunning == false) {
+			return "loading client...";
+		}
 	}
 
 	return (
@@ -319,6 +343,13 @@ const Profile = () => {
 					<Box component="div" textOverflow="clip">
 						<Typography className={classes.text}>
 							{user.email}
+						</Typography>
+					</Box>
+				</Grid>
+				<Grid justify="center" className={classes.formItems} container>
+					<Box component="div" textOverflow="clip">
+						<Typography className={classes.text}>
+							{client}
 						</Typography>
 					</Box>
 				</Grid>
@@ -478,7 +509,7 @@ const Profile = () => {
 						</Typography>
 					</Box>
 				</Grid>
-				{(user.role == "user" || user.role == "client") &&
+				{(user.role == "user") &&
 					<Grid justify="center" className={classes.formItems} container>
 						<Box component="div" textOverflow="clip">
 							<Typography className={classes.text}>
@@ -487,6 +518,15 @@ const Profile = () => {
 						</Box>
 					</Grid>
 				}
+				{/* {(user.role == "client") &&
+					<Grid justify="center" className={classes.formItems} container>
+						<Box component="div" textOverflow="clip">
+							<Typography className={classes.text}>
+								Programs: {programsDic[user.program]?.programName}
+							</Typography>
+						</Box>
+					</Grid>
+				} */}
 
 				<div className={styles.nav}>
 					<Navbar currentPage={1}/>

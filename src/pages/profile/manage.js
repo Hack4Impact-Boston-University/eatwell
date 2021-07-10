@@ -36,6 +36,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { withStyles} from '@material-ui/core/styles';
+import { set } from "js-cookie";
 
 
 function useWindowSize() {
@@ -171,6 +172,7 @@ export default function Manage() {
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
   const { width } = useWindowSize();
+  const [selectedProgram, setSelectedProgram] = useState({});
   const [selectedProgramProgram, setSelectedProgramProgram] = useState({});
   const [currentUser, setCurrentUser] = React.useState("");
   const [uploadDate, setUploadDate] = React.useState(Date.now())
@@ -230,6 +232,31 @@ export default function Manage() {
     setRole("");
   };
 
+  // edit user client
+  const [openClient, setOpenClient] = React.useState(false);
+  const [client, setClient] = React.useState("");
+  const handleChangeClient = (event) => {
+    setClient(event.target.value || "");
+  };
+  const handleClickOpenClient = (currentUser,prev) => {
+    setClient(prev)
+    setOpenClient(true);
+    setCurrentUser(currentUser);
+  };
+  const handleCloseClient = () => {
+    setClient("")
+    setOpenClient(false);
+  };
+  const handleSubmitClient = (currentUser, currentUserClient) => {
+    setClient(currentUserClient);
+    db.collection("users").doc(currentUser).update({ client: currentUserClient});
+    var index = Object.keys(usersDic).indexOf(currentUser);
+    usersDic[currentUser]["client"] = currentUserClient;
+    users[index]["client"] = currentUserClient;
+    setOpenClient(false);
+    setClient("");
+  };
+
   // edit user program
   const [openProgram, setOpenProgram] = React.useState(false);
   const [program, setProgram] = React.useState("");
@@ -279,8 +306,100 @@ export default function Manage() {
     alert("successfully deleted the user.");
   };
 
+  // ---------------------- 1: ADMIN MANAGE CLIENTS ----------------------
+  const [currentCodesClients, setCurrentCodesClients] = React.useState(null)
+  const [numCodesClients, setNumCodesClients] = useState('');
+  const [numClientCodes, setNumClientCodes] = useState(null);
+  // const [openDeleteClients, setOpenDeleteClients] = React.useState(false);
+  const [openAddCodesClients, setOpenAddCodesClients] = React.useState(false);
+  const [openDeleteCodesClients, setOpenDeleteCodesClients] = React.useState(false);
+  // activation codes for clients
+  function generateClients(length) {
+		var result           = '';
+		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < length; i++ ) {
+		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	}
+  function createCodesClients(num) {
+    if(num > 500) {
+      alert("Too many users, cannot write codes");
+      throw new Error("Too many users, cannot write codes");
+    }
+    var batch = db.batch();
+    var index;
+    for(index = 0; index < num; index++) {
+      const code = generateClients(5);
+      currentCodesClients.push({codeID: code, role: "client"})
+      batch.set(db.collection('codes').doc(code), {codeID: code, role: "client"});
+    }
+    return batch.commit();
+  }
+  function addCodesClients() {
+    setNumClientCodes(parseInt(currentCodesClients.length)+parseInt(numCodesClients))
+    createCodesClients(numCodesClients)
+    .then(()=>{
+      setOpenAddCodesClients(false); 
+      setNumCodesClients('');
+      alert("Successfully added codes!")
+    }).catch((err) => alert(err))
+  }
+  async function deleteCodeClients(id, batch) {
+    if (batch == false) {
+      setNumClientCodes(currentCodesClients.length-1)
+      for (var i = 0; i < currentCodesClients.length; i++) {
+        if (currentCodesClients[i].codeID == id) {
+          currentCodesClients.splice(i,1)
+        }
+      }
+    }
+    await db.collection("codes").doc(id).delete().then(() => {
+    }).catch((err) => alert(err))
+    if (batch == false) {
+      alert("successfully deleted code!")
+    }
+  }
+  function getRandomClients(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandom: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+  function deleteCodesClients() {
+    // numCodesClients: new input to delete number, numClientCodes: set / original value
+    if(numCodesClients > numClientCodes) {
+      alert("There are only " + numClientCodes + " codes!");
+    } else {
+      let delCodes = getRandomClients(currentCodesClients, numCodesClients);
+      delCodes.forEach((code) => {
+        deleteCodeClients(code?.codeID, true)
+      })
+      var tempDel = delCodes.map(({ codeID }) => codeID);
+      var tempCodes = currentCodesClients.map(({ codeID }) => codeID);
+      for (var i = 0; i < tempCodes.length; i++) {
+        if (tempDel.includes(tempCodes[i])) {
+          var index = currentCodesClients.indexOf(tempCodes[i]);
+          currentCodesClients.splice(index,1)
+        }
+      }
+      setCurrentCodesClients(currentCodesClients)
+      setNumClientCodes(currentCodesClients.length)
+      alert("Successfully deleted codes!")
+      setNumCodesClients('');
+      setOpenDeleteCodesClients(false);
+    }
+  }
 
-  // ---------------------- 1: ADMIN MANAGE PROGRAMS ----------------------
+  // ---------------------- 2: ADMIN MANAGE PROGRAMS ----------------------
   const [searchProgram, setSearchProgram] = React.useState("");
   const [openAddProgram, setOpenAddProgram] = React.useState(false);
   const [addedProgram, setAddedProgram] = useState('');
@@ -288,7 +407,6 @@ export default function Manage() {
   const [addedProgramEndDate, setAddedProgramEndDate] = useState('');
   const [newProgramEndDate, setNewProgramEndDate] = useState('');
   const [numCodes, setNumCodes] = useState('');
-  const [numProgramCodes, setNumProgramCodes] = useState(0);
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
@@ -296,6 +414,10 @@ export default function Manage() {
   const [viewCoverImages, setViewCoverImages] = React.useState([]);
   const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
+  const [rowClients, setRowClients] = React.useState([]);
+  const [codesClients, setCodesClients] = React.useState({});
+  const [currentClient, setCurrentClient] = React.useState(null);
+  const [numProgramClientCodes, setNumProgramClientCodes] = React.useState(0);
 
   useEffect(() => {
     let date = new Date(Date.now());
@@ -370,24 +492,52 @@ export default function Manage() {
   function setRowsFunc(program) {
     var recipeslist = program["programRecipes"];
     var temp = [];
+    
     Object.keys(recipeslist).forEach(function(key) {
-      var id = recipesDic[key].id;
-      var name = recipesDic[key].nameOfDish;
-      var date = recipeslist[key];
-      temp.push(createData(id, name, date))
+      if (recipesDic[key]?.id != undefined) {
+        var id = recipesDic[key]?.id;
+        var name = recipesDic[key]?.nameOfDish;
+        var date = recipeslist[key];
+        temp.push(createData(id, name, date))
+      }
     });
+    
     setRows(temp);
   }
-
-  const setSelectedProgram = (p) => {
-    setSelectedProgramProgram(p)
-    setCurrentCodes(
-      codes.filter(code => code?.program == p?.program)
-    );
-    setNumProgramCodes(
-      codes.filter(code => code?.program == p?.program).length
-    );
+  function setRowClientsFunc(program) {
+    var clientslist = program["programClients"];
+    var temp = [];
+    for (var i = 0; i < clientslist.length; i++) {
+      if (usersDic[clientslist[i]]?.id != undefined) {
+        var id = usersDic[clientslist[i]]?.id;
+        var firstname = usersDic[clientslist[i]]?.firstname;
+        var lastname = usersDic[clientslist[i]]?.lastname;
+        temp.push({id: id, firstname: firstname, lastname: lastname})
+      }
+    }
+    setRowClients(temp);
   }
+
+  function setCurrentClientFunc(program) {
+    var clientslist = program["programClients"];
+    for (var i = 0; i < clientslist.length; i++) {
+      if (usersDic[clientslist[i]] != undefined) {
+        codesClients[clientslist[i]] = codes.filter(code => (code?.program == program?.program && code?.client == clientslist[i]))
+      }
+    }
+    setCodesClients(codesClients);
+  }
+
+  // const setSelectedProgram = (p) => {
+  //   // setSelectedProgramProgram(p)
+  //   // setCurrentCodes(
+  //   //   codes.filter(code => code?.program == p?.program)
+  //   // );
+  //   // setNumProgramCodes(
+  //   //   codes.filter(code => code?.program == p?.program).length
+  //   // );
+  // }
+
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
   };
@@ -415,7 +565,15 @@ export default function Manage() {
     var index;
     for(index = 0; index < num; index++) {
       const code = generate(6);
-      batch.set(db.collection('codes').doc(code), {codeID: code, program:id});
+      if (currentClient != null) {
+        if (_.isEqual(codesClients,{})) {
+          codesClients[currentClient] = [{codeID: code, client: currentClient, program:id}]
+        } else {
+          codesClients[currentClient].push({codeID: code, client: currentClient, program:id});
+        }
+        setCodesClients(codesClients)
+      }
+      batch.set(db.collection('codes').doc(code), {codeID: code, client: currentClient, program:id});
     }
     return batch.commit();
   }
@@ -426,13 +584,18 @@ export default function Manage() {
       setNumCodes('');
       alert("Successfully added codes!")
     }).catch((err) => alert(err))
-    setNumProgramCodes(parseInt(currentCodes.length)+parseInt(numCodes))
+    setCurrentClient(null);
   }
-  async function deleteCode(id, batch) {
-    setNumProgramCodes(parseInt(currentCodes.length)-1)
+  async function deleteCode(id, batch, client) {
     await db.collection("codes").doc(id).delete().then(() => {
     }).catch((err) => alert(err))
     if (batch == false) {
+      for (var i = 0; i < codesClients[client].length; i++) {
+        if (codesClients[client][i].codeID == id) {
+          codesClients[client].splice(i,1)
+        }
+      }
+      setCodesClients(codesClients)
       alert("successfully deleted code!")
     }
   }
@@ -450,16 +613,27 @@ export default function Manage() {
     return result;
   }
   function deleteCodes() {
-    if(numCodes > numProgramCodes) {
-      alert("There are only " + numProgramCodes + " codes!");
+    if(numCodes > numProgramClientCodes) {
+      alert("There are only " + numProgramClientCodes + " codes!");
+    } else {
+      let delCodes = getRandom(currentCodes, numCodes);
+      delCodes.forEach((code) => {
+        deleteCode(code?.codeID, true, currentClient)
+      })
+      var tempDel = delCodes.map(({ codeID }) => codeID);
+      var tempCodesClients = codesClients[currentClient].map(({ codeID }) => codeID);
+      for (var i = 0; i < tempCodesClients.length; i++) {
+        if (tempDel.includes(tempCodesClients[i])) {
+          var index = codesClients[currentClient].indexOf(tempCodesClients[i]);
+          codesClients[currentClient].splice(index,1)
+        }
+      }
+      setCurrentCodes(currentCodes)
+      alert("Successfully deleted codes!")
+      setNumCodes('');
+      setOpenDeleteCodes(false);
+      setCurrentClient(null);
     }
-    let delCodes = getRandom(currentCodes, numCodes);
-    delCodes.forEach((code) => {
-      deleteCode(code?.codeID, true)
-    })
-    alert("Successfully deleted codes!")
-    setNumCodes('');
-    setOpenDeleteCodes(false);
   }
 
   const addProgram = () => {
@@ -469,7 +643,7 @@ export default function Manage() {
       alert("No program name specified");
       return; 
     }
-    db.collection('programs').doc(id).set({programName:addedProgram,program:id, programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
+    db.collection('programs').doc(id).set({programName:addedProgram,program:id, programClients:[], programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
     .then(() => {
       return createCodes(addedProgram, addedProgramNumUsers, id);
     }).then(() => {
@@ -521,9 +695,6 @@ export default function Manage() {
     setCurrentProgramRecipes({})
     setOpenEditProgramRecipes(false);
   };
-  const handleChangeEditProgramRecipes = (event) => {
-    setProgramRecipes(event.target.value || "");
-  };
   const handleSubmitEditProgramRecipes = () => {
     var i;
     var temp = {};
@@ -545,8 +716,86 @@ export default function Manage() {
     setCurrentProgramRecipes({})
   };
 
+  // program clients
+  const [currentProgramClients, setCurrentProgramClients] = React.useState({});
+  const [openEditProgramClients, setOpenEditProgramClients] = React.useState(false);
+  const [selectedClients, setSelectedClients] = useState([]);
+  const usersClient = []
+  if (users) {
+    for (var i = 0; i < users.length; i++) {
+      if (users[i].role == "client") {
+        usersClient.push(users[i]);
+      }
+    }
+  }
+  const handleClickOpenEditProgramClients = (programClientsNow) => {
+    setOpenEditProgramClients(true);
+    var i;
+    var originallySelected = []
+    var temp = [];
+    for (i = 0; i < usersClient.length; i++) {
+      if (selectedProgramProgram?.programClients.includes(usersClient[i].id)) {
+        originallySelected.push({label:(usersClient[i]?.firstname+" "+usersClient[i]?.lastname),value:usersClient[i].id})
+      }
+      temp.push({label:(usersClient[i]?.firstname+" "+usersClient[i]?.lastname),value:usersClient[i].id})
+    }
+    setSelectedClients(originallySelected)
+    setCurrentProgramClients(temp)
+    setSelectedProgram(programClientsNow)
+  };
+  const handleCloseEditProgramClients = () => {
+    setCurrentProgramClients({})
+    setOpenEditProgramClients(false);
+  };
+  const handleSubmitEditProgramClients = () => {
+    var temp = [];
+    for (var i = 0; i < selectedClients.length; i++) {
+      temp.push(selectedClients[i].value);
+    }
+    setSelectedProgram(temp)
+    var tempSelectedClients = selectedClients.map(({ value }) => value);
+    for (i = 0; i < usersClient.length; i++) {
+      if (tempSelectedClients.includes(usersClient[i].id) && !usersClient[i].program.includes(selectedProgramProgram?.program)) {
+        var newList = usersClient[i].program
+        newList.push(selectedProgramProgram?.program)
+        usersClient[i].program = newList;
+        usersDic[usersClient[i].id].program = newList
+        var index = Object.keys(usersDic).indexOf(usersClient[i].id);
+        users[index].program = newList;
+        db.collection("users").doc(usersClient[i].id).update({ program: newList });
+      } else if (!tempSelectedClients.includes(usersClient[i].id) && usersClient[i].program.includes(selectedProgramProgram?.program)) {
+        var newList = usersClient[i].program
+        var ind = newList.indexOf(selectedProgramProgram?.program);
+        newList.splice(ind,1)
+        usersClient[i].program = newList;
+        usersDic[usersClient[i].id].program = newList
+        var index = Object.keys(usersDic).indexOf(usersClient[i].id);
+        users[index].program = newList;
+        db.collection("users").doc(usersClient[i].id).update({ program: newList });
+      }
+    }
+    db.collection("programs").doc(selectedProgramProgram?.program).update({ programClients: temp });
+    var index = Object.keys(programsDic).indexOf(selectedProgramProgram?.program);
+    selectedProgramProgram["programClients"] = temp
+    setSelectedProgramProgram(selectedProgramProgram)
 
-  // ---------------------- 2: ADMIN MANAGE RECIPES ----------------------
+    var clientslist = temp;
+    var temp = [];
+    for (var i = 0; i < clientslist.length; i++) {
+      if (usersDic[clientslist[i]]?.id != undefined) {
+        var id = usersDic[clientslist[i]]?.id;
+        var firstname = usersDic[clientslist[i]]?.firstname;
+        var lastname = usersDic[clientslist[i]]?.lastname;
+        temp.push({id: id, firstname: firstname, lastname: lastname})
+      }
+    }
+    setRowClients(temp);
+    setOpenEditProgramClients(false);
+    setCurrentProgramClients({})
+  };
+
+
+  // ---------------------- 3: ADMIN MANAGE RECIPES ----------------------
   // edit recipe name
   const [recipeName, setRecipeName] = React.useState("");
   const [openRecipeName, setOpenRecipeName] = React.useState(false);
@@ -1122,7 +1371,7 @@ export default function Manage() {
   };
 
 
-  // ---------------------- 3: ADMIN MANAGE SKILLS ----------------------
+  // ---------------------- 4: ADMIN MANAGE SKILLS ----------------------
   // edit skill name
   const [skillName, setSkillName] = React.useState("");
   const [openSkillName, setOpenSkillName] = React.useState(false);
@@ -1232,7 +1481,7 @@ export default function Manage() {
   };
 
 
-  // ---------------------- 4: ADMIN MANAGE TIPS ----------------------
+  // ---------------------- 5: ADMIN MANAGE TIPS ----------------------
   // edit tip name
   const [tipName, setTipName] = React.useState("");
   const [tipID, setTipID] = React.useState("");
@@ -1359,6 +1608,8 @@ export default function Manage() {
     } if (!codes) {
       return "Loading codes...";
     }
+    setCurrentCodesClients(codes.filter(code => code?.role == "client"))
+    setNumClientCodes(codes.filter(code => code?.role == "client").length)
     setUsers(Object.keys(usersDic).map(function (key) {
       return usersDic[key];
     }));
@@ -1384,6 +1635,10 @@ export default function Manage() {
       return "Loading skills...";
     } if (_.isEqual(tips,[])) {
       return "Loading tips...";
+    } if (!currentCodesClients) {
+      return "Loading currentCodesClients...";
+    } if (!numClientCodes) {
+      return "Loading setNumClientCodes..."
     }
   }
 
@@ -1444,7 +1699,39 @@ export default function Manage() {
                           {value?.role == "user" ? (
                           <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
                           : (<Grid></Grid>)}
-                          <li>Role: {value?.role}<IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton></li>
+                          <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
+                          {value?.role != "client" ? <li>Client: {usersDic[value?.client]?.firstname + " " + usersDic[value?.client]?.lastname}<IconButton onClick={() => handleClickOpenClient(value.id, value?.client)}> <EditIcon /> </IconButton></li> : <Grid></Grid>}
+                          {value?.role == "client" ? 
+                            <TableContainer component={Paper}>
+                              <Table aria-label="customized table">
+                                <TableHead>
+                                  <TableRow>
+                                    <StyledTableCell>Program</StyledTableCell>
+                                    <StyledTableCell>Users</StyledTableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                {value?.program.map(function (item) {
+                                  if (programsDic[item]?.programName) {
+                                    return (
+                                      <StyledTableRow key={item}>
+                                        <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                        <StyledTableCell align="left">
+                                          {
+                                            programsDic[item].programClients.map((user) => {
+                                              if (usersDic[user]?.firstname || usersDic[user]?.lastname) {
+                                                return <li>{usersDic[user]?.firstname + " " + usersDic[user]?.lastname}</li>
+                                              }
+                                            })
+                                          }
+                                        </StyledTableCell>
+                                      </StyledTableRow>
+                                    )}})}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                            : <Grid></Grid>
+                          }
                           <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
                         </ol>
                       </AccordionDetails>
@@ -1497,6 +1784,25 @@ export default function Manage() {
               </DialogActions>
             </Dialog>
 
+            {/* --------------- edit user client --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openClient} onClose={handleCloseClient}>
+              <DialogTitle>Edit User Client</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Client </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={client} onChange={handleChangeClient} input={<Input />}>
+                    {users.filter(function(obj) {return obj.role === "client"}).map((userss) => 
+                      <MenuItem value={userss["id"]}> {userss["firstname"] + " " + userss["lastname"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseClient} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitClient(currentUser, client)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
             {/* --------------- delete user --------------- */}
             <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
               <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
@@ -1510,8 +1816,216 @@ export default function Manage() {
         )}
         </TabPanel>
 
-        {/* ---------------------------- 1: ADMIN MANAGE PROGRAMS ---------------------------- */}
+        {/* ---------------------------- 1: ADMIN MANAGE CLIENTS ---------------------------- */}
         <TabPanel value={value} index={1} dir={theme.direction}>
+        <Grid item container xs={12} sm={12}>
+          <Grid item xs={12} sm={6} justify="center">
+            <TextField label="search email" value={search} onChange={handleChange}/>
+            {users.map((value) => {
+              if (value["role"] == "client" &&
+              (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
+              (value["firstname"]+' '+value["lastname"])?.includes(search) || (value["firstname"]+' '+value["lastname"]).toLowerCase()?.includes(search))) {
+                return (
+                  <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                      <ListItemAvatar>
+                        <Avatar
+                        // alt={`Avatar n°${value + 1}`}
+                        // src={`/static/images/avatar/${value + 1}.jpg`}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={value?.firstname + " " + value?.lastname} secondary={value?.email}/>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <ol className={classes.noNum}>
+                        <li>Email: {value?.email}</li>
+                        <li>Phone: {value?.phone}</li>
+                        <li>Delivery Address: {value?.deliveryAddress}</li>
+                        {value?.role == "user" ? (
+                        <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
+                        : (<Grid></Grid>)}
+                        <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
+                        {value?.role == "client" ? 
+                          <TableContainer component={Paper}>
+                            <Table aria-label="customized table">
+                              <TableHead>
+                                <TableRow>
+                                  <StyledTableCell>Program</StyledTableCell>
+                                  <StyledTableCell>Users</StyledTableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {value?.program.map(function (item) {
+                                  if (programsDic[item]?.programName) {
+                                    return (
+                                      <StyledTableRow key={item}>
+                                        <StyledTableCell component="th" scope="row">{programsDic[item].programName}</StyledTableCell>
+                                        <StyledTableCell align="left">
+                                          {
+                                            programsDic[item].programClients.map((user) => {
+                                              if (usersDic[user]?.firstname || usersDic[user]?.lastname) {
+                                                return <li>{usersDic[user]?.firstname + " " + usersDic[user]?.lastname}</li>
+                                              }
+                                            })
+                                          }
+                                        </StyledTableCell>
+                                      </StyledTableRow>
+                                    )}})}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                          : <Grid></Grid>
+                        }
+                        <li><IconButton onClick={() => handleClickOpenDeleteUser(value.id)}> <DeleteIcon /> </IconButton></li>
+                      </ol>
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              }
+            })}
+          </Grid>
+
+          {currentUser && (
+          <div>
+            {/* --------------- edit user program --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openProgram} onClose={handleCloseProgram}>
+              <DialogTitle>Edit User Program</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Program </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={program} onChange={handleChangeProgram} input={<Input />}>
+                    {programs.map((programss) =>
+                      <MenuItem value={programss["program"]}> {programss["programName"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseProgram} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitProgram(currentUser, program)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- edit user role --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openRole} onClose={handleCloseRole}>
+              <DialogTitle>Edit User Role</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Role </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={role} onChange={handleChangeRole} input={<Input />}>
+                    <MenuItem value={prevRole}>
+                      <em></em>
+                    </MenuItem>
+                    <MenuItem value={"user"}>User</MenuItem>
+                    <MenuItem value={"admin"}>Admin</MenuItem>
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseRole} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitRole(currentUser, role)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- edit user client --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openClient} onClose={handleCloseClient}>
+              <DialogTitle>Edit User Client</DialogTitle>
+              <DialogContent>
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-dialog-select-label"> Client </InputLabel>
+                  <Select labelId="demo-dialog-select-label" id="demo-dialog-select" value={client} onChange={handleChangeClient} input={<Input />}>
+                    {users.filter(function(obj) {return obj.role === "client"}).map((userss) => 
+                      <MenuItem value={userss["id"]}> {userss["firstname"] + " " + userss["lastname"]} </MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseClient} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitClient(currentUser, client)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* --------------- delete user --------------- */}
+            <Dialog style={{backgroundColor: 'transparent'}} disableBackdropClick disableEscapeKeyDown open={openDeleteUser} onClose={handleCloseDeleteUser}>
+              <DialogTitle>Are you sure you want to delete the user: {usersDic[currentUser].firstname + " " + usersDic[currentUser].lastname}?</DialogTitle>
+              <DialogTitle>Role: {usersDic[currentUser].role}</DialogTitle>                
+              <DialogActions>
+                <Button onClick={handleCloseDeleteUser} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitDeleteUser(currentUser)} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        )}
+        <Grid item xs={12} sm={6} justify="center">
+          <div>
+            {currentCodesClients != null && numClientCodes > 0 && (
+              <div> {/* ----------------------- edit users list ----------------------- */}
+              <List>
+                <ListItemText> Unused Codes - {numClientCodes}
+                </ListItemText>
+              </List>
+              <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+                <List>
+                  {currentCodesClients.map((code) => {
+                  if(code?.role == "client") {
+                    return (
+                      <ListItem>
+                        <ListItemAvatar>
+                          <Avatar/>
+                        </ListItemAvatar>
+                        <ListItemText primary={code?.codeID}/>
+                        <ListItemSecondaryAction>
+                          <IconButton edge="end" aria-label="delete" onClick={() => deleteCodeClients(code?.codeID, false)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    )}
+                  })}
+                </List>
+              </Paper>
+              </div>)
+            }
+            </div>
+            <ListItem key={"Add Code"}>
+              <Button variant="outlined" fullWidth onClick={() => setOpenAddCodesClients(true)}>Add Codes </Button>
+            </ListItem>
+            {numClientCodes > 0 ?
+              <div>
+                <ListItem key={"Delete Code"}>
+                  <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodesClients(true)}>Delete Codes </Button>
+                </ListItem>
+              </div>
+              : <Grid></Grid>
+            }
+          </Grid>
+          </Grid>
+        </TabPanel>
+        <Dialog disableBackdropClick disableEscapeKeyDown open={openAddCodesClients}>
+          <DialogTitle>Add Codes</DialogTitle>
+          <DialogContent>
+            <TextField value={numCodesClients || ''} label="Number of Codes" onChange={(e) => setNumCodesClients(e.target.value)} fullWidth variant="outlined"/>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {setOpenAddCodesClients(false);setNumCodesClients('')}} color="primary"> Cancel </Button>
+            <Button onClick={() => addCodesClients()} color="primary"> Confirm </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog disableBackdropClick disableEscapeKeyDown open={openDeleteCodesClients}>
+          <DialogTitle>Delete Codes</DialogTitle>
+          <DialogContent>
+            <TextField value={numCodesClients || ''} label="Number of Codes" onChange={(e) => setNumCodesClients(e.target.value)} fullWidth variant="outlined"/>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {setOpenDeleteCodesClients(false);setNumCodesClients('')}} color="primary"> Cancel </Button>
+            <Button onClick={() => deleteCodesClients()} color="primary"> Confirm </Button>
+          </DialogActions>
+        </Dialog>
+        
+        {/* ---------------------------- 2: ADMIN MANAGE PROGRAMS ---------------------------- */}
+        <TabPanel value={value} index={2} dir={theme.direction}>
           <Grid container>
             <Grid item xs={12}>
               <Grid container direction="row" spacing={3}>
@@ -1522,13 +2036,12 @@ export default function Manage() {
                     </ListItem>
 
                     <TextField label="search program" value={searchProgram} onChange={handleChangeSearchProgram}/>
-                    <div><small>** Double tap on the program name!</small></div>
                     {programs.map((value) => {
                       if (value?.programName?.includes(searchProgram) || value?.programName?.toLowerCase()?.includes(searchProgram)) {
                         return (
                           <Grid item>                      
                             <ListItem key={value?.program} button selected={value.program == selectedProgramProgram?.program ? true : false}
-                              onClick={() => {setSelectedProgramProgram(value.program); setSelectedProgram(value); setRowsFunc(value)}}>
+                              onClick={() => {setSelectedProgramProgram(value); setSelectedProgram(value.program); setRowsFunc(value); setRowClientsFunc(value); setCurrentClientFunc(value)}}>
                               <ListItemText>{value?.programName}</ListItemText>
                             </ListItem>
                             <Divider light />
@@ -1594,82 +2107,108 @@ export default function Manage() {
               </Grid>
                 <Grid item xs={12} sm={5} md={5}><Grid container direction="column">
                   {_.isEqual(selectedProgramProgram, {}) ? <h4></h4> :
-                    <div> {/* ----------------------- edit users list ----------------------- */}
+                  <div>
+                      <div> {/* ----------------------- edit clients list ----------------------- */}
                       <List>
-                        <ListItemText> Users List
-                        {/* <IconButton onClick={() => handleClickOpenEditProgramUsers(selectedProgramProgram)}><EditIcon/></IconButton> */}
-                        </ListItemText>
-                      </List> 
+                      <ListItemText> Assign Clients
+                      <IconButton onClick={() => handleClickOpenEditProgramClients(selectedProgramProgram)}><EditIcon/></IconButton>
+                      </ListItemText>
+                    </List>
+                    <TableContainer component={Paper}>
+                      <Table aria-label="customized table">
+                        <TableHead>
+                          <TableRow>
+                            <StyledTableCell>Client</StyledTableCell>
+                            <StyledTableCell>Users</StyledTableCell>
+                            <StyledTableCell>Codes</StyledTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rowClients.map((row) => (
+                            <StyledTableRow key={row.id}>
+                              <StyledTableCell component="th" scope="row">{row.firstname + " " + row.lastname}</StyledTableCell>
+                              <StyledTableCell align="left">
+                                {/* display program / client users */}
+                                {selectedProgramProgram?.programUsers != undefined ?
+                                Object.values(selectedProgramProgram?.programUsers).map((value) => {
+                                  if (usersDic[value]?.firstname != undefined && usersDic[value]?.client == row.id) {
+                                    return (
+                                      <Accordion>
+                                      <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+                                        <ListItemAvatar>
+                                          <Avatar
+                                          // alt={`Avatar n°${value + 1}`}
+                                          // src={`/static/images/avatar/${value + 1}.jpg`}
+                                          />
+                                        </ListItemAvatar>
+                                        <ListItemText primary={usersDic[value]?.firstname + " " + usersDic[value]?.lastname}/>
+                                      </AccordionSummary>
+                                      <AccordionDetails>
+                                          <ol className={classes.noNum}>
+                                            {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
+                                            <li>Email: {usersDic[value]?.email}</li>
+                                            <li>Phone: {usersDic[value]?.phone}</li>
+                                            <li>Role: {usersDic[value]?.role}</li>
+                                          </ol>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                    );
+                                  }
+                                  }) : <Grid></Grid>
+                                }
+                            </StyledTableCell>
+                            <StyledTableCell align="left">
+                                {/* display program / client codes */}
+                                {/* {!_.isEqual(selectedProgramProgram, {}) ? */}
+                                <div>
+                                    <div> {/* ----------------------- edit codes list ----------------------- */}
+                                    {codesClients[row?.id] != undefined ?
+                                    <List>
+                                      <ListItemText> Unused Codes - {codesClients[row?.id].length}
+                                      </ListItemText>
+                                    </List>
+                                     : <Grid></Grid>}
+                                    <Paper style={{maxHeight: 260, overflow: 'auto'}}>
+                                      <List>
+                                        {codesClients[row?.id] != undefined ?
+                                        codesClients[row?.id].map((code) => {
+                                          return (
+                                            <ListItem>
+                                              <ListItemAvatar>
+                                                <Avatar/>
+                                              </ListItemAvatar>
+                                              <ListItemText primary={code?.codeID}/>
+                                              <ListItemSecondaryAction>
+                                                <IconButton edge="end" aria-label="delete" onClick={() => {deleteCode(code?.codeID, false, row.id)}}>
+                                                  <DeleteIcon />
+                                                </IconButton>
+                                              </ListItemSecondaryAction>
+                                            </ListItem>
+                                          )
+                                        // }
+                                        }) : <Grid></Grid>}
+                                      </List>
+                                    </Paper>
+                                    </div>
+                                  </div> 
+                                  <ListItem key={"Add Code"}>
+                                    <Button variant="outlined" fullWidth onClick={() => {setOpenAddCodes(true); setCurrentClient(row.id)}}>Add Codes </Button>
+                                  </ListItem>
+                                  {codesClients[row?.id] != undefined ?
+                                    codesClients[row.id].length > 0 ?
+                                      <ListItem key={"Delete Code"}>
+                                        <Button variant="outlined" fullWidth onClick={() => {setOpenDeleteCodes(true); setCurrentClient(row.id); setCurrentCodes(codesClients[row.id]); setNumProgramClientCodes(codesClients[row.id].length)}}>Delete Codes </Button>
+                                      </ListItem> : <Grid></Grid>
+                                    : <Grid></Grid>
+                                  }
+                              </StyledTableCell>
+                            </StyledTableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                      </div>
                     </div>
-                  }
-                  {selectedProgramProgram?.programUsers != undefined ?
-                  Object.values(selectedProgramProgram?.programUsers).map((value) => {
-                    return (
-                        <Accordion>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-                          <ListItemAvatar>
-                            <Avatar
-                            // alt={`Avatar n°${value + 1}`}
-                            // src={`/static/images/avatar/${value + 1}.jpg`}
-                            />
-                          </ListItemAvatar>
-                          <ListItemText primary={usersDic[value]?.firstname + " " + usersDic[value]?.lastname}/>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <ol className={classes.noNum}>
-                              {/* ----------------------- display recipe name, description, date modified, rating, num ratings ----------------------- */}
-                              <li>Email: {usersDic[value]?.email}</li>
-                              <li>Phone: {usersDic[value]?.phone}</li>
-                              <li>Role: {usersDic[value]?.role}</li>
-                            </ol>
-                          </AccordionDetails>
-                      </Accordion>
-                      );
-                    }) : <Grid></Grid>
-                  }
-                  {<div>
-                    {currentCodes != null && numProgramCodes > 0 && (
-                      <div> {/* ----------------------- edit users list ----------------------- */}
-                      <List>
-                        <ListItemText> Unused Codes - {numProgramCodes}
-                        </ListItemText>
-                      </List>
-                      <Paper style={{maxHeight: 260, overflow: 'auto'}}>
-                        <List>
-                          {codes.map((code) => {
-                          if(code?.program == selectedProgramProgram?.program) {
-                            return (
-                              <ListItem>
-                                <ListItemAvatar>
-                                  <Avatar/>
-                                </ListItemAvatar>
-                                <ListItemText primary={code?.codeID}/>
-                                <ListItemSecondaryAction>
-                                  <IconButton edge="end" aria-label="delete" onClick={() => deleteCode(code?.codeID, false)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </ListItemSecondaryAction>
-                              </ListItem>
-                            )}
-                          })}
-                        </List>
-                      </Paper>
-                      </div>)
-                      }
-                      {!_.isEqual(selectedProgramProgram, {}) ?
-                        <ListItem key={"Add Code"}>
-                          <Button variant="outlined" fullWidth onClick={() => setOpenAddCodes(true)}>Add Codes </Button>
-                        </ListItem> 
-                        : <Grid></Grid>  
-                      }
-                    </div>
-                  }
-                  {Object.keys(selectedProgramProgram).length > 0 && currentCodes != null && numProgramCodes > 0 ?
-                    <div>
-                      <ListItem key={"Delete Code"}>
-                        <Button variant="outlined" fullWidth onClick={() => setOpenDeleteCodes(true)}>Delete Codes </Button>
-                      </ListItem>
-                    </div> : <Grid></Grid>
                   }
                 </Grid></Grid>
               </Grid>
@@ -1684,9 +2223,9 @@ export default function Manage() {
                 <Grid item style={{marginBottom: "8px"}}>
                   <TextField value={addedProgram} label="New Program" multiline onChange={(e) => setAddedProgram(e.target.value)} fullWidth variant="outlined"/>
                 </Grid>
-                <Grid item style={{marginBottom: "8px"}}>
+                {/* <Grid item style={{marginBottom: "8px"}}>
                   <TextField value={addedProgramNumUsers || ''} label="Number of Users" multiline onChange={(e) => setAddedProgramNumUsers(e.target.value)} fullWidth variant="outlined"/>
-                </Grid>
+                </Grid> */}
                 <Grid item><TextField
                   id="end-date" label="End Date" type="date" defaultValue={addedProgramEndDate}
                   className={classes.textField} InputLabelProps={{shrink: true,}}
@@ -1727,7 +2266,7 @@ export default function Manage() {
             </DialogActions>
           </Dialog>
 
-          {/* view recipes list Dialog */}
+          {/* edit recipes list Dialog */}
           {selectedProgramProgram && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramRecipes} onClose={handleCloseEditProgramRecipes}fullWidth
             maxWidth="sm">
@@ -1744,10 +2283,28 @@ export default function Manage() {
               </DialogActions>
             </Dialog>
           )}
+
+          {/* edit client list Dialog */}
+          {selectedProgramProgram && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openEditProgramClients} onClose={handleCloseEditProgramClients}fullWidth
+            maxWidth="sm">
+              <DialogTitle>Edit Clients List for {selectedProgramProgram?.programName} </DialogTitle>
+              <DialogContent>
+              <FormControl fullWidth className={classes.formControl}>
+                <MultiSelect options={currentProgramClients} value={selectedClients} onChange={setSelectedClients} labelledBy={"Select"}/>
+              </FormControl>
+              <Box height="200px"></Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseEditProgramClients} color="primary"> Cancel </Button>
+                <Button onClick={() => handleSubmitEditProgramClients()} color="primary"> Ok </Button>
+              </DialogActions>
+            </Dialog>
+          )}
         </TabPanel>
 
-        {/* ---------------------------- 2: ADMIN MANAGE RECIPES ---------------------------- */}
-        <TabPanel value={value} index={2} dir={theme.direction}>
+        {/* ---------------------------- 3: ADMIN MANAGE RECIPES ---------------------------- */}
+        <TabPanel value={value} index={3} dir={theme.direction}>
           <Grid container spacing={3} justify="center">
             <Grid item xs={11} md={10} lg={9}>
               <TextField label="search recipe" value={searchRecipe} onChange={handleChangeRecipe}/>
@@ -2053,8 +2610,8 @@ export default function Manage() {
 
         </TabPanel>
 
-        {/* ---------------------- 3: ADMIN MANAGE SKILLS ---------------------- */}
-        <TabPanel value={value} index={3} dir={theme.direction}>
+        {/* ---------------------- 4: ADMIN MANAGE SKILLS ---------------------- */}
+        <TabPanel value={value} index={4} dir={theme.direction}>
           <Grid container spacing={3} justify="center">
             <Grid item xs={11} md={10} lg={9}>
               <TextField label="search skill" value={searchSkill} onChange={handleChangeSearchSkill}/>
@@ -2156,9 +2713,9 @@ export default function Manage() {
           )}
         </TabPanel>
 
-        {/* ---------------------- 4: ADMIN MANAGE TIPS ---------------------- */}
+        {/* ---------------------- 5: ADMIN MANAGE TIPS ---------------------- */}
         {/* manage tipss Dialog */}
-        <TabPanel value={value} index={4} dir={theme.direction}>
+        <TabPanel value={value} index={5} dir={theme.direction}>
           <Grid container spacing={3} justify="center">
             <Grid item xs={11} md={10} lg={9}>
               <TextField label="search tip" value={searchTip} onChange={handleChangeSearchTip}/>
@@ -2268,10 +2825,11 @@ export default function Manage() {
             value={value} onChange={handleChangeToggle}
             indicatorColor="primary" textColor="primary" variant="fullWidth" aria-label="full width tabs example">
           <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Users</span>} {...a11yProps(0)} />
-          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Programs</span>} {...a11yProps(1)} />
-          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Recipes</span>} {...a11yProps(2)} />
-          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Skills</span>} {...a11yProps(3)} />
-          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Tips</span>} {...a11yProps(4)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Clients</span>} {...a11yProps(1)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Programs</span>} {...a11yProps(2)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Recipes</span>} {...a11yProps(3)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Skills</span>} {...a11yProps(4)} />
+          <Tab classes={{root: classes.root}} label={<span className={classes.tabLabel}>Manage Tips</span>} {...a11yProps(5)} />
           </Tabs>
         </AppBar>
       </div>
