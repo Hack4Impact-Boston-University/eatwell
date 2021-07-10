@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "eatwell",
     "public": "src/public",
     "ignore": [
       "firebase.json",
