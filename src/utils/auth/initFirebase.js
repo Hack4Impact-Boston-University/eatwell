@@ -1,3 +1,4 @@
+import isNode from 'detect-node'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/analytics'
@@ -15,6 +16,8 @@ var firebaseConfig = {
 export default function initFirebase() {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig)
-    // firebase.analytics();
+    if(!isNode) {
+      // firebase.analytics();
+    }
   }
 }
