@@ -1675,7 +1675,7 @@ export default function Manage() {
         <TabPanel value={value} index={0} dir={theme.direction}>
           <Grid container spacing={3} justify="center">
             <Grid item xs={12} sm={11} md={10} lg={9}>
-              <TextField label="search email" value={search} onChange={handleChange}/>
+              <TextField label="search user" value={search} onChange={handleChange}/>
               {users.map((value) => {
                 if (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
                 (value["firstname"]+' '+value["lastname"])?.includes(search) || (value["firstname"]+' '+value["lastname"]).toLowerCase()?.includes(search)) {
@@ -1700,6 +1700,7 @@ export default function Manage() {
                           <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
                           : (<Grid></Grid>)}
                           <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
+                          <li>Number of times logging in: {value?.timesVisited}</li>
                           {value?.role != "client" ? <li>Client: {usersDic[value?.client]?.firstname + " " + usersDic[value?.client]?.lastname}<IconButton onClick={() => handleClickOpenClient(value.id, value?.client)}> <EditIcon /> </IconButton></li> : <Grid></Grid>}
                           {value?.role == "client" ? 
                             <TableContainer component={Paper}>
@@ -1820,7 +1821,7 @@ export default function Manage() {
         <TabPanel value={value} index={1} dir={theme.direction}>
         <Grid item container xs={12} sm={12}>
           <Grid item xs={12} sm={6} justify="center">
-            <TextField label="search email" value={search} onChange={handleChange}/>
+            <TextField label="search user" value={search} onChange={handleChange}/>
             {users.map((value) => {
               if (value["role"] == "client" &&
               (value["email"]?.includes(search) || value["email"].toLowerCase()?.includes(search) ||
@@ -1846,6 +1847,7 @@ export default function Manage() {
                         <li>Program: {programsDic[value?.program]?.programName}<IconButton onClick={() => handleClickOpenProgram(value.id, value?.program)}> <EditIcon /> </IconButton></li>)
                         : (<Grid></Grid>)}
                         <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
+                        <li>Number of times logging in: {value?.timesVisited}</li>
                         {value?.role == "client" ? 
                           <TableContainer component={Paper}>
                             <Table aria-label="customized table">

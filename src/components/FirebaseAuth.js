@@ -74,7 +74,7 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 
 
 			firebase.auth().signInWithEmailAndPassword(email, password)
-			.then((userCredential) => {
+			.then(async (userCredential) => {
 				if(addProgram) {
 					upload(code).then(() => {
 						router.push("/profile/makeProfile");
@@ -86,6 +86,12 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 						}
 					})
 				} else {
+					const ref = firebase.firestore().collection("users").doc(userCredential.user.uid);
+					const doc = await ref.get();
+					if (doc.exists) {
+						var timesVisited = doc.data()?.timesVisited + 1;
+						await firebase.firestore().collection("users").doc(userCredential.user.uid).update({timesVisited: timesVisited})
+					}
 					router.push("/profile/makeProfile");
 				}
 			}).catch((err) => {
@@ -121,7 +127,13 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 			setErrorType(0);
 			setError("");
 			firebase.auth().createUserWithEmailAndPassword(email, password)
-			.then((userCredential) => {
+			.then(async (userCredential) => {
+				const ref = firebase.firestore().collection("users").doc(userCredential.user.uid);
+				const doc = await ref.get();
+				if (doc.exists) {
+					var timesVisited = doc.data()?.timesVisited + 1;
+					await firebase.firestore().collection("users").doc(userCredential.user.uid).update({timesVisited: timesVisited})
+				}
 				router.push("/profile/makeProfile");
 			}).catch((err) => {
 			var m = "";

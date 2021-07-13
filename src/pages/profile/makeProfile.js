@@ -107,9 +107,14 @@ const makeProfile = () => {
 				favoriteSkills:[],
 				favoriteTips:[],
 				notes:[],
-				ratings:{}
+				ratings:{},
+				timesVisited:0
 			}).then(() => {
-				router.push('/profile/survey');
+				if (user?.role != undefined) {
+					router.push('/');
+				} else {
+					router.push('/profile/survey');
+				}
 			}).catch((err) => {
 				// Check if firebase error or incorrect code, return error accordingly
 				console.log(err);
