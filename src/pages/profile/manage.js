@@ -1701,7 +1701,7 @@ export default function Manage() {
                           : (<Grid></Grid>)}
                           <li>Role: {value?.role} {value?.role != "client" ? <IconButton onClick={() => handleClickOpenRole(value.id, value?.role)}> <EditIcon /> </IconButton> : <Grid></Grid>}</li>
                           <li>Number of times logging in: {value?.timesVisited}</li>
-                          {value?.role != "client" ? <li>Client: {usersDic[value?.client]?.firstname + " " + usersDic[value?.client]?.lastname}<IconButton onClick={() => handleClickOpenClient(value.id, value?.client)}> <EditIcon /> </IconButton></li> : <Grid></Grid>}
+                          {value?.role == "user" ? <li>Client: {usersDic[value?.client]?.firstname + " " + usersDic[value?.client]?.lastname}<IconButton onClick={() => handleClickOpenClient(value.id, value?.client)}> <EditIcon /> </IconButton></li> : <Grid></Grid>}
                           {value?.role == "client" ? 
                             <TableContainer component={Paper}>
                               <Table aria-label="customized table">

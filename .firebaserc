@@ -6,6 +6,9 @@
   "targets": {
     "eatwell-87d0c": {
       "hosting": {
+        "TARGET_NAME": [
+          "eatwell-870dc"
+        ],
         "eatwell": [
           "eatwell-meal-kits"
         ]
