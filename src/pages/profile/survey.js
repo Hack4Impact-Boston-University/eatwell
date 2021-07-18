@@ -48,8 +48,8 @@ const Survey = () => {
     const classes = useStyles();
     const { height } = useWindowSize();
 
-    const submit = (window) => {
-        // router.push('/');
+    const submit = () => {
+        router.push('/');
     }
     
     let userData = {};
@@ -61,7 +61,7 @@ const Survey = () => {
     return(
       <div className={classes.container}>
           <Box height={20}></Box>
-          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?embedded=true" width="100%" height={height} frameborder="0" marginheight="0" marginwidth="0" onLoad={submit(this?.contentWindow?.location)}>Loading…</iframe>
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?embedded=true" width="100%" height={height} frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
           <Box height={20}></Box>
           <Fab variant="extended" className={classes.fab} onClick={() => submit()}>
               <Box width={5}></Box>

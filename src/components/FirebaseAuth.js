@@ -6,7 +6,7 @@ import "firebase/auth";
 import { setUserCookie, getUserFromCookie } from "../utils/cookies";
 import { mapUserData } from "../utils/auth/mapUserData";
 import { useUser } from "../utils/auth/useUser";
-import { Grid, TextField, Button, Typography, makeStyles } from "@material-ui/core";
+import { Grid, TextField, Button, Link, Box, Typography, makeStyles } from "@material-ui/core";
 import {useRouter} from "next/router";
 
 // Init the Firebase app.
@@ -46,6 +46,10 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	const [password, setPassword] = useState('');
 	const [checkPassword, setCheckPassword] = useState('');
 	const [error, setError] = useState('');
+	const [forgotPasswordPage, setForgotPasswordPage] = useState(false);
+	const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+	const [forgotPasswordError, setForgotPasswordError] = useState('');
+	const [loading, setLoading] = useState(false)
 	const { upload, logout } = useUser();
 	// Error types: 
 	// 0 - No Error
@@ -54,6 +58,7 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	// 3 - Password confirm error
 	// 4 - Sensitive error, do not give error info
 	const [errorType, setErrorType] = useState(0);
+	const [forgotPasswordErrorType, setForgotPasswordErrorType] = useState(0);
 	const router = useRouter();
 	
 	//  const handleChange = (type, event) => {
@@ -65,9 +70,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 		if(email == '') {
 		  setError("Please enter an email address");
 		  setErrorType(1);
-		} else if(password == '') {
-		  setError("Please enter a password");
-		  setErrorType(2);
 		} else if(isLogin) {
 			setErrorType(0);
 			setError("");
@@ -157,6 +159,32 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 		event.preventDefault();
 	}
 
+
+	const handleForgotPassword = async (event) => {
+		console.log("forgotPasswordEmail")
+		console.log(forgotPasswordEmail)
+		if(forgotPasswordEmail == '') {
+		  setForgotPasswordError("Please enter an email address");
+		  setForgotPasswordErrorType(1);
+		} else {
+			try {
+				setForgotPasswordErrorType(0)
+				setForgotPasswordError("")
+				setLoading(true)
+				await firebase.auth().sendPasswordResetEmail(forgotPasswordEmail)
+				console.log("blaaaa")
+				setForgotPasswordError("Successfully sent reset password link to your email! Please check your inbox for further instructions.")
+				setForgotPasswordErrorType(2);
+			} catch {
+				setForgotPasswordError("Please enter a valid email address")
+				setForgotPasswordErrorType(1);
+			}
+			setForgotPasswordEmail("")
+			setLoading(false)
+		}
+		event.preventDefault();
+	}
+
 	// Do not SSR FirebaseUI, because it is not supported.
 	// https://github.com/firebase/firebaseui-web/issues/213
 	const [renderAuth, setRenderAuth] = useState(false);
@@ -167,36 +195,58 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	}, []);
 	return (
 		<Grid container direction="row" justify="center" alignItems="center">
-			{/* <Grid item>
-				{renderAuth ? (
-					<StyledFirebaseAuth
-						uiConfig={firebaseAuthConfig}
-						firebaseAuth={firebase.auth()}
-					/>
-				) : null}
-			</Grid> */}
-			<Grid item style={{marginTop: "10px"}}>
-			<form onSubmit={(e) => handleSubmit(e)}>
-				<Grid container direction="column" justify="center" alignItems="center">
-				<Typography variant="h6"> 
-					{isLogin ? "Log In" : "Create an account"}
-				</Typography>
-				<TextField id="standard-basic" label="Email" onChange={(e) => setEmail(e.target.value)} error={errorType == 1 || errorType == 4 } helperText={errorType == 1  ? error : ""}/>
-				<TextField id="standard-basic" label="Password" type="password" onChange={(e) => setPassword(e.target.value)} error={errorType == 2 || errorType == 4 } helperText={errorType == 2  ? error : ""}/>
-				{!isLogin && 
-					<TextField id="standard-basic" label="Confirm Password" type="password" onChange={(e) => setCheckPassword(e.target.value)} error={errorType == 3 || errorType == 4 } helperText={errorType == 3  ? error : ""}/>
-				}
-				<Button variant="contained" type="submit" style={{marginTop: "5px"}}> 
-					Submit
-				</Button>
-				{errorType == 4 && 
-					<Typography variant="subtitle" color={'error'} style={{marginTop: "10px"}}>
-					{error}
-				  </Typography>
-				}
+
+			{!forgotPasswordPage ? 
+				<Grid item style={{marginTop: "10px"}}>
+					<form onSubmit={(e) => handleSubmit(e)}>
+						<Grid container direction="column" justify="center" alignItems="center">
+						<Typography variant="h6"> 
+							{isLogin ? "Log In" : "Create an account"}
+						</Typography>
+						<TextField id="standard-basic" label="Email" onChange={(e) => setEmail(e.target.value)} error={errorType == 1 || errorType == 4 } helperText={errorType == 1  ? error : ""}/>
+						<TextField id="standard-basic" label="Password" type="password" onChange={(e) => setPassword(e.target.value)} error={errorType == 2 || errorType == 4 } helperText={errorType == 2  ? error : ""}/>
+						{!isLogin && 
+							<TextField id="standard-basic" label="Confirm Password" type="password" onChange={(e) => setCheckPassword(e.target.value)} error={errorType == 3 || errorType == 4 } helperText={errorType == 3  ? error : ""}/>
+						}
+						<Button variant="contained" type="submit" style={{marginTop: "5px"}}> 
+							Submit
+						</Button>
+						{errorType == 4 && 
+							<Typography variant="subtitle" color={'error'} style={{marginTop: "10px"}}>
+								{error}
+							</Typography>
+						}
+						<Box height="10px"></Box>
+						<Link onClick={() => {setForgotPasswordPage(true)}}>Forgot Password?</Link>
+						</Grid>
+					</form>
 				</Grid>
-			</form>
-			</Grid>
+				:
+				<Grid item style={{marginTop: "10px"}}>
+					<Grid container direction="column" justify="center" alignItems="center">
+						<Typography variant="h6"> 
+							Reset your password
+						</Typography>
+						<TextField id="standard-basic" label="Email" onChange={(e) => setForgotPasswordEmail(e.target.value)}/>
+						<Button variant="contained" onClick={(e) => handleForgotPassword(e)} style={{marginTop: "5px"}} disabled={loading}> 
+							Send Reset Link
+						</Button>
+						{forgotPasswordErrorType == 1 && 
+							<Typography variant="subtitle" color={'error'} style={{marginTop: "10px"}}>
+								{forgotPasswordError}
+							</Typography>
+						}
+						{forgotPasswordErrorType == 2 && 
+							<Typography variant="subtitle" color={'black'} style={{marginTop: "10px"}}>
+								{forgotPasswordError}
+							</Typography>
+						}
+						<Box height="10px"></Box>
+						<Link onClick={() => {setForgotPasswordPage(false)}}>Back to log in</Link>
+					</Grid>
+				</Grid>
+			}
+			
 		</Grid>
 	);
 };

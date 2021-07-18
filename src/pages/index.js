@@ -24,7 +24,7 @@ import RecipeListClient from "./recipes/recipeListClient"
 const useStyles = makeStyles((theme) => ({
   containerHome: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,
-		height: "100vh",
+		height: "110vh",
 		overflow: "hidden",
 	},
   container: {

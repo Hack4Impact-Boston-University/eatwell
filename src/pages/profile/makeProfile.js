@@ -113,8 +113,8 @@ const makeProfile = () => {
 				if (user?.role != undefined) {
 					router.push('/');
 				} else {
-					// router.push('/profile/survey');
-					router.push('https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?usp=sf_link');
+					router.push('/profile/survey');
+					// router.push('https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?usp=sf_link');
 				}
 			}).catch((err) => {
 				// Check if firebase error or incorrect code, return error accordingly
