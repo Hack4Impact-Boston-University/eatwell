@@ -888,6 +888,29 @@ export default function Manage() {
     setOpenRecipeFact(false);
   };
 
+  // edit survey URL
+  const [surveyURL, setSurveyURL] = React.useState("");
+  const [openSurveyURL, setOpenSurveyURL] = React.useState(false);
+  const handleClickOpenSurveyURL = (currentRecipe) => {
+    setSurveyURL(currentRecipe.surveyURL)
+    setOpenSurveyURL(true);
+    setCurrentRecipe(currentRecipe);
+  };
+  const handleCloseSurveyURL = () => {
+    setOpenSurveyURL(false);
+  };
+  const handleSubmitSurveyURL = (currentRecipe) => {
+    db.collection('recipes').doc(currentRecipe.id).update({recipeFact:surveyURL, dateUploaded: uploadDate})
+    var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
+    recipesDic[currentRecipe.id]["surveyURL"] = surveyURL;
+    recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
+    recipes[index]["surveyURL"] = surveyURL;
+    recipes[index]["dateUploaded"] = uploadDate;
+    alert("successfully edited survey URL!");
+    setSurveyURL('');
+    setOpenSurveyURL(false);
+  };
+
   // edit cover images
   const [recipeImages, setRecipeImages] = React.useState([]);
   const [openRecipeImages, setOpenRecipeImages] = React.useState(false);
@@ -2326,11 +2349,12 @@ export default function Manage() {
                       </AccordionSummary>
                       <AccordionDetails>
                         <ol className={classes.noNum}>
-                          {/* ----------------------- edit recipe name, description ----------------------- */}
+                          {/* ----------------------- edit recipe name, description, surveyURL ----------------------- */}
                           <li>Name of recipe: {value?.nameOfDish} <IconButton onClick={() => handleClickOpenRecipeName(value)}> <EditIcon/> </IconButton></li>
                           <li>Description: {value?.description} <IconButton onClick={() => handleClickOpenRecipeDescription(value)}> <EditIcon/> </IconButton></li>
                           <li>Ingredients / Allergens: {value?.descriptionIngredients} <IconButton onClick={() => handleClickOpenRecipeDescriptionIngredients(value)}> <EditIcon/> </IconButton></li>
                           <li>Recipe Fact: {value?.recipeFact} <IconButton onClick={() => handleClickOpenRecipeFact(value)}> <EditIcon/> </IconButton></li>
+                          <li>Survey URL: {value?.surveyURL} <IconButton onClick={() => handleClickOpenSurveyURL(value)}> <EditIcon/> </IconButton></li>
                           {/* ----------------------- display date modified, rating, num ratings, num favorites ----------------------- */}
                           <li>Date last modified: {getTimeString(value?.dateUploaded)}</li>
                           <li>Rating: {value?.avgRating}</li>
@@ -2416,6 +2440,18 @@ export default function Manage() {
                       onChange={(e) => setRecipeFact(e.target.value)} fullWidth variant="outlined"/>
                   <Button onClick={handleCloseRecipeFact} color="primary"> Cancel </Button>
                   <Button onClick={() => handleSubmitRecipeFact(currentRecipe)} color="primary"> Confirm </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentRecipe && (
+            <Dialog disableBackdropClick disableEscapeKeyDown open={openSurveyURL} onClose={handleCloseSurveyURL}>
+              <DialogTitle>Edit Survey URL</DialogTitle>
+              <DialogContent>
+                  <TextField
+                      value={surveyURL} label="Edit Recipe Fact" multiline
+                      onChange={(e) => setSurveyURL(e.target.value)} fullWidth variant="outlined"/>
+                  <Button onClick={handleCloseSurveyURL} color="primary"> Cancel </Button>
+                  <Button onClick={() => handleSubmitSurveyURL(currentRecipe)} color="primary"> Confirm </Button>
               </DialogContent>
             </Dialog>
           )}

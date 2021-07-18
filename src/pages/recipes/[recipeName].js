@@ -11,7 +11,7 @@ import useSWR from "swr";
 import PropTypes from "prop-types";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import SwipeableViews from "react-swipeable-views";
-import { AppBar, Box, Grid, Tabs, Tab, Typography } from "@material-ui/core";
+import { AppBar, Box, Grid, Tabs, Tab, Typography, Button, Fab } from "@material-ui/core";
 import Navbar from "../../components/Navbar";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -107,7 +107,32 @@ const useStyles = makeStyles((theme) => ({
 	lst: {
 		listStyle: "none",
 		paddingLeft: 0,
-	}
+	},
+	btn: {
+		width: "250px",
+		textAlign: "center",
+		background: "tomato",
+		color: "#EEF8F9",
+		"&:hover": {
+			background: "#F46F56",
+		},
+	},
+	fab: {
+		position: 'fixed',
+        bottom: theme.spacing(3),
+        right: theme.spacing(3),
+		width: "200px",
+		textAlign: "center",
+		background: "tomato",
+		color: "#EEF8F9",
+		"&:hover": {
+			background: "#F46F56",
+		},
+	},
+	survey: {
+		marginTop: "12vh",
+		marginBottom: "3vh",
+	},
 }));
 
 export default function Recipe() {
@@ -120,7 +145,8 @@ export default function Recipe() {
 	const classes = useStyles();
 	const theme = useTheme();
 	const [value, setValue] = React.useState(0);
-	const [testImg, setTestImg] = React.useState("");
+	const [survey, setSurvey] = React.useState(false);
+	const { height } = useWindowSize();
 
 	// image slideshow for recipe instructions
 	const [imgList, setImgList] = React.useState([]);
@@ -231,19 +257,37 @@ export default function Recipe() {
 			{/* end stylesheets */}
 
 			<TabPanel value={value} index={0} align="center">
-				<div position="fixed" className={classes.video}>
-					<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
-				</div>
-				{/* map out the image urls to img tags */}
-				<Grid sm={6}>
-					<ol className={classes.lst}>
-						{imgList.map((url) => {
-							if (!_.isEqual(url, "")) {
-							return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
-							}
-						)}
-					</ol>
-				</Grid>
+				{!survey ? 
+					<Grid>
+						<div position="fixed" className={classes.video}>
+							<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
+						</div>
+
+						<h2>Did you make this recipe?</h2>
+						<Button variant="contained" component="label" className={classes.btn} onClick={() => { setSurvey(true) }}>
+							Tell us what you think!
+						</Button>
+						<Box height={10}></Box>
+						
+						{/* map out the image urls to img tags */}
+						<Grid sm={6}>
+							<ol className={classes.lst}>
+								{imgList.map((url) => {
+									if (!_.isEqual(url, "")) {
+									return ( <li><img display="block" style={{width:'100%',height:'100%'}} src={url} alt="Recipe image" /></li> )}
+									}
+								)}
+							</ol>
+						</Grid>
+					</Grid>
+				:
+					<Grid>
+						<iframe src={data?.surveyURL} width="100%" height={height} frameborder="0" marginheight="0" marginwidth="0" className={classes.survey}>Loading…</iframe>
+						<Fab variant="extended" className={classes.fab} onClick={() => setSurvey(false)}>
+							Back to video
+						</Fab>
+					</Grid>
+				}
 			</TabPanel>
 
 			{data.videoSkills != "" && (

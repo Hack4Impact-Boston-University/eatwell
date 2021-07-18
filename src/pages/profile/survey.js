@@ -26,14 +26,14 @@ function useWindowSize() {
       }
     }, []);
     return windowSize;
-  }
+}
 
 const useStyles = makeStyles((theme) => ({
     container: {
-		backgroundColor: '#c8e6c9',
-        textAlign: "center",
-        width: "100%"
-	},
+      backgroundColor: '#c8e6c9',
+          textAlign: "center",
+          width: "100%"
+    },
     fab: {
         position: 'fixed',
         bottom: theme.spacing(3),
@@ -48,28 +48,28 @@ const Survey = () => {
     const classes = useStyles();
     const { height } = useWindowSize();
 
-    const submit = () => {
-        router.push('/');
+    const submit = (window) => {
+        // router.push('/');
     }
-
+    
     let userData = {};
 
-	useEffect(() => {
-		userData = getUserFromCookie()
-	}, [userData])
-    
-    return (
-        <div className={classes.container}>
-            <Box height={20}></Box>
-            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?embedded=true" width="100%" height={height} frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-            <Box height={20}></Box>
-            <Fab variant="extended" className={classes.fab} onClick={() => submit()}>
-                <Box width={5}></Box>
-                Completed Survey
-                <ArrowRightIcon />
-            </Fab>
-        </div>
-    );
+    useEffect(() => {
+      userData = getUserFromCookie()
+    }, [userData])
+
+    return(
+      <div className={classes.container}>
+          <Box height={20}></Box>
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?embedded=true" width="100%" height={height} frameborder="0" marginheight="0" marginwidth="0" onLoad={submit(this?.contentWindow?.location)}>Loading…</iframe>
+          <Box height={20}></Box>
+          <Fab variant="extended" className={classes.fab} onClick={() => submit()}>
+              <Box width={5}></Box>
+              Completed Survey
+              <ArrowRightIcon />
+          </Fab>
+      </div>
+    )
 };
 
 export default Survey;

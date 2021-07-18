@@ -115,6 +115,7 @@ const UploadForm = () => {
 	const [nutritionalImgs, setNutritionalImgs] = useState({});
 	const [descriptionIngredients, setDescriptionIngredients] = useState("");
 	const [recipeFact, setRecipeFact] = useState("");
+	const [surveyURL, setSurveyURL] = useState("");
 	const [openConfirm, setOpenConfirm] = React.useState(false);
 	var uploadedImages = [];
 	var uploadedRecipeImgs = [];
@@ -239,6 +240,7 @@ const UploadForm = () => {
 			description: description,
 			descriptionIngredients: descriptionIngredients,
 			recipeFact: recipeFact,
+			surveyURL: surveyURL.split('?')[0] + "?embedded=true",
 			videoRecipe: videoID,
 			images: uploadedImages,
 			recipeImgs: uploadedRecipeImagesURL,
@@ -260,6 +262,7 @@ const UploadForm = () => {
 		setDescription("");
 		setDescriptionIngredients("");
 		setRecipeFact("");
+		setSurveyURL("");
 		setImages({});
 		setRecipeImgs({});
 		setNutritionalImgs({});
@@ -421,6 +424,7 @@ const UploadForm = () => {
 							required
 							value={videoID}
 							label="Vimeo Recipe Video ID"
+							placeholder="for example: 76979871"
 							onChange={(e) => setVideoID(e.target.value)}
 							fullWidth
 							variant="outlined"
@@ -494,6 +498,17 @@ const UploadForm = () => {
 							required={true}
 							multiline
 							onChange={(e) => setRecipeFact(e.target.value)}
+							fullWidth
+							variant="outlined"
+						/>
+					</ui.Grid>
+					<ui.Grid item xs={12}>
+						<ui.TextField
+							value={surveyURL}
+							label="Survey URL"
+							placeholder="for example: https://docs.google.com/forms/d/e/1FAIpQLSeS3NqouOsyK3_HN5PYCVguszD6pUyIv5w5RPIS77cwrqNaVg/viewform?usp=sf_link"
+							multiline
+							onChange={(e) => setSurveyURL(e.target.value)}
 							fullWidth
 							variant="outlined"
 						/>

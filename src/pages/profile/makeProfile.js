@@ -113,7 +113,7 @@ const makeProfile = () => {
 				if (user?.role != undefined) {
 					router.push('/');
 				} else {
-					router.push('/profile/survey');
+					router.push('https://docs.google.com/forms/d/e/1FAIpQLSeS3NqouOsyK3_HN5PYCVguszD6pUyIv5w5RPIS77cwrqNaVg/viewform?usp=sf_link');
 				}
 			}).catch((err) => {
 				// Check if firebase error or incorrect code, return error accordingly
