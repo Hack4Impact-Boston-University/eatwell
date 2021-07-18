@@ -263,11 +263,16 @@ export default function Recipe() {
 							<iframe position="fixed" src={"https://player.vimeo.com/video/"+data.videoRecipe} width="100%" height={(width*0.4)} frameBorder="0" align="center" position="sticky" allow="autoplay; fullscreen"></iframe>
 						</div>
 
-						<h2>Did you make this recipe?</h2>
-						<Button variant="contained" component="label" className={classes.btn} onClick={() => { setSurvey(true) }}>
-							Tell us what you think!
-						</Button>
-						<Box height={10}></Box>
+						{data?.surveyURL && data?.surveyURL != "" ?
+							<div>
+								<h2>Did you make this recipe?</h2>
+								<Button variant="contained" component="label" className={classes.btn} onClick={() => { setSurvey(true) }}>
+									Tell us what you think!
+								</Button>
+								<Box height={10}></Box>
+							</div>
+							: <Grid></Grid>
+						}
 						
 						{/* map out the image urls to img tags */}
 						<Grid sm={6}>

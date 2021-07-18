@@ -900,11 +900,11 @@ export default function Manage() {
     setOpenSurveyURL(false);
   };
   const handleSubmitSurveyURL = (currentRecipe) => {
-    db.collection('recipes').doc(currentRecipe.id).update({recipeFact:surveyURL, dateUploaded: uploadDate})
+    db.collection('recipes').doc(currentRecipe.id).update({surveyURL:surveyURL.split('?')[0] + "?embedded=true", dateUploaded: uploadDate})
     var index = Object.keys(recipesDic).indexOf(currentRecipe.id);
-    recipesDic[currentRecipe.id]["surveyURL"] = surveyURL;
+    recipesDic[currentRecipe.id]["surveyURL"] = surveyURL.split('?')[0] + "?embedded=true";
     recipesDic[currentRecipe.id]["dateUploaded"] = uploadDate;
-    recipes[index]["surveyURL"] = surveyURL;
+    recipes[index]["surveyURL"] = surveyURL.split('?')[0] + "?embedded=true";
     recipes[index]["dateUploaded"] = uploadDate;
     alert("successfully edited survey URL!");
     setSurveyURL('');
