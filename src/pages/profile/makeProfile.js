@@ -131,6 +131,8 @@ const makeProfile = () => {
 				<div className={styles.nav}>
 					<Navbar currentPage={0}/>
 					<h1 align="center">Please sign in to access this page!</h1>
+					<h1 align="center"><Button align="center" className={styles.btn} onClick={() => {router.push('/')}}>Go back to home page</Button></h1>
+					
 				</div>
 			</div>
 		);

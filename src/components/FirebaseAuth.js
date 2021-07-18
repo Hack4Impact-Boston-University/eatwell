@@ -61,11 +61,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	const [forgotPasswordErrorType, setForgotPasswordErrorType] = useState(0);
 	const router = useRouter();
 	
-	//  const handleChange = (type, event) => {
-	// 	var j = {};
-	// 	j[type] =  event.target.value;
-	// 	this.setState(j);
-	//   }
 	const handleSubmit = (event) => {
 		if(email == '') {
 		  setError("Please enter an email address");
@@ -73,7 +68,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 		} else if(isLogin) {
 			setErrorType(0);
 			setError("");
-
 
 			firebase.auth().signInWithEmailAndPassword(email, password)
 			.then(async (userCredential) => {
@@ -159,10 +153,7 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 		event.preventDefault();
 	}
 
-
 	const handleForgotPassword = async (event) => {
-		console.log("forgotPasswordEmail")
-		console.log(forgotPasswordEmail)
 		if(forgotPasswordEmail == '') {
 		  setForgotPasswordError("Please enter an email address");
 		  setForgotPasswordErrorType(1);
@@ -172,7 +163,6 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 				setForgotPasswordError("")
 				setLoading(true)
 				await firebase.auth().sendPasswordResetEmail(forgotPasswordEmail)
-				console.log("blaaaa")
 				setForgotPasswordError("Successfully sent reset password link to your email! Please check your inbox for further instructions.")
 				setForgotPasswordErrorType(2);
 			} catch {
@@ -216,34 +206,40 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 								{error}
 							</Typography>
 						}
-						<Box height="10px"></Box>
-						<Link onClick={() => {setForgotPasswordPage(true)}}>Forgot Password?</Link>
+						{isLogin ? 
+							<Grid>
+								<Box height="20px"></Box>
+								<Link onClick={() => {setForgotPasswordPage(true)}}>Forgot Password?</Link>
+							</Grid>
+							:
+							<Grid></Grid>
+						}
 						</Grid>
 					</form>
 				</Grid>
 				:
 				<Grid item style={{marginTop: "10px"}}>
-					<Grid container direction="column" justify="center" alignItems="center">
-						<Typography variant="h6"> 
-							Reset your password
-						</Typography>
-						<TextField id="standard-basic" label="Email" onChange={(e) => setForgotPasswordEmail(e.target.value)}/>
-						<Button variant="contained" onClick={(e) => handleForgotPassword(e)} style={{marginTop: "5px"}} disabled={loading}> 
-							Send Reset Link
-						</Button>
-						{forgotPasswordErrorType == 1 && 
-							<Typography variant="subtitle" color={'error'} style={{marginTop: "10px"}}>
-								{forgotPasswordError}
+						<Grid container direction="column" justify="center" alignItems="center">
+							<Typography variant="h6"> 
+								Reset your password
 							</Typography>
-						}
-						{forgotPasswordErrorType == 2 && 
-							<Typography variant="subtitle" color={'black'} style={{marginTop: "10px"}}>
-								{forgotPasswordError}
-							</Typography>
-						}
-						<Box height="10px"></Box>
-						<Link onClick={() => {setForgotPasswordPage(false)}}>Back to log in</Link>
-					</Grid>
+							<TextField id="standard-basic" label="Email" onChange={(e) => setForgotPasswordEmail(e.target.value)}/>
+							<Button variant="contained" onClick={(e) => handleForgotPassword(e)} style={{marginTop: "5px"}} disabled={loading}> 
+								Send Reset Link
+							</Button>
+							{forgotPasswordErrorType == 1 && 
+								<Typography variant="subtitle" color={'error'} style={{marginTop: "10px"}}>
+									{forgotPasswordError}
+								</Typography>
+							}
+							{forgotPasswordErrorType == 2 && 
+								<Typography variant="subtitle" color={'black'} style={{marginTop: "10px"}}>
+									{forgotPasswordError}
+								</Typography>
+							}
+							<Box height="20px"></Box>
+							<Link onClick={() => {setForgotPasswordPage(false); setForgotPasswordError('')}}>Back to log in</Link>
+						</Grid>
 				</Grid>
 			}
 			
