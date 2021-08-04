@@ -19,7 +19,6 @@ export const checkCode = async (code, toDelete) => {
 			if(doc.exists && code == doc.id)  {
 				let data = parseCodeData(doc.data());
 				data = {...data};
-				console.log(data)
 				setUserCookie(data);
 				return Promise.resolve(data);
 			} else {
