@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
+// displays all the recipes
 export default function RecipeReviewCard({home}) {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
@@ -101,6 +102,7 @@ export default function RecipeReviewCard({home}) {
 		});
 	}, []);
 
+	// get user's data from the local cookies
 	const userData = getUserFromCookie();
 	if (!userData || "code" in userData) {
 		// router.push("/");
@@ -135,6 +137,7 @@ export default function RecipeReviewCard({home}) {
 	// }, [prevPrograms])
 
 
+	// getting user's active programs
 	if (user.program != "") {
 		const endDate = programsDic[user.program]?.programEndDate
 		if(endDate && endDate <= Date.now()) {
@@ -177,6 +180,7 @@ export default function RecipeReviewCard({home}) {
 		}
 	}
 
+	// check if id in fave
 	const inFav = (objID) => {
 		var i;
 		for (i = 0; i < favs.length; i++) {
@@ -218,7 +222,8 @@ export default function RecipeReviewCard({home}) {
 					<Grid>
 						<h4>No recipes to display</h4>
 					</Grid>
-				)
+				) 
+				// RECIPES LIST GRID
 			) : !_.isEqual(recipesUser, []) || !_.isEqual(user?.prevPrograms, []) ? (
 				<Grid container className={classes.gridContainerMain}>
 					<div style={{display: 'flex', alignItems:'center'}}>

@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
+// functional component for displaying skills in a list
 export default function SkillReviewCard() {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());

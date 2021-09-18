@@ -95,6 +95,7 @@ function Test({
 return <Typography>{JSON.stringify(_.omit(object, ['images', 'nutritionalImgs', 'recipeImgs']))}</Typography>
 }
 
+// functional component for each individual recipe card
 export default function RecipeCard({
 	object,
 	isFav,
@@ -150,6 +151,7 @@ export default function RecipeCard({
 		}
 	}, [obj]);
 
+	// settings and css for React slider/slideshow
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -177,6 +179,7 @@ export default function RecipeCard({
         color: #000;
     }`;
 
+	// handle when fave button is clicked
 	const favButtonClick = () => {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
@@ -237,6 +240,7 @@ export default function RecipeCard({
 		});
 	};
 
+	// submitted a recipe note
 	function handleSubmitNote() {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {
@@ -280,6 +284,7 @@ export default function RecipeCard({
 		});
 	}
 
+	// editing a recipe note
 	function submitEdit(note, index) {
 		auth.onAuthStateChanged(function (user) {
 			if (note != "") {
@@ -306,6 +311,7 @@ export default function RecipeCard({
 		alert("edited notes!")
 	}
 
+	// delete recipe note
 	function deleteNote(index) {
 		auth.onAuthStateChanged(function (user) {
 			const getUserData = async () => {
@@ -323,6 +329,7 @@ export default function RecipeCard({
 		alert("deleted notes!")
 	}
 
+	// update recipe rating
 	function changeRating(val) {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {

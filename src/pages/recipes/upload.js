@@ -234,6 +234,7 @@ const UploadForm = () => {
 			setUploadedNutritionalURL(uploadedNutritionalURL)
 		}
 
+		// define the data values
 		var data = {
 			id: document.id,
 			nameOfDish: recipeName,
@@ -343,6 +344,7 @@ const UploadForm = () => {
         setOpenTip(true);
     };
 
+		// submit a tip
     const handleSubmitTip = () => {
         const db = firebase.firestore();
         const ref = db.collection('tips').doc();
@@ -373,6 +375,7 @@ const UploadForm = () => {
 		setOpenConfirm(false);
     };
 
+		// get user's data and role, as well as skills and tips
 	useEffect(() => {
 		const userData = getUserFromCookie();
 
@@ -402,6 +405,7 @@ const UploadForm = () => {
 		}
 	}
 
+	// just redners all the forms required for new recipe creation upload
 	return (
 		<div className={styles.container4}>
             <TabPanel value={value} index={0} dir={theme.direction}>

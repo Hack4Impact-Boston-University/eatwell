@@ -80,6 +80,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+// functional component for individual skill
 export default function Skill() {
   const router = useRouter();
   const { skillName } = router.query;

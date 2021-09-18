@@ -89,6 +89,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+// functional component for individual skills card
 export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }) {
 	const classes = useStyles();
 	const { user, upload } = useUser();
@@ -131,6 +132,7 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
 		});
 	}, []);
 
+	// settings and css for react slider/slideshow
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -157,6 +159,8 @@ export default function SkillCard({ object, isFav, inFavoritesPage, onFavClick }
         color: #000;
     }`;
 
+	
+	// clicking fave button
 	const favButtonClick = () => {
 		auth.onAuthStateChanged(function (user) {
 			if (user) {

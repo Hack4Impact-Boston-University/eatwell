@@ -132,6 +132,7 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 		});
 	}, []);
 
+	// settings and css for React slider
 	var settings = {
 		dots: true,
 		infinite: true,
@@ -322,6 +323,7 @@ export default function TipCard({ object, isFav, onFavClick, inFavoritesPage }) 
 									)}
 								</Grid>
 								<Grid container item xs={12} justify="center">
+									{/* if favorited, show links */}
 									<Button
 										variant="contained"
 										color="secondary"

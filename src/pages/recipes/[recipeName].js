@@ -135,6 +135,9 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+// this component displays all recipe-specific information on
+// one page. We have sliders that display all the images
+// associated with the specific recipe
 export default function Recipe() {
 	const router = useRouter();
 	const { recipeName } = router.query;

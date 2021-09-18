@@ -80,6 +80,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+// functional component for individual tip
 export default function Tip() {
   const router = useRouter();
   const { tipName } = router.query;
