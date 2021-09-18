@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 	viewTabLabel: { textTransform: "none" },
 }));
 
+// display's multiple programs that belong to the client
 export default function RecipeReviewCardClient({home}) {
 	const classes = useStyles();
 	const [uploadDate, setUploadDate] = React.useState(Date.now());
