@@ -1,3 +1,7 @@
+/*
+Form component used for sign in and account creation.
+*/
+
 /* globals window */
 import { useEffect, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
@@ -40,6 +44,7 @@ const firebaseAuthConfig = {
 const useStyles = makeStyles((theme) => ({
 }));
 
+// code and addProgram are only set when FirebaseAuth is used in the create page after a program code has been submitted
 const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	const classes = useStyles();
 	const [email, setEmail] = useState('');
@@ -62,17 +67,27 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 	const router = useRouter();
 	
 	const handleSubmit = (event) => {
+
 		if(email == '') {
 		  setError("Please enter an email address");
 		  setErrorType(1);
+		// If the user is logging in, use signInWithEmailAndPassword to authenticate with Firebase
 		} else if(isLogin) {
 			setErrorType(0);
 			setError("");
 
 			firebase.auth().signInWithEmailAndPassword(email, password)
 			.then(async (userCredential) => {
+
+				// If adding a program code to an existing account
 				if(addProgram) {
+					/*
+						Add the code data to the user's document if the user already exists and has no active programs
+						If the user does not exist in the database, then they should not exist in firebase auth, 
+							so sign in should fail with error code "auth/user-not-found"
+					*/
 					upload(code).then(() => {
+						// Route to makeProfile on success
 						router.push("/profile/makeProfile");
 					}).catch((err) => {
 						console.log(err)
@@ -81,6 +96,7 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 							logout();
 						}
 					})
+				// If signing in again, track the number of visits in the user's document
 				} else {
 					const ref = firebase.firestore().collection("users").doc(userCredential.user.uid);
 					const doc = await ref.get();
@@ -90,6 +106,8 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 					}
 					router.push("/profile/makeProfile");
 				}
+			// Display the proper error message based on the error code returned by the function. 
+			// See https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#signinwithemailandpassword
 			}).catch((err) => {
 				var m = "";
 				switch(err.code) {
@@ -119,10 +137,13 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 		} else if(password != checkPassword) { 
 			setError("Passwords do not match");
 			setErrorType(3);
+		// If the user is creating an account, use createUserWithEmailAndPassword to authenticate with Firebase
 		} else {
 			setErrorType(0);
 			setError("");
 			firebase.auth().createUserWithEmailAndPassword(email, password)
+			// On successful authentication, wait for onAuthStateChanged in useUser.js to create a user document ("await ref.get()"),
+			// then update the document with the new timesVisited field.
 			.then(async (userCredential) => {
 				const ref = firebase.firestore().collection("users").doc(userCredential.user.uid);
 				const doc = await ref.get();
@@ -131,6 +152,8 @@ const FirebaseAuth = ({isLogin, code, addProgram}) => {
 					await firebase.firestore().collection("users").doc(userCredential.user.uid).update({timesVisited: timesVisited})
 				}
 				router.push("/profile/makeProfile");
+			// Display the proper error message based on the error code returned by the function. 
+			// See https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#createuserwithemailandpassword
 			}).catch((err) => {
 			var m = "";
 			switch(err.code) {

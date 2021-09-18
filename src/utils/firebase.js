@@ -1,3 +1,8 @@
+/*
+  Firebase admin app initialized via a private service account in "admin_key.json"
+  Used by the functions in pages/api/ and pages/recipes/[recipeName] to support Next.js client side data fetching from Firebase 
+    and dynamic recipe pages, respectively.
+*/
 
 import admin from 'firebase-admin';
 

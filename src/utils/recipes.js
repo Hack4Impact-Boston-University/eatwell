@@ -18,6 +18,7 @@ import { mapUserData } from "./auth/mapUserData";
 initFirebase();
 var db = firebase.firestore();
 
+// Used by RecipeCard to calculate and upload new user rating of recipe to Firestore
 export const uploadRating = async (recipe, newRating, oldRating, setObj) => {
 	if(newRating == oldRating) {return;}
 	let newData = {numRatings: recipe.numRatings, avgRating: recipe.avgRating};
@@ -37,6 +38,7 @@ export const uploadRating = async (recipe, newRating, oldRating, setObj) => {
 	return db.collection("recipes").doc(recipe.id).update(newData);
 }
 
+// Unused?
 export const getRecipe = async (id) => {
 	db.collection("recipes").doc(id).get().then((doc) => {
 		if(doc.exists) {
@@ -45,6 +47,7 @@ export const getRecipe = async (id) => {
 	});
 }
 
+// Unused?
 export const setRecipeListener = (id, callback) => {
 	return db.collection("recipes").doc(id).onSnapshot((doc) => callback(doc))
 }

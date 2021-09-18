@@ -10,9 +10,12 @@ import { setUserCookie } from "./cookies";
 initFirebase();
 var db = firebase.firestore();
 
+// Called when user enters a code on the account creation page
 export const checkCode = async (code, toDelete) => {
+	// This feature is unused. Meant to be a way test or preview the site without a code
 	if(code == "test" || code == "org") {
 		return parseCodeData({role: code});
+	// Check that the code exists and if so return its data as a promise
 	} else {
 		return db.collection("codes").doc(code).get()
 		.then((doc) => {

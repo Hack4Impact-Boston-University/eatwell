@@ -1,3 +1,5 @@
+// Retrieve all users as a dict: id -> user object
+
 import firebase from '../../../utils/firebase';
 
 export default (req, res) => {

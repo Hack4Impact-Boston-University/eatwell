@@ -1,3 +1,5 @@
+// Return list of program objects from programs collection
+
 import firebase from '../../../utils/firebase';
 
 export default (req, res) => {

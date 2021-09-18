@@ -1,3 +1,27 @@
+/*
+Contains functions and exports related to user authentication in Firebase
+  and user data in Firestore.
+ 
+useUser() is called in other pages to access:
+	- The user state object
+		- This is set or removed in the "firebase.auth().onAuthStateChanged" listener.
+	- logout()
+		- Calls firebase.auth() to sign out and return to the main page
+	- upload()
+		- Multiuse function to add or modify data to the current user's Firestore document
+	- resolveUser
+		- Indicates whether the user document has been found or is being resolved, for use in makeProfile.js
+
+firebase.auth().onAuthStateChanged():
+	- Listener which is passed the firebase.User object when the user signs in or out, or the user's id has been updated hourly
+	- If the user has just signed in, their user data in Firestore is retrieved if it exists, and the data is combined to set 
+	user state, favorite recipes, and recipe ratings cookies
+
+upload():
+	- See comments below
+
+*/
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import firebase from "firebase/app";
@@ -65,9 +89,12 @@ const useUser = () => {
 	}
 
 	const upload = async (newData) => {
-		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData || "role" in newData) { // If we are adding makeProfile data or changing password?
+		// If we are adding user profile data or changing password
+		if("firstname" in newData || "lastname" in newData || "phone" in newData || "oldPassword" in newData || "role" in newData) {
 			var currData = getUserFromCookie();
-			if(currData) { // There should be 
+			// This should be true
+			if(currData) { 
+				// If the user has initialized their account with a program code and created a profile already
 				if(!("firstname" in currData)) {
 					if (user?.role != undefined) {
 						newData["role"] = "client";
@@ -78,9 +105,13 @@ const useUser = () => {
 						newData["client"] = currData.client
 					}
 					var userData = Object.assign({}, currData, newData);
+					// If the user just created their profile in makeProfile
 					if("codeID" in userData) {
+						// Delete the program code just used to create the account
 						return db.collection("codes").doc(userData["codeID"]).delete().then(() => {
 							delete userData["codeID"];
+
+							// Add the code data (program) to the user document and append the user in the program document
 							if("program" in userData && "id" in user) {
 								setUserCookie(userData);
 								setUser(userData);
@@ -95,11 +126,13 @@ const useUser = () => {
 								return db.collection("users").doc(user.id).set(userData);
 							}
 					    });
+					// If the user is updating their profile info
 					} else {
 						setUserCookie(userData);
 						setUser(userData);
 						return db.collection("users").doc(user.id).set(userData);
 					}
+				// If the user is changing their password
 				} else {
 					var updateData = {...newData}
 					var auth = null;
@@ -125,7 +158,8 @@ const useUser = () => {
 					return auth;
 				}
 			}
-		} else if("program" in newData) { // If we are adding program to existing account
+		// If we are adding a program to existing account
+		} else if("program" in newData) {
 				checkProgram().then((res) => {
 					if(res) {
 						var currData = getUserFromCookie();
@@ -143,6 +177,7 @@ const useUser = () => {
 					}
 				})
 		}
+		// If we are updating the favorite recipes, skills, or tips for the user
 		else if("favoriteRecipes" in newData) {
 			newData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 			if(user) {
@@ -164,9 +199,15 @@ const useUser = () => {
 		// makes sure the react state and the cookie are
 		// both kept up to date
 		const cancelAuthListener = firebase.auth().onAuthStateChanged(function(u) {
+			// u is the firebase.User object
+
+			// Only set user cookie if it is not already set. Callback is sometimes called multiple times for a single state change
 			if (u && !user) {
 				setResolve("resolving");
 				var userData = {};
+
+				// Retrieve the user document. Use firebase.User data to initialize this document if it does not exist.
+				// Set state cookies based on existing cookies and the document or auth data
 				db.collection("users")
 					.doc(u.uid)
 					.get()

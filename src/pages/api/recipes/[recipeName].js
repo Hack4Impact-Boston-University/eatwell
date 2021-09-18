@@ -1,3 +1,5 @@
+// Retrieve document for desired recipe, which is indexed by name
+
 import firebase from '../../../utils/firebase';
 
 export default (req, res) => {

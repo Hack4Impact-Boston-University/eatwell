@@ -1,3 +1,5 @@
+// Return list of code objects from codes collection
+
 import firebase from '../../../utils/firebase';
 
 export default (req, res) => {

@@ -1,3 +1,5 @@
+// Retrieve all recipes as a dict: id -> recipe object
+
 import firebase from '../../../utils/firebase';
 
 export default (req, res) => {

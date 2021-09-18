@@ -1,3 +1,6 @@
+// Methods to set, edit and remove various user state cookies.
+// All cookies are set to expire after 1 hour
+
 import { strict } from 'assert'
 import cookies from 'js-cookie'
 
