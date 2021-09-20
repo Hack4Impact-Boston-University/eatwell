@@ -1,3 +1,9 @@
+/* 
+	when user tries to use an activation code to sign up for an account, 
+	checkCode(code) is called and checked if the used code exists in the 
+	'codes' firestore collection 
+*/
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import firebase from "firebase/app";

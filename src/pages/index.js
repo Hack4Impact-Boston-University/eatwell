@@ -1,3 +1,9 @@
+/*
+index.js is the landing page of the website:
+displays log in page if not signed in
+displays RecipeList (role == 'user') or RecipeListClient (role == 'client') if signed in
+*/
+
 import React, {useState} from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
@@ -21,6 +27,7 @@ import _, { map } from "underscore";
 import RecipeList from "./recipes/recipeList"
 import RecipeListClient from "./recipes/recipeListClient"
 
+// load background image
 const useStyles = makeStyles((theme) => ({
   containerHome: {
 		background: `url(${"/assets/backgroundImage.png"}) repeat center center fixed`,

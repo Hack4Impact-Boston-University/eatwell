@@ -1,3 +1,5 @@
+/* profile.js displays user profile data retrieved from firebase, and allows edit */
+
 import {
 	AppBar,
 	Avatar,
@@ -125,6 +127,7 @@ const Profile = () => {
 
 	const router = useRouter();
 
+	// name validation check, only able to use letters
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 		if (!re.test(e.key)) {
@@ -132,6 +135,7 @@ const Profile = () => {
 		}
 	}
 
+	// phone validation check, key pressed when entering telephone number can only be numbers
 	const phonenum = (e) => {
 		const re = /[0-9]+/g;
 		if (!re.test(e.key) || e.target.selectionStart > 11) {
@@ -139,6 +143,7 @@ const Profile = () => {
 		}
 	}
 
+	// telnum formatting
 	const telnum = (e) => {
 		let val = e.target.value;
 		if (phone.length == 2 && val.length == 3 || phone.length == 6 && val.length == 7) {
@@ -150,11 +155,7 @@ const Profile = () => {
 		setPhone(val);
 	}
 
-	const handleClickShowPassword = (e) => {
-		e.preventDefault();
-		setProfile({ ...profile, showPassword: !profile.showPassword });
-	};
-
+	// set user profile data
 	useEffect(() => {
 		if(user && load) {
 			setFirstName(user.firstname)
@@ -165,6 +166,7 @@ const Profile = () => {
 		}
 	})
 
+	// profile photo upload
 	const handleUpload = (e) => {
 		e.preventDefault();
 		//console.log(e.target.files);
@@ -181,6 +183,7 @@ const Profile = () => {
 		//console.log(successAlert);
 	};
 
+	// update profile data changes
 	const submitChanges = () => {
 		setPasswordError(false)
 		setSubmitText("")
@@ -245,6 +248,8 @@ const Profile = () => {
 
 	useEffect(() => {
 		var userData = getUserFromCookie();
+
+		// check if user profile exists, if not, direct to makeProfile
 		if(userData) {
 			if(!("firstname" in userData)) {
 				router.push("/profile/makeProfile");
@@ -254,6 +259,7 @@ const Profile = () => {
 			router.push("/");
 		}
 
+		// if "role" is "user", get the "client" that the user is assigned to
 		async function getClient() {
 			if (userData) {
 				if (userData.role == "user" && userData?.client && userData.client != "") {
@@ -274,6 +280,7 @@ const Profile = () => {
 		getClient()
 	});
 
+	// load data
 	if (!user || !programsDic || (user.role == "user" && doneRunning == false)) {
 		if (!user) {
 			return (
@@ -292,6 +299,7 @@ const Profile = () => {
 		<div>
 			<Box component="div" className={classes.container}>
 				<Grid justify="center" alignItems="center" direction="column" className={classes.body} container>
+					{/* display profile photo */}
 					<Grid xs={12} item>
 						<Avatar
 							src="https://pbs.twimg.com/profile_images/988263662761775104/Bu1EDlWo.jpg"
@@ -299,6 +307,7 @@ const Profile = () => {
 							className={classes.avatar}
 						/>
 					</Grid>
+					{/* edit profile photo */}
 					<Grid xs={8} md={4} item className={classes.formItems}>
 						<Button
 							variant="contained"
@@ -339,6 +348,7 @@ const Profile = () => {
 						)}
 					</Grid>
 				</Grid>
+				{/* display profile email */}
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
 						<Typography className={classes.text}>
@@ -346,6 +356,7 @@ const Profile = () => {
 						</Typography>
 					</Box>
 				</Grid>
+				{/* display user's client */}
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
 						<Typography className={classes.text}>
@@ -357,6 +368,7 @@ const Profile = () => {
 				<Grid container spacing={3}>
 					<Grid item xs={12} sm={3}></Grid>
 					<Grid item xs={12} sm={3}>
+						{/* display or edit user's First Name */}
 						<Grid justify="center" className={classes.formItems} container>
 							<TextField
 								id="profileFirst"
@@ -374,6 +386,7 @@ const Profile = () => {
 								size="small"
 							/>
 						</Grid>
+						{/* display or edit user's Last Name */}
 						<Grid justify="center" className={classes.formItems} container>
 							<TextField
 								id="profileLast"
@@ -391,6 +404,7 @@ const Profile = () => {
 								size="small"
 							/>
 						</Grid>
+						{/* display or edit user's Phone Number */}
 						<Grid justify="center" className={classes.formItems} container>
 							<TextField
 								id="profilePhone"
@@ -409,6 +423,7 @@ const Profile = () => {
 								size="small"
 							/>
 						</Grid>
+						{/* display or edit user's Delivery Address */}
 						<Grid justify="center" className={classes.formItems} container>
 							<TextField
 								id="profileDeliveryAddress"
@@ -426,6 +441,7 @@ const Profile = () => {
 							/>
 						</Grid>
 					</Grid>
+					{/* textfield for changing user account's password */}
 					<Grid item xs={12} sm={3}>
 						{user.provider == "password" &&
 							<div>
@@ -472,6 +488,7 @@ const Profile = () => {
 					<Grid item xs={12} sm={3}></Grid>
 				</Grid>
 				<Box m={3} />
+				{/* save changes button */}
 				<Grid justify="center" className={classes.formItems} container>
 					<Grid xs={8} md={4} item>
 						<Button
@@ -488,6 +505,7 @@ const Profile = () => {
 					</Grid>
 				</Grid>
 
+				{/* display successfully change profile information text */}
 				<ThemeProvider theme={theme}>
 					{submitText &&
 						<Grid justify="center" className={classes.formItems} container>
@@ -502,6 +520,7 @@ const Profile = () => {
 
 				<Box m={4} />
 
+				{/* display user's role: "user", "client", "admin" */}
 				<Grid justify="center" className={classes.formItems} container>
 					<Box component="div" textOverflow="clip">
 						<Typography className={classes.text}>
@@ -518,15 +537,6 @@ const Profile = () => {
 						</Box>
 					</Grid>
 				}
-				{/* {(user.role == "client") &&
-					<Grid justify="center" className={classes.formItems} container>
-						<Box component="div" textOverflow="clip">
-							<Typography className={classes.text}>
-								Programs: {programsDic[user.program]?.programName}
-							</Typography>
-						</Box>
-					</Grid>
-				} */}
 
 				<div className={styles.nav}>
 					<Navbar currentPage={1}/>

@@ -1,3 +1,57 @@
+/* manage.js can only be accessed by admin
+
+(0) Manage Users
+    - search users with email or first and last name
+    - displays users in list, each user contains:
+      - first and last name, email, phone, delivery address, role (can edit), number of times logging in
+      - delete user button
+
+(1) Manage Clients
+    - filter out users leaving only those with "role == 'client'"
+    - search users with email or first and last name
+    - displays clients in list, each client contains:
+      - organization name, email, phone, delivery address, role, number of times logging in
+      - list of program associated to the client, and the users associated to the program
+      - delete client button
+    - add / delete 5-digit codes for client sign up
+
+(2) Manage Programs
+    - search program with programName
+    - displays programs in list as side bar, each program contains:
+      - DELETE PROGRAM button
+      - Recipes List: table of list of recipes of the program
+        - edit recipe list button
+        - each recipe's name
+        - each recipe's corresponding scheduled "unlock" date (can edit)
+      - End date (can edit)
+      - Assign Clients: table of list of clients associated to the program
+        - edit client list button
+        - each client's name
+        - each client's associated users
+        - generating 6-digit code for user sign ups to associate with the particular client and the particular program
+
+(3) Manage Recipes
+    - search recipes with nameOfDish
+    - displays recipes in list, each recipe contains:
+      - Name of recipe (can edit), Description (can edit), Ingredients / Allergens (can edit), Recipe Fact (can edit), Survey URL (can edit),
+        Date last modified, Rating, Number of ratings, Cover images (can edit), Instruction images (can edit), Nutrition image (can edit),
+        Recipe video (can edit), Recipe skills (can edit), Recipe tips (can edit)
+      - delete recipe button
+
+(4) Manage Skills
+    - search skill with skillName
+    - displays skills in list, each skill contains:
+      - Name of skill (can edit), Date last modified, Number of favorites, Skill images (can edit), Skill video (can edit)
+      - delete skill button
+
+(5) Manage Tips
+    - search tip with tipName
+      - displays tips in list, each tip contains:
+        - Name of tip (can edit), Date last modified, Number of favorites, Tip images (can edit), Tip video (can edit)
+        - delete tip button
+
+*/
+
 import React from "react";
 import { useState, useEffect } from "react";
 import {
@@ -38,21 +92,16 @@ import Paper from '@material-ui/core/Paper';
 import { withStyles} from '@material-ui/core/styles';
 import { set } from "js-cookie";
 
-
+// get current window dimension
 function useWindowSize() {
-  // Initialize state with undefined width/height so server and client renders match
-  // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
   const [windowSize, setWindowSize] = useState({
     width: undefined,
     height: undefined,
   });
 
   useEffect(() => {
-    // only execute all the code below in client side
     if (typeof window !== "undefined") {
-      // Handler to call on window resize
       function handleResize() {
-        // Set window width/height to state
         setWindowSize({
           width: window.innerWidth,
           height: window.innerHeight,
@@ -66,6 +115,7 @@ function useWindowSize() {
   return windowSize;
 }
 
+// control tabs
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -92,12 +142,6 @@ TabPanel.propTypes = {
   value: PropTypes.any.isRequired,
 };
 
-const handlePreviewIcon = (fileObject, classes) => {
-  const iconProps = {
-    className : classes.image,
-  }
-  return <PictureAsPdf {...iconProps} />
-}
 
 function a11yProps(index) {
   return {
@@ -139,6 +183,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+// convert time from DateConstructor to string in the format:
+// hour:min:sec:month/day/year
 const getTimeString = timestamp => {
   let date = new Date(timestamp);
   let month = date.getMonth() + 1;
@@ -197,12 +243,9 @@ export default function Manage() {
   const { data: tipsDic } = useSWR(`/api/tips/getAllTipsDic`, fetcher);
   const {data: codes } = useSWR(`/api/codes/getAllCodes`, fetcher);
 
+  // toggle between tabs
   const handleChangeToggle = (event, newValue) => {
     setValue(newValue);
-  };
-
-  const handleChangeIndex = (index) => {
-    setValue(index);
   };
 
   // ---------------------- 0: ADMIN MANAGE USERS ----------------------
@@ -267,7 +310,6 @@ export default function Manage() {
     setProgram(prev)
     setOpenProgram(true);
     setCurrentUser(currentUser);
-    // setPrevProgram(prev)
   };
   const handleCloseProgram = () => {
     setProgram("")
@@ -310,7 +352,6 @@ export default function Manage() {
   const [currentCodesClients, setCurrentCodesClients] = React.useState(null)
   const [numCodesClients, setNumCodesClients] = useState('');
   const [numClientCodes, setNumClientCodes] = useState(null);
-  // const [openDeleteClients, setOpenDeleteClients] = React.useState(false);
   const [openAddCodesClients, setOpenAddCodesClients] = React.useState(false);
   const [openDeleteCodesClients, setOpenDeleteCodesClients] = React.useState(false);
   // activation codes for clients
@@ -405,69 +446,24 @@ export default function Manage() {
   const [addedProgram, setAddedProgram] = useState('');
   const [addedProgramNumUsers, setAddedProgramNumUsers] = useState('');
   const [addedProgramEndDate, setAddedProgramEndDate] = useState('');
-  const [newProgramEndDate, setNewProgramEndDate] = useState('');
   const [numCodes, setNumCodes] = useState('');
   const [openDeleteProgram, setOpenDeleteProgram] = React.useState(false);
   const [openAddCodes, setOpenAddCodes] = React.useState(false);
   const [openDeleteCodes, setOpenDeleteCodes] = React.useState(false);
   const [openChangeProgramEndDate, setOpenChangeProgramEndDate] = React.useState(false);
-  const [viewCoverImages, setViewCoverImages] = React.useState([]);
-  const [viewRecipeImages, setViewRecipeImages] = React.useState([]);
   const [rows, setRows] = React.useState([]);
   const [rowClients, setRowClients] = React.useState([]);
   const [codesClients, setCodesClients] = React.useState({});
   const [currentClient, setCurrentClient] = React.useState(null);
   const [numProgramClientCodes, setNumProgramClientCodes] = React.useState(0);
 
+  // update current date
   useEffect(() => {
     let date = new Date(Date.now());
     date.setMonth((date.getMonth() + 1) % 12);
     setAddedProgramEndDate(getDateString(date.getTime()));
   }, []);
-
-  const StyledTableCell = withStyles((theme) => ({
-    head: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    body: {
-      fontSize: 14,
-    },
-  }))(TableCell);
-
-  const StyledTableRow = withStyles((theme) => ({
-    root: {
-      '&:nth-of-type(odd)': {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  }))(TableRow);
-
-  var settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1
-  };
-  const cssstyle = `
-    .container {
-      margin: 0 auto;
-      padding: 0px 40px 40px 40px;
-    }
-    h3 {
-        background: #5f9ea0;
-        color: #fff;
-        font-size: 36px;
-        line-height: 100px;
-        margin: 10px;
-        padding: 2%;
-        position: relative;
-        text-align: center;
-    }
-    .slick-next:before, .slick-prev:before {
-        color: #000;
-    }`
+  // get date in the format year-month-day
   const getDateString = timestamp => {
     let date = new Date(timestamp);
     let month = date.getMonth() + 1;
@@ -477,6 +473,7 @@ export default function Manage() {
     let str = date.getFullYear() + "-" + month + "-" + day;
     return str;
   }
+  // get date in the number of milliseconds elapsed since January 1, 1970 00:00:00 UTC format
   const getTimeStamp = datestring => {
     let date = new Date();
     let args = datestring.split("-");
@@ -486,13 +483,31 @@ export default function Manage() {
     return date.getTime();
   }
 
+  // table cell to display recipes list with its "unlocking" date
+  const StyledTableCell = withStyles((theme) => ({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  }))(TableCell);
+  const StyledTableRow = withStyles((theme) => ({
+    root: {
+      '&:nth-of-type(odd)': {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  }))(TableRow);
+
+  // update recipes list table of newly added recipe
   function createData(id, name, date) {
     return { id, name, date };
   }
   function setRowsFunc(program) {
     var recipeslist = program["programRecipes"];
     var temp = [];
-    
     Object.keys(recipeslist).forEach(function(key) {
       if (recipesDic[key]?.id != undefined) {
         var id = recipesDic[key]?.id;
@@ -501,9 +516,10 @@ export default function Manage() {
         temp.push(createData(id, name, date))
       }
     });
-    
     setRows(temp);
   }
+  
+  // update client list
   function setRowClientsFunc(program) {
     var clientslist = program["programClients"];
     var temp = [];
@@ -528,16 +544,7 @@ export default function Manage() {
     setCodesClients(codesClients);
   }
 
-  // const setSelectedProgram = (p) => {
-  //   // setSelectedProgramProgram(p)
-  //   // setCurrentCodes(
-  //   //   codes.filter(code => code?.program == p?.program)
-  //   // );
-  //   // setNumProgramCodes(
-  //   //   codes.filter(code => code?.program == p?.program).length
-  //   // );
-  // }
-
+  // dialog to add progrom
   const handleClickOpenAddProgram = () => {
     setOpenAddProgram(true);
   };
@@ -546,7 +553,133 @@ export default function Manage() {
     setOpenAddProgram(false);
   };
 
-  // activation codes
+  const addProgram = () => {
+    const ref = db.collection('programs').doc();
+    const id = ref.id;
+    if (addedProgram === "") {
+      alert("No program name specified");
+      return; 
+    }
+    db.collection('programs').doc(id).set({programName:addedProgram,program:id, programClients:[], programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
+    .then(() => {
+      return createCodes(addedProgram, addedProgramNumUsers, id);
+    }).then(() => {
+      alert("successfully added new program!");
+      setSelectedProgram(addedProgram);
+      setAddedProgram('');
+      setOpenAddProgram(false);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  };
+
+  const handleClickOpenDeleteProgram = (disabled) => {
+    setOpenDeleteProgram(true);
+  };
+  const handleCloseDeleteProgram = () => {
+    setOpenDeleteProgram(false);
+  };
+  const deleteProgram = () => {
+    db.collection('programs').doc(selectedProgramProgram?.program).delete()
+    currentCodes.forEach(code => {
+      deleteCode(code?.codeID, true)
+    })
+    alert("successfully deleted the program.");
+    setOpenDeleteProgram(false);
+  };
+
+  // generating activation codes for "users"
+  function generate(length) {
+		var result           = '';
+		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < length; i++ ) {
+		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	}
+  function createCodes(num, id) {
+    if(num > 500) {
+      alert("Too many users, cannot write codes");
+      throw new Error("Too many users, cannot write codes");
+    }
+    var batch = db.batch();
+    var index;
+    for(index = 0; index < num; index++) {
+      const code = generate(6);
+      if (currentClient != null) {
+        if (_.isEqual(codesClients,{})) {
+          codesClients[currentClient] = [{codeID: code, client: currentClient, program:id}]
+        } else {
+          codesClients[currentClient].push({codeID: code, client: currentClient, program:id});
+        }
+        setCodesClients(codesClients)
+      }
+      batch.set(db.collection('codes').doc(code), {codeID: code, client: currentClient, program:id});
+    }
+    return batch.commit();
+  }
+  function addCodes() {
+    createCodes(numCodes, selectedProgramProgram?.program)
+    .then(()=>{
+      setOpenAddCodes(false); 
+      setNumCodes('');
+      alert("Successfully added codes!")
+    }).catch((err) => alert(err))
+    setCurrentClient(null);
+  }
+  async function deleteCode(id, batch, client) {
+    await db.collection("codes").doc(id).delete().then(() => {
+    }).catch((err) => alert(err))
+    if (batch == false) {
+      for (var i = 0; i < codesClients[client].length; i++) {
+        if (codesClients[client][i].codeID == id) {
+          codesClients[client].splice(i,1)
+        }
+      }
+      setCodesClients(codesClients)
+      alert("successfully deleted code!")
+    }
+  }
+  function getRandom(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandom: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  }
+  function deleteCodes() {
+    if(numCodes > numProgramClientCodes) {
+      alert("There are only " + numProgramClientCodes + " codes!");
+    } else {
+      let delCodes = getRandom(currentCodes, numCodes);
+      delCodes.forEach((code) => {
+        deleteCode(code?.codeID, true, currentClient)
+      })
+      var tempDel = delCodes.map(({ codeID }) => codeID);
+      var tempCodesClients = codesClients[currentClient].map(({ codeID }) => codeID);
+      for (var i = 0; i < tempCodesClients.length; i++) {
+        if (tempDel.includes(tempCodesClients[i])) {
+          var index = codesClients[currentClient].indexOf(tempCodesClients[i]);
+          codesClients[currentClient].splice(index,1)
+        }
+      }
+      setCurrentCodes(currentCodes)
+      alert("Successfully deleted codes!")
+      setNumCodes('');
+      setOpenDeleteCodes(false);
+      setCurrentClient(null);
+    }
+  }
+  
+  // generating activation codes for "users"
   function generate(length) {
 		var result           = '';
 		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';// 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -636,46 +769,11 @@ export default function Manage() {
     }
   }
 
-  const addProgram = () => {
-    const ref = db.collection('programs').doc();
-    const id = ref.id;
-    if (addedProgram === "") {
-      alert("No program name specified");
-      return; 
-    }
-    db.collection('programs').doc(id).set({programName:addedProgram,program:id, programClients:[], programRecipes:[], programUsers:[], programEndDate:getTimeStamp(addedProgramEndDate)})
-    .then(() => {
-      return createCodes(addedProgram, addedProgramNumUsers, id);
-    }).then(() => {
-      alert("successfully added new program!");
-      setSelectedProgram(addedProgram);
-      setAddedProgram('');
-      setOpenAddProgram(false);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  };
-
-  const handleClickOpenDeleteProgram = (disabled) => {
-    setOpenDeleteProgram(true);
-  };
-  const handleCloseDeleteProgram = () => {
-    setOpenDeleteProgram(false);
-  };
-  const deleteProgram = () => {
-    db.collection('programs').doc(selectedProgramProgram?.program).delete()
-    currentCodes.forEach(code => {
-      deleteCode(code?.codeID, true)
-    })
-    alert("successfully deleted the program.");
-    setOpenDeleteProgram(false);
-  };
-
-  // program recipes
+  // -- program recipes --
   const [currentProgramRecipes, setCurrentProgramRecipes] = React.useState({});
   const [openEditProgramRecipes, setOpenEditProgramRecipes] = React.useState(false);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
+  // open edit recipe list in a program dialog
   const handleClickOpenEditProgramRecipes = (programRecipesNow) => {
     setOpenEditProgramRecipes(true);
     var i;
@@ -691,10 +789,12 @@ export default function Manage() {
     setCurrentProgramRecipes(temp)
     setSelectedProgram(programRecipesNow)
   };
+  // close edit recipe list in a program dialog
   const handleCloseEditProgramRecipes = () => {
     setCurrentProgramRecipes({})
     setOpenEditProgramRecipes(false);
   };
+  // edit recipe list in a program dialog
   const handleSubmitEditProgramRecipes = () => {
     var i;
     var temp = {};
@@ -716,7 +816,7 @@ export default function Manage() {
     setCurrentProgramRecipes({})
   };
 
-  // program clients
+  // -- program clients --
   const [currentProgramClients, setCurrentProgramClients] = React.useState({});
   const [openEditProgramClients, setOpenEditProgramClients] = React.useState(false);
   const [selectedClients, setSelectedClients] = useState([]);
@@ -728,6 +828,7 @@ export default function Manage() {
       }
     }
   }
+  // open edit client list in a program dialog
   const handleClickOpenEditProgramClients = (programClientsNow) => {
     setOpenEditProgramClients(true);
     var i;
@@ -743,10 +844,12 @@ export default function Manage() {
     setCurrentProgramClients(temp)
     setSelectedProgram(programClientsNow)
   };
+  // close edit client list in a program dialog
   const handleCloseEditProgramClients = () => {
     setCurrentProgramClients({})
     setOpenEditProgramClients(false);
   };
+  // edit client list in a program dialog
   const handleSubmitEditProgramClients = () => {
     var temp = [];
     for (var i = 0; i < selectedClients.length; i++) {
@@ -1665,27 +1768,31 @@ export default function Manage() {
     }
   }
 
-  const handleChange = (e) => {
+  // -- filter elements with search bars --
+  const handleChange = (e) => { // search users with email or first and last name
     setSearch(e.target.value);
   };
-  const handleChangeRecipe = (e) => {
+  const handleChangeRecipe = (e) => { // search recipes with nameOfDish
     setSearchRecipe(e.target.value);
   };
-  const handleChangeSearchSkill = (e) => {
+  const handleChangeSearchSkill = (e) => { // search skill with skillName
     setSearchSkill(e.target.value);
   };
-  const handleChangeSearchTip = (e) => {
+  const handleChangeSearchTip = (e) => { // search tip with tipName
     setSearchTip(e.target.value);
   };
-  const handleChangeSearchProgram = (e) => {
+  const handleChangeSearchProgram = (e) => { // search program with programName
     setSearchProgram(e.target.value);
   };
 
   const userData = getUserFromCookie();
 
+  // if user does not exist, push to logged out home page
+  // if user role not an admin, push to logged in home page
   if(!userData || "code" in userData || userData["role"] != "admin") {
     router.push("/");
   }
+  // if user hasn't filled out profile, push to makeProfile
   else if(!("firstname" in userData)) {
     router.push("/profile/makeProfile");
   }
@@ -1766,6 +1873,7 @@ export default function Manage() {
             </Grid>
           </Grid>
 
+          {/* dialog pop-ups */}
           {currentUser && (
           <div>
             {/* --------------- edit user program --------------- */}
@@ -1911,6 +2019,7 @@ export default function Manage() {
             })}
           </Grid>
 
+          {/* dialog pop-ups */}
           {currentUser && (
           <div>
             {/* --------------- edit user program --------------- */}
@@ -2690,7 +2799,7 @@ export default function Manage() {
             </Grid>
           </Grid>
 
-          {/* manage skillss Dialog */}
+          {/* manage skills Dialog */}
           {currentSkill && (
             <Dialog disableBackdropClick disableEscapeKeyDown open={openSkillName} onClose={handleCloseSkillName}>
               <DialogTitle>Edit Skill Name</DialogTitle>
@@ -2752,7 +2861,6 @@ export default function Manage() {
         </TabPanel>
 
         {/* ---------------------- 5: ADMIN MANAGE TIPS ---------------------- */}
-        {/* manage tipss Dialog */}
         <TabPanel value={value} index={5} dir={theme.direction}>
           <Grid container spacing={3} justify="center">
             <Grid item xs={11} md={10} lg={9}>

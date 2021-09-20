@@ -1,3 +1,5 @@
+/* makeProfile.js allows users to enter their profile information */
+
 import {
 	Box,
 	Button,
@@ -61,6 +63,7 @@ const makeProfile = () => {
 	const [submitText, setSubmitText] = useState("")
 	const router = useRouter();
 
+	// name validation check, only able to use letters
 	const name = (e) => {
 		const re = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 		if (!re.test(e.key)) {
@@ -68,6 +71,7 @@ const makeProfile = () => {
 		}
 	}
 
+	// phone validation check, key pressed when entering telephone number can only be numbers
 	const phone = (e) => {
 		const re = /[0-9]+/g;
 		if (!re.test(e.key) || e.target.value.length > 11) {
@@ -75,6 +79,7 @@ const makeProfile = () => {
 		}
 	}
 
+	// telnum formatting
 	const telnum = (e) => {
 		let val = e.target.value;
 		if (tel.length == 2 && val.length == 3 || tel.length == 6 && val.length == 7) {
@@ -94,7 +99,7 @@ const makeProfile = () => {
 
 	const submit = () => {
 		setSubmitText("")
-		if (!firstName || !lastName || !tel || !deliveryAddress) {
+		if (!firstName || !lastName || !tel || !deliveryAddress) { // requires input
 			setSubmitText("Please fill out all the information!")
 		} else {
 			upload({
@@ -102,7 +107,6 @@ const makeProfile = () => {
 				lastname: lastName,
 				phone: tel,
 				deliveryAddress: deliveryAddress,
-//				program: program,
 				favoriteRecipes:[],
 				favoriteSkills:[],
 				favoriteTips:[],
@@ -110,11 +114,11 @@ const makeProfile = () => {
 				ratings:{},
 				timesVisited:0
 			}).then(() => {
+				// if user document exists in Firestore, push to landing page, else push to survey page
 				if (user?.role != undefined) {
 					router.push('/');
 				} else {
 					router.push('/profile/survey');
-					// router.push('https://docs.google.com/forms/d/e/1FAIpQLSdkoKfBcKm8Yc4dLt0mJ4SidcdwwbeKxzdp6RVdXfRKYqPMkw/viewform?usp=sf_link');
 				}
 			}).catch((err) => {
 				// Check if firebase error or incorrect code, return error accordingly
@@ -123,9 +127,9 @@ const makeProfile = () => {
 		}
 	}
 
-	if (!userData) {
+	if (!userData) { // wait for userData to finish loading
 		return "Loading..."
-	} else if (!userData.code && !user) {
+	} else if (!userData.code && !user) { // if sign up code not get and user does not exist, direct user to logged out home page
 		return (
 			<div>
 				<div className={styles.nav}>
@@ -136,7 +140,8 @@ const makeProfile = () => {
 				</div>
 			</div>
 		);
-	} else if(resolveUser === "not found") {
+	} else if(resolveUser === "not found") { // ask user to fill out personal information
+		// First Name, Last Name, Phone Number, Delivery Address
 		return (
 			<Box className={classes.container}>
 				<Grid container className={classes.items}>
@@ -160,7 +165,6 @@ const makeProfile = () => {
 							label="First Name"
 							placeholder="Your First Name"
 							required
-							// helperText="Please enter your first name"
 						/>
 					</Grid>
 					<Grid justify="center" className={classes.formItems} container>
@@ -213,6 +217,7 @@ const makeProfile = () => {
 							</Grid>
 						}
 					</ThemeProvider>
+					{/* sign out if "Take me back!" clicked */}
 					<Grid container justify="center" item>
 						<Button variant="contained" color="primary" className={classes.btn} 
 							onClick={() => {
@@ -234,6 +239,7 @@ const makeProfile = () => {
 			</Box>
 		);
 	} else {
+		// if user have already filled out personal information, push to home page
 		if(resolveUser === "found") {
 			router.push('/');
 		}

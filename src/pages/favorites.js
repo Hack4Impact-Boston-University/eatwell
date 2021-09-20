@@ -1,3 +1,5 @@
+/* favorites.js displays all recipes, skills, or tips favorited by the user */
+
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
@@ -22,6 +24,7 @@ import {
 	getUserFromCookie,
 } from "../utils/cookies";
 
+// controls tabs
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
 	return (
@@ -123,6 +126,8 @@ export default function UserFavorites() {
 		setValue(newValue);
 	};
 
+	// convert time from DateConstructor to string in the format:
+	// hour:min:sec:month/day/year
 	const getTimeString = (timestamp) => {
 		let date = new Date(timestamp);
 		let month = date.getMonth() + 1;
@@ -150,6 +155,7 @@ export default function UserFavorites() {
 		return str;
 	}
 
+	// load data
 	if (!recipesDic || !recipes || !skillsDic || !skills || !tipsDic || !tips || !user || doneRunning == false || !programsDic) {
 		if (!recipesDic) {
 			return "Loading recipesDic...";
@@ -164,6 +170,7 @@ export default function UserFavorites() {
 		} if (!programsDic) {
 			return "Loading programsDic...";
 		}
+		// filter object data of items only in favorites
 		setRecipes(Object.values(recipesDic).filter(recipes => favRecipes?.indexOf(recipes["id"]) !== -1));
 		setSkills(Object.values(skillsDic).filter(skills => favSkills?.indexOf(skills["skillID"]) !== -1));
 		setTips(Object.values(tipsDic).filter(tips => favTips?.indexOf(tips["tipID"]) !== -1));
@@ -178,7 +185,7 @@ export default function UserFavorites() {
 
 	return (
 		<div>
-			{/* Favorite Recipes Panel */}
+			{/* 0: Favorite Recipes Panel */}
 			<TabPanel value={value} index="one">
 				<div className={styles.container3}>
 				<Grid item container className={classes.gridContainerMain}>
@@ -234,7 +241,7 @@ export default function UserFavorites() {
 				</div>
 			</TabPanel>
 
-			{/* Favorite Skills Panel */}
+			{/* 1: Favorite Skills Panel */}
 			<TabPanel value={value} index="two">
 				<div className={styles.container3}>
 				<Grid container className={classes.gridContainerMain}>
@@ -259,7 +266,7 @@ export default function UserFavorites() {
 				</div>
 			</TabPanel>
 
-			{/* Favorite Tips Panel */}
+			{/* 2: Favorite Tips Panel */}
 			<TabPanel value={value} index="three">
 				<div className={styles.container3}>
 				<Grid item container className={classes.gridContainerMain}>
@@ -284,6 +291,7 @@ export default function UserFavorites() {
 				</div>
 			</TabPanel>
 
+			{/* total of 3 tabs: RECIPES, SKILLS, TIPS */}
 			<div className={styles.nav}>
 				<Navbar currentPage={5}/>
 				<AppBar position="static" color="default">
